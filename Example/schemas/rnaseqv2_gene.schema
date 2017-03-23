@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmqlSchemaCollection name="GLOBAL_SCHEMAS" xmlns="http://genomic.elet.polimi.it/entities">
+	<gmqlSchema type="tab">
+		<field type="STRING">chr</field>
+		<field type="LONG">start</field>
+		<field type="LONG">stop</field>
+		<field type="CHAR">strand</field>
+		<field type="STRING">gene_symbol</field>
+		<field type="STRING">entrez_gene_id</field>
+		<field type="FLOAT">raw_count</field>
+		<field type="FLOAT">scaled_estimate</field>
+		<field type="STRING">transcript_id</field>
+		<field type="FLOAT">normalized_count</field>
+	</gmqlSchema>
+</gmqlSchemaCollection>
