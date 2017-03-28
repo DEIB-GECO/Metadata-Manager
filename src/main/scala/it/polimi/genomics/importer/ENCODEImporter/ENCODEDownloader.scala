@@ -1,11 +1,10 @@
 package it.polimi.genomics.importer.ENCODEImporter
 
-import java.io.File
+import java.io.{File, FileInputStream}
 import java.net.URL
+import java.security.{DigestInputStream, MessageDigest}
 
-import com.google.common.hash.Hashing
-import com.google.common.io.Files
-import it.polimi.genomics.importer.FileDatabase.{FileDatabase,STAGE}
+import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLDownloader, GMQLSource}
 import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
@@ -38,6 +37,21 @@ class ENCODEDownloader extends GMQLDownloader {
   }
 
   /**
+    * From: http://stackoverflow.com/questions/41642595/scala-file-hashing
+    * calculates the md5 hash for a file.
+    * @param path file location
+    * @return hash code
+    */
+  def computeHash(path: String): String = {
+    val buffer = new Array[Byte](8192)
+    val md5 = MessageDigest.getInstance("MD5")
+
+    val dis = new DigestInputStream(new FileInputStream(new File(path)), md5)
+    try { while (dis.read(buffer) != -1) { } } finally { dis.close() }
+
+    md5.digest.map("%02x".format(_)).mkString
+  }
+  /**
     * For ENCODE given the parameters, a link for downloading metadata and
     * file index is generated, here, that file is downloaded and then, for everyone
     * downloads all the files linked by it.
@@ -65,12 +79,21 @@ class ENCODEDownloader extends GMQLDownloader {
           downloadFileFromURL(
             indexAndMetaUrl,
             outputPath + File.separator + metadataCandidateName)
-
-          val file = new File(outputPath + File.separator + metadataCandidateName)
+          val filePath = outputPath + File.separator + metadataCandidateName
+          val file = new File(filePath)
           if(file.exists()) {
             val fileId = FileDatabase.fileId(datasetId,indexAndMetaUrl,stage,metadataCandidateName)
             val metadataName = FileDatabase.getFileNameAndCopyNumber(fileId)
-            val hash = Files.hash(file,Hashing.md5()).toString
+
+/*            val md = MessageDigest.getInstance("MD5")
+            try {
+              val is = Files.newInputStream(Paths.get("file.txt"))
+              val dis = new DigestInputStream(is, md)
+            }
+            val digest = md.digest()*/
+
+            val hash = computeHash(filePath)
+
             FileDatabase.checkIfUpdateFile(fileId,hash,file.length.toString,DateTime.now.toString)
             FileDatabase.markAsUpdated(fileId,file.length.toString)
             downloadFilesFromMetadataFile(source, dataset)
@@ -199,12 +222,12 @@ class ENCODEDownloader extends GMQLDownloader {
           if(FileDatabase.checkIfUpdateFile(fileId,fields(md5sum),fields(originSize),fields(originLastUpdate))){
             downloadFileFromURL(fields(url), filePath)
             val file = new File(filePath)
-            var hash = Files.hash(file,Hashing.md5()).toString
+            var hash = computeHash(filePath)
 
             var timesTried = 0
             while (hash != fields(md5sum) && timesTried < 4) {
               downloadFileFromURL(fields(url), filePath)
-              hash = Files.hash(file, Hashing.md5()).toString
+              hash = computeHash(filePath)
               timesTried += 1
             }
             if (timesTried == 4)
