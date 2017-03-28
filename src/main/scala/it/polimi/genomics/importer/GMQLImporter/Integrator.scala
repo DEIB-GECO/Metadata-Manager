@@ -2,13 +2,12 @@ package it.polimi.genomics.importer.GMQLImporter
 
 import java.io.{File, FileWriter, IOException, PrintWriter}
 
-import com.google.common.io.Files
 import it.polimi.genomics.importer.DefaultImporter.schemaFinder
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
-import scala.xml.{Elem, XML}
+import scala.xml.XML
 
 /**
   * Created by nachon on 12/6/16.
@@ -195,7 +194,11 @@ object Integrator {
     if(replace){
       //replace the file, and remove the temporary one.
       try {
-        Files.copy(new File(tempFile), new File(dataFilePath))
+        import java.io.{File, FileInputStream, FileOutputStream}
+        val src = new File(tempFile)
+        val dest = new File(dataFilePath)
+        new FileOutputStream(dest) getChannel() transferFrom(
+          new FileInputStream(src) getChannel, 0, Long.MaxValue)
         new File(tempFile).delete()
       }
       catch {
@@ -237,7 +240,11 @@ object Integrator {
       writer.close()
 
       try {
-        Files.copy(new File(tempFile), new File(metadataFilePath))
+        import java.io.{File, FileInputStream, FileOutputStream}
+        val src = new File(tempFile)
+        val dest = new File(metadataFilePath)
+        new FileOutputStream(dest) getChannel() transferFrom(
+          new FileInputStream(src) getChannel, 0, Long.MaxValue)
         new File(tempFile).delete()
       }
       catch {
