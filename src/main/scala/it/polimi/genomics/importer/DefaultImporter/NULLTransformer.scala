@@ -2,7 +2,6 @@ package it.polimi.genomics.importer.DefaultImporter
 
 import java.io.{File, IOException}
 
-import com.google.common.io.Files
 import it.polimi.genomics.importer.GMQLImporter.{GMQLSource, GMQLTransformer}
 import org.slf4j.LoggerFactory
 
@@ -37,7 +36,11 @@ class NULLTransformer extends GMQLTransformer {
     val fileTransformationPath = destinationPath + File.separator + filename
     val fileDownloadPath = originPath + File.separator + originalFilename
     try {
-      Files.copy(new File(fileDownloadPath), new File(fileTransformationPath))
+      import java.io.{File, FileInputStream, FileOutputStream}
+      val src = new File(fileDownloadPath)
+      val dest = new File(fileTransformationPath)
+      new FileOutputStream(dest) getChannel() transferFrom(
+        new FileInputStream(src) getChannel, 0, Long.MaxValue)
       //here have to add the metadata of copy number and total copies
       logger.info("File: " + fileDownloadPath + " copied into " + fileTransformationPath)
     }

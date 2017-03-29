@@ -5,6 +5,7 @@ import java.io.File
 import it.polimi.genomics.importer.FileDatabase.FileDatabase
 import it.polimi.genomics.importer.GMQLImporter._
 import it.polimi.genomics.importer.GMQLImporter.utils.SCHEMA_LOCATION
+import it.polimi.genomics.repository.Utilities
 import org.apache.log4j._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -20,6 +21,7 @@ object program {
     * @param args arguments for GMQLImporter (help for more information)
     */
   def main(args: Array[String]): Unit = {
+    Utilities.confFolder = new File("gmql_conf/").getAbsolutePath
     val console = new ConsoleAppender() //create appender
     //configure the appender
     val PATTERN = "%d [%p|%c|%C{1}] %m%n"
@@ -203,6 +205,9 @@ object program {
           if ("true".equalsIgnoreCase((file \\ "settings" \ "transform_enabled").text)) true else false
         val loadEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "load_enabled").text)) true else false
+        if(loadEnabled){
+
+        }
         //start database
         FileDatabase.setDatabase(outputFolder)
         //load sources
@@ -212,7 +217,7 @@ object program {
           downloadEnabled.toString, transformEnabled.toString, loadEnabled.toString, outputFolder)
 
 
-        val logName = "run."+runId+"."+DateTime.now.toString(DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss.SSS Z"))+".log"
+        val logName = "run "+runId+" "+DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
         val fa = new FileAppender()
         fa.setName("FileLogger")
         fa.setFile(logName)
@@ -310,7 +315,9 @@ object program {
     if(transformEnabled)
     sources.foreach(source =>{
       if(source.transformEnabled && source.parameters.exists(_._1=="metadata_replacement"))
-        source.parameters.filter(_._1=="metadata_replacement").foreach(file =>{
+        //They are already forbidding to create new dataset with the same name.
+      /*
+          source.parameters.filter(_._1=="metadata_replacement").foreach(file =>{
           val replacements = (XML.loadFile(source.rootOutputFolder+File.separator+file._2)\\"replace").map(_.text.replace(' ','_').toLowerCase)
           replacements.map(replacement => {
             (replacement,replacements.count(_==replacement))
@@ -323,7 +330,7 @@ object program {
             if(input.toLowerCase == "n")
               return false
           })
-        })
+        })*/
       if(loadEnabled)
       source.datasets.filter(_.loadEnabled && source.loadEnabled).foreach(dataset =>{
         val datasetName =
@@ -331,7 +338,7 @@ object program {
             dataset.parameters.filter(_._1=="loading_name").head._2
           else
             source.name + "_" + dataset.name
-        source.parameters.filter(_._1=="gmql_user").foreach(user =>{
+/*        source.parameters.filter(_._1=="gmql_user").foreach(user =>{
           if(Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].dsExists(user._2,datasetName)){
             logger.warn("Dataset "+datasetName+" already exists for user "+user._2+" it will be replaced."+
               ".\nWould you like to continue anyway? (Y/n):")
@@ -341,7 +348,7 @@ object program {
             if(input.toLowerCase == "n")
               return false
           }
-        })
+        })*/
       })
     })
     true

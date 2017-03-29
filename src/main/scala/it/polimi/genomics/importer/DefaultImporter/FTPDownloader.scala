@@ -1,12 +1,12 @@
 package it.polimi.genomics.importer.DefaultImporter
 
-import java.io.File
+import java.io.{File, FileInputStream}
+import java.security.{DigestInputStream, MessageDigest}
 
-import com.google.common.hash.Hashing
-import com.google.common.io.Files
 import it.polimi.genomics.importer.DefaultImporter.utils.FTP
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDownloader, GMQLSource}
+import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
@@ -87,13 +87,16 @@ class FTPDownloader extends GMQLDownloader {
     * @param source configuration for downloader, folders for input and output by regex and also for files
     */
   private def checkFolderForDownloads(workingDirectory: String, source: GMQLSource): Unit = {
+    //id of the source with the name
     val sourceId = FileDatabase.sourceId(source.name)
+
+    //start the iteration for every dataset.
     for (dataset <- source.datasets) {
       if (dataset.downloadEnabled) {
         val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
         if (workingDirectory.matches(dataset.parameters.filter(_._1 == "folder_regex").head._2)) {
           val outputPath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
-
+          //check existence of the directory
           logger.info("Searching: " + workingDirectory)
           if (!new java.io.File(outputPath).exists) {
             try {
@@ -111,7 +114,7 @@ class FTPDownloader extends GMQLDownloader {
             ftpFiles.cd(workingDirectory)
 
             val unfilteredFiles = ftpFiles.listFiles()
-            val files = unfilteredFiles.filter(_.isFile).filter(_.getName.matches(
+            val files: List[FTPFile] = unfilteredFiles.filter(_.isFile).filter(_.getName.matches(
               dataset.parameters.filter(_._1 == "files_regex").head._2))
             ftpFiles.disconnect()
             var md5Downloaded = false
@@ -121,162 +124,38 @@ class FTPDownloader extends GMQLDownloader {
               val file = unfilteredFiles.filter(_.getName == aux1).head
               val url = workingDirectory + File.separator + file.getName
               val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
-              FileDatabase.checkIfUpdateFile(
-                fileId,
-                "",
-                file.getSize.toString,
-                file.getTimestamp.getTime.toString)
-                val nameAndCopyNumber: (String, Int) = FileDatabase.getFileNameAndCopyNumber(fileId)
-                val name =
-                  if (nameAndCopyNumber._2 == 1) nameAndCopyNumber._1
-                  else nameAndCopyNumber._1.replaceFirst("\\.", "_" + nameAndCopyNumber._2 + ".")
-                val outputUrl = outputPath + File.separator + name
-                val threadDownload = new Thread {
-                  override def run(): Unit = {
-                    try {
-                      var downloaded = false
-                      var timesTried = 0
-                      while (!downloaded && timesTried < 6) {
-                        val ftpDownload = new FTP()
-                        val connected = ftpDownload.connectWithAuth(
-                          source.url,
-                          source.parameters.filter(_._1 == "username").head._2,
-                          source.parameters.filter(_._1 == "password").head._2).getOrElse(false)
-                        if (connected) {
-                          logger.info("Downloading: " + url)
-                          if (ftpDownload.cd(workingDirectory).getOrElse(false))
-                            downloaded = ftpDownload.downloadFile(file.getName, outputUrl).getOrElse(false)
-                          else
-                            logger.error(s"couldn't access directory $workingDirectory")
-                        }
-                        else
-                          logger.error(s"couldn't connect to ${source.url}")
-                        timesTried += 1
-                        if (ftpDownload.connected)
-                          ftpDownload.disconnect()
-                      }
-                      if (!downloaded) {
-                        logger.error("Downloading: " + url + " FAILED")
-                        FileDatabase.markAsFailed(fileId)
-                      }
-                      else {
-                        md5Downloaded = true
-                        logger.info("Downloading: " + url + " DONE")
-                        //here I have to get the hash and update it for the meta and the data files.
-                        //so I wait to get the meta file and then I mark the data file to updated
-                        val hash = Files.hash(new File(outputUrl), Hashing.md5()).toString
-                        //get the hash, I will put the same on both files.
-                        FileDatabase.markAsUpdated(fileId, new File(outputUrl).length.toString, hash)
-                      }
-                    }
-                    catch {
-                      case ex: InterruptedException => logger.error(s"Download of $url took too long, aborted by timeout")
-                      case ex: Exception => logger.error("Could not connect to the FTP server: " + ex.getMessage)
-                    }
-                  }
-                }
-                threadDownload.start()
-                try {
-                  threadDownload.join(10 * 60 * 1000)
-                }
-                catch {
-                  case ex: InterruptedException => logger.error(s"Download of $url was interrupted")
-                }
-
+              md5Downloaded = downloadFile(fileId,"",file,outputPath,source,workingDirectory,url)
             }
             for (file <- files) {
-
               val url = workingDirectory + File.separator + file.getName
               val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
               val hash =
                 if (dataset.parameters.exists(_._1 == "md5_checksum_tcga2bed") && md5Downloaded) {
-                  val filename = dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed").head._2
-                  val md5File = Source.fromFile(outputPath + File.separator + filename)
+                  val md5Filename = dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed").head._2
+                  val md5Url = workingDirectory + File.separator + md5Filename
+                  val md5FileId = FileDatabase.fileId(datasetId, md5Url, STAGE.DOWNLOAD, md5Filename)
+
+                  val nameAndCopyNumber: (String, Int) = FileDatabase.getFileNameAndCopyNumber(md5FileId)
+                  val md5Name =
+                    if (nameAndCopyNumber._2 == 1) nameAndCopyNumber._1
+                    else nameAndCopyNumber._1.replaceFirst("\\.", "_" + nameAndCopyNumber._2 + ".")
+
+                  val md5File = Source.fromFile(outputPath + File.separator + md5Name)
                   val lines = md5File.getLines().filterNot(_ == "")
                   //                  if (lines.exists(_.split('\t').head == file.getName)) {
-                  lines.filter(_.split('\t').head == file.getName).map(line => {
+                  val filteredLines = lines.filter(_.split('\t').head == file.getName).map(line => {
                     val hashCleaned = line.split('\t')
                     val hashCleanedDropped = hashCleaned.drop(1)
                     val hashAlone = hashCleanedDropped.head
                     hashAlone
-                  }).next()
-                  //                  }
-                  //                  else{
-                  //                    ""
-                  //                  }
+                  })
+                  if(filteredLines.nonEmpty)
+                    filteredLines.next()
+                  else ""
                 }
                 else
                   ""
-              if (FileDatabase.checkIfUpdateFile(
-                //I have to get the hash from the .meta file.
-                fileId,
-                hash,
-                file.getSize.toString,
-                file.getTimestamp.getTime.toString)) {
-                val nameAndCopyNumber: (String, Int) = FileDatabase.getFileNameAndCopyNumber(fileId)
-                val name =
-                  if (nameAndCopyNumber._2 == 1) nameAndCopyNumber._1
-                  else nameAndCopyNumber._1.replaceFirst("\\.", "_" + nameAndCopyNumber._2 + ".")
-                val outputUrl = outputPath + File.separator + name
-                val threadDownload = new Thread {
-                  override def run(): Unit = {
-                    try {
-                      var downloaded = false
-                      var timesTried = 0
-                      while (!downloaded && timesTried < 4) {
-                        val ftpDownload = new FTP()
-                        val connected = ftpDownload.connectWithAuth(
-                          source.url,
-                          source.parameters.filter(_._1 == "username").head._2,
-                          source.parameters.filter(_._1 == "password").head._2).getOrElse(false)
-                        if (connected) {
-                          logger.info("Downloading: " + url)
-                          if (ftpDownload.cd(workingDirectory).getOrElse(false)) {
-                            downloaded = ftpDownload.downloadFile(file.getName, outputUrl).getOrElse(false)
-
-                            val fileToHash = new File(outputUrl)
-                            val hashToCompare = Files.hash(fileToHash, Hashing.md5()).toString
-                            if (hashToCompare != hash) {
-                              downloaded = false
-                              logger.error(s"file ${file.getName} download is corrupted, trying again.")
-                            }
-                          }
-                          else
-                            logger.error(s"couldn't access directory $workingDirectory")
-                        }
-                        else
-                          logger.error(s"couldn't connect to ${source.url}")
-                        timesTried += 1
-                        if (ftpDownload.connected)
-                          ftpDownload.disconnect()
-                      }
-                      if (!downloaded) {
-                        logger.error("Downloading: " + url + " FAILED")
-                        FileDatabase.markAsFailed(fileId)
-                      }
-                      else {
-                        logger.info("Downloading: " + url + " DONE")
-                        //here I have to get the hash and update it for the meta and the data files.
-                        //so I wait to get the meta file and then I mark the data file to updated
-                        val hash = Files.hash(new File(outputUrl), Hashing.md5()).toString
-                        //get the hash, I will put the same on both files.
-                        FileDatabase.markAsUpdated(fileId, new File(outputUrl).length.toString, hash)
-                      }
-                    }
-                    catch {
-                      case ex: InterruptedException => logger.error(s"Download of $url took too long, aborted by timeout")
-                      case ex: Exception => logger.error("Could not connect to the FTP server: " + ex.getMessage)
-                    }
-                  }
-                }
-                threadDownload.start()
-                try {
-                  threadDownload.join(10 * 60 * 1000)
-                }
-                catch {
-                  case ex: InterruptedException => logger.error(s"Download of $url was interrupted")
-                }
-              }
+              downloadFile(fileId,hash,file,outputPath,source,workingDirectory,url)
             }
           }
           else
@@ -284,6 +163,123 @@ class FTPDownloader extends GMQLDownloader {
         }
       }
     }
+  }
+
+  /**
+    * From: http://stackoverflow.com/questions/41642595/scala-file-hashing
+    * calculates the md5 hash for a file.
+    * @param path file location
+    * @return hash code
+    */
+  def computeHash(path: String): String = {
+    val buffer = new Array[Byte](8192)
+    val md5 = MessageDigest.getInstance("MD5")
+
+    val dis = new DigestInputStream(new FileInputStream(new File(path)), md5)
+    try { while (dis.read(buffer) != -1) { } } finally { dis.close() }
+
+    md5.digest.map("%02x".format(_)).mkString
+  }
+
+  /**
+    * Downloads a file from an FTP server according to the fileDatabase protocol
+    * @param fileId id for the file in the database
+    * @param hash if not null, the hash code given by the source
+    * @param file FTPfile to download
+    * @param outputPath path for the download destination
+    * @param source GMQLSource which contains the url and settings for the FTP connection
+    * @param workingDirectory actual folder for the FTP connection
+    * @param url full url for the downloaded file
+    * @return if the download is done correctly
+    */
+  def downloadFile(
+                    fileId:Int,
+                    hash: String,
+                    file: FTPFile,
+                    outputPath: String,
+                    source: GMQLSource,
+                    workingDirectory: String,
+                    url: String
+                  ): Boolean ={
+    var fileDownloaded = false
+    if (FileDatabase.checkIfUpdateFile(
+      fileId,
+      hash,
+      file.getSize.toString,
+      file.getTimestamp.getTime.toString)) {
+      val nameAndCopyNumber: (String, Int) = FileDatabase.getFileNameAndCopyNumber(fileId)
+      val name =
+        if (nameAndCopyNumber._2 == 1) nameAndCopyNumber._1
+        else nameAndCopyNumber._1.replaceFirst("\\.", "_" + nameAndCopyNumber._2 + ".")
+      val outputUrl = outputPath + File.separator + name
+      val threadDownload = new Thread {
+        override def run(): Unit = {
+          try {
+            var downloaded = false
+            var timesTried = 0
+            while (!downloaded && timesTried < 4) {
+              val ftpDownload = new FTP()
+              val connected = ftpDownload.connectWithAuth(
+                source.url,
+                source.parameters.filter(_._1 == "username").head._2,
+                source.parameters.filter(_._1 == "password").head._2).getOrElse(false)
+              if (connected) {
+                logger.info("Downloading: " + url)
+                if (ftpDownload.cd(workingDirectory).getOrElse(false)) {
+                  downloaded = ftpDownload.downloadFile(file.getName, outputUrl).getOrElse(false)
+
+                  val hashToCompare = computeHash(outputUrl)
+                  if (hashToCompare != hash && hash != "") {
+                    if(timesTried<3){
+                      downloaded = false
+                      logger.warn(s"file ${file.getName} was downloaded 3 times and failed the hash check, check correctness of hash value.")
+                    }
+                    else
+                      logger.info(s"file ${file.getName} download does not match with hash, trying again.")
+                  }
+                }
+                else
+                  logger.error(s"couldn't access directory $workingDirectory")
+              }
+              else
+                logger.error(s"couldn't connect to ${source.url}")
+              timesTried += 1
+              if (ftpDownload.connected)
+                ftpDownload.disconnect()
+            }
+            if (!downloaded) {
+              logger.error("Downloading: " + url + " FAILED")
+              FileDatabase.markAsFailed(fileId)
+            }
+            else {
+              logger.info("Downloading: " + url + " DONE")
+              //here I have to get the hash and update it for the meta and the data files.
+              //so I wait to get the meta file and then I mark the data file to updated
+              val hash = computeHash(outputUrl)
+              //get the hash, I will put the same on both files.
+              FileDatabase.markAsUpdated(fileId, new File(outputUrl).length.toString, hash)
+            }
+            fileDownloaded = downloaded
+          }
+          catch {
+            case ex: InterruptedException => logger.error(s"Download of $url took too long, aborted by timeout")
+            case ex: Exception => logger.error("Could not connect to the FTP server: " + ex.getMessage)
+          }
+        }
+      }
+      threadDownload.start()
+      try {
+        threadDownload.join(10 * 60 * 1000)
+      }
+      catch {
+        case ex: InterruptedException =>
+          logger.error(s"Download of $url was interrupted")
+      }
+    }
+    else{
+      logger.info(s"File ${file.getName} is already up to date.")
+    }
+    fileDownloaded
   }
 
 

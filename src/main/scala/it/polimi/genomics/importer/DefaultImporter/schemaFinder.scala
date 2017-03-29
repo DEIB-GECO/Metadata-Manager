@@ -1,7 +1,5 @@
 package it.polimi.genomics.importer.DefaultImporter
 import java.io.{File, FileWriter}
-
-import com.google.common.io.Files
 import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
 import it.polimi.genomics.importer.GMQLImporter.utils.SCHEMA_LOCATION
 
@@ -39,8 +37,12 @@ object schemaFinder {
         else false
       case SCHEMA_LOCATION.LOCAL =>
         if(new File(rootFolder+File.separator+dataset.schemaUrl).exists()) {
-            Files.copy(new File(rootFolder + File.separator + dataset.schemaUrl), new File(outputPath))
-            true
+          import java.io.{File, FileInputStream, FileOutputStream}
+          val src = new File(rootFolder + File.separator + dataset.schemaUrl)
+          val dest = new File(outputPath)
+          new FileOutputStream(dest) getChannel() transferFrom(
+            new FileInputStream(src) getChannel, 0, Long.MaxValue)
+          true
         }
         else false
     }

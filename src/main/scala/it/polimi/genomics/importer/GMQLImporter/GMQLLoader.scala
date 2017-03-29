@@ -1,20 +1,19 @@
 package it.polimi.genomics.importer.GMQLImporter
 
-import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import it.polimi.genomics.repository.FSRepository.{DFSRepository, LFSRepository}
-import it.polimi.genomics.repository.GMQLRepository.{GMQLDSNotFound, GMQLSample}
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.util
 
 import it.polimi.genomics.core.DataStructures.IRDataSet
+import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
+import it.polimi.genomics.repository.FSRepository.LFSRepository
+import it.polimi.genomics.repository.GMQLSample
+import org.slf4j.LoggerFactory
 /**
   * Created by Nacho on 10/17/16.
   */
 class GMQLLoader {
-
   val logger = LoggerFactory.getLogger(this.getClass)
-  val repo = new DFSRepository
+  val repo = new LFSRepository
   /**
     * using information in the information, will insert into GMQLRepository the files
     * already downloaded, transformed and organized.
@@ -64,9 +63,10 @@ class GMQLLoader {
           //if repo exists I do DELETE THEN ADD
           if(dsExists(gmqlUser,datasetName))
           try{
-            repo.DeleteDS(datasetName,gmqlUser)
+            repo.deleteDS(datasetName,gmqlUser)
           }catch {
-            case e:GMQLDSNotFound => logger.debug("Dataset " + datasetName + " is not defined before!!")
+            //should be GMQLDSNotFound but dont know yet where it is.
+            case e:Exception => logger.debug("Dataset " + datasetName + " is not defined before!!")
           }
 
           try {
@@ -80,7 +80,6 @@ class GMQLLoader {
           catch {
             case e: Throwable => logger.error("import failed: " + e.getMessage)
           }
-//          FileDatabase.markAsProcessed(datasetId,stage)
         }
         else
           logger.debug("dataset "+dataset.name+" has no files to be loaded")
@@ -90,7 +89,7 @@ class GMQLLoader {
     })
   }
   def dsExists (username: String, datasetName: String ): Boolean ={
-    val dss: util.List[IRDataSet] = repo.ListAllDSs(username)
+    val dss: util.List[IRDataSet] = repo.listAllDSs(username)
     var exists = false
     for(i <- 0 until dss.size()){
       if(dss.get(i).position == datasetName)
