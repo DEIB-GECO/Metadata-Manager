@@ -4,7 +4,7 @@ import java.io.{File, _}
 import java.util
 import java.util.zip.GZIPInputStream
 
-import it.polimi.genomics.importer.GMQLImporter.{GMQLSource, GMQLTransformer}
+import it.polimi.genomics.importer.GMQLImporter.{GMQLSource, GMQLTransformer, GMQLDataset}
 import org.codehaus.jackson.map.MappingJsonFactory
 import org.codehaus.jackson.{JsonNode, JsonParser, JsonToken}
 import org.slf4j.LoggerFactory
@@ -26,9 +26,10 @@ class ENCODETransformer extends GMQLTransformer {
     * by receiving an original filename returns the new GDM candidate name.
     *
     * @param filename original filename
+    * @param dataset dataser where the file belongs to
     * @return candidate names for the files derived from the original filename.
     */
-  override def getCandidateNames(filename: String): List[String] = {
+  override def getCandidateNames(filename: String, dataset :GMQLDataset): List[String] = {
       if(filename.endsWith(".gz"))List[String](filename.substring(0, filename.lastIndexOf(".")))
       else if(filename.endsWith(".gz.json"))List[String](filename.replace(".gz.json", ".meta"))
       else List[String]()

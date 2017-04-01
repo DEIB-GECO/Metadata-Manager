@@ -2,7 +2,7 @@ package it.polimi.genomics.importer.DefaultImporter
 
 import java.io.{File, IOException}
 
-import it.polimi.genomics.importer.GMQLImporter.{GMQLSource, GMQLTransformer}
+import it.polimi.genomics.importer.GMQLImporter.{GMQLSource, GMQLTransformer, GMQLDataset}
 import org.slf4j.LoggerFactory
 
 /**
@@ -15,10 +15,19 @@ class NULLTransformer extends GMQLTransformer {
     * by receiving an original filename returns the new GDM candidate name.
     *
     * @param filename original filename
+    * @param dataset dataser where the file belongs to
     * @return candidate names for the files derived from the original filename.
     */
-  override def getCandidateNames(filename: String): List[String] = {
-    List[String](filename)
+  override def getCandidateNames(filename: String, dataset :GMQLDataset): List[String] = {
+    if (dataset.parameters.exists(_._1 == "md5_checksum_tcga2bed") &&
+      filename.split(".").head.contains(
+        dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed").head._2.split(".").head) &&
+      filename.split(".").drop(1).head ==
+        dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed").head._2.split(".").drop(1).head
+    )
+      List[String]()
+    else
+      List[String](filename)
   }
 
   /**
