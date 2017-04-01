@@ -185,6 +185,7 @@ object program {
         "https://raw.githubusercontent.com/nachodox/utils/master/configurationSchema.xsd"
       if (schemaValidator.validate(xmlConfigPath, schemaUrl)) {
 
+        logger.info("Xml file is valid for the schema")
         val file: Elem = XML.loadFile(xmlConfigPath)
         val outputFolder = (file \\ "settings" \ "base_working_directory").text
 //        val logProperties = (file \\ "settings" \ "logger_properties").text
@@ -197,7 +198,6 @@ object program {
 //            logger.warn("Configuration file for log4j is not valid. Log will be performed with basic configuration")
 //        }
 
-        logger.info("Xml file is valid for the schema")
 
         val downloadEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "download_enabled").text)) true else false
