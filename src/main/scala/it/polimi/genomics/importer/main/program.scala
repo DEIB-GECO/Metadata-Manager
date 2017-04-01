@@ -21,7 +21,6 @@ object program {
     * @param args arguments for GMQLImporter (help for more information)
     */
   def main(args: Array[String]): Unit = {
-    Utilities.confFolder = new File("gmql_conf/").getAbsolutePath
     val console = new ConsoleAppender() //create appender
     //configure the appender
     val PATTERN = "%d [%p|%c|%C{1}] %m%n"
@@ -72,8 +71,8 @@ object program {
         else
           logger.warn("No configuration file specified")
       }
-      else if(args.head.endsWith(".xml")){
-        run(args.head)
+      else if(args.head.endsWith(".xml") && new File(args.drop(1).head.toString).isDirectory){
+        run(args.head, args.drop(1).head.toString)
       }
     }
   }
@@ -178,7 +177,8 @@ object program {
     * datasets if defined to.
     * @param xmlConfigPath xml configuration file location
     */
-  def run(xmlConfigPath: String): Unit = {
+  def run(xmlConfigPath: String, gmqlConfigPath: String): Unit = {
+    Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
     //general settings
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
