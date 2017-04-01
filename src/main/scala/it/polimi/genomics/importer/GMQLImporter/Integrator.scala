@@ -81,7 +81,7 @@ object Integrator {
             Class
               .forName(source.transformer)
               .newInstance.asInstanceOf[GMQLTransformer]
-              .getCandidateNames(originalFileName)
+              .getCandidateNames(originalFileName,dataset)
               .map(candidateName => {
                 FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName)
               })
