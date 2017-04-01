@@ -21,7 +21,6 @@ object program {
     * @param args arguments for GMQLImporter (help for more information)
     */
   def main(args: Array[String]): Unit = {
-    Utilities.confFolder = new File("gmql_conf/").getAbsolutePath
     val console = new ConsoleAppender() //create appender
     //configure the appender
     val PATTERN = "%d [%p|%c|%C{1}] %m%n"
@@ -72,8 +71,8 @@ object program {
         else
           logger.warn("No configuration file specified")
       }
-      else if(args.head.endsWith(".xml")){
-        run(args.head)
+      else if(args.head.endsWith(".xml") && new File(args.drop(1).head.toString).isDirectory){
+        run(args.head, args.drop(1).head.toString)
       }
     }
   }
@@ -178,13 +177,15 @@ object program {
     * datasets if defined to.
     * @param xmlConfigPath xml configuration file location
     */
-  def run(xmlConfigPath: String): Unit = {
+  def run(xmlConfigPath: String, gmqlConfigPath: String): Unit = {
+    Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
     //general settings
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
         "https://raw.githubusercontent.com/nachodox/utils/master/configurationSchema.xsd"
       if (schemaValidator.validate(xmlConfigPath, schemaUrl)) {
 
+        logger.info("Xml file is valid for the schema")
         val file: Elem = XML.loadFile(xmlConfigPath)
         val outputFolder = (file \\ "settings" \ "base_working_directory").text
 //        val logProperties = (file \\ "settings" \ "logger_properties").text
@@ -197,7 +198,6 @@ object program {
 //            logger.warn("Configuration file for log4j is not valid. Log will be performed with basic configuration")
 //        }
 
-        logger.info("Xml file is valid for the schema")
 
         val downloadEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "download_enabled").text)) true else false
