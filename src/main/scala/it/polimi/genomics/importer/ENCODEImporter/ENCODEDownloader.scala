@@ -78,7 +78,7 @@ class ENCODEDownloader extends GMQLDownloader {
           val metadataCandidateName = "metadata.tsv"
           downloadFileFromURL(
             indexAndMetaUrl,
-            outputPath + File.separator + metadataCandidateName)
+            outputPath + File.separator + metadataCandidateName,1,1)
           val filePath = outputPath + File.separator + metadataCandidateName
           val file = new File(filePath)
           if(file.exists()) {
@@ -163,10 +163,10 @@ class ENCODEDownloader extends GMQLDownloader {
     * @param url  source file url.
     * @param path destination file path and name.
     */
-  def downloadFileFromURL(url: String, path: String): Unit = {
+  def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Unit = {
     try {
       new URL(url) #> new File(path) !!;
-      logger.info("Downloading: " + path + " from: " + url + " DONE")
+      logger.info(s"Downloading [$number/$total]: " + path + " from: " + url + " DONE")
     }
     catch{
       case e: Throwable => logger.error("Downloading: " + path + " from: " + url + " failed: ")
@@ -199,7 +199,9 @@ class ENCODEDownloader extends GMQLDownloader {
       //to be used
       val md5sum = header.lastIndexOf("md5sum")
       val url = header.lastIndexOf("File download URL")
-
+      var counter = 1
+      //add if json metadata *2, is metadata.tsv *1
+      val total = (Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(_=="").length-1)*2
       Source.fromFile(path + File.separator + "metadata.tsv").getLines().drop(1).foreach(line => {
         val fields = line.split("\t")
         //this is the region data part.
@@ -220,13 +222,13 @@ class ENCODEDownloader extends GMQLDownloader {
           FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
 
           if(FileDatabase.checkIfUpdateFile(fileId,fields(md5sum),fields(originSize),fields(originLastUpdate))){
-            downloadFileFromURL(fields(url), filePath)
+            downloadFileFromURL(fields(url), filePath,counter,total)
             val file = new File(filePath)
             var hash = computeHash(filePath)
 
             var timesTried = 0
             while (hash != fields(md5sum) && timesTried < 4) {
-              downloadFileFromURL(fields(url), filePath)
+              downloadFileFromURL(fields(url), filePath,counter,total)
               hash = computeHash(filePath)
               timesTried += 1
             }
@@ -239,6 +241,7 @@ class ENCODEDownloader extends GMQLDownloader {
             //this is the metadata part.
             //example of json url https://www.encodeproject.org/experiments/ENCSR570HXV/?frame=embedded&format=json
 //            val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
+            //have to implement if metadata is from json, else do not download (include just metadata.tsv metadata)
             if (urlExists(urlExperimentJson)) {
 //              val candidateNameJson = fields(url).split(File.separator).last + ".json"
 //              val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
@@ -251,7 +254,7 @@ class ENCODEDownloader extends GMQLDownloader {
               //As I dont have the metadata for the json file i use the same as the region data.
               //              if(FileDatabase.checkIfUpdateFile(fileIdJson,fields(md5sum),fields(originSize),fields(originLastUpdate))){
 //              FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
-              downloadFileFromURL(urlExperimentJson, filePathJson)
+              downloadFileFromURL(urlExperimentJson, filePathJson, counter+1, total)
               val file = new File(filePathJson)
               //cannot check the correctness of the download for the json.
               FileDatabase.markAsUpdated(fileIdJson, file.length.toString)
@@ -263,7 +266,20 @@ class ENCODEDownloader extends GMQLDownloader {
         }
         else
           logger.error("could not download " + fields(url) + "path does not exist")
+
+        counter = counter + 1
+        // if metadata is from json add this other +1.
+        counter = counter + 1
       })
+      FileDatabase.runDatasetDownloadAppend(datasetId,total,counter)
+      if(total == counter) {
+        //add successful message to database.
+        logger.info(s"All files for dataset ${dataset.name} of source ${source.name} downloaded correctly.")
+      }
+      else {
+        //add the warning message to the database
+        logger.warn(s"Dataset ${dataset.name} of source ${source.name} downloaded $counter/$total files.")
+      }
     }
     else
       logger.debug("metadata.tsv file is empty")
