@@ -72,20 +72,22 @@ object Integrator {
 
           FileDatabase.markToCompare(datasetId, STAGE.TRANSFORM)
           //id, filename, copy number.
+          var filesToTransform = 0
           FileDatabase.getFilesToProcess(datasetId, STAGE.DOWNLOAD).foreach(file => {
             val originalFileName =
               if (file._3 == 1) file._2
               else file._2.replaceFirst("\\.", "_" + file._3 + ".")
 
             val fileDownloadPath = downloadsFolder + File.separator + originalFileName
-            Class
+            val files = Class
               .forName(source.transformer)
               .newInstance.asInstanceOf[GMQLTransformer]
               .getCandidateNames(originalFileName,dataset)
               .map(candidateName => {
                 FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName)
               })
-              .foreach(fileId => {
+              filesToTransform = filesToTransform + files.length
+              files.foreach(fileId => {
                 val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
                 val name =
                   if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
@@ -136,6 +138,7 @@ object Integrator {
           })
           FileDatabase.markAsOutdated(datasetId, STAGE.TRANSFORM)
 //          FileDatabase.markAsProcessed(datasetId, STAGE.DOWNLOAD)
+          FileDatabase.runDatasetTransformAppend(datasetId,filesToTransform,modifiedMetadataFilesDataset+modifiedRegionFilesDataset)
           modifiedMetadataFilesSource = modifiedMetadataFilesSource + modifiedMetadataFilesDataset
           modifiedRegionFilesSource = modifiedRegionFilesSource + modifiedRegionFilesDataset
           wrongSchemaFilesSource = wrongSchemaFilesSource + wrongSchemaFilesDataset
@@ -219,9 +222,7 @@ object Integrator {
   def changeMetadataKeys(changeKeys: Seq[(String,String)], metadataFilePath: String): Boolean ={
     var replaced = false
     if(new File(metadataFilePath).exists()){
-      val tempFile = metadataFilePath+".temp"
-      val writer = new PrintWriter(tempFile)
-
+      var metadataList: Seq[(String, String)] = Seq[(String,String)]()
       Source.fromFile(metadataFilePath).getLines().foreach(line=>{
         if(line.split('\t').length==2) {
           var metadataKey = line.split('\t')(0)
@@ -230,13 +231,20 @@ object Integrator {
             replaced = true
             metadataKey = change._1.r.replaceFirstIn(metadataKey, change._2).replace(" ", "_")
           })
-          writer.write(metadataKey + "\t" + metadataValue + "\n")
+          if(!metadataList.contains((metadataKey,metadataValue))) {
+            metadataList = metadataList :+ (metadataKey, metadataValue)
+          }
         }
         else{
           logger.warn("file: "+metadataFilePath+" should have 2 columns. Check this line that was excluded: "+line)
         }
       })
 
+      val tempFile = metadataFilePath+".temp"
+      val writer = new PrintWriter(tempFile)
+      metadataList.sortWith((A,B) => A._1.compare(B._1)<0).foreach(metadata =>{
+        writer.write(metadata._1 + "\t" + metadata._2 + "\n")
+      })
       writer.close()
 
       try {
