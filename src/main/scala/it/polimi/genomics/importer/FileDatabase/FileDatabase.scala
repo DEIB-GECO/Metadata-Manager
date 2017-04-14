@@ -119,7 +119,29 @@ object FileDatabase {
                   ): Int = {
     db.runDatasetId(datasetId, outputFolder, downloadEnabled, transformEnabled, loadEnabled, schemaUrl, schemaLocation)
   }
-
+  /**
+    * generates the last representation of the dataset in the last run.
+    * @param datasetId id for the dataset.
+    * @param runId id for the run.
+    * @return the runDataset id.
+    */
+  def runDatasetId(runId: Int, datasetId: Int): Int ={
+    db.runDatasetId(runId, datasetId)
+  }
+  /**
+    * prints the log for dataset downloaded files for a specified run
+    * @param runDatasetId identifies of the rundataset.
+    */
+  def printRunDatasetDownloadLog(runDatasetId: Int): Unit ={
+    db.printRunDatasetLog(runDatasetId,STAGE.DOWNLOAD)
+  }
+  /**
+    * prints the log for dataset downloaded files for a specified run
+    * @param runDatasetId identifies of the rundataset.
+    */
+  def printRunDatasetTransformLog(runDatasetId: Int): Unit ={
+    db.printRunDatasetLog(runDatasetId,STAGE.TRANSFORM)
+  }
   /**
     * Inserts the parameters used by a source
     * @param runDatasetId dataset who is using the parameters
@@ -130,6 +152,22 @@ object FileDatabase {
     */
   def runDatasetParameterId(runDatasetId: Int, description: String, key: String, value: String): Int = {
     db.runDatasetParameterId(runDatasetId, description, key, value)
+  }
+  /**
+    * Inserts the parameters used by a source
+    * @param runDatasetId dataset who is using the parameters
+    * @param totalFiles expected number of files to be downloaded
+    * @param downloadedFiles real number of successfully downloaded files
+    * @return id of the parameter.
+    */
+  def runDatasetLogId(runDatasetId: Int,stage: STAGE.Value, totalFiles: Int, downloadedFiles: Int): Int = {
+    db.runDatasetLogId(runDatasetId, stage,totalFiles, downloadedFiles)
+  }
+  def runDatasetDownloadAppend(datasetId: Int,totalFiles: Int, downloadedFiles: Int): Int = {
+    db.runDatasetLogId(datasetId, STAGE.DOWNLOAD,totalFiles, downloadedFiles)
+  }
+  def runDatasetTransformAppend(datasetId: Int,totalFiles: Int, downloadedFiles: Int): Int = {
+    db.runDatasetLogId(datasetId, STAGE.TRANSFORM,totalFiles, downloadedFiles)
   }
   /**
     * Generates the versioning for the metadata of the files.
