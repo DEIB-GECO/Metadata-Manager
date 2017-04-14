@@ -126,6 +126,27 @@ class FTPDownloader extends GMQLDownloader {
               val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
               md5Downloaded = downloadFile(fileId,"",file,outputPath,source,workingDirectory,url)
             }
+            var expInfoDownloaded = false
+            var totalFiles = 0
+            if (dataset.parameters.exists(_._1 == "exp_info_tcga2bed")) {
+              val aux2 = dataset.parameters.filter(_._1 == "exp_info_tcga2bed")
+              val aux1 = aux2.head._2
+              val file = unfilteredFiles.filter(_.getName == aux1).head
+              val url = workingDirectory + File.separator + file.getName
+              val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
+              expInfoDownloaded = downloadFile(fileId,"",file,outputPath,source,workingDirectory,url)
+
+              val nameAndCopyNumber: (String, Int) = FileDatabase.getFileNameAndCopyNumber(fileId)
+              val expInfoName =
+                if (nameAndCopyNumber._2 == 1) nameAndCopyNumber._1
+                else nameAndCopyNumber._1.replaceFirst("\\.", "_" + nameAndCopyNumber._2 + ".")
+              val expInfoFile = Source.fromFile(outputPath + File.separator + expInfoName)
+              val aliquotLine = expInfoFile.getLines().filter(_.contains("aliquot_count")).map(_.split('\t').drop(1).head)
+              if(aliquotLine.nonEmpty)
+                totalFiles = aliquotLine.next().toInt*2
+              //2 times because the .bed and .meta
+            }
+            var downloadedFiles = 0
             for (file <- files) {
               val url = workingDirectory + File.separator + file.getName
               val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
@@ -155,8 +176,22 @@ class FTPDownloader extends GMQLDownloader {
                 }
                 else
                   ""
-              downloadFile(fileId,hash,file,outputPath,source,workingDirectory,url)
+              if(downloadFile(fileId,hash,file,outputPath,source,workingDirectory,url))
+                downloadedFiles = downloadedFiles + 1
             }
+            if(expInfoDownloaded) {
+              FileDatabase.runDatasetDownloadAppend(datasetId,totalFiles,downloadedFiles)
+              if (totalFiles == downloadedFiles) {
+                //add successful message to database, have to sum up all the dataset's folders.
+                logger.info(s"All $totalFiles files for folder $workingDirectory of dataset ${dataset.name} of source ${source.name} downloaded correctly.")
+              }
+              else {
+                //add the warning message to the database
+                logger.warn(s"Dataset ${dataset.name} of source ${source.name} downloaded $downloadedFiles/$totalFiles files.")
+              }
+            }
+            else
+              logger.info(s"File count for dataset ${dataset.name} of source ${source.name} is not activated (check configuration xml).")
           }
           else
             logger.error("connection lost with FTP, skipping " + workingDirectory)
