@@ -1,5 +1,6 @@
 package it.polimi.genomics.importer.FileDatabase
 
+import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
 import org.joda.time.DateTime
 import org.slf4j.{Logger, LoggerFactory}
 import slick.dbio.Effect.Write
@@ -110,7 +111,7 @@ case class dbContainer() {
     * @param runDatasetId identifies of the rundataset.
     */
   def printRunDatasetLog(runDatasetId: Int, stage: STAGE.Value): Unit ={
-    val query = (for (f <- runDatasetLogs.filter(f => f.id === runDatasetId && f.stage === stage.toString))
+    val query = (for (f <- runDatasetLogs.filter(f => f.runDatasetId === runDatasetId && f.stage === stage.toString))
       yield (f.totalFiles,f.downloadedFiles)).result
     val execution = database.run(query)
     val result = Await.result(execution, Duration.Inf)
@@ -131,9 +132,9 @@ case class dbContainer() {
     val datasetNameResult = Await.result(datasetNameExecution,Duration.Inf)
     val datasetName = datasetNameResult.head
 
-    logger.info(s"\tDataset $datasetName download statistics:")
-    logger.info(s"\t\tTotal files to download: $totalFiles")
-    logger.info(s"\t\tDownloaded files: $downloadedFiles")
+    logger.info(s"\tDataset $datasetName ${stage.toString} statistics:")
+    logger.info(s"\t\tTotal files to ${stage.toString}: $totalFiles")
+    logger.info(s"\t\t${stage.toString} successful files: $downloadedFiles")
 
   }
   //-------------------------------BASIC INSERTIONS SOURCE/DATASET/FILE/RUN---------------------------------------------
@@ -321,22 +322,6 @@ case class dbContainer() {
       resultId
     }
   }
-  /**
-    * generates the last representation of the dataset in the last run.
-    * @param datasetId id for the dataset.
-    * @param runId id for the run.
-    * @return the runDataset id.
-    */
-  def runDatasetId(datasetId: Int, runId: Int
-                  ): Int = {
-    val query = (for (rd <- runDatasets.filter(r => r.runId === runId && r.datasetId === datasetId)) yield rd.id).result
-    val execution = database.run(query)
-    val result = Await.result(execution, Duration.Inf)
-    if(result.nonEmpty)
-      result.head
-    else
-      -1
-  }
 
   /**
     * Inserts the parameters used by a source
@@ -355,32 +340,40 @@ case class dbContainer() {
     val result = Await.result(execution, Duration.Inf)
     result
   }
+//  /**
+//    * Inserts the parameters used by a source
+//    * @param runDatasetId dataset who is using the parameters
+//    * @param totalFiles explains what the parameter is used for
+//    * @param downloadedFiles indicates the name of the parameter
+//    * @return id of the parameter.
+//    */
+//  def runDatasetLogId(runDatasetId: Int, stage: STAGE.Value,totalFiles: Int, downloadedFiles: Int): Int = {
+//    //parameters have always to be created.
+//    val query = (runDatasetLogs returning runDatasetLogs.map(_.id)) += (
+//      None,runDatasetId,stage.toString,totalFiles,downloadedFiles
+//      )
+//    val execution = database.run(query)
+//    val result = Await.result(execution, Duration.Inf)
+//    result
+//  }
   /**
     * Inserts the parameters used by a source
-    * @param runDatasetId dataset who is using the parameters
     * @param totalFiles explains what the parameter is used for
     * @param downloadedFiles indicates the name of the parameter
     * @return id of the parameter.
     */
-  def runDatasetLogId(runDatasetId: Int, stage: STAGE.Value,totalFiles: Int, downloadedFiles: Int): Int = {
-    //parameters have always to be created.
-    val query = (runDatasetLogs returning runDatasetLogs.map(_.id)) += (
-      None,runDatasetId,stage.toString,totalFiles,downloadedFiles
-      )
-    val execution = database.run(query)
-    val result = Await.result(execution, Duration.Inf)
-    result
-  }
-  /**
-    * Inserts the parameters used by a source
-    * @param totalFiles explains what the parameter is used for
-    * @param downloadedFiles indicates the name of the parameter
-    * @return id of the parameter.
-    */
-  def runDatasetLogAppend(datasetId: Int, stage: STAGE.Value,totalFiles: Int, downloadedFiles: Int): Int = {
+  def runDatasetLogId(datasetId: Int, dataset: GMQLDataset, stage: STAGE.Value, totalFiles: Int, downloadedFiles: Int): Int = {
     //parameters have always to be created.
     val runId = getMaxRunNumber
-    val runDatasetIdAppend = runDatasetId(datasetId,runId)
+    val runDatasetIdAppend = runDatasetId(
+      datasetId,
+      runId.toString,
+      dataset.downloadEnabled.toString,
+      dataset.transformEnabled.toString,
+      dataset.loadEnabled.toString,
+      dataset.schemaUrl,
+      dataset.schemaLocation.toString
+    )
     val query = (runDatasetLogs returning runDatasetLogs.map(_.id)) += (
       None,runDatasetIdAppend,stage.toString,totalFiles,downloadedFiles
       )
