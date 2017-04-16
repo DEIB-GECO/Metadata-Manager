@@ -180,7 +180,7 @@ class FTPDownloader extends GMQLDownloader {
                 downloadedFiles = downloadedFiles + 1
             }
             if(expInfoDownloaded) {
-              FileDatabase.runDatasetDownloadAppend(datasetId,totalFiles,downloadedFiles)
+              FileDatabase.runDatasetDownloadAppend(datasetId,dataset,totalFiles,downloadedFiles)
               if (totalFiles == downloadedFiles) {
                 //add successful message to database, have to sum up all the dataset's folders.
                 logger.info(s"All $totalFiles files for folder $workingDirectory of dataset ${dataset.name} of source ${source.name} downloaded correctly.")
