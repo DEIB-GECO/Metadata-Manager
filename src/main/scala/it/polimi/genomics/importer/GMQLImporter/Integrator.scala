@@ -50,7 +50,7 @@ object Integrator {
           var modifiedRegionFilesDataset = 0
           var modifiedMetadataFilesDataset = 0
           var wrongSchemaFilesDataset = 0
-
+          var totalTransformedFiles = 0
           val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
 
           val datasetOutputFolder = source.outputFolder + File.separator + dataset.outputFolder
@@ -82,63 +82,65 @@ object Integrator {
             val files = Class
               .forName(source.transformer)
               .newInstance.asInstanceOf[GMQLTransformer]
-              .getCandidateNames(originalFileName,dataset)
+              .getCandidateNames(originalFileName, dataset)
               .map(candidateName => {
                 FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName)
               })
-              filesToTransform = filesToTransform + files.length
-              files.foreach(fileId => {
-                val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
-                val name =
-                  if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
-                  else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
-                val originDetails = FileDatabase.getFileDetails(file._1)
+            filesToTransform = filesToTransform + files.length
+            files.foreach(fileId => {
+              val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
+              val name =
+                if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
+                else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
+              val originDetails = FileDatabase.getFileDetails(file._1)
 
-                //I always transform, so I commented the if
-                FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-                //                if (FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)) {
-                Class
-                  .forName(source.transformer)
-                  .newInstance.asInstanceOf[GMQLTransformer]
-                  .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
-                val fileTransformationPath = transformationsFolder + File.separator + name
-                //add copy numbers if needed.
-                if (name.endsWith(".meta")) {
-                  val maxCopy = FileDatabase.getMaxCopyNumber(datasetId, file._2, STAGE.DOWNLOAD)
-                  if (maxCopy > 1) {
-                    val writer = new FileWriter(fileTransformationPath, true)
-                    val separator =
-                      if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
-                        source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
-                      else
-                        "|"
-                    writer.write("manually_curated" + separator + "file_copy_total_count\t" + maxCopy + "\n")
-                    writer.write("manually_curated" + separator + "file_copy_number\t" + file._3 + "\n")
-                    writer.write("manually_curated" + separator + "file_name_replaced\ttrue\n")
-                    writer.close()
-                  }
-                  //metadata renaming. (standardizing of the metadata values should happen here also.
-                  if (changeMetadataKeys(metadataRenaming, fileTransformationPath))
-                    modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
+              //I always transform, so I commented the if
+              FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
+              //                if (FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)) {
+              Class
+                .forName(source.transformer)
+                .newInstance.asInstanceOf[GMQLTransformer]
+                .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
+              val fileTransformationPath = transformationsFolder + File.separator + name
+              //add copy numbers if needed.
+              if (name.endsWith(".meta")) {
+                val maxCopy = FileDatabase.getMaxCopyNumber(datasetId, file._2, STAGE.DOWNLOAD)
+                if (maxCopy > 1) {
+                  val writer = new FileWriter(fileTransformationPath, true)
+                  val separator =
+                    if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
+                      source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+                    else
+                      "|"
+                  writer.write("manually_curated" + separator + "file_copy_total_count\t" + maxCopy + "\n")
+                  writer.write("manually_curated" + separator + "file_copy_number\t" + file._3 + "\n")
+                  writer.write("manually_curated" + separator + "file_name_replaced\ttrue\n")
+                  writer.close()
                 }
-                //if not meta, is region data.
-                else {
-                  val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
-                  val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
-                  if (modifiedAndSchema._1)
-                    modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
-                  if (!modifiedAndSchema._2)
-                    wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
+                //metadata renaming. (standardizing of the metadata values should happen here also.
+                if (changeMetadataKeys(metadataRenaming, fileTransformationPath))
+                  modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
+                totalTransformedFiles = totalTransformedFiles + 1
+              }
+              //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
+              else {
+                val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
+                val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
+                if (modifiedAndSchema._1)
+                  modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
+                if (!modifiedAndSchema._2)
+                  wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
+                totalTransformedFiles = totalTransformedFiles + 1
 
-                }
-                //standardization of the region data should be here.
-                FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
-                //                }
-              })
+              }
+              //standardization of the region data should be here.
+              FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
+              //                }
+            })
           })
           FileDatabase.markAsOutdated(datasetId, STAGE.TRANSFORM)
 //          FileDatabase.markAsProcessed(datasetId, STAGE.DOWNLOAD)
-          FileDatabase.runDatasetTransformAppend(datasetId,filesToTransform,modifiedMetadataFilesDataset+modifiedRegionFilesDataset)
+          FileDatabase.runDatasetTransformAppend(datasetId,dataset,filesToTransform,totalTransformedFiles)
           modifiedMetadataFilesSource = modifiedMetadataFilesSource + modifiedMetadataFilesDataset
           modifiedRegionFilesSource = modifiedRegionFilesSource + modifiedRegionFilesDataset
           wrongSchemaFilesSource = wrongSchemaFilesSource + wrongSchemaFilesDataset
