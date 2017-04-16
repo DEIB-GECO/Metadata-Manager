@@ -1,6 +1,5 @@
 package it.polimi.genomics.importer.FileDatabase
 
-import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
 import org.joda.time.DateTime
 import org.slf4j.{Logger, LoggerFactory}
 import slick.dbio.Effect.Write
@@ -362,20 +361,10 @@ case class dbContainer() {
     * @param downloadedFiles indicates the name of the parameter
     * @return id of the parameter.
     */
-  def runDatasetLogId(datasetId: Int, dataset: GMQLDataset, stage: STAGE.Value, totalFiles: Int, downloadedFiles: Int): Int = {
+  def runDatasetLogId(runDatasetId: Int, stage: STAGE.Value, totalFiles: Int, downloadedFiles: Int): Int = {
     //parameters have always to be created.
-    val runId = getMaxRunNumber
-    val runDatasetIdAppend = runDatasetId(
-      datasetId,
-      runId.toString,
-      dataset.downloadEnabled.toString,
-      dataset.transformEnabled.toString,
-      dataset.loadEnabled.toString,
-      dataset.schemaUrl,
-      dataset.schemaLocation.toString
-    )
     val query = (runDatasetLogs returning runDatasetLogs.map(_.id)) += (
-      None,runDatasetIdAppend,stage.toString,totalFiles,downloadedFiles
+      None,runDatasetId,stage.toString,totalFiles,downloadedFiles
       )
     val execution = database.run(query)
     val result = Await.result(execution, Duration.Inf)
