@@ -19,15 +19,45 @@ class NULLTransformer extends GMQLTransformer {
     * @return candidate names for the files derived from the original filename.
     */
   override def getCandidateNames(filename: String, dataset :GMQLDataset): List[String] = {
-    if (dataset.parameters.exists(_._1 == "md5_checksum_tcga2bed") &&
-      filename.split(".").head.contains(
-        dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed").head._2.split(".").head) &&
-      filename.split(".").drop(1).head ==
-        dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed").head._2.split(".").drop(1).head
-    )
-      List[String]()
-    else
+    var returns = true
+    val filenameSplit = filename.split('.')
+    if(filenameSplit.nonEmpty){
+      val name = filenameSplit.head
+      val filenameSplitDrop = filenameSplit.drop(1)
+      if(filenameSplitDrop.nonEmpty) {
+        val extension = filenameSplitDrop.head
+        if (dataset.parameters.exists(_._1 == "md5_checksum_tcga2bed")) {
+          val head = dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed").head
+          val headSplit = head._2.split('.')
+          if (headSplit.nonEmpty) {
+            val compareName = headSplit.head
+            val headSplitDrop = headSplit.drop(1)
+            if(headSplitDrop.nonEmpty){
+              val compareExtension = headSplitDrop.head
+              if(name.contains(compareName) && extension.contains(compareExtension))
+                returns = false
+            }
+          }
+        }
+        if (dataset.parameters.exists(_._1 == "exp_info_tcga2bed")) {
+          val head = dataset.parameters.filter(_._1 == "exp_info_tcga2bed").head
+          val headSplit = head._2.split('.')
+          if (headSplit.nonEmpty) {
+            val compareName = headSplit.head
+            val headSplitDrop = headSplit.drop(1)
+            if(headSplitDrop.nonEmpty){
+              val compareExtension = headSplitDrop.head
+              if(name.contains(compareName) && extension.contains(compareExtension))
+                returns = false
+            }
+          }
+        }
+      }
+    }
+    if(returns)
       List[String](filename)
+    else
+      List[String]()
   }
 
   /**
