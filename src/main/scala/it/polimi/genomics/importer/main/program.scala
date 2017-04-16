@@ -292,7 +292,16 @@ object program {
             source.datasets.foreach(dataset => {
 
               val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
-              val runDatasetId = FileDatabase.runDatasetId(runId, datasetId)
+              val runDatasetId = FileDatabase.runDatasetId(
+                runId,
+                datasetId,
+                dataset.outputFolder,
+                dataset.downloadEnabled.toString,
+                dataset.transformEnabled.toString,
+                dataset.loadEnabled.toString,
+                dataset.schemaUrl,
+                dataset.schemaLocation.toString
+              )
               if (runDatasetId != -1) {
                 if (downloadEnabled && source.downloadEnabled && dataset.downloadEnabled) {
                   FileDatabase.printRunDatasetDownloadLog(runDatasetId)
