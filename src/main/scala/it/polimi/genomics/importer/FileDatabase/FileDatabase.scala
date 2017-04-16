@@ -1,5 +1,5 @@
 package it.polimi.genomics.importer.FileDatabase
-
+import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
 /**
   * this object handles the uniqueness of the database and keeps it instantiated.
   * also works as a facade for the dbContainer.
@@ -120,15 +120,6 @@ object FileDatabase {
     db.runDatasetId(datasetId, outputFolder, downloadEnabled, transformEnabled, loadEnabled, schemaUrl, schemaLocation)
   }
   /**
-    * generates the last representation of the dataset in the last run.
-    * @param datasetId id for the dataset.
-    * @param runId id for the run.
-    * @return the runDataset id.
-    */
-  def runDatasetId(runId: Int, datasetId: Int): Int ={
-    db.runDatasetId(runId, datasetId)
-  }
-  /**
     * prints the log for dataset downloaded files for a specified run
     * @param runDatasetId identifies of the rundataset.
     */
@@ -160,14 +151,14 @@ object FileDatabase {
     * @param downloadedFiles real number of successfully downloaded files
     * @return id of the parameter.
     */
-  def runDatasetLogId(runDatasetId: Int,stage: STAGE.Value, totalFiles: Int, downloadedFiles: Int): Int = {
-    db.runDatasetLogId(runDatasetId, stage,totalFiles, downloadedFiles)
+  def runDatasetLogId(runDatasetId: Int, dataset: GMQLDataset, stage: STAGE.Value, totalFiles: Int, downloadedFiles: Int): Int = {
+    db.runDatasetLogId(runDatasetId,dataset, stage,totalFiles, downloadedFiles)
   }
-  def runDatasetDownloadAppend(datasetId: Int,totalFiles: Int, downloadedFiles: Int): Int = {
-    db.runDatasetLogId(datasetId, STAGE.DOWNLOAD,totalFiles, downloadedFiles)
+  def runDatasetDownloadAppend(datasetId: Int, dataset: GMQLDataset,totalFiles: Int, downloadedFiles: Int): Int = {
+    db.runDatasetLogId(datasetId, dataset, STAGE.DOWNLOAD,totalFiles, downloadedFiles)
   }
-  def runDatasetTransformAppend(datasetId: Int,totalFiles: Int, downloadedFiles: Int): Int = {
-    db.runDatasetLogId(datasetId, STAGE.TRANSFORM,totalFiles, downloadedFiles)
+  def runDatasetTransformAppend(datasetId: Int, dataset: GMQLDataset,totalFiles: Int, downloadedFiles: Int): Int = {
+    db.runDatasetLogId(datasetId, dataset, STAGE.TRANSFORM,totalFiles, downloadedFiles)
   }
   /**
     * Generates the versioning for the metadata of the files.
