@@ -144,21 +144,32 @@ object FileDatabase {
   def runDatasetParameterId(runDatasetId: Int, description: String, key: String, value: String): Int = {
     db.runDatasetParameterId(runDatasetId, description, key, value)
   }
-  /**
-    * Inserts the parameters used by a source
-    * @param runDatasetId dataset who is using the parameters
-    * @param totalFiles expected number of files to be downloaded
-    * @param downloadedFiles real number of successfully downloaded files
-    * @return id of the parameter.
-    */
-  def runDatasetLogId(runDatasetId: Int, dataset: GMQLDataset, stage: STAGE.Value, totalFiles: Int, downloadedFiles: Int): Int = {
-    db.runDatasetLogId(runDatasetId,dataset, stage,totalFiles, downloadedFiles)
-  }
+
   def runDatasetDownloadAppend(datasetId: Int, dataset: GMQLDataset,totalFiles: Int, downloadedFiles: Int): Int = {
-    db.runDatasetLogId(datasetId, dataset, STAGE.DOWNLOAD,totalFiles, downloadedFiles)
+    val runId = db.getMaxRunNumber
+    val runDatasetId = db.runDatasetId(
+      datasetId,
+      dataset.outputFolder,
+      dataset.downloadEnabled.toString,
+      dataset.transformEnabled.toString,
+      dataset.loadEnabled.toString,
+      dataset.schemaUrl,
+      dataset.schemaLocation.toString
+    )
+    db.runDatasetLogId(runDatasetId, STAGE.DOWNLOAD,totalFiles, downloadedFiles)
   }
   def runDatasetTransformAppend(datasetId: Int, dataset: GMQLDataset,totalFiles: Int, downloadedFiles: Int): Int = {
-    db.runDatasetLogId(datasetId, dataset, STAGE.TRANSFORM,totalFiles, downloadedFiles)
+    val runId = db.getMaxRunNumber
+    val runDatasetId = db.runDatasetId(
+      datasetId,
+      dataset.outputFolder,
+      dataset.downloadEnabled.toString,
+      dataset.transformEnabled.toString,
+      dataset.loadEnabled.toString,
+      dataset.schemaUrl,
+      dataset.schemaLocation.toString
+    )
+    db.runDatasetLogId(runDatasetId, STAGE.TRANSFORM,totalFiles, downloadedFiles)
   }
   /**
     * Generates the versioning for the metadata of the files.
