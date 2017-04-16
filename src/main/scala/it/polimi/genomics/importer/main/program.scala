@@ -351,7 +351,8 @@ object program {
               ".\nWould you like to continue anyway? (Y/n):")
             // readLine lets you prompt the user and read their input as a String
             scala.Console.flush()
-            val input = scala.io.StdIn.readLine()
+            val input = scala.Console.in.readLine()
+//            val input = scala.io.StdIn.readLine()
             if(input.toLowerCase == "n")
               return false
           })
