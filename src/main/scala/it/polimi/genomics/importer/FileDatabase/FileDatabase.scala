@@ -1,5 +1,5 @@
 package it.polimi.genomics.importer.FileDatabase
-
+import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
 /**
   * this object handles the uniqueness of the database and keeps it instantiated.
   * also works as a facade for the dbContainer.
@@ -119,7 +119,20 @@ object FileDatabase {
                   ): Int = {
     db.runDatasetId(datasetId, outputFolder, downloadEnabled, transformEnabled, loadEnabled, schemaUrl, schemaLocation)
   }
-
+  /**
+    * prints the log for dataset downloaded files for a specified run
+    * @param runDatasetId identifies of the rundataset.
+    */
+  def printRunDatasetDownloadLog(runDatasetId: Int): Unit ={
+    db.printRunDatasetLog(runDatasetId,STAGE.DOWNLOAD)
+  }
+  /**
+    * prints the log for dataset downloaded files for a specified run
+    * @param runDatasetId identifies of the rundataset.
+    */
+  def printRunDatasetTransformLog(runDatasetId: Int): Unit ={
+    db.printRunDatasetLog(runDatasetId,STAGE.TRANSFORM)
+  }
   /**
     * Inserts the parameters used by a source
     * @param runDatasetId dataset who is using the parameters
@@ -130,6 +143,33 @@ object FileDatabase {
     */
   def runDatasetParameterId(runDatasetId: Int, description: String, key: String, value: String): Int = {
     db.runDatasetParameterId(runDatasetId, description, key, value)
+  }
+
+  def runDatasetDownloadAppend(datasetId: Int, dataset: GMQLDataset,totalFiles: Int, downloadedFiles: Int): Int = {
+    val runId = db.getMaxRunNumber
+    val runDatasetId = db.runDatasetId(
+      datasetId,
+      dataset.outputFolder,
+      dataset.downloadEnabled.toString,
+      dataset.transformEnabled.toString,
+      dataset.loadEnabled.toString,
+      dataset.schemaUrl,
+      dataset.schemaLocation.toString
+    )
+    db.runDatasetLogId(runDatasetId, STAGE.DOWNLOAD,totalFiles, downloadedFiles)
+  }
+  def runDatasetTransformAppend(datasetId: Int, dataset: GMQLDataset,totalFiles: Int, downloadedFiles: Int): Int = {
+    val runId = db.getMaxRunNumber
+    val runDatasetId = db.runDatasetId(
+      datasetId,
+      dataset.outputFolder,
+      dataset.downloadEnabled.toString,
+      dataset.transformEnabled.toString,
+      dataset.loadEnabled.toString,
+      dataset.schemaUrl,
+      dataset.schemaLocation.toString
+    )
+    db.runDatasetLogId(runDatasetId, STAGE.TRANSFORM,totalFiles, downloadedFiles)
   }
   /**
     * Generates the versioning for the metadata of the files.

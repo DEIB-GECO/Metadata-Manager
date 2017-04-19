@@ -286,6 +286,32 @@ object program {
               logger.info(s"Loading for ${source.name} Finished")
             }
           })
+          sources.foreach(source => {
+            val sourceId = FileDatabase.sourceId(source.name)
+            logger.info(s"Log for source: ${source.name}")
+            source.datasets.foreach(dataset => {
+
+              val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+              val runDatasetId = FileDatabase.runDatasetId(
+                runId,
+                datasetId,
+                dataset.outputFolder,
+                dataset.downloadEnabled.toString,
+                dataset.transformEnabled.toString,
+                dataset.loadEnabled.toString,
+                dataset.schemaUrl,
+                dataset.schemaLocation.toString
+              )
+              if (runDatasetId != -1) {
+                if (downloadEnabled && source.downloadEnabled && dataset.downloadEnabled) {
+                  FileDatabase.printRunDatasetDownloadLog(runDatasetId)
+                }
+                if (transformEnabled && source.transformEnabled && dataset.transformEnabled) {
+                  FileDatabase.printRunDatasetTransformLog(runDatasetId)
+                }
+              }
+            })
+          })
         }
         else{
           logger.info("The user has canceled the run")
@@ -316,7 +342,6 @@ object program {
     sources.foreach(source =>{
       if(source.transformEnabled && source.parameters.exists(_._1=="metadata_replacement"))
         //They are already forbidding to create new dataset with the same name.
-      /*
           source.parameters.filter(_._1=="metadata_replacement").foreach(file =>{
           val replacements = (XML.loadFile(source.rootOutputFolder+File.separator+file._2)\\"replace").map(_.text.replace(' ','_').toLowerCase)
           replacements.map(replacement => {
@@ -326,11 +351,12 @@ object program {
               ".\nWould you like to continue anyway? (Y/n):")
             // readLine lets you prompt the user and read their input as a String
             scala.Console.flush()
-            val input = readLine
+            val input = scala.Console.in.readLine()
+//            val input = scala.io.StdIn.readLine()
             if(input.toLowerCase == "n")
               return false
           })
-        })*/
+        })
       if(loadEnabled)
       source.datasets.filter(_.loadEnabled && source.loadEnabled).foreach(dataset =>{
         val datasetName =

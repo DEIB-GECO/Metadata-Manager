@@ -104,7 +104,38 @@ case class dbContainer() {
   }
   //-------------------------------------DATABASE DEFINITION------------------------------------------------------------
   var database: DatabaseDef = _
+  //------------------------------------------LOG PRINTING--------------------------------------------------------------
+  /**
+    * prints the log for dataset downloaded files for a specified run
+    * @param runDatasetId identifies of the rundataset.
+    */
+  def printRunDatasetLog(runDatasetId: Int, stage: STAGE.Value): Unit ={
+    val query = (for (f <- runDatasetLogs.filter(f => f.runDatasetId === runDatasetId && f.stage === stage.toString))
+      yield (f.totalFiles,f.downloadedFiles)).result
+    val execution = database.run(query)
+    val result = Await.result(execution, Duration.Inf)
+    var totalFiles = 0
+    var downloadedFiles = 0
+    result.foreach(log => {
+      totalFiles = totalFiles + log._1
+      downloadedFiles = downloadedFiles + log._2
+    })
 
+    val datasetQuery = (for (f <- runDatasets.filter(f => f.id === runDatasetId)) yield (f.datasetId)).result
+    val datasetExecution = database.run(datasetQuery)
+    val datasetResult = Await.result(datasetExecution,Duration.Inf)
+    val datasetId = datasetResult.head
+
+    val datasetNameQuery = (for (f <- datasets.filter(f => f.id === datasetId)) yield (f.name)).result
+    val datasetNameExecution = database.run(datasetNameQuery)
+    val datasetNameResult = Await.result(datasetNameExecution,Duration.Inf)
+    val datasetName = datasetNameResult.head
+
+    logger.info(s"\tDataset $datasetName ${stage.toString} statistics:")
+    logger.info(s"\t\tTotal files to ${stage.toString}: $totalFiles")
+    logger.info(s"\t\t${stage.toString} successful files: $downloadedFiles")
+
+  }
   //-------------------------------BASIC INSERTIONS SOURCE/DATASET/FILE/RUN---------------------------------------------
   /**
     * Tries to create a source with the given name and returns its id, if already exists is not replaced.
@@ -303,6 +334,37 @@ case class dbContainer() {
     //parameters have always to be created.
     val query = (runDatasetParameters returning runDatasetParameters.map(_.id)) += (
       None,runDatasetId,description,key,value
+      )
+    val execution = database.run(query)
+    val result = Await.result(execution, Duration.Inf)
+    result
+  }
+//  /**
+//    * Inserts the parameters used by a source
+//    * @param runDatasetId dataset who is using the parameters
+//    * @param totalFiles explains what the parameter is used for
+//    * @param downloadedFiles indicates the name of the parameter
+//    * @return id of the parameter.
+//    */
+//  def runDatasetLogId(runDatasetId: Int, stage: STAGE.Value,totalFiles: Int, downloadedFiles: Int): Int = {
+//    //parameters have always to be created.
+//    val query = (runDatasetLogs returning runDatasetLogs.map(_.id)) += (
+//      None,runDatasetId,stage.toString,totalFiles,downloadedFiles
+//      )
+//    val execution = database.run(query)
+//    val result = Await.result(execution, Duration.Inf)
+//    result
+//  }
+  /**
+    * Inserts the parameters used by a source
+    * @param totalFiles explains what the parameter is used for
+    * @param downloadedFiles indicates the name of the parameter
+    * @return id of the parameter.
+    */
+  def runDatasetLogId(runDatasetId: Int, stage: STAGE.Value, totalFiles: Int, downloadedFiles: Int): Int = {
+    //parameters have always to be created.
+    val query = (runDatasetLogs returning runDatasetLogs.map(_.id)) += (
+      None,runDatasetId,stage.toString,totalFiles,downloadedFiles
       )
     val execution = database.run(query)
     val result = Await.result(execution, Duration.Inf)
@@ -662,6 +724,13 @@ case class dbContainer() {
       Await.result(setupFuture,Duration.Inf)
       logger.info("Table RUNDATASETPARAMETERS created")
     }
+    if (!tables.exists(_.name.name == "RUNDATASETLOGS")) {
+      val setup = DBIO.seq(runDatasetLogs.schema.create)
+      val setupFuture = database.run(setup)
+      Await.result(setupFuture,Duration.Inf)
+      logger.info("Table RUNDATASETLOGS created")
+    }
+
     if (!tables.exists(_.name.name == "RUNFILES")) {
       val setup = DBIO.seq(runFiles.schema.create)
       val setupFuture = database.run(setup)
@@ -959,7 +1028,7 @@ case class dbContainer() {
 
   val runDatasets = TableQuery[RunDatasets]
 
-  //--------------------------------------- Definition of the RUNSOURCEPARAMETERS table---------------------------------
+  //--------------------------------------- Definition of the RUNDATASETPARAMETERS table---------------------------------
   /**
     * RUNDATASETPARAMETERS TABLE:
     *   ID:             INT     PK AUTOINC
@@ -991,6 +1060,39 @@ case class dbContainer() {
   }
 
   val runDatasetParameters = TableQuery[RunDatasetParameters]
+
+  //--------------------------------------- Definition of the RUNDATASETLOGS table---------------------------------
+  /**
+    * RUNDATASETLOGS TABLE:
+    *   ID:              INT     PK AUTOINC
+    *   RUNDATASET_ID:   INT     FK(RUNDATASETS)
+    *   STAGE:           STRING
+    *   TOTAL_FILES:     INT
+    *   DOWNLOADED_FILES:INT
+    * @param tag RUNDATASETLOGS
+    */
+  class RunDatasetLogs(tag: Tag) extends
+    Table[(Option[Int], Int, String, Int, Int)](tag, "RUNDATASETLOGS") {
+    def id = column[Int]("RUNDATASETLOGS_ID", O.PrimaryKey, O.AutoInc)
+
+    def runDatasetId = column[Int]("RUNDATASET_ID")
+
+    def stage = column[String]("STAGE")
+
+    def totalFiles = column[Int]("TOTAL_FILES")
+
+    def downloadedFiles = column[Int]("DOWNLOADED_FILES")
+
+    def RunDataset = foreignKey("RUNDATASETLOGS_RUNDATASET_FK", runDatasetId, runDatasets)(
+      _.id,
+      onUpdate = ForeignKeyAction.Restrict,
+      onDelete = ForeignKeyAction.Cascade
+    )
+
+    def * = (id.?,runDatasetId,stage,totalFiles,downloadedFiles)
+  }
+
+  val runDatasetLogs = TableQuery[RunDatasetLogs]
 
   //--------------------------------------------- Definition of the RUNFILES table--------------------------------------
   /**

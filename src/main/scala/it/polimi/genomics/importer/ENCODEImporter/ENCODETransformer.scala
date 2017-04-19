@@ -182,7 +182,7 @@ class ENCODETransformer extends GMQLTransformer {
           val replicate = replicates.next()
           if(replicate.has("biological_replicate_number") &&
             replicateIds.contains(replicate.get("biological_replicate_number").asText()))
-            printTree(replicate,"replicates",writer,metaList,separator, exclusion = false)
+            printTree(replicate,s"replicates|${replicate.get("biological_replicate_number").asText()}",writer,metaList,separator, exclusion = false)
         }
       }
     }

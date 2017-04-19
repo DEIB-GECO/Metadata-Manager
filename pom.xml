@@ -36,9 +36,22 @@
             <artifactId>h2</artifactId>
             <version>1.4.193</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.typesafe.play/play_2.10 -->
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play_2.10</artifactId>
+            <version>2.4.11</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.typesafe.play/play-ws_2.10 -->
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-ws_2.10</artifactId>
+            <version>2.4.11</version>
+        </dependency>
+
         <dependency>
             <groupId>com.typesafe.slick</groupId>
-            <artifactId>slick_2.11</artifactId>
+            <artifactId>slick_2.10</artifactId>
             <version>3.1.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
@@ -67,7 +80,7 @@
         <dependency>
             <groupId>org.scala-lang.modules</groupId>
             <artifactId>scala-xml_2.11</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.6</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
         <dependency>
@@ -81,7 +94,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.1.4</version>
+                <version>3.2.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -126,6 +139,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
                 <configuration>
                     <archive>
                         <manifest>
