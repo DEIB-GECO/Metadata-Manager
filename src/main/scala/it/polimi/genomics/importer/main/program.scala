@@ -5,7 +5,7 @@ import java.io.File
 import it.polimi.genomics.importer.FileDatabase.FileDatabase
 import it.polimi.genomics.importer.GMQLImporter._
 import it.polimi.genomics.importer.GMQLImporter.utils.SCHEMA_LOCATION
-import it.polimi.genomics.repository.Utilities
+//import it.polimi.genomics.repository.Utilities
 import org.apache.log4j._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -35,6 +35,15 @@ object program {
     console2.setThreshold(Level.INFO)
     console2.activateOptions()
     Logger.getLogger("it.polimi.genomics.importer").addAppender(console2)
+
+    val console3 = new ConsoleAppender()
+    //configure the appender
+    console3.setLayout(new PatternLayout(PATTERN))
+    console3.setThreshold(Level.WARN)
+    console3.activateOptions()
+    Logger.getLogger("slick").addAppender(console3)
+
+
 
 //    BasicConfigurator.configure()
     if(args.length == 0){
@@ -71,8 +80,14 @@ object program {
         else
           logger.warn("No configuration file specified")
       }
-      else if(args.head.endsWith(".xml") && new File(args.drop(1).head.toString).isDirectory){
-        run(args.head, args.drop(1).head.toString)
+      else if(args.length>1) {
+        val xmlPath = args.head
+        val gmqlConfPath = args.drop(1).head
+        logger.info(s"path for the xml file = $xmlPath")
+        logger.info(s"path for the gmql Configuration folder = $gmqlConfPath")
+        if (xmlPath.endsWith(".xml") && new File(gmqlConfPath).isDirectory) {
+          run(args.head, args.drop(1).head.toString)
+        }
       }
     }
   }
@@ -123,7 +138,7 @@ object program {
         fa2.setName("FileLogger")
         fa2.setFile(logName)
         fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
-        fa2.setThreshold(Level.TRACE)
+        fa2.setThreshold(Level.INFO)
         fa2.setAppend(true)
         fa2.activateOptions()
         Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
@@ -178,7 +193,7 @@ object program {
     * @param xmlConfigPath xml configuration file location
     */
   def run(xmlConfigPath: String, gmqlConfigPath: String): Unit = {
-    Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
+//    Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
     //general settings
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
@@ -282,7 +297,7 @@ object program {
             }
             if (loadEnabled && source.loadEnabled) {
               logger.info(s"Starting load for ${source.name}")
-              Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
+//              Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
               logger.info(s"Loading for ${source.name} Finished")
             }
           })
