@@ -18,7 +18,7 @@ class NULLTransformer extends GMQLTransformer {
     * @param dataset dataser where the file belongs to
     * @return candidate names for the files derived from the original filename.
     */
-  override def getCandidateNames(filename: String, dataset :GMQLDataset): List[String] = {
+  override def getCandidateNames(filename: String, dataset :GMQLDataset, source: GMQLSource): List[String] = {
     var returns = true
     val filenameSplit = filename.split('.')
     if(filenameSplit.nonEmpty){
