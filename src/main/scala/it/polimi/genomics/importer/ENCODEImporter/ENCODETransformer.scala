@@ -29,10 +29,38 @@ class ENCODETransformer extends GMQLTransformer {
     * @param dataset dataser where the file belongs to
     * @return candidate names for the files derived from the original filename.
     */
-  override def getCandidateNames(filename: String, dataset :GMQLDataset): List[String] = {
-      if(filename.endsWith(".gz"))List[String](filename.substring(0, filename.lastIndexOf(".")))
-      else if(filename.endsWith(".gz.json"))List[String](filename.replace(".gz.json", ".meta"))
+  override def getCandidateNames(filename: String, dataset :GMQLDataset, source: GMQLSource): List[String] = {
+    val x = 100
+    if (filename.endsWith(".gz"))
+      List[String](filename.substring(0, filename.lastIndexOf(".")))
+    else {
+      if (source.parameters.exists(_._1 == "metadata_extraction") &&
+        source.parameters.filter(_._1 == "metadata_extraction").head._2 == "json") {
+        if (filename.endsWith(".gz.json"))
+          List[String](filename.replace(".gz.json", ".meta"))
+        else List[String]()
+      }
+
+      else if (source.parameters.exists(_._1 == "metadata_extraction") &&
+        source.parameters.filter(_._1 == "metadata_extraction").head._2 != "json" &&
+        source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(filename)) {
+        import scala.io.Source
+        val header = Source.fromFile(source.outputFolder +
+          File.separator + dataset.outputFolder + File.separator + "Downloads" + File.separator + filename).getLines().next().split("\t")
+
+        //this "File download URL" maybe should be in the parameters of the XML.
+        val url = header.lastIndexOf("File download URL")
+        Source.fromFile(source.outputFolder +
+          File.separator + dataset.outputFolder + File.separator + "Downloads" + File.separator + filename).getLines().drop(1).map(line => {
+          //create file .meta
+          val fields = line.split("\t")
+          val aux1 = fields(url).split("/").last
+          val aux2 = aux1.substring(0, aux1.lastIndexOf(".")) + ".meta" //this is the meta name
+          aux2
+        }).toList
+      }
       else List[String]()
+    }
   }
   /**
     * recieves .json and .bed.gz files and transform them to get metadata in .meta files and region in .bed files.
@@ -45,32 +73,71 @@ class ENCODETransformer extends GMQLTransformer {
     */
   override def transform(source: GMQLSource,originPath: String, destinationPath: String, originalFilename:String,
                 filename: String):Unit= {
-    fillMetadataExclusion(source)
-    val fileDownloadPath = originPath + File.separator + originalFilename
-    val fileTransformationPath = destinationPath + File.separator + filename
-    if (originalFilename.endsWith(".gz")) {
-      logger.debug("Start unGzipping: " + originalFilename)
-      unGzipIt(
-        fileDownloadPath,
-        fileTransformationPath)
-      logger.info("UnGzipping: " + originalFilename + " DONE")
-    }
-    else if (originalFilename.endsWith(".gz.json")) {
-      logger.debug("Start metadata transformation: " + originalFilename)
-      val jsonFileName = filename.split('.').head
+      fillMetadataExclusion(source)
+      val fileDownloadPath = originPath + File.separator + originalFilename
+      val fileTransformationPath = destinationPath + File.separator + filename
+      if (originalFilename.endsWith(".gz")) {
+        logger.debug("Start unGzipping: " + originalFilename)
+        unGzipIt(
+          fileDownloadPath,
+          fileTransformationPath)
+        logger.info("UnGzipping: " + originalFilename + " DONE")
+      }
+      else if(source.parameters.exists(_._1 == "metadata_extraction") &&
+        source.parameters.filter(_._1 == "metadata_extraction").head._2 == "json") {
+        if (originalFilename.endsWith(".gz.json")) {
+          logger.debug("Start metadata transformation: " + originalFilename)
+          val jsonFileName = filename.split('.').head
 
-      val separator =
-        if(source.parameters.exists(_._1=="metadata_name_separation_char"))
-          source.parameters.filter(_._1=="metadata_name_separation_char").head._2
-        else
-          "|"
-      transformMetaFromJson(fileDownloadPath, fileTransformationPath, jsonFileName,separator)
-      logger.info("Metadata transformation: " + originalFilename + " DONE")
-    }
-    else {
-      //this is no data nor metadata file, must be the metadata.tsv.
-      // I do nothing with it, but should return the empty (Int,String)
-    }
+          val separator =
+            if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
+              source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+            else
+              "|"
+          transformMetaFromJson(fileDownloadPath, fileTransformationPath, jsonFileName, separator)
+          logger.info("Metadata transformation: " + originalFilename + " DONE")
+        }
+        else {
+          //this is no data nor metadata file, must be the metadata.tsv and is not used due to json selection.
+        }
+      }
+      //if not json is defined, metadata.tsv will be used.
+      else {
+        if(source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(originalFilename)) {
+          transformMetaFromTsv(fileDownloadPath,destinationPath)
+        }
+        else{
+          //is not metadata file
+        }
+      }
+  }
+
+  /**
+    * by giving a metadata.tsv file creates all the metadata for the files.
+    * @param originPath full path to metadata.tsv file
+    * @param destinationFolder transformations folder of the dataset.
+    */
+  def transformMetaFromTsv(originPath: String, destinationFolder: String): Unit ={
+    import scala.io.Source
+    logger.info(s"Splitting ENCODE metadata from $originPath")
+    val header = Source.fromFile(originPath).getLines().next().split("\t")
+
+    //this "File download URL" maybe should be in the parameters of the XML.
+    val url = header.lastIndexOf("File download URL")
+    Source.fromFile(originPath).getLines().drop(1).foreach(line => {
+      //create file .meta
+      val fields = line.split("\t")
+      val aux1 = fields(url).split("/").last
+      val aux2 = aux1.substring(0, aux1.lastIndexOf(".")) + ".meta" //this is the meta name
+      val file = new File(destinationFolder +File.separator+ aux2)
+
+      val writer = new PrintWriter(file)
+      for (i <- 0 until fields.size) {
+        if (fields(i).nonEmpty)
+          writer.write(header(i) + "\t" + fields(i) + "\n")
+      }
+      writer.close()
+    })
   }
   //----------------------------------------METADATA FROM JSON SECTION--------------------------------------------------
   /**
