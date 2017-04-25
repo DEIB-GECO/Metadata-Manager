@@ -114,8 +114,13 @@ class FTPDownloader extends GMQLDownloader {
             ftpFiles.cd(workingDirectory)
 
             val unfilteredFiles = ftpFiles.listFiles()
-            val files: List[FTPFile] = unfilteredFiles.filter(_.isFile).filter(_.getName.matches(
-              dataset.parameters.filter(_._1 == "files_regex").head._2))
+            val files: List[FTPFile] =
+              if(dataset.parameters.exists(_._1 == "files_regex"))
+                unfilteredFiles.filter(_.isFile).filter(_.getName.matches(
+                  dataset.parameters.filter(_._1 == "files_regex").head._2))
+              else
+                List[FTPFile]()
+
             ftpFiles.disconnect()
             var md5Downloaded = false
             if (dataset.parameters.exists(_._1 == "md5_checksum_tcga2bed")) {
