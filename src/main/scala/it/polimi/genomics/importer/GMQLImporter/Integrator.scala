@@ -82,7 +82,7 @@ object Integrator {
             val files = Class
               .forName(source.transformer)
               .newInstance.asInstanceOf[GMQLTransformer]
-              .getCandidateNames(originalFileName, dataset)
+              .getCandidateNames(originalFileName, dataset, source)
               .map(candidateName => {
                 FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName)
               })
@@ -164,56 +164,73 @@ object Integrator {
     */
   def checkRegionData(dataFilePath: String, schemaFilePath: String): (Boolean,Boolean) ={
     //first I read the schema.
-    val fields = (XML.loadFile(schemaFilePath) \\ "field").map(field => (field.text,(field\"@type").text))
-
-    val tempFile = dataFilePath+".temp"
-    val writer = new PrintWriter(tempFile)
-    //only replaces if everything goes right, if there is an error, we do not replace.
-    var correctSchema = true
-    var replace = false
-    Source.fromFile(dataFilePath).getLines().foreach(line=> {
-      val splitLine = line.split("\t")
-      var writeLine = ""
-      //here I have to check the schema
-      if (splitLine.size == fields.size) {
-        for (i <- 0 until splitLine.size) {
-
-          //try to parse for the type fields(i)._2
-
-          //if its a particular column, do particular action fields(i)._1
-          writeLine = writeLine + (if(i==0) splitLine(i) else "\t"+splitLine(i))
+    if(new File(schemaFilePath).exists()) {
+      val continue = {
+        try {
+          (XML.loadFile(schemaFilePath) \\ "field").nonEmpty
+          true
         }
-        writeLine = writeLine +"\n"
-        writer.write(writeLine)
-        //if there are changes to the lines, should replace the file.
-        replace = true
+        catch {
+          case e: Exception => false
+        }
       }
-      else {
-        if(correctSchema)
-        logger.warn("file: " + dataFilePath + " should have " + fields.length +
-          " columns. Instead has " + line.split("\t").length)
-        correctSchema = false
+      if (continue) {
+        val fields = (XML.loadFile(schemaFilePath) \\ "field").map(field => (field.text, (field \ "@type").text))
+
+        val tempFile = dataFilePath + ".temp"
+        val writer = new PrintWriter(tempFile)
+        //only replaces if everything goes right, if there is an error, we do not replace.
+        var correctSchema = true
+        var replace = false
+        Source.fromFile(dataFilePath).getLines().foreach(line => {
+          val splitLine = line.split("\t")
+          var writeLine = ""
+          //here I have to check the schema
+          if (splitLine.size == fields.size) {
+            for (i <- 0 until splitLine.size) {
+
+              //try to parse for the type fields(i)._2
+
+              //if its a particular column, do particular action fields(i)._1
+              writeLine = writeLine + (if (i == 0) splitLine(i) else "\t" + splitLine(i))
+            }
+            writeLine = writeLine + "\n"
+            writer.write(writeLine)
+            //if there are changes to the lines, should replace the file.
+            replace = true
+          }
+          else {
+            if (correctSchema)
+              logger.warn("file: " + dataFilePath + " should have " + fields.length +
+                " columns. Instead has " + line.split("\t").length)
+            correctSchema = false
+          }
+        })
+        writer.close()
+        if (replace) {
+          //replace the file, and remove the temporary one.
+          try {
+            import java.io.{File, FileInputStream, FileOutputStream}
+            val src = new File(tempFile)
+            val dest = new File(dataFilePath)
+            new FileOutputStream(dest) getChannel() transferFrom(
+              new FileInputStream(src) getChannel, 0, Long.MaxValue)
+            new File(tempFile).delete()
+          }
+          catch {
+            case e: IOException => logger.error("could not change the file " + dataFilePath)
+          }
+        }
+        else {
+          new File(tempFile).delete()
+        }
+        (replace, correctSchema)
       }
-    })
-    writer.close()
-    if(replace){
-      //replace the file, and remove the temporary one.
-      try {
-        import java.io.{File, FileInputStream, FileOutputStream}
-        val src = new File(tempFile)
-        val dest = new File(dataFilePath)
-        new FileOutputStream(dest) getChannel() transferFrom(
-          new FileInputStream(src) getChannel, 0, Long.MaxValue)
-        new File(tempFile).delete()
-      }
-      catch {
-        case e: IOException => logger.error("could not change the file " + dataFilePath)
-      }
+      else
+        (false,false)
     }
-    else{
-      new File(tempFile).delete()
-    }
-    (replace,correctSchema)
+    else
+      (false,false)
   }
   /**
     * changes the name of key attribute in metadata.
