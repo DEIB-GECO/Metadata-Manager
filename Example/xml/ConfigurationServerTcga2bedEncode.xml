@@ -5,7 +5,7 @@
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/home/nacho/GMQL-Importer/workingDirectory</base_working_directory>
-        <download_enabled>true</download_enabled>
+        <download_enabled>false</download_enabled>
         <transform_enabled>true</transform_enabled>
         <load_enabled>false</load_enabled>
     </settings>
@@ -156,7 +156,7 @@
                 </dataset>
                 <dataset name="mirnaseq_mirna">
                     <dataset_working_directory>mirnaseq_mirna</dataset_working_directory>
-                    <schema_url location="local">schemas/mirna_quantification.schema</schema_url>
+                    <schema_url location="local">schemas/mirnaseq_mirna.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
@@ -458,6 +458,11 @@
                     <key>metadata_replacement</key>
                     <value>xml/metadataReplacement.xml</value>
                 </parameter>
+                <parameter>
+                    <description>metadata extraction method tsv or json.</description>
+                    <key>metadata_extraction</key>
+                    <value>json</value>
+                </parameter>
             </parameter_list>
             <dataset_list>
                 <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
@@ -586,6 +591,11 @@
                     <description>Xml file with the metadata key replacements.</description>
                     <key>metadata_replacement</key>
                     <value>xml/metadataReplacement.xml</value>
+                </parameter>
+                <parameter>
+                    <description>metadata extraction method tsv or json.</description>
+                    <key>metadata_extraction</key>
+                    <value>json</value>
                 </parameter>
             </parameter_list>
             <dataset_list>
