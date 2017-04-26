@@ -5,7 +5,7 @@ import java.io.File
 import it.polimi.genomics.importer.FileDatabase.FileDatabase
 import it.polimi.genomics.importer.GMQLImporter._
 import it.polimi.genomics.importer.GMQLImporter.utils.SCHEMA_LOCATION
-//import it.polimi.genomics.repository.Utilities
+import it.polimi.genomics.repository.Utilities
 import org.apache.log4j._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -193,7 +193,7 @@ object program {
     * @param xmlConfigPath xml configuration file location
     */
   def run(xmlConfigPath: String, gmqlConfigPath: String): Unit = {
-//    Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
+    Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
     //general settings
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
@@ -297,7 +297,7 @@ object program {
             }
             if (loadEnabled && source.loadEnabled) {
               logger.info(s"Starting load for ${source.name}")
-//              Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
+              Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
               logger.info(s"Loading for ${source.name} Finished")
             }
           })
