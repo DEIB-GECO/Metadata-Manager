@@ -290,11 +290,79 @@ object program {
               Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source)
               logger.info(s"Download for ${source.name} Finished")
             }
+          })
+          sources.foreach(source => {
+            val sourceId = FileDatabase.sourceId(source.name)
+            val runSourceId = FileDatabase.runSourceId(
+              runId,
+              sourceId,
+              source.url,
+              source.outputFolder,
+              source.downloadEnabled.toString,
+              source.downloader,
+              source.transformEnabled.toString,
+              source.transformer,
+              source.loadEnabled.toString,
+              source.loader
+            )
+            source.parameters.foreach(parameter => {
+              FileDatabase.runSourceParameterId(runSourceId, parameter._3, parameter._1, parameter._2)
+            })
+            source.datasets.foreach(dataset => {
+              val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+              val runDatasetId = FileDatabase.runDatasetId(
+                runId,
+                datasetId,
+                dataset.outputFolder,
+                dataset.downloadEnabled.toString,
+                dataset.transformEnabled.toString,
+                dataset.loadEnabled.toString,
+                dataset.schemaUrl,
+                dataset.schemaLocation.toString
+              )
+              dataset.parameters.foreach(parameter => {
+                FileDatabase.runDatasetParameterId(runDatasetId, parameter._3, parameter._1, parameter._2)
+              })
+            })
             if (transformEnabled && source.transformEnabled) {
               logger.info(s"Starting integration for ${source.name}")
               Integrator.integrate(source)
               logger.info(s"Integration for ${source.name} Finished")
             }
+          })
+          sources.foreach(source => {
+            val sourceId = FileDatabase.sourceId(source.name)
+            val runSourceId = FileDatabase.runSourceId(
+              runId,
+              sourceId,
+              source.url,
+              source.outputFolder,
+              source.downloadEnabled.toString,
+              source.downloader,
+              source.transformEnabled.toString,
+              source.transformer,
+              source.loadEnabled.toString,
+              source.loader
+            )
+            source.parameters.foreach(parameter => {
+              FileDatabase.runSourceParameterId(runSourceId, parameter._3, parameter._1, parameter._2)
+            })
+            source.datasets.foreach(dataset => {
+              val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+              val runDatasetId = FileDatabase.runDatasetId(
+                runId,
+                datasetId,
+                dataset.outputFolder,
+                dataset.downloadEnabled.toString,
+                dataset.transformEnabled.toString,
+                dataset.loadEnabled.toString,
+                dataset.schemaUrl,
+                dataset.schemaLocation.toString
+              )
+              dataset.parameters.foreach(parameter => {
+                FileDatabase.runDatasetParameterId(runDatasetId, parameter._3, parameter._1, parameter._2)
+              })
+            })
             if (loadEnabled && source.loadEnabled) {
               logger.info(s"Starting load for ${source.name}")
               Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
