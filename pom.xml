@@ -2,6 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
         <artifactId>gmql</artifactId>
         <groupId>it.polimi.genomics</groupId>
@@ -21,6 +22,10 @@
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 <!--
@@ -30,6 +35,13 @@
             <version>21.0</version>
         </dependency>
 -->
+        <!-- https://mvnrepository.com/artifact/commons-net/commons-net -->
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.6</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -39,19 +51,29 @@
         <!-- https://mvnrepository.com/artifact/com.typesafe.play/play_2.10 -->
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play_2.10</artifactId>
+            <artifactId>play_2.11</artifactId>
             <version>2.4.11</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.typesafe.play/play-ws_2.10 -->
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-ws_2.10</artifactId>
+            <artifactId>play-ws_2.11</artifactId>
             <version>2.4.11</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.slick</groupId>
-            <artifactId>slick_2.10</artifactId>
+            <artifactId>slick_2.11</artifactId>
             <version>3.1.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->

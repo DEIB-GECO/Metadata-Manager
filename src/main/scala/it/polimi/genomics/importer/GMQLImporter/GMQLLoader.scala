@@ -30,9 +30,9 @@ class GMQLLoader {
   def loadIntoGMQL(source: GMQLSource): Unit = {
     val gmqlUser = source.parameters.filter(_._1=="gmql_user").head._2
     val stage = STAGE.TRANSFORM
-    logger.debug("Preparing for loading datasets into GMQL")
+    logger.info("Preparing for loading datasets into GMQL")
     source.datasets.foreach(dataset =>{
-      logger.trace("dataset "+dataset.name)
+      logger.debug("dataset "+dataset.name)
       if(dataset.loadEnabled) {
         val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Transformations"
 
@@ -54,7 +54,7 @@ class GMQLLoader {
 
         if (listAdd.size() > 0) {
           //CHANGE GMQLUSER TO SOURCE PARAMETERS
-          logger.debug("Trying to add " + dataset.name +" to user: "+ gmqlUser)
+          logger.info("Trying to add " + dataset.name +" to user: "+ gmqlUser)
           val datasetName =
             if(dataset.parameters.exists(_._1=="loading_name"))
               dataset.parameters.filter(_._1=="loading_name").head._2
@@ -66,7 +66,7 @@ class GMQLLoader {
             repo.deleteDS(datasetName,gmqlUser)
           }catch {
             //should be GMQLDSNotFound but dont know yet where it is.
-            case e:Exception => logger.debug("Dataset " + datasetName + " is not defined before!!")
+            case e:Exception => logger.info("Dataset " + datasetName + " is not defined before!!")
           }
 
           try {
@@ -82,10 +82,10 @@ class GMQLLoader {
           }
         }
         else
-          logger.debug("dataset "+dataset.name+" has no files to be loaded")
+          logger.info("dataset "+dataset.name+" has no files to be loaded")
       }
       else
-        logger.trace("dataset "+dataset.name+" not included to load.")
+        logger.debug("dataset "+dataset.name+" not included to load.")
     })
   }
   def dsExists (username: String, datasetName: String ): Boolean ={

@@ -36,6 +36,15 @@ object program {
     console2.activateOptions()
     Logger.getLogger("it.polimi.genomics.importer").addAppender(console2)
 
+    val console3 = new ConsoleAppender()
+    //configure the appender
+    console3.setLayout(new PatternLayout(PATTERN))
+    console3.setThreshold(Level.WARN)
+    console3.activateOptions()
+    Logger.getLogger("slick").addAppender(console3)
+
+
+
 //    BasicConfigurator.configure()
     if(args.length == 0){
       logger.info("no arguments specified, run with help for more information")
@@ -71,8 +80,14 @@ object program {
         else
           logger.warn("No configuration file specified")
       }
-      else if(args.head.endsWith(".xml") && new File(args.drop(1).head.toString).isDirectory){
-        run(args.head, args.drop(1).head.toString)
+      else if(args.length>1) {
+        val xmlPath = args.head
+        val gmqlConfPath = args.drop(1).head
+        logger.info(s"path for the xml file = $xmlPath")
+        logger.info(s"path for the gmql Configuration folder = $gmqlConfPath")
+        if (xmlPath.endsWith(".xml") && new File(gmqlConfPath).isDirectory) {
+          run(args.head, args.drop(1).head.toString)
+        }
       }
     }
   }
@@ -123,7 +138,7 @@ object program {
         fa2.setName("FileLogger")
         fa2.setFile(logName)
         fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
-        fa2.setThreshold(Level.TRACE)
+        fa2.setThreshold(Level.INFO)
         fa2.setAppend(true)
         fa2.activateOptions()
         Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
@@ -275,11 +290,79 @@ object program {
               Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source)
               logger.info(s"Download for ${source.name} Finished")
             }
+          })
+          sources.foreach(source => {
+            val sourceId = FileDatabase.sourceId(source.name)
+            val runSourceId = FileDatabase.runSourceId(
+              runId,
+              sourceId,
+              source.url,
+              source.outputFolder,
+              source.downloadEnabled.toString,
+              source.downloader,
+              source.transformEnabled.toString,
+              source.transformer,
+              source.loadEnabled.toString,
+              source.loader
+            )
+            source.parameters.foreach(parameter => {
+              FileDatabase.runSourceParameterId(runSourceId, parameter._3, parameter._1, parameter._2)
+            })
+            source.datasets.foreach(dataset => {
+              val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+              val runDatasetId = FileDatabase.runDatasetId(
+                runId,
+                datasetId,
+                dataset.outputFolder,
+                dataset.downloadEnabled.toString,
+                dataset.transformEnabled.toString,
+                dataset.loadEnabled.toString,
+                dataset.schemaUrl,
+                dataset.schemaLocation.toString
+              )
+              dataset.parameters.foreach(parameter => {
+                FileDatabase.runDatasetParameterId(runDatasetId, parameter._3, parameter._1, parameter._2)
+              })
+            })
             if (transformEnabled && source.transformEnabled) {
               logger.info(s"Starting integration for ${source.name}")
               Integrator.integrate(source)
               logger.info(s"Integration for ${source.name} Finished")
             }
+          })
+          sources.foreach(source => {
+            val sourceId = FileDatabase.sourceId(source.name)
+            val runSourceId = FileDatabase.runSourceId(
+              runId,
+              sourceId,
+              source.url,
+              source.outputFolder,
+              source.downloadEnabled.toString,
+              source.downloader,
+              source.transformEnabled.toString,
+              source.transformer,
+              source.loadEnabled.toString,
+              source.loader
+            )
+            source.parameters.foreach(parameter => {
+              FileDatabase.runSourceParameterId(runSourceId, parameter._3, parameter._1, parameter._2)
+            })
+            source.datasets.foreach(dataset => {
+              val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+              val runDatasetId = FileDatabase.runDatasetId(
+                runId,
+                datasetId,
+                dataset.outputFolder,
+                dataset.downloadEnabled.toString,
+                dataset.transformEnabled.toString,
+                dataset.loadEnabled.toString,
+                dataset.schemaUrl,
+                dataset.schemaLocation.toString
+              )
+              dataset.parameters.foreach(parameter => {
+                FileDatabase.runDatasetParameterId(runDatasetId, parameter._3, parameter._1, parameter._2)
+              })
+            })
             if (loadEnabled && source.loadEnabled) {
               logger.info(s"Starting load for ${source.name}")
               Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)

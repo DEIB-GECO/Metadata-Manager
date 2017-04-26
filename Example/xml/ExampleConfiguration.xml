@@ -5,7 +5,7 @@
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/home/nachon/IdeaProjects/Importer/GMQL-Importer/Example</base_working_directory>
-        <download_enabled>true</download_enabled>
+        <download_enabled>false</download_enabled>
         <transform_enabled>true</transform_enabled>
         <load_enabled>false</load_enabled>
     </settings>
@@ -16,8 +16,8 @@
             <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
             <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
-            <download_enabled>true</download_enabled>
-            <transform_enabled>true</transform_enabled>
+            <download_enabled>false</download_enabled>
+            <transform_enabled>false</transform_enabled>
             <load_enabled>false</load_enabled>
             <parameter_list>
                 <parameter>
@@ -98,8 +98,8 @@
                 <dataset name="dnamethyltest">
                     <dataset_working_directory>dnamethylation</dataset_working_directory>
                     <schema_url location="local">schemas/dnamethylation.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -201,6 +201,11 @@
                     <key>metadata_replacement</key>
                     <value>xml/metadataReplacement.xml</value>
                 </parameter>
+                <parameter>
+                    <description>metadata extraction method tsv or json.</description>
+                    <key>metadata_extraction</key>
+                    <value>tsv</value>
+                </parameter>
             </parameter_list>
             <dataset_list>
                 <dataset name="exampleNarrowPeak">
@@ -232,8 +237,13 @@
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
-                            <key>month_released</key>
-                            <value>March%2C+2016</value>
+                            <key>award.project</key>
+                            <value>Roadmap</value>
+                        </parameter>
+                        <parameter>
+                            <description>this ones are to reduce the downloaded files</description>
+                            <key>target.investigated_as</key>
+                            <value>narrow+histone+mark</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
@@ -258,6 +268,11 @@
                             <description>this ones are to reduce the downloaded files</description>
                             <key>assay_title</key>
                             <value>RIP-seq</value>
+                        </parameter>
+                        <parameter>
+                            <description>this ones are to reduce the downloaded files</description>
+                            <key>target.investigated_as</key>
+                            <value>control</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
@@ -287,6 +302,11 @@
                             <description>this ones are to reduce the downloaded files</description>
                             <key>organ_slims</key>
                             <value>liver</value>
+                        </parameter>
+                        <parameter>
+                            <description>this ones are to reduce the downloaded files</description>
+                            <key>target.investigated_as</key>
+                            <value>transcription+factor</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
