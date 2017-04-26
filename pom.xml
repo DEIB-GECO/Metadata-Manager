@@ -13,7 +13,7 @@
 
     <dependencies>
 
-<!--        <dependency>
+        <dependency>
             <groupId>it.polimi.genomics</groupId>
             <artifactId>GMQL-Repository</artifactId>
             <version>1.0</version>
@@ -27,7 +27,7 @@
                     <artifactId>logback-core</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>-->
+        </dependency>
 <!--
         <dependency>
             <groupId>com.google.guava</groupId>
