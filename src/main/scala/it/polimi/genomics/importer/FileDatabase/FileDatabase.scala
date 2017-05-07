@@ -8,9 +8,6 @@ import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
   */
 object FileDatabase {
   private val db = new dbContainer
-  def printDatabase(): Unit ={
-    db.printWholeDatabase()
-  }
   def setDatabase(path:String): Unit ={
     db.setDatabase(path)
   }
@@ -277,16 +274,6 @@ object FileDatabase {
   def markToCompare(datasetId: Int, stage: STAGE.Value): Unit ={
     db.markToCompare(datasetId, stage)
   }
-/*  /**
-    * updates the status of the files in the log in order to inform that was already processed.
-    * turns "UPDATE" into "NOTHING"
-    * updates dateProcessed
-    * @param datasetId identifier for the dataset.
-    * @param stage indicates whether refers to download or transformed files.
-    */
-  def markAsProcessed(datasetId: Int, stage: STAGE.Value): Unit ={
-    db.markAsProcessed(datasetId,stage)
-  }*/
 }
 
 
