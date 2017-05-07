@@ -30,6 +30,6 @@ case class GMQLSource(
                         loader:String,
                         parameters: Seq[(String,String,String)],
                         datasets:Seq[GMQLDataset],
-                        mergedDatasets:Seq[GMQLDataset]
+                        mergedDatasets:Seq[GMQLDataset]//not used
                       ) {
 }
