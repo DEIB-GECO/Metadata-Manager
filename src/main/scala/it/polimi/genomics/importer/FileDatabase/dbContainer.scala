@@ -243,16 +243,16 @@ case class dbContainer() {
     * @return the runDataset id.
     */
   def runDatasetId(datasetId: Int, outputFolder: String, downloadEnabled: String, transformEnabled: String,
-                   loadEnabled: String,schemaUrl: String, schemaLocation: String
+                   loadEnabled: String,schemaUrl: String, schemaLocation: String, runId2: Option[Int]
                   ): Int = {
-    val runId = getMaxRunNumber
+    val runId = runId2.getOrElse(getMaxRunNumber)
     val query = (for (rd <- runDatasets.filter(r => r.runId === runId && r.datasetId === datasetId)) yield rd.id).result
     val execution = database.run(query)
     val result = Await.result(execution, Duration.Inf)
 
     if (result.nonEmpty)
       result.head
-    //here I have to create the runSource
+    //here I have to create the runDataset
     else {
       val idQuery: FixedSqlAction[Int, NoStream, Write] = (runDatasets returning runDatasets.map(_.id)) += (
         None, runId,datasetId,outputFolder,downloadEnabled,transformEnabled,loadEnabled,schemaUrl,schemaLocation
