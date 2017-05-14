@@ -119,7 +119,7 @@ object Integrator {
                   writer.close()
                 }
                 //metadata renaming. (standardizing of the metadata values should happen here also.
-                if (changeMetadataKeys(metadataRenaming, fileTransformationPath,separator))
+                if (changeMetadataKeys(metadataRenaming, fileTransformationPath))
                   modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
                 totalTransformedFiles = totalTransformedFiles + 1
               }
