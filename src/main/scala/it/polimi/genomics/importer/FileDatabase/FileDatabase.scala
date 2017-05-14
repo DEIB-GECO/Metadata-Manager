@@ -114,7 +114,7 @@ object FileDatabase {
   def runDatasetId(runId: Int, datasetId: Int, outputFolder: String, downloadEnabled: String, transformEnabled: String,
                    loadEnabled: String,schemaUrl: String, schemaLocation: String
                   ): Int = {
-    db.runDatasetId(datasetId, outputFolder, downloadEnabled, transformEnabled, loadEnabled, schemaUrl, schemaLocation)
+    db.runDatasetId(datasetId, outputFolder, downloadEnabled, transformEnabled, loadEnabled, schemaUrl, schemaLocation, Option(runId))
   }
   /**
     * prints the log for dataset downloaded files for a specified run
@@ -151,7 +151,8 @@ object FileDatabase {
       dataset.transformEnabled.toString,
       dataset.loadEnabled.toString,
       dataset.schemaUrl,
-      dataset.schemaLocation.toString
+      dataset.schemaLocation.toString,
+      Option(runId)
     )
     db.runDatasetLogId(runDatasetId, STAGE.DOWNLOAD,totalFiles, downloadedFiles)
   }
@@ -164,7 +165,8 @@ object FileDatabase {
       dataset.transformEnabled.toString,
       dataset.loadEnabled.toString,
       dataset.schemaUrl,
-      dataset.schemaLocation.toString
+      dataset.schemaLocation.toString,
+      Option(runId)
     )
     db.runDatasetLogId(runDatasetId, STAGE.TRANSFORM,totalFiles, downloadedFiles)
   }
