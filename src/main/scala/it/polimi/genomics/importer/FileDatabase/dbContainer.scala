@@ -427,8 +427,9 @@ case class dbContainer() {
     * gets the actual run
     * @return max id of runs
     */
-  def getMaxRunNumber: Int ={
-    val query = (for (r <- runs) yield r.id).result
+//  def getMaxRunNumber: Int ={
+  lazy val getMaxRunNumber: Int ={
+    val query = (for (r <- runs) yield r.id).max.result
     val execution = database.run(query)
     val result = Await.result(execution, Duration.Inf)
     result.max
