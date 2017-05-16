@@ -1,0 +1,6 @@
+<metadata_replace_list>
+    <metadata_replace>
+        <regex>\|</regex>
+        <replace>__</replace>
+    </metadata_replace>
+</metadata_replace_list>
