@@ -247,7 +247,8 @@ object Integrator {
         if(line.split('\t').length==2) {
           var metadataKey = line.split('\t')(0)
           val metadataValue = line.split('\t')(1)
-          changeKeys.filter(change => metadataKey.matches(change._1)).foreach(change =>{
+          changeKeys.filter(change => change._1.r.findFirstIn(metadataKey).isDefined).foreach(change =>{
+
             replaced = true
             metadataKey = change._1.r.replaceFirstIn(metadataKey, change._2)
           })
