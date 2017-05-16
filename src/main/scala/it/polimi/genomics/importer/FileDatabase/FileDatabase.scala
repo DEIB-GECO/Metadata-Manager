@@ -8,9 +8,6 @@ import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
   */
 object FileDatabase {
   private val db = new dbContainer
-  def printDatabase(): Unit ={
-    db.printWholeDatabase()
-  }
   def setDatabase(path:String): Unit ={
     db.setDatabase(path)
   }
@@ -117,7 +114,7 @@ object FileDatabase {
   def runDatasetId(runId: Int, datasetId: Int, outputFolder: String, downloadEnabled: String, transformEnabled: String,
                    loadEnabled: String,schemaUrl: String, schemaLocation: String
                   ): Int = {
-    db.runDatasetId(datasetId, outputFolder, downloadEnabled, transformEnabled, loadEnabled, schemaUrl, schemaLocation)
+    db.runDatasetId(datasetId, outputFolder, downloadEnabled, transformEnabled, loadEnabled, schemaUrl, schemaLocation, Option(runId))
   }
   /**
     * prints the log for dataset downloaded files for a specified run
@@ -154,7 +151,8 @@ object FileDatabase {
       dataset.transformEnabled.toString,
       dataset.loadEnabled.toString,
       dataset.schemaUrl,
-      dataset.schemaLocation.toString
+      dataset.schemaLocation.toString,
+      Option(runId)
     )
     db.runDatasetLogId(runDatasetId, STAGE.DOWNLOAD,totalFiles, downloadedFiles)
   }
@@ -167,7 +165,8 @@ object FileDatabase {
       dataset.transformEnabled.toString,
       dataset.loadEnabled.toString,
       dataset.schemaUrl,
-      dataset.schemaLocation.toString
+      dataset.schemaLocation.toString,
+      Option(runId)
     )
     db.runDatasetLogId(runDatasetId, STAGE.TRANSFORM,totalFiles, downloadedFiles)
   }
@@ -277,16 +276,6 @@ object FileDatabase {
   def markToCompare(datasetId: Int, stage: STAGE.Value): Unit ={
     db.markToCompare(datasetId, stage)
   }
-/*  /**
-    * updates the status of the files in the log in order to inform that was already processed.
-    * turns "UPDATE" into "NOTHING"
-    * updates dateProcessed
-    * @param datasetId identifier for the dataset.
-    * @param stage indicates whether refers to download or transformed files.
-    */
-  def markAsProcessed(datasetId: Int, stage: STAGE.Value): Unit ={
-    db.markAsProcessed(datasetId,stage)
-  }*/
 }
 
 

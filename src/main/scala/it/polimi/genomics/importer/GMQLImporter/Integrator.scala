@@ -26,8 +26,8 @@ object Integrator {
     if (source.transformEnabled) {
       logger.info("Starting integration for: " + source.outputFolder)
       val sourceId = FileDatabase.sourceId(source.name)
-      //I load the renaming list from the source parameters.
 
+      //I load the renaming list from the source parameters.
       val metadataRenaming: Seq[(String, String)] =
         try {
           (XML.loadFile(source.rootOutputFolder + File.separator + source.parameters
@@ -42,9 +42,11 @@ object Integrator {
             logger.info("no metadata replacement defined for: " + source.name)
             Seq[(String, String)]()
         }
+      //counters
       var modifiedRegionFilesSource = 0
       var modifiedMetadataFilesSource = 0
       var wrongSchemaFilesSource = 0
+      //integration process for each dataset contained in the source.
       source.datasets.foreach(dataset => {
         if (dataset.transformEnabled) {
           var modifiedRegionFilesDataset = 0
@@ -94,9 +96,8 @@ object Integrator {
                 else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
               val originDetails = FileDatabase.getFileDetails(file._1)
 
-              //I always transform, so I commented the if
+              //I always transform, so the boolean checkIfUpdate is not used here.
               FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-              //                if (FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)) {
               Class
                 .forName(source.transformer)
                 .newInstance.asInstanceOf[GMQLTransformer]
@@ -104,14 +105,14 @@ object Integrator {
               val fileTransformationPath = transformationsFolder + File.separator + name
               //add copy numbers if needed.
               if (name.endsWith(".meta")) {
+                val separator =
+                  if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
+                    source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+                  else
+                    "__"
                 val maxCopy = FileDatabase.getMaxCopyNumber(datasetId, file._2, STAGE.DOWNLOAD)
                 if (maxCopy > 1) {
                   val writer = new FileWriter(fileTransformationPath, true)
-                  val separator =
-                    if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
-                      source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
-                    else
-                      "|"
                   writer.write("manually_curated" + separator + "file_copy_total_count\t" + maxCopy + "\n")
                   writer.write("manually_curated" + separator + "file_copy_number\t" + file._3 + "\n")
                   writer.write("manually_curated" + separator + "file_name_replaced\ttrue\n")
@@ -248,8 +249,9 @@ object Integrator {
           val metadataValue = line.split('\t')(1)
           changeKeys.filter(change => metadataKey.matches(change._1)).foreach(change =>{
             replaced = true
-            metadataKey = change._1.r.replaceFirstIn(metadataKey, change._2).replace(" ", "_")
+            metadataKey = change._1.r.replaceFirstIn(metadataKey, change._2)
           })
+          metadataKey = metadataKey.replace(" ", "_")
           if(!metadataList.contains((metadataKey,metadataValue))) {
             metadataList = metadataList :+ (metadataKey, metadataValue)
           }

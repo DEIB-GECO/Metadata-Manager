@@ -30,7 +30,6 @@ class ENCODETransformer extends GMQLTransformer {
     * @return candidate names for the files derived from the original filename.
     */
   override def getCandidateNames(filename: String, dataset :GMQLDataset, source: GMQLSource): List[String] = {
-    val x = 100
     if (filename.endsWith(".gz"))
       List[String](filename.substring(0, filename.lastIndexOf(".")))
     else {
@@ -40,7 +39,6 @@ class ENCODETransformer extends GMQLTransformer {
           List[String](filename.replace(".gz.json", ".meta"))
         else List[String]()
       }
-
       else if (source.parameters.exists(_._1 == "metadata_extraction") &&
         source.parameters.filter(_._1 == "metadata_extraction").head._2 != "json" &&
         source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(filename)) {
@@ -93,7 +91,7 @@ class ENCODETransformer extends GMQLTransformer {
             if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
               source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
             else
-              "|"
+              "__"
           transformMetaFromJson(fileDownloadPath, fileTransformationPath, jsonFileName, separator)
           logger.info("Metadata transformation: " + originalFilename + " DONE")
         }
@@ -104,7 +102,8 @@ class ENCODETransformer extends GMQLTransformer {
       //if not json is defined, metadata.tsv will be used.
       else {
         if(source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(originalFilename)) {
-          transformMetaFromTsv(fileDownloadPath,destinationPath)
+          val accession = filename.split('.').head
+          transformMetaFromTsv(fileDownloadPath,destinationPath,accession)
         }
         else{
           //is not metadata file
@@ -117,14 +116,15 @@ class ENCODETransformer extends GMQLTransformer {
     * @param originPath full path to metadata.tsv file
     * @param destinationFolder transformations folder of the dataset.
     */
-  def transformMetaFromTsv(originPath: String, destinationFolder: String): Unit ={
+  def transformMetaFromTsv(originPath: String, destinationFolder: String, accession: String): Unit ={
     import scala.io.Source
-    logger.info(s"Splitting ENCODE metadata from $originPath")
+    logger.info(s"Splitting ENCODE metadata for $accession")
     val header = Source.fromFile(originPath).getLines().next().split("\t")
 
     //this "File download URL" maybe should be in the parameters of the XML.
     val url = header.lastIndexOf("File download URL")
-    Source.fromFile(originPath).getLines().drop(1).foreach(line => {
+    Source.fromFile(originPath).getLines()
+      .filter(line => line.split("\t")(url).contains(accession)).foreach(line => {
       //create file .meta
       val fields = line.split("\t")
       val aux1 = fields(url).split("/").last
@@ -249,7 +249,7 @@ class ENCODETransformer extends GMQLTransformer {
           val replicate = replicates.next()
           if(replicate.has("biological_replicate_number") &&
             replicateIds.contains(replicate.get("biological_replicate_number").asText()))
-            printTree(replicate,s"replicates|${replicate.get("biological_replicate_number").asText()}",writer,metaList,separator, exclusion = false)
+            printTree(replicate,s"replicates$separator${replicate.get("biological_replicate_number").asText()}",writer,metaList,separator, exclusion = false)
         }
       }
     }
