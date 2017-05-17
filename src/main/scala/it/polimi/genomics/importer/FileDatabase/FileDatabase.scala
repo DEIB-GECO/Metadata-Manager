@@ -237,6 +237,14 @@ object FileDatabase {
     db.getFilesToProcess(datasetId, stage)
   }
   /**
+    * returns all the failed files with its copy number
+    * @param datasetId dataset from where files are required.
+    * @return failed files id, name, copy number,url, hash
+    */
+  def getFailedFiles(datasetId: Int, stage: STAGE.Value):Seq[(Int,String,Int,String,String)]={
+    db.getFailedFiles(datasetId, stage)
+  }
+  /**
     * marks indicated file as to be UPDATED.
     * @param fileId identifier for the file.
     */

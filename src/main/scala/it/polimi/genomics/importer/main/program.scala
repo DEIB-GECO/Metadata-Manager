@@ -57,6 +57,8 @@ object program {
           + "\t\t-Shows log and statistics for all runs\n"
           + "\t Add log -n\n"
           + "\t\t-Shows log and statistics run n\n"
+          + "\t Add -retry\n"
+          + "\t\t-Tries to download failed files only for each dataset with download enabled\n"
         )
       }
       else if (args.length > 1) {
@@ -81,7 +83,7 @@ object program {
             }
           }
           else {
-            run(args.head, args.drop(1).head.toString)
+            run(args.head, args.drop(1).head.toString,args.contains("-retry"))
           }
         }
         else
@@ -178,7 +180,7 @@ object program {
     * @param xmlConfigPath xml configuration file location
     * @param gmqlConfigPath path to the gmql_conf folder
     */
-  def run(xmlConfigPath: String, gmqlConfigPath: String): Unit = {
+  def run(xmlConfigPath: String, gmqlConfigPath: String, retryDownload: Boolean): Unit = {
     Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
     //general settings
     if (new File(xmlConfigPath).exists()) {
@@ -263,9 +265,16 @@ object program {
               })
             })
             if (downloadEnabled && source.downloadEnabled) {
-              logger.info(s"Starting download for ${source.name}")
-              Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source)
-              logger.info(s"Download for ${source.name} Finished")
+              if(!retryDownload) {
+                logger.info(s"Starting download for ${source.name}")
+                Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source)
+                logger.info(s"Download for ${source.name} Finished")
+              }
+              else {
+                logger.info(s"Retrying failed downloads for ${source.name}")
+                Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source)
+                logger.info(s"Download for ${source.name} Finished")
+              }
             }
           })
           sources.foreach(source => {

@@ -210,4 +210,17 @@ class HTTPDownloader extends GMQLDownloader {
       }
     }
   }
+
+  /**
+    * downloads the failed files from the source defined in the loader
+    * into the folder defined in the loader
+    *
+    * For each dataset, download method should put the downloaded files inside
+    * /source.outputFolder/dataset.outputFolder/Downloads
+    *
+    * @param source contains specific download and sorting info.
+    */
+  override def downloadFailedFiles(source: GMQLSource): Unit = {
+
+  }
 }

@@ -34,6 +34,58 @@ class ENCODEDownloader extends GMQLDownloader {
       new java.io.File(source.outputFolder).mkdirs()
     }
     downloadIndexAndMeta(source)
+    downloadFailedFiles(source)
+  }
+
+/**
+    * downloads the failed files from the source defined in the loader
+    * into the folder defined in the loader
+    *
+    * For each dataset, download method should put the downloaded files inside
+    * /source.outputFolder/dataset.outputFolder/Downloads
+    *
+    * @param source contains specific download and sorting info.
+    */
+  override def downloadFailedFiles(source: GMQLSource): Unit = {
+    logger.info(s"Downloading failed files for source ${source.name}")
+    val sourceId = FileDatabase.sourceId(source.name)
+    source.datasets.foreach(dataset =>{
+      logger.info(s"Downloading failed files for dataset ${dataset.name}")
+      val datasetId = FileDatabase.datasetId(sourceId,dataset.name)
+      val failedFiles = FileDatabase.getFailedFiles(datasetId,STAGE.DOWNLOAD)
+      var counter = 0
+      val totalFiles = failedFiles.size
+      failedFiles.foreach(file=>{
+        //in file I have (fileId,name,copyNumber,url, hash)
+        val filename =
+          if (file._3 == 1) file._2
+          else file._2.replaceFirst("\\.", "_" + file._3 + ".")
+        val filePath =
+          source.outputFolder + File.separator + dataset.outputFolder +
+            File.separator + "Downloads" + File.separator + filename
+        if (urlExists(file._4)) {
+          var downloaded = downloadFileFromURL(file._4, filePath, counter+1, totalFiles)
+          var timesTried = 0
+          val downloadedFile = new File(filePath)
+          var hash = computeHash(filePath)
+          while ((hash != file._5 && !filename.endsWith(".json")) && timesTried < 4 && !downloaded) {
+            downloaded = downloadFileFromURL(file._4, filePath, counter+1, totalFiles)
+            hash = computeHash(filePath)
+            timesTried += 1
+          }
+          if (timesTried == 4)
+            FileDatabase.markAsFailed(file._1)
+          else {
+            FileDatabase.markAsUpdated(file._1, downloadedFile.length.toString)
+          }
+          counter = counter + 1
+        }
+        else{
+          logger.info(s"${file._4} does not exist or no internet connection is enabled.")
+        }
+        FileDatabase.runDatasetDownloadAppend(datasetId, dataset, 0, counter)
+      })
+    })
   }
 
   /**
@@ -82,25 +134,32 @@ class ENCODEDownloader extends GMQLDownloader {
           FileDatabase.markToCompare(datasetId, stage)
 
           val metadataCandidateName = "metadata.tsv"
-          downloadFileFromURL(
+          var downloaded = downloadFileFromURL(
             indexAndMetaUrl,
             outputPath + File.separator + metadataCandidateName, 1, 1)
+          var timesTried = 0
+          while (!downloaded && timesTried < 4) {
+            downloaded = downloadFileFromURL(
+                indexAndMetaUrl,
+                outputPath + File.separator + metadataCandidateName, 1, 1)
+            timesTried += 1
+          }
           val filePath = outputPath + File.separator + metadataCandidateName
           val file = new File(filePath)
-          if (file.exists()) {
-            val fileId = FileDatabase.fileId(datasetId, indexAndMetaUrl, stage, metadataCandidateName)
-            val metadataName = FileDatabase.getFileNameAndCopyNumber(fileId)
+          val fileId = FileDatabase.fileId(datasetId, indexAndMetaUrl, stage, metadataCandidateName)
+          FileDatabase.getFileNameAndCopyNumber(fileId)
 
+          if (downloaded && file.exists()) {
             val hash = computeHash(filePath)
-
             FileDatabase.checkIfUpdateFile(fileId, hash, file.length.toString, DateTime.now.toString)
             FileDatabase.markAsUpdated(fileId, file.length.toString)
             downloadFilesFromMetadataFile(source, dataset)
-
             logger.info("download for " + dataset.outputFolder + " completed")
           }
-          else
+          else {
+            FileDatabase.markAsFailed(fileId)
             logger.warn("couldn't download metadata.tsv file")
+          }
           FileDatabase.markAsOutdated(datasetId, stage)
         }
         else {
@@ -112,7 +171,6 @@ class ENCODEDownloader extends GMQLDownloader {
   }
 
   /**
-    * generates download link for the metadata file
     * generates download link for the metadata file
     *
     * @param source  contains information related for connecting to ENCODE
@@ -164,13 +222,16 @@ class ENCODEDownloader extends GMQLDownloader {
     * @param url  source file url.
     * @param path destination file path and name.
     */
-  def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Unit = {
+  def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Boolean = {
     try {
       new URL(url) #> new File(path) !!;
       logger.info(s"Downloading [$number/$total]: " + path + " from: " + url + " DONE")
+      true
     }
     catch {
-      case e: Throwable => logger.error("Downloading: " + path + " from: " + url + " failed: ")
+      case e: Throwable =>
+        logger.error("Downloading: " + path + " from: " + url + " failed: ")
+        false
     }
   }
 
@@ -200,36 +261,38 @@ class ENCODEDownloader extends GMQLDownloader {
       //to be used
       val md5sum = header.lastIndexOf("md5sum")
       val url = header.lastIndexOf("File download URL")
-      var counter = 1
+      var counter = 0
+      var downloadedFiles = 0
       //add if json metadata *2, is metadata.tsv *1
-      val total = (Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(_ == "").drop(1).length) * 2 + 1
+      val total = Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(_ == "").drop(1).length * 2
       Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(_ == "").drop(1).foreach(line => {
         val fields = line.split("\t")
-          val candidateName = fields(url).split(File.separator).last
-          val fileId = FileDatabase.fileId(datasetId, fields(url), stage, candidateName)
-          val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
+        val candidateName = fields(url).split(File.separator).last
+        val fileId = FileDatabase.fileId(datasetId, fields(url), stage, candidateName)
+        val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
 
-          val filename =
-            if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
-            else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
+        val filename =
+          if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
+          else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
 
-          val filePath = path + File.separator + filename
+        val filePath = path + File.separator + filename
 
-          val candidateNameJson = fields(url).split(File.separator).last + ".json"
-          val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
-          val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
-          FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
+        val candidateNameJson = fields(url).split(File.separator).last + ".json"
+        val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
+        val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
+        FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
 
-          if (FileDatabase.checkIfUpdateFile(fileId, fields(md5sum), fields(originSize), fields(originLastUpdate))) {
-            //this is the region data part.
-            if (urlExists(fields(url))) {
-            downloadFileFromURL(fields(url), filePath, counter, total)
+        if (FileDatabase.checkIfUpdateFile(fileId, fields(md5sum), fields(originSize), fields(originLastUpdate))) {
+          //this is the region data part.
+          if (urlExists(fields(url))) {
+            var downloaded = downloadFileFromURL(fields(url), filePath, counter + 1, total)
             val file = new File(filePath)
             var hash = computeHash(filePath)
 
             var timesTried = 0
-            while (hash != fields(md5sum) && timesTried < 4) {
-              downloadFileFromURL(fields(url), filePath, counter, total)
+
+            while ((!downloaded || hash != fields(md5sum)) && timesTried < 4) {
+              downloaded = downloadFileFromURL(fields(url), filePath, counter + 1, total)
               hash = computeHash(filePath)
               timesTried += 1
             }
@@ -237,8 +300,9 @@ class ENCODEDownloader extends GMQLDownloader {
               FileDatabase.markAsFailed(fileId)
             else {
               FileDatabase.markAsUpdated(fileId, file.length.toString)
-              counter = counter + 1
+              downloadedFiles = downloadedFiles + 1
             }
+            counter = counter + 1
 
 
             //this is the metadata part.
@@ -257,29 +321,39 @@ class ENCODEDownloader extends GMQLDownloader {
               //As I dont have the metadata for the json file i use the same as the region data.
               //              if(FileDatabase.checkIfUpdateFile(fileIdJson,fields(md5sum),fields(originSize),fields(originLastUpdate))){
               //              FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
-              downloadFileFromURL(urlExperimentJson, filePathJson, counter, total)
+              downloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter +1, total)
+              timesTried = 0
+              while (!downloaded && timesTried < 4) {
+                downloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter +1, total)
+                timesTried += 1
+              }
               val file = new File(filePathJson)
               //cannot check the correctness of the download for the json.
-              FileDatabase.markAsUpdated(fileIdJson, file.length.toString)
+              if(downloaded) {
+                FileDatabase.markAsUpdated(fileIdJson, file.length.toString)
+                downloadedFiles = downloadedFiles + 1
+              }
+              else
+                FileDatabase.markAsFailed(fileIdJson)
               // if metadata is from json add this other +1.
               counter = counter + 1
               //              }
             }
-            }
-            else
-              logger.error("could not download " + fields(url) + "path does not exist")
           }
           else
-            logger.info(s"File ${fields(url)} is already up to date.")
+            logger.error("could not download " + fields(url) + "path does not exist")
+        }
+        else
+          logger.info(s"File ${fields(url)} is already up to date.")
       })
       FileDatabase.runDatasetDownloadAppend(datasetId, dataset, total, counter)
-      if (total == counter) {
+      if (total == downloadedFiles) {
         //add successful message to database.
-        logger.info(s"All $counter files for dataset ${dataset.name} of source ${source.name} downloaded correctly.")
+        logger.info(s"All $total files for dataset ${dataset.name} of source ${source.name} downloaded correctly.")
       }
       else {
         //add the warning message to the database
-        logger.warn(s"Dataset ${dataset.name} of source ${source.name} downloaded $counter/$total files.")
+        logger.warn(s"Dataset ${dataset.name} of source ${source.name} downloaded $downloadedFiles/$total files.")
       }
     }
     else

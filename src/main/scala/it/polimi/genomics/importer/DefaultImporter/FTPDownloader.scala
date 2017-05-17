@@ -5,7 +5,7 @@ import java.security.{DigestInputStream, MessageDigest}
 
 import it.polimi.genomics.importer.DefaultImporter.utils.FTP
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import it.polimi.genomics.importer.GMQLImporter.{GMQLDownloader, GMQLSource}
+import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLDownloader, GMQLSource}
 import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.LoggerFactory
 
@@ -49,6 +49,7 @@ class FTPDownloader extends GMQLDownloader {
           }
         })
         logger.info(s"Download for ${source.name} Finished.")
+      downloadFailedFiles(source)
       }
   }
 
@@ -112,10 +113,13 @@ class FTPDownloader extends GMQLDownloader {
     downloadSubfolders(workingDirectory, source)
   }
 
-  def getUnfilteredFiles(
-                       source: GMQLSource,
-                       workingDirectory: String
-                     ): List[FTPFile] = {
+  /**
+    * lists all files inside the working directory
+    * @param source gmql source
+    * @param workingDirectory objective directory
+    * @return list of FTPFiles.
+    */
+  def getUnfilteredFiles(source: GMQLSource,workingDirectory: String): List[FTPFile] = {
     var filesReturn = List[FTPFile]()
     var filesOk = false
     val threadDownload = new Thread {
@@ -202,6 +206,8 @@ class FTPDownloader extends GMQLDownloader {
                 dataset.parameters.filter(_._1 == "files_regex").head._2))
             else
               List[FTPFile]()
+          var counter = 0
+          val total = files.size
           var md5Downloaded = false
           if (dataset.parameters.exists(_._1 == "md5_checksum_tcga2bed")) {
             val aux2 = dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed")
@@ -209,7 +215,7 @@ class FTPDownloader extends GMQLDownloader {
             val file = unfilteredFiles.filter(_.getName == aux1).head
             val url = workingDirectory + File.separator + file.getName
             val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
-            md5Downloaded = downloadFile(fileId, "", file, outputPath, source, workingDirectory, url)
+            md5Downloaded = downloadFile(fileId, "", file, outputPath, source, workingDirectory, url, 1, 1)
           }
           var expInfoDownloaded = false
           var totalFiles = 0
@@ -219,7 +225,7 @@ class FTPDownloader extends GMQLDownloader {
             val file = unfilteredFiles.filter(_.getName == aux1).head
             val url = workingDirectory + File.separator + file.getName
             val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
-            expInfoDownloaded = downloadFile(fileId, "", file, outputPath, source, workingDirectory, url)
+            expInfoDownloaded = downloadFile(fileId, "", file, outputPath, source, workingDirectory, url, 1, 1)
 
             val nameAndCopyNumber: (String, Int) = FileDatabase.getFileNameAndCopyNumber(fileId)
             val expInfoName =
@@ -261,8 +267,9 @@ class FTPDownloader extends GMQLDownloader {
               }
               else
                 ""
-            if (downloadFile(fileId, hash, file, outputPath, source, workingDirectory, url))
+            if (downloadFile(fileId, hash, file, outputPath, source, workingDirectory, url, counter+1, total))
               downloadedFiles = downloadedFiles + 1
+            counter = counter + 1
           }
           if (expInfoDownloaded) {
             FileDatabase.runDatasetDownloadAppend(datasetId, dataset, totalFiles, downloadedFiles)
@@ -308,16 +315,13 @@ class FTPDownloader extends GMQLDownloader {
     * @param source GMQLSource which contains the url and settings for the FTP connection
     * @param workingDirectory actual folder for the FTP connection
     * @param url full url for the downloaded file
+    * @param counter indicates which number of file is downloading.
+    * @param total total number of files to be downloaded.
     * @return if the download is done correctly
     */
   def downloadFile(
-                    fileId:Int,
-                    hash: String,
-                    file: FTPFile,
-                    outputPath: String,
-                    source: GMQLSource,
-                    workingDirectory: String,
-                    url: String
+                    fileId:Int,hash: String,file: FTPFile,outputPath: String,source: GMQLSource,
+                    workingDirectory: String,url: String,counter: Int,total: Int
                   ): Boolean ={
     var fileDownloaded = false
     if (FileDatabase.checkIfUpdateFile(
@@ -342,7 +346,7 @@ class FTPDownloader extends GMQLDownloader {
                 source.parameters.filter(_._1 == "username").head._2,
                 source.parameters.filter(_._1 == "password").head._2).getOrElse(false)
               if (connected) {
-                logger.info("Downloading: " + url)
+                logger.info(s"Downloading [$counter/$total]: " + url)
                 if (ftpDownload.cd(workingDirectory).getOrElse(false)) {
                   downloaded = ftpDownload.downloadFile(file.getName, outputUrl).getOrElse(false)
                   if(downloaded){
@@ -374,11 +378,11 @@ class FTPDownloader extends GMQLDownloader {
                 ftpDownload.disconnect()
             }
             if (!downloaded) {
-              logger.error("Downloading: " + url + " FAILED")
+              logger.error(s"Downloading [$counter/$total]: " + url + " FAILED")
               FileDatabase.markAsFailed(fileId)
             }
             else {
-              logger.info("Downloading: " + url + " DONE")
+              logger.info(s"Downloading [$counter/$total]: " + url + " DONE")
               //here I have to get the hash and update it for the meta and the data files.
               //so I wait to get the meta file and then I mark the data file to updated
               val hash = computeHash(outputUrl)
@@ -409,6 +413,101 @@ class FTPDownloader extends GMQLDownloader {
     fileDownloaded
   }
 
+  /**
+    * downloads a file from ftp server.
+    * @param outputPath local url
+    * @param source gmql source
+    * @param datasetId id for dataset in FileDatabase
+    * @param workingDirectory remote folder for the file
+    * @param filename remote filename
+    * @param hash remote hash
+    * @param fileId FileDatabase id for the file.
+    * @param counter indicates which number of file is downloading.
+    * @param total total number of files to be downloaded.
+    * @return if the file was correctly downloaded.
+    */
+  def downloadFile(outputPath: String, source: GMQLSource, datasetId: Int,
+                   workingDirectory: String, filename: String, hash:String, fileId: Int,
+                   counter: Int, total: Int): Boolean = {
+    var fileDownloaded = false
+    val url = workingDirectory + File.separator + filename
+    val threadDownload = new Thread {
+      override def run(): Unit = {
+        try {
+          var downloaded = false
+          var timesTried = 0
+          while (!downloaded && timesTried < 4) {
+            val ftpDownload = new FTP()
+            val connected = ftpDownload.connectWithAuth(
+              source.url,
+              source.parameters.filter(_._1 == "username").head._2,
+              source.parameters.filter(_._1 == "password").head._2).getOrElse(false)
+            if (connected) {
+              logger.info(s"Downloading [$counter/$total]: " + url)
+              if (ftpDownload.cd(workingDirectory).getOrElse(false)) {
+                downloaded = ftpDownload.downloadFile(filename, outputPath).getOrElse(false)
+                if (downloaded) {
+                  val hashToCompare = computeHash(outputPath)
+                  if (hashToCompare != hash && hash != "") {
+                    downloaded = false
+                    if (timesTried == 3) {
+                      logger.warn(s"file $filename was downloaded 3 times and failed the hash check, check correctness of hash value.")
+                    }
+                    else
+                      logger.info(s"file $filename download does not match with hash, trying again.")
+                  }
+                }
+                else {
+                  if (!ftpDownload.connected) {
+                    logger.info("Internet connection lost, resuming in 5 minutes")
+                    Thread.sleep(1000 * 60 * 5)
+                  }
+                }
+              }
+              else
+                logger.error(s"couldn't access directory $workingDirectory")
+              ftpDownload.disconnect()
+            }
+            else
+              logger.error(s"couldn't connect to ${source.url}")
+            timesTried += 1
+            if (ftpDownload.connected)
+              ftpDownload.disconnect()
+          }
+          if (!downloaded) {
+            logger.error(s"Downloading [$counter/$total]: " + url + " FAILED")
+            FileDatabase.markAsFailed(fileId)
+          }
+          else {
+            logger.info(s"Downloading [$counter/$total]: " + url + " DONE")
+            //here I have to get the hash and update it for the meta and the data files.
+            //so I wait to get the meta file and then I mark the data file to updated
+            val hash = computeHash(outputPath)
+            //get the hash, I will put the same on both files.
+//            FileDatabase.markAsUpdated(fileId, new File(outputPath).length.toString, hash)
+            FileDatabase.markAsFailed(fileId)
+          }
+          fileDownloaded = downloaded
+        }
+        catch {
+          case ex: InterruptedException => logger.error(s"Download of $url took too long, aborted by timeout")
+          case ex: Exception => logger.error("Could not connect to the FTP server: " + ex.getMessage)
+        }
+      }
+    }
+    threadDownload.start()
+    try {
+      threadDownload.join(10 * 60 * 1000)
+    }
+    catch {
+      case ex: InterruptedException =>
+        logger.error(s"Download of $url was interrupted")
+    }
+    fileDownloaded
+  }
+
+
+
 
   /**
     * Finds all subfolders in the working directory and performs checkFolderForDownloads on it
@@ -426,10 +525,13 @@ class FTPDownloader extends GMQLDownloader {
         source))
   }
 
-  def getDirectories(
-                          source: GMQLSource,
-                          workingDirectory: String
-                        ): Array[FTPFile] = {
+  /**
+    * lists the directories in the current working directory
+    * @param source gmql source
+    * @param workingDirectory object directory
+    * @return array of directories.
+    */
+  def getDirectories(source: GMQLSource, workingDirectory: String): Array[FTPFile] = {
     var filesReturn = Array[FTPFile]()
     var filesOk = false
     val threadDownload = new Thread {
@@ -479,5 +581,46 @@ class FTPDownloader extends GMQLDownloader {
         logger.error(s"Could'nt list files")
     }
     filesReturn
+  }
+
+  /**
+    * downloads the failed files from the source defined in the loader
+    * into the folder defined in the loader
+    *
+    * For each dataset, download method should put the downloaded files inside
+    * /source.outputFolder/dataset.outputFolder/Downloads
+    *
+    * @param source contains specific download and sorting info.
+    */
+  override def downloadFailedFiles(source: GMQLSource): Unit = {
+    logger.info(s"Downloading failed files for source ${source.name}")
+    val sourceId = FileDatabase.sourceId(source.name)
+    source.datasets.foreach(dataset => {
+      var downloadedFiles = 0
+      var counter = 0
+      logger.info(s"Downloading failed files for dataset ${dataset.name}")
+      val datasetId = FileDatabase.datasetId(sourceId,dataset.name)
+      val failedFiles = FileDatabase.getFailedFiles(datasetId,STAGE.DOWNLOAD)
+      val totalFiles = failedFiles.size
+      //in file I have (fileId,name,copyNumber,url, hash)
+      failedFiles.foreach(file =>{
+        val workingDirectory = file._4.substring(0,file._4.lastIndexOf(File.separator))
+        val filename =
+          if (file._3 == 1) file._2
+          else file._2.replaceFirst("\\.", "_" + file._3 + ".")
+        val filePath =
+          source.outputFolder + File.separator + dataset.outputFolder +
+            File.separator + "Downloads" + File.separator + filename
+        counter = counter+1
+        if(downloadFile(filePath,source,datasetId,workingDirectory,file._2,file._5,file._1,counter,totalFiles)){
+            downloadedFiles = downloadedFiles + 1
+            val downloadedFile = new File(filePath)
+            FileDatabase.markAsUpdated(file._1, downloadedFile.length.toString)
+          }
+        else
+          FileDatabase.markAsFailed(file._1)
+      })
+      FileDatabase.runDatasetDownloadAppend(datasetId,dataset,0,downloadedFiles)
+    })
   }
 }

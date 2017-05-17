@@ -28,5 +28,5 @@ trait GMQLTransformer {
     * @param source source where the files belong to.
     * @return candidate names for the files derived from the original filename.
     */
-  def getCandidateNames(filename: String, dataset :GMQLDataset, source: GMQLSource): List[String]
+    def getCandidateNames(filename: String, dataset :GMQLDataset, source: GMQLSource): List[String]
 }
