@@ -340,8 +340,10 @@ class ENCODEDownloader extends GMQLDownloader {
               //              }
             }
           }
-          else
+          else {
+            FileDatabase.markAsFailed(fileId)
             logger.error("could not download " + fields(url) + "path does not exist")
+          }
         }
         else
           logger.info(s"File ${fields(url)} is already up to date.")
