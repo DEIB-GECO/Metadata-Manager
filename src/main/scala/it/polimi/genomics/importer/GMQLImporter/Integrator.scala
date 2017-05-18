@@ -60,7 +60,7 @@ object Integrator {
           val transformationsFolder = datasetOutputFolder + File.separator + "Transformations"
 
           // puts the schema into the transformations folder.
-          if (schemaFinder.downloadSchema(source.rootOutputFolder, dataset, transformationsFolder))
+          if (schemaFinder.downloadSchema(source.rootOutputFolder, dataset, transformationsFolder, source))
             logger.debug("Schema downloaded for: " + dataset.name)
           else
             logger.warn("Schema not found for: " + dataset.name)
