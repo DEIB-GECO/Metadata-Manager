@@ -53,6 +53,11 @@ class FTPDownloader extends GMQLDownloader {
       }
   }
 
+  /**
+    * gets the base working directory of an ftp directory
+    * @param source source to connect to ftp
+    * @return base working directory
+    */
   def getBaseWorkingDirectory(
                           source: GMQLSource
                         ): String = {
@@ -417,17 +422,15 @@ class FTPDownloader extends GMQLDownloader {
     * downloads a file from ftp server.
     * @param outputPath local url
     * @param source gmql source
-    * @param datasetId id for dataset in FileDatabase
     * @param workingDirectory remote folder for the file
     * @param filename remote filename
     * @param hash remote hash
-    * @param fileId FileDatabase id for the file.
     * @param counter indicates which number of file is downloading.
     * @param total total number of files to be downloaded.
     * @return if the file was correctly downloaded.
     */
-  def downloadFile(outputPath: String, source: GMQLSource, datasetId: Int,
-                   workingDirectory: String, filename: String, hash:String, fileId: Int,
+  def downloadFile(outputPath: String, source: GMQLSource,
+                   workingDirectory: String, filename: String, hash:String,
                    counter: Int, total: Int): Boolean = {
     var fileDownloaded = false
     val url = workingDirectory + File.separator + filename
@@ -476,7 +479,6 @@ class FTPDownloader extends GMQLDownloader {
           }
           if (!downloaded) {
             logger.error(s"Downloading [$counter/$total]: " + url + " FAILED")
-            FileDatabase.markAsFailed(fileId)
           }
           else {
             logger.info(s"Downloading [$counter/$total]: " + url + " DONE")
@@ -485,7 +487,6 @@ class FTPDownloader extends GMQLDownloader {
             val hash = computeHash(outputPath)
             //get the hash, I will put the same on both files.
 //            FileDatabase.markAsUpdated(fileId, new File(outputPath).length.toString, hash)
-            FileDatabase.markAsFailed(fileId)
           }
           fileDownloaded = downloaded
         }
@@ -612,7 +613,7 @@ class FTPDownloader extends GMQLDownloader {
           source.outputFolder + File.separator + dataset.outputFolder +
             File.separator + "Downloads" + File.separator + filename
         counter = counter+1
-        if(downloadFile(filePath,source,datasetId,workingDirectory,file._2,file._5,file._1,counter,totalFiles)){
+        if(downloadFile(filePath,source,workingDirectory,file._2,file._5,counter,totalFiles)){
             downloadedFiles = downloadedFiles + 1
             val downloadedFile = new File(filePath)
             FileDatabase.markAsUpdated(file._1, downloadedFile.length.toString)
