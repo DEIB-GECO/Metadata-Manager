@@ -246,23 +246,40 @@ case class dbContainer() {
                    loadEnabled: String,schemaUrl: String, schemaLocation: String, runId2: Option[Int]
                   ): Int = {
     val runId = runId2.getOrElse(getMaxRunNumber)
-    val query = (for (rd <- runDatasets.filter(r => r.runId === runId && r.datasetId === datasetId)) yield rd.id).result
-    val execution = database.run(query)
-    val result = Await.result(execution, Duration.Inf)
+    if(existsRun(runId)){
+      val query = (for (rd <- runDatasets.filter(r => r.runId === runId && r.datasetId === datasetId)) yield rd.id).result
+      val execution = database.run(query)
+      val result = Await.result(execution, Duration.Inf)
 
-    if (result.nonEmpty)
-      result.head
-    //here I have to create the runDataset
-    else {
-      val idQuery: FixedSqlAction[Int, NoStream, Write] = (runDatasets returning runDatasets.map(_.id)) += (
-        None, runId,datasetId,outputFolder,downloadEnabled,transformEnabled,loadEnabled,schemaUrl,schemaLocation
-        )
-      val executionId = database.run(idQuery)
-      val resultId = Await.result(executionId, Duration.Inf)
-      resultId
+      if (result.nonEmpty)
+        result.head
+      //here I have to create the runDataset
+      else {
+        val idQuery: FixedSqlAction[Int, NoStream, Write] = (runDatasets returning runDatasets.map(_.id)) += (
+          None, runId,datasetId,outputFolder,downloadEnabled,transformEnabled,loadEnabled,schemaUrl,schemaLocation
+          )
+        val executionId = database.run(idQuery)
+        val resultId = Await.result(executionId, Duration.Inf)
+        resultId
+      }
     }
+    else
+      0
   }
 
+  /**
+    *
+    * @param runId identifier for the run to check
+    */
+  def existsRun(runId: Int): Boolean ={
+    val query = (for (rd <- runs.filter(r => r.id === runId)) yield rd.id).result
+    val execution = database.run(query)
+    val result = Await.result(execution, Duration.Inf)
+    if(result.nonEmpty)
+      true
+    else
+      false
+  }
   /**
     * Inserts the parameters used by a source
     * @param runDatasetId dataset who is using the parameters
@@ -674,6 +691,8 @@ case class dbContainer() {
 
     def name = column[String]("NAME")
 
+    def sourceNameIndex = index("sourceNameIndex",name,unique = true)
+
     def * = (id.?, name)
   }
 
@@ -699,6 +718,7 @@ case class dbContainer() {
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
+    def datasetNameIndex = index("DatasetNameIndex",name,unique = true)
 
     def * = (id.?, sourceId, name)
   }
@@ -759,6 +779,8 @@ case class dbContainer() {
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
+    def fileUrlIndex = index("fileUrlIndex",url,unique = true)
+    def fileNameIndex = index("fileNameIndex",name,unique = true)
 
     def * = (id.?, datasetId, url, name, stage, status, size, lastUpdate, hash,
       originSize, originLastUpdate, dateProcessed, copyNumber)
