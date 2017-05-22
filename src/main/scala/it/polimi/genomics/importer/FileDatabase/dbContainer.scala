@@ -718,7 +718,7 @@ case class dbContainer() {
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
-    def datasetNameIndex = index("DatasetNameIndex",name,unique = true)
+    def datasetNameIndex = index("DatasetNameIndex",name,unique = false)
 
     def * = (id.?, sourceId, name)
   }
@@ -780,7 +780,7 @@ case class dbContainer() {
       onDelete = ForeignKeyAction.Cascade
     )
     def fileUrlIndex = index("fileUrlIndex",url,unique = true)
-    def fileNameIndex = index("fileNameIndex",name,unique = true)
+    def fileNameIndex = index("fileNameIndex",name,unique = false)
 
     def * = (id.?, datasetId, url, name, stage, status, size, lastUpdate, hash,
       originSize, originLastUpdate, dateProcessed, copyNumber)
