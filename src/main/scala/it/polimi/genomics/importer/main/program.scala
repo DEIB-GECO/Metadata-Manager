@@ -1,6 +1,9 @@
 package it.polimi.genomics.importer.main
 
 import java.io.File
+import scala.concurrent.{blocking, Future, Await}
+import scala.concurrent.duration._
+
 
 import it.polimi.genomics.importer.FileDatabase.FileDatabase
 import it.polimi.genomics.importer.GMQLImporter._
@@ -10,6 +13,7 @@ import org.apache.log4j._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
+import scala.concurrent.Future
 import scala.xml.{Elem, XML}
 
 object program {
@@ -135,8 +139,10 @@ object program {
                   dataset.schemaUrl,
                   dataset.schemaLocation.toString
                 )
+                if(runDatasetId!=0) {
                   FileDatabase.printRunDatasetDownloadLog(runDatasetId)
                   FileDatabase.printRunDatasetTransformLog(runDatasetId)
+                }
               })
             })
           }
@@ -264,91 +270,44 @@ object program {
                 FileDatabase.runDatasetParameterId(runDatasetId, parameter._3, parameter._1, parameter._2)
               })
             })
-            if (downloadEnabled && source.downloadEnabled) {
-              if(!retryDownload) {
-                logger.info(s"Starting download for ${source.name}")
-                Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source)
-                logger.info(s"Download for ${source.name} Finished")
-              }
-              else {
-                logger.info(s"Retrying failed downloads for ${source.name}")
-                Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source)
-                logger.info(s"Download for ${source.name} Finished")
+          })
+
+          val downloadThreads = sources.map { source =>
+            new Thread {
+              override def run(): Unit = {
+                if (downloadEnabled && source.downloadEnabled) {
+                  if (!retryDownload) {
+                    logger.info(s"Starting download for ${source.name}")
+                    Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source)
+                    logger.info(s"Download for ${source.name} Finished")
+                  }
+                  else {
+                    logger.info(s"Retrying failed downloads for ${source.name}")
+                    Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source)
+                    logger.info(s"Download for ${source.name} Finished")
+                  }
+                }
               }
             }
-          })
-          sources.foreach(source => {
-            val sourceId = FileDatabase.sourceId(source.name)
-            val runSourceId = FileDatabase.runSourceId(
-              runId,
-              sourceId,
-              source.url,
-              source.outputFolder,
-              source.downloadEnabled.toString,
-              source.downloader,
-              source.transformEnabled.toString,
-              source.transformer,
-              source.loadEnabled.toString,
-              source.loader
-            )
-            source.parameters.foreach(parameter => {
-              FileDatabase.runSourceParameterId(runSourceId, parameter._3, parameter._1, parameter._2)
-            })
-            source.datasets.foreach(dataset => {
-              val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
-              val runDatasetId = FileDatabase.runDatasetId(
-                runId,
-                datasetId,
-                dataset.outputFolder,
-                dataset.downloadEnabled.toString,
-                dataset.transformEnabled.toString,
-                dataset.loadEnabled.toString,
-                dataset.schemaUrl,
-                dataset.schemaLocation.toString
-              )
-              dataset.parameters.foreach(parameter => {
-                FileDatabase.runDatasetParameterId(runDatasetId, parameter._3, parameter._1, parameter._2)
-              })
-            })
-            if (transformEnabled && source.transformEnabled) {
-              logger.info(s"Starting integration for ${source.name}")
-              Integrator.integrate(source)
-              logger.info(s"Integration for ${source.name} Finished")
+          }
+          downloadThreads.foreach(_.start())
+          downloadThreads.foreach(_.join())
+
+          val integrateThreads = sources.map { source =>
+            new Thread {
+              override def run(): Unit = {
+                if (transformEnabled && source.transformEnabled) {
+                  logger.info(s"Starting integration for ${source.name}")
+                  Integrator.integrate(source)
+                  logger.info(s"Integration for ${source.name} Finished")
+                }
+              }
             }
-          })
+          }
+          integrateThreads.foreach(_.start())
+          integrateThreads.foreach(_.join())
+
           sources.foreach(source => {
-            val sourceId = FileDatabase.sourceId(source.name)
-            val runSourceId = FileDatabase.runSourceId(
-              runId,
-              sourceId,
-              source.url,
-              source.outputFolder,
-              source.downloadEnabled.toString,
-              source.downloader,
-              source.transformEnabled.toString,
-              source.transformer,
-              source.loadEnabled.toString,
-              source.loader
-            )
-            source.parameters.foreach(parameter => {
-              FileDatabase.runSourceParameterId(runSourceId, parameter._3, parameter._1, parameter._2)
-            })
-            source.datasets.foreach(dataset => {
-              val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
-              val runDatasetId = FileDatabase.runDatasetId(
-                runId,
-                datasetId,
-                dataset.outputFolder,
-                dataset.downloadEnabled.toString,
-                dataset.transformEnabled.toString,
-                dataset.loadEnabled.toString,
-                dataset.schemaUrl,
-                dataset.schemaLocation.toString
-              )
-              dataset.parameters.foreach(parameter => {
-                FileDatabase.runDatasetParameterId(runDatasetId, parameter._3, parameter._1, parameter._2)
-              })
-            })
             if (loadEnabled && source.loadEnabled) {
               logger.info(s"Starting load for ${source.name}")
               Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
