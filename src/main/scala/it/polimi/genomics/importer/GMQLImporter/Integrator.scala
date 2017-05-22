@@ -252,7 +252,7 @@ object Integrator {
             replaced = true
             metadataKey = change._1.r.replaceFirstIn(metadataKey, change._2)
           })
-          metadataKey = metadataKey.replace(" ", "_")
+          metadataKey = metadataKey.replace(" ", "_").replace("|","__")
           if(!metadataList.contains((metadataKey,metadataValue))) {
             metadataList = metadataList :+ (metadataKey, metadataValue)
           }
