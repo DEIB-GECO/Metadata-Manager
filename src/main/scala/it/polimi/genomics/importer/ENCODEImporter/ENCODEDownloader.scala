@@ -274,11 +274,29 @@ class ENCODEDownloader extends GMQLDownloader {
       //to be used
       val md5sum = header.lastIndexOf("md5sum")
       val url = header.lastIndexOf("File download URL")
+      val assembly = header.lastIndexOf("Assembly")
       var counter = 0
       var downloadedFiles = 0
       //add if json metadata *2, is metadata.tsv *1
-      val total = Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(_ == "").drop(1).length * 2
-      Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(_ == "").drop(1).foreach(line => {
+      val assemblyExclusion = dataset.parameters.exists(_._1 == "assembly_exclude")
+
+      val total = Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(line => {
+            if(assemblyExclusion){
+              line == "" || line.split("\t")(assembly) == dataset.parameters.filter(_._1 == "assembly_exclude").head._2
+            }
+            else{
+              line == ""
+            }
+          }).drop(1).length * 2
+      Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(line => {
+        if(assemblyExclusion){
+          line == "" || line.split("\t")(assembly) == dataset.parameters.filter(_._1.toLowerCase ==
+            "assembly_exclude").head._2.toLowerCase
+        }
+        else{
+          line == ""
+        }
+      }).drop(1).foreach(line => {
         val fields = line.split("\t")
         val candidateName = fields(url).split(File.separator).last
         val fileId = FileDatabase.fileId(datasetId, fields(url), stage, candidateName)
@@ -334,15 +352,15 @@ class ENCODEDownloader extends GMQLDownloader {
               //As I dont have the metadata for the json file i use the same as the region data.
               //              if(FileDatabase.checkIfUpdateFile(fileIdJson,fields(md5sum),fields(originSize),fields(originLastUpdate))){
               //              FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
-              downloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter +1, total)
+              var jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
               timesTried = 0
-              while (!downloaded && timesTried < 4) {
-                downloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter +1, total)
+              while (!jsonDownloaded && timesTried < 4 && downloaded) {
+                jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
                 timesTried += 1
               }
               val file = new File(filePathJson)
               //cannot check the correctness of the download for the json.
-              if(downloaded) {
+              if (jsonDownloaded && downloaded) {
                 FileDatabase.markAsUpdated(fileIdJson, file.length.toString)
                 downloadedFiles = downloadedFiles + 1
               }
