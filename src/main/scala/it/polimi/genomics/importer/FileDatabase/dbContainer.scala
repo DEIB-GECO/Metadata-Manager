@@ -779,7 +779,7 @@ case class dbContainer() {
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
-    def fileUrlIndex = index("fileUrlIndex",url,unique = true)
+    def fileUrlIndex = index("fileUrlIndex",url,unique = false)
     def fileNameIndex = index("fileNameIndex",name,unique = false)
 
     def * = (id.?, datasetId, url, name, stage, status, size, lastUpdate, hash,
