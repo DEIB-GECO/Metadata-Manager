@@ -220,7 +220,7 @@ class ENCODEDownloader extends GMQLDownloader {
     */
   private def generateParameterSet(dataset: GMQLDataset): String = {
     var set = ""
-    dataset.parameters.foreach(parameter => {
+    dataset.parameters.filterNot(_._1 == "loading_name").foreach(parameter => {
       set = set + parameter._1 + "=" + parameter._2 + "&"
     })
     if (set.endsWith("&"))
@@ -278,11 +278,11 @@ class ENCODEDownloader extends GMQLDownloader {
       var counter = 0
       var downloadedFiles = 0
       //add if json metadata *2, is metadata.tsv *1
-      val assemblyExclusion = dataset.parameters.exists(_._1 == "assembly_exclude")
+      val assemblyExclusion = source.parameters.exists(_._1 == "assembly_exclude")
 
       val total = Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(line => {
             if(assemblyExclusion){
-              line == "" || line.split("\t")(assembly) == dataset.parameters.filter(_._1 == "assembly_exclude").head._2
+              line == "" || line.split("\t")(assembly) == source.parameters.filter(_._1 == "assembly_exclude").head._2
             }
             else{
               line == ""
@@ -290,7 +290,7 @@ class ENCODEDownloader extends GMQLDownloader {
           }).drop(1).length * 2
       Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(line => {
         if(assemblyExclusion){
-          line == "" || line.split("\t")(assembly) == dataset.parameters.filter(_._1.toLowerCase ==
+          line == "" || line.split("\t")(assembly) == source.parameters.filter(_._1.toLowerCase ==
             "assembly_exclude").head._2.toLowerCase
         }
         else{
