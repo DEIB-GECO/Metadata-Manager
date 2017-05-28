@@ -19,7 +19,7 @@ trait GMQLTransformer {
     * @return List(fileId, filename) for the transformed files.
     */
   def transform(source: GMQLSource,originPath: String, destinationPath: String, originalFilename:String,
-                filename: String):Unit
+                filename: String):Boolean
 
   /**
     * by receiving an original filename returns the new GDM candidate name(s).
