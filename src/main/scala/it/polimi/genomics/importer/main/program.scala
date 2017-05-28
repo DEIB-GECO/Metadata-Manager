@@ -107,7 +107,7 @@ object program {
     //general settings
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
-        "https://raw.githubusercontent.com/nachodox/utils/master/configurationSchema.xsd"
+        "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/master/Example/xml/configurationSchema.xsd"
       if (schemaValidator.validate(xmlConfigPath, schemaUrl)) {
 
         logger.info("Xml file is valid for the schema")

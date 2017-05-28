@@ -12,7 +12,7 @@ object schemaValidator {
     * Checks with the corresponding schema the input xml file.
     * @param xmlFile Configuration xml file.
     * @param schemaUrl Http URL of the schema, now using
-    *   "https://raw.githubusercontent.com/akaitoua/GMQL/master/GMQL-Importer/Example/xml/configurationSchema.xsd"
+    *   "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/master/Example/xml/configurationSchema.xsd"
     * @return If the xmlFile follows the schema.
     */
   def validate(xmlFile: String, schemaUrl: String): Boolean = {
