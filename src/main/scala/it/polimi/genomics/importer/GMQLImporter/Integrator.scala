@@ -22,7 +22,7 @@ object Integrator {
     * Puts the schema file into the transformations folders.
     * @param source source to be integrated.
     */
-  def integrate(source: GMQLSource): Unit = {
+  def integrate(source: GMQLSource, parallelExecution: Boolean): Unit = {
     if (source.transformEnabled) {
       logger.info("Starting integration for: " + source.outputFolder)
       val sourceId = FileDatabase.sourceId(source.name)
@@ -158,8 +158,16 @@ object Integrator {
           }
         }
       })
-      integrateThreads.foreach(_.start())
-      integrateThreads.foreach(_.join())
+      if(parallelExecution) {
+        integrateThreads.foreach(_.start())
+        integrateThreads.foreach(_.join())
+      }
+      else {
+        for (thread <- integrateThreads) {
+          thread.start()
+          thread.join()
+        }
+      }
       logger.info(modifiedRegionFilesSource + " region data files modified in source: " + source.name)
       logger.info(modifiedMetadataFilesSource + " metadata files modified in source: " + source.name)
       logger.info(wrongSchemaFilesSource + " region data files do not respect the schema in source: " + source.name)

@@ -16,7 +16,7 @@ trait GMQLDownloader {
     *
     * @param source contains specific download and sorting info.
     */
-  def download(source: GMQLSource):Unit
+  def download(source: GMQLSource, parallelExecution: Boolean):Unit
   /**
     * downloads the failed files from the source defined in the loader
     * into the folder defined in the loader
@@ -26,5 +26,5 @@ trait GMQLDownloader {
     *
     * @param source contains specific download and sorting info.
     */
-  def downloadFailedFiles(source: GMQLSource):Unit
+  def downloadFailedFiles(source: GMQLSource, parallelExecution: Boolean):Unit
 }

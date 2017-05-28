@@ -204,7 +204,9 @@ object program {
           if ("true".equalsIgnoreCase((file \\ "settings" \ "transform_enabled").text)) true else false
         val loadEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "load_enabled").text)) true else false
-        if(loadEnabled){
+        val parallelExecution =
+          if ("true".equalsIgnoreCase((file \\ "settings" \ "parallel_execution").text)) true else false
+          if(loadEnabled){
 
         }
         //start database
@@ -277,31 +279,46 @@ object program {
               override def run(): Unit = {
                   if (!retryDownload) {
                     logger.info(s"Starting download for ${source.name}")
-                    Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source)
+                    Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source,parallelExecution)
                     logger.info(s"Download for ${source.name} Finished")
                   }
                   else {
                     logger.info(s"Retrying failed downloads for ${source.name}")
-                    Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source)
+                    Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source,parallelExecution)
                     logger.info(s"Download for ${source.name} Finished")
                   }
               }
             }
           })
-          downloadThreads.foreach(_.start())
-          downloadThreads.foreach(_.join())
+          if(parallelExecution) {
+            downloadThreads.foreach(_.start())
+            downloadThreads.foreach(_.join())
+          }
+          else
+            downloadThreads.foreach(thread => {
+              thread.start()
+              thread.join()
+            })
+
 
           val integrateThreads = sources.filter(_.transformEnabled && transformEnabled).map( source =>{
             new Thread {
               override def run(): Unit = {
                   logger.info(s"Starting integration for ${source.name}")
-                  Integrator.integrate(source)
+                  Integrator.integrate(source, parallelExecution)
                   logger.info(s"Integration for ${source.name} Finished")
               }
             }
           })
+          if(parallelExecution) {
           integrateThreads.foreach(_.start())
           integrateThreads.foreach(_.join())
+          }
+          else
+            integrateThreads.foreach(thread => {
+              thread.start()
+              thread.join()
+            })
 
           sources.filter(_.loadEnabled && loadEnabled).foreach(source => {
               logger.info(s"Starting load for ${source.name}")

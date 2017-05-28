@@ -52,7 +52,7 @@ class HTTPDownloader extends GMQLDownloader {
     *
     * @param source configuration for the downloader, folders for input and output by regex and also for files.
     */
-  override def download(source: GMQLSource): Unit = {
+  override def download(source: GMQLSource, parallelExecution: Boolean): Unit = {
     if (urlExists(source.url)) {
       //same as FTP the mark to compare is done here because the iteration on http is based on http folders and not
       //on the source datasets.
@@ -220,7 +220,7 @@ class HTTPDownloader extends GMQLDownloader {
     *
     * @param source contains specific download and sorting info.
     */
-  override def downloadFailedFiles(source: GMQLSource): Unit = {
+  override def downloadFailedFiles(source: GMQLSource, parallelExecution: Boolean): Unit = {
 
   }
 }

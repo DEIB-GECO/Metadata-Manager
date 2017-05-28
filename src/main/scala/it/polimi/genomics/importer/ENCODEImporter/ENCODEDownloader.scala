@@ -27,14 +27,14 @@ class ENCODEDownloader extends GMQLDownloader {
     *
     * @param source contains specific download and sorting info.
     */
-  override def download(source: GMQLSource): Unit = {
+  override def download(source: GMQLSource, parallelExecution: Boolean): Unit = {
     logger.info("Starting download for: " + source.name)
     if (!new java.io.File(source.outputFolder).exists) {
       logger.debug("file " + source.outputFolder + " created")
       new java.io.File(source.outputFolder).mkdirs()
     }
-    downloadIndexAndMeta(source)
-    downloadFailedFiles(source)
+    downloadIndexAndMeta(source, parallelExecution)
+    downloadFailedFiles(source, parallelExecution)
   }
 
 /**
@@ -46,7 +46,7 @@ class ENCODEDownloader extends GMQLDownloader {
     *
     * @param source contains specific download and sorting info.
     */
-  override def downloadFailedFiles(source: GMQLSource): Unit = {
+  override def downloadFailedFiles(source: GMQLSource, parallelExecution: Boolean): Unit = {
     logger.info(s"Downloading failed files for source ${source.name}")
     val sourceId = FileDatabase.sourceId(source.name)
 
@@ -91,8 +91,16 @@ class ENCODEDownloader extends GMQLDownloader {
         }
       }
     }
-    downloadThreads.foreach(_.start())
-    downloadThreads.foreach(_.join())
+    if(parallelExecution) {
+      downloadThreads.foreach(_.start())
+      downloadThreads.foreach(_.join())
+    }
+    else{
+      downloadThreads.foreach(thread =>{
+        thread.start()
+        thread.join()
+      })
+    }
   }
 
   /**
@@ -123,7 +131,7 @@ class ENCODEDownloader extends GMQLDownloader {
     *
     * @param source information needed for downloading ENCODE datasets.
     */
-  private def downloadIndexAndMeta(source: GMQLSource): Unit = {
+  private def downloadIndexAndMeta(source: GMQLSource, parallelDownload: Boolean): Unit = {
     val downloadThreads = source.datasets.map { dataset =>
       new Thread {
         override def run(): Unit = {
@@ -179,8 +187,15 @@ class ENCODEDownloader extends GMQLDownloader {
         }
       }
     }
-    downloadThreads.foreach(_.start())
-    downloadThreads.foreach(_.join())
+    if(parallelDownload) {
+      downloadThreads.foreach(_.start())
+      downloadThreads.foreach(_.join())
+    }
+    else
+      downloadThreads.foreach(thread => {
+        thread.start()
+        thread.join()
+      })
   }
 
   /**

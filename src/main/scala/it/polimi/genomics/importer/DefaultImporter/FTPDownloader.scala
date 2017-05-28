@@ -23,7 +23,7 @@ class FTPDownloader extends GMQLDownloader {
     *
     * @param source contains specific download and sorting info.
     */
-  override def download(source: GMQLSource): Unit = {
+  override def download(source: GMQLSource, parallelExecution: Boolean): Unit = {
     if (source.downloadEnabled) {
       logger.info("Starting download for: " + source.name)
       if (!new java.io.File(source.outputFolder).exists) {
@@ -40,7 +40,7 @@ class FTPDownloader extends GMQLDownloader {
         }
       })
       val workingDirectory = getBaseWorkingDirectory(source)
-      recursiveDownload(workingDirectory, source)
+      recursiveDownload(workingDirectory, source, parallelExecution)
 
       source.datasets.foreach(dataset => {
         if (dataset.downloadEnabled) {
@@ -49,7 +49,7 @@ class FTPDownloader extends GMQLDownloader {
         }
       })
       logger.info(s"Download for ${source.name} Finished.")
-      downloadFailedFiles(source)
+      downloadFailedFiles(source, parallelExecution)
     }
   }
 
@@ -115,9 +115,9 @@ class FTPDownloader extends GMQLDownloader {
     * @param workingDirectory current folder of the ftp connection
     * @param source           configuration for the downloader, folders for input and output by regex and also for files.
     */
-  private def recursiveDownload(workingDirectory: String, source: GMQLSource): Unit = {
-    downloadSubfolders(workingDirectory, source)
-    checkFolderForDownloads(workingDirectory, source)
+  private def recursiveDownload(workingDirectory: String, source: GMQLSource, parallelExecution: Boolean): Unit = {
+    downloadSubfolders(workingDirectory, source, parallelExecution)
+    checkFolderForDownloads(workingDirectory, source, parallelExecution)
   }
 
   /**
@@ -186,7 +186,7 @@ class FTPDownloader extends GMQLDownloader {
     * @param workingDirectory current state of the ftp connection
     * @param source           configuration for downloader, folders for input and output by regex and also for files
     */
-  private def checkFolderForDownloads(workingDirectory: String, source: GMQLSource): Unit = {
+  private def checkFolderForDownloads(workingDirectory: String, source: GMQLSource, parallelExecution: Boolean): Unit = {
     //id of the source with the name
     val sourceId = FileDatabase.sourceId(source.name)
 
@@ -285,16 +285,24 @@ class FTPDownloader extends GMQLDownloader {
             }
           }
         }
-        for (thread <- downloadThreads) {
-          //Im handling the Thread pool here without locking it, have to make it secure for synchronization
-          while (runningThreads > 10) {
-            Thread.sleep(1000)
+        if(parallelExecution) {
+          for (thread <- downloadThreads) {
+            //Im handling the Thread pool here without locking it, have to make it secure for synchronization
+            while (runningThreads > 10) {
+              Thread.sleep(1000)
+            }
+            thread.start()
+            runningThreads = runningThreads + 1
           }
-          thread.start()
-          runningThreads = runningThreads + 1
+          for (thread <- downloadThreads)
+            thread.join()
         }
-        for (thread <- downloadThreads)
-          thread.join()
+        else {
+          for (thread <- downloadThreads) {
+            thread.start()
+            thread.join()
+          }
+        }
         if (expInfoDownloaded) {
           FileDatabase.runDatasetDownloadAppend(datasetId, dataset, totalFiles, downloadedFiles)
           if (totalFiles == downloadedFiles) {
@@ -545,7 +553,7 @@ class FTPDownloader extends GMQLDownloader {
     * @param workingDirectory current folder of the ftp connection
     * @param source           configuration for downloader, folders for input and output by regex and also for files
     */
-  private def downloadSubfolders(workingDirectory: String, source: GMQLSource): Unit = {
+  private def downloadSubfolders(workingDirectory: String, source: GMQLSource,parallelExecution: Boolean): Unit = {
 
     val directories: Array[FTPFile] = getDirectories(source, workingDirectory)
     directories.foreach({ directory =>
@@ -553,7 +561,7 @@ class FTPDownloader extends GMQLDownloader {
         if (workingDirectory.endsWith(File.separator))
           workingDirectory + directory.getName
         else
-          workingDirectory + File.separator + directory.getName, source)
+          workingDirectory + File.separator + directory.getName, source,parallelExecution)
     })
   }
 
@@ -626,7 +634,7 @@ class FTPDownloader extends GMQLDownloader {
     *
     * @param source contains specific download and sorting info.
     */
-  override def downloadFailedFiles(source: GMQLSource): Unit = {
+  override def downloadFailedFiles(source: GMQLSource, parallelExecution: Boolean): Unit = {
     logger.info(s"Downloading failed files for source ${source.name}")
     val sourceId = FileDatabase.sourceId(source.name)
     val downloadThreads = source.datasets.map(dataset => {
@@ -660,7 +668,15 @@ class FTPDownloader extends GMQLDownloader {
         }
       }
     })
-    downloadThreads.foreach(_.start())
-    downloadThreads.foreach(_.join())
+    if(parallelExecution) {
+      downloadThreads.foreach(_.start())
+      downloadThreads.foreach(_.join())
+    }
+    else{
+      for(thread <- downloadThreads){
+        thread.start()
+        thread.join()
+      }
+    }
   }
 }
