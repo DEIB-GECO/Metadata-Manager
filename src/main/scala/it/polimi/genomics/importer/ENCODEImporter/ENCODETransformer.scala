@@ -151,7 +151,7 @@ class ENCODETransformer extends GMQLTransformer {
     * @param originPath        full path to metadata.tsv file
     * @param destinationFolder transformations folder of the dataset.
     */
-  def transformMetaFromTsv(originPath: String, destinationFolder: String, accession: String): Unit = {
+  def transformMetaFromTsv(originPath: String, destinationFolder: String, accession: String, gmqlSource: GMQLSource): Unit = {
     import scala.io.Source
     logger.info(s"Splitting ENCODE metadata for $accession")
     val header = Source.fromFile(originPath).getLines().next().split("\t")
@@ -168,8 +168,14 @@ class ENCODETransformer extends GMQLTransformer {
 
       val writer = new PrintWriter(file)
       for (i <- 0 until fields.size) {
-        if (fields(i).nonEmpty)
-          writer.write(header(i) + "\t" + fields(i) + "\n")
+        if (fields(i).nonEmpty) {
+          if (gmqlSource.parameters.exists(_._1 == "multiple_comma_separated") &&
+            gmqlSource.parameters.filter(_._1 == "multiple_comma_separated").head._2 == header(i))
+            for (value <- fields(i).split(","))
+              writer.write(header(i) + "\t" + value + "\n")
+          else
+            writer.write(header(i) + "\t" + fields(i) + "\n")
+        }
       }
       writer.close()
     })
