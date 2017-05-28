@@ -135,7 +135,7 @@ class ENCODETransformer extends GMQLTransformer {
     else {
       if (source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(originalFilename)) {
         val accession = filename.split('.').head
-        transformMetaFromTsv(fileDownloadPath, destinationPath, accession)
+        transformMetaFromTsv(fileDownloadPath, destinationPath, accession,source)
         true
       }
       else {
