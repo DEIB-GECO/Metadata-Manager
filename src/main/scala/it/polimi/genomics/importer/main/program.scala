@@ -87,7 +87,7 @@ object program {
             }
           }
           else {
-            run(args.head, args.drop(1).head.toString,args.contains("-retry"))
+            runGMQLImporter(args.head, args.drop(1).head.toString,args.contains("-retry"))
           }
         }
         else
@@ -186,7 +186,7 @@ object program {
     * @param xmlConfigPath xml configuration file location
     * @param gmqlConfigPath path to the gmql_conf folder
     */
-  def run(xmlConfigPath: String, gmqlConfigPath: String, retryDownload: Boolean): Unit = {
+  def runGMQLImporter(xmlConfigPath: String, gmqlConfigPath: String, retryDownload: Boolean): Unit = {
     Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
     //general settings
     if (new File(xmlConfigPath).exists()) {
@@ -272,10 +272,9 @@ object program {
             })
           })
 
-          val downloadThreads = sources.map { source =>
+          val downloadThreads = sources.filter(_.downloadEnabled && downloadEnabled ).map( source =>{
             new Thread {
               override def run(): Unit = {
-                if (downloadEnabled && source.downloadEnabled) {
                   if (!retryDownload) {
                     logger.info(s"Starting download for ${source.name}")
                     Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source)
@@ -286,33 +285,28 @@ object program {
                     Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source)
                     logger.info(s"Download for ${source.name} Finished")
                   }
-                }
               }
             }
-          }
+          })
           downloadThreads.foreach(_.start())
           downloadThreads.foreach(_.join())
 
-          val integrateThreads = sources.map { source =>
+          val integrateThreads = sources.filter(_.transformEnabled && transformEnabled).map( source =>{
             new Thread {
               override def run(): Unit = {
-                if (transformEnabled && source.transformEnabled) {
                   logger.info(s"Starting integration for ${source.name}")
                   Integrator.integrate(source)
                   logger.info(s"Integration for ${source.name} Finished")
-                }
               }
             }
-          }
+          })
           integrateThreads.foreach(_.start())
           integrateThreads.foreach(_.join())
 
-          sources.foreach(source => {
-            if (loadEnabled && source.loadEnabled) {
+          sources.filter(_.loadEnabled && loadEnabled).foreach(source => {
               logger.info(s"Starting load for ${source.name}")
               Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
               logger.info(s"Loading for ${source.name} Finished")
-            }
           })
           sources.foreach(source => {
             val sourceId = FileDatabase.sourceId(source.name)
