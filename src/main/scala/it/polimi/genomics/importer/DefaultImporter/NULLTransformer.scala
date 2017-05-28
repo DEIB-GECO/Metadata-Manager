@@ -71,9 +71,12 @@ class NULLTransformer extends GMQLTransformer {
     * @return List(fileId, filename) for the transformed files.
     */
   override def transform(source: GMQLSource, originPath: String, destinationPath: String, originalFilename: String,
-                filename: String): Unit = {
+                filename: String): Boolean = {
     val fileTransformationPath = destinationPath + File.separator + filename
     val fileDownloadPath = originPath + File.separator + originalFilename
+    var timesTried = 0
+    var transformed = false
+    while(timesTried < 4 && !transformed)
     try {
       import java.io.{File, FileInputStream, FileOutputStream}
       val src = new File(fileDownloadPath)
@@ -82,12 +85,16 @@ class NULLTransformer extends GMQLTransformer {
         new FileInputStream(src) getChannel, 0, Long.MaxValue)
       //here have to add the metadata of copy number and total copies
       logger.info("File: " + fileDownloadPath + " copied into " + fileTransformationPath)
+      transformed = true;
     }
     catch {
-      case e: IOException => logger.error("could not copy the file " +
-        fileDownloadPath + " to " +
-        fileTransformationPath, e)
+      case e: IOException => timesTried +=1
     }
+    if(!transformed)
+      logger.error("could not copy the file " +
+      fileDownloadPath + " to " +
+      fileTransformationPath)
+    transformed
   }
 
 }
