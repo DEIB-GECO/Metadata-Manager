@@ -4,10 +4,13 @@ import java.io.{File, _}
 import java.util
 import java.util.zip.GZIPInputStream
 
-import it.polimi.genomics.importer.GMQLImporter.{GMQLSource, GMQLTransformer, GMQLDataset}
+import it.polimi.genomics.importer.FileDatabase.FileDatabase
+import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource, GMQLTransformer}
 import org.codehaus.jackson.map.MappingJsonFactory
 import org.codehaus.jackson.{JsonNode, JsonParser, JsonToken}
 import org.slf4j.LoggerFactory
+
+import scala.io.Source
 
 /**
   * Created by Nacho on 10/13/16.
@@ -26,12 +29,32 @@ class ENCODETransformer extends GMQLTransformer {
     * by receiving an original filename returns the new GDM candidate name.
     *
     * @param filename original filename
-    * @param dataset dataser where the file belongs to
+    * @param dataset  dataser where the file belongs to
     * @return candidate names for the files derived from the original filename.
     */
-  override def getCandidateNames(filename: String, dataset :GMQLDataset, source: GMQLSource): List[String] = {
-    if (filename.endsWith(".gz"))
-      List[String](filename.substring(0, filename.lastIndexOf(".")))
+  override def getCandidateNames(filename: String, dataset: GMQLDataset, source: GMQLSource): List[String] = {
+    if (filename.endsWith(".gz")) {
+      if (source.parameters.exists(_._1 == "assembly_exclude")) {
+        val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
+        val file = Source.fromFile(path + File.separator + "metadata" + ".tsv")
+        val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(source.name), dataset.name)
+        val header = file.getLines().next().split("\t")
+        val assembly = header.lastIndexOf("Assembly")
+        val url = header.lastIndexOf("File download URL")
+
+        if (Source.fromFile(path + File.separator + "metadata.tsv").getLines().exists(line => {
+          line.split("\t")(url).contains(filename) &&
+            line.split("\t")(assembly).toLowerCase == source.parameters.filter(_._1.toLowerCase ==
+              "assembly_exclude").head._2.toLowerCase
+        })
+        )
+          List[String]()
+        else
+          List[String](filename.substring(0, filename.lastIndexOf(".")))
+      }
+      else
+        List[String](filename.substring(0, filename.lastIndexOf(".")))
+    }
     else {
       if (source.parameters.exists(_._1 == "metadata_extraction") &&
         source.parameters.filter(_._1 == "metadata_extraction").head._2 == "json") {
@@ -60,63 +83,75 @@ class ENCODETransformer extends GMQLTransformer {
       else List[String]()
     }
   }
+
   /**
     * recieves .json and .bed.gz files and transform them to get metadata in .meta files and region in .bed files.
-    * @param source source where the files belong to.
-    * @param originPath path for the  "Downloads" folder
-    * @param destinationPath path for the "Transformations" folder
+    *
+    * @param source           source where the files belong to.
+    * @param originPath       path for the  "Downloads" folder
+    * @param destinationPath  path for the "Transformations" folder
     * @param originalFilename name of the original file .json/.gz
-    * @param filename name of the new file .meta/.bed
+    * @param filename         name of the new file .meta/.bed
     * @return List(fileId, filename) for the transformed files.
     */
-  override def transform(source: GMQLSource,originPath: String, destinationPath: String, originalFilename:String,
-                filename: String):Unit= {
-      fillMetadataExclusion(source)
-      val fileDownloadPath = originPath + File.separator + originalFilename
-      val fileTransformationPath = destinationPath + File.separator + filename
-      if (originalFilename.endsWith(".gz")) {
-        logger.debug("Start unGzipping: " + originalFilename)
-        unGzipIt(
-          fileDownloadPath,
-          fileTransformationPath)
+  override def transform(source: GMQLSource, originPath: String, destinationPath: String, originalFilename: String,
+                         filename: String): Boolean = {
+    fillMetadataExclusion(source)
+    val fileDownloadPath = originPath + File.separator + originalFilename
+    val fileTransformationPath = destinationPath + File.separator + filename
+    if (originalFilename.endsWith(".gz")) {
+      logger.debug("Start unGzipping: " + originalFilename)
+      if (unGzipIt(
+        fileDownloadPath,
+        fileTransformationPath)) {
         logger.info("UnGzipping: " + originalFilename + " DONE")
+        true
       }
-      else if(source.parameters.exists(_._1 == "metadata_extraction") &&
-        source.parameters.filter(_._1 == "metadata_extraction").head._2 == "json") {
-        if (originalFilename.endsWith(".gz.json")) {
-          logger.debug("Start metadata transformation: " + originalFilename)
-          val jsonFileName = filename.split('.').head
+      else false
+    }
+    else if (source.parameters.exists(_._1 == "metadata_extraction") &&
+      source.parameters.filter(_._1 == "metadata_extraction").head._2 == "json") {
+      if (originalFilename.endsWith(".gz.json")) {
+        logger.debug("Start metadata transformation: " + originalFilename)
+        val jsonFileName = filename.split('.').head
 
-          val separator =
-            if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
-              source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
-            else
-              "__"
-          transformMetaFromJson(fileDownloadPath, fileTransformationPath, jsonFileName, separator)
+        val separator =
+          if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
+            source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+          else
+            "__"
+        if(transformMetaFromJson(fileDownloadPath, fileTransformationPath, jsonFileName, separator)) {
           logger.info("Metadata transformation: " + originalFilename + " DONE")
+          true
         }
-        else {
-          //this is no data nor metadata file, must be the metadata.tsv and is not used due to json selection.
-        }
+        else false
       }
-      //if not json is defined, metadata.tsv will be used.
       else {
-        if(source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(originalFilename)) {
-          val accession = filename.split('.').head
-          transformMetaFromTsv(fileDownloadPath,destinationPath,accession)
-        }
-        else{
-          //is not metadata file
-        }
+        false
+        //this is no data nor metadata file, must be the metadata.tsv and is not used due to json selection.
       }
+    }
+    //if not json is defined, metadata.tsv will be used.
+    else {
+      if (source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(originalFilename)) {
+        val accession = filename.split('.').head
+        transformMetaFromTsv(fileDownloadPath, destinationPath, accession)
+        true
+      }
+      else {
+        false
+        //is not metadata file
+      }
+    }
   }
 
   /**
     * by giving a metadata.tsv file creates all the metadata for the files.
-    * @param originPath full path to metadata.tsv file
+    *
+    * @param originPath        full path to metadata.tsv file
     * @param destinationFolder transformations folder of the dataset.
     */
-  def transformMetaFromTsv(originPath: String, destinationFolder: String, accession: String): Unit ={
+  def transformMetaFromTsv(originPath: String, destinationFolder: String, accession: String): Unit = {
     import scala.io.Source
     logger.info(s"Splitting ENCODE metadata for $accession")
     val header = Source.fromFile(originPath).getLines().next().split("\t")
@@ -129,7 +164,7 @@ class ENCODETransformer extends GMQLTransformer {
       val fields = line.split("\t")
       val aux1 = fields(url).split("/").last
       val aux2 = aux1.substring(0, aux1.lastIndexOf(".")) + ".meta" //this is the meta name
-      val file = new File(destinationFolder +File.separator+ aux2)
+      val file = new File(destinationFolder + File.separator + aux2)
 
       val writer = new PrintWriter(file)
       for (i <- 0 until fields.size) {
@@ -139,55 +174,65 @@ class ENCODETransformer extends GMQLTransformer {
       writer.close()
     })
   }
+
   //----------------------------------------METADATA FROM JSON SECTION--------------------------------------------------
   /**
     * by giving a .json file, it generates a .meta file with the json structure.
     * does an exception for the section "files" and needs the file id to achieve this.
-    * @param metadataJsonFileName origin json file
-    * @param metadataFileName destination .meta file
+    *
+    * @param metadataJsonFileName     origin json file
+    * @param metadataFileName         destination .meta file
     * @param fileNameWithoutExtension id of the file being converted.
     */
   def transformMetaFromJson(metadataJsonFileName: String, metadataFileName: String, fileNameWithoutExtension: String
-                            ,separator : String): Unit ={
+                            , separator: String): Boolean = {
     val jsonFile = new File(metadataJsonFileName)
-    if(jsonFile.exists()) {
+    if (jsonFile.exists()) {
       val f = new MappingJsonFactory()
       val jp: JsonParser = f.createJsonParser(jsonFile)
 
       val current: JsonToken = jp.nextToken()
       if (current != JsonToken.START_OBJECT) {
         logger.error("json root should be object: quiting File: " + metadataJsonFileName)
+        false
       }
       else {
         val file = new File(metadataFileName)
-        val writer = new PrintWriter(file)
         try {
+          val writer = new PrintWriter(file)
           //this is the one that could throw an exception
           val node: JsonNode = jp.readValueAsTree()
 
-          val metadataList = new java.util.ArrayList[(String,String)]()
+          val metadataList = new java.util.ArrayList[(String, String)]()
           //here I handle the exceptions as "files" and "replicates"
-          val replicateIds = getReplicatesAndWriteFile(node, writer, fileNameWithoutExtension, metadataList,separator)
-          writeReplicates(node, writer, replicateIds, metadataList,separator)
+          val replicateIds = getReplicatesAndWriteFile(node, writer, fileNameWithoutExtension, metadataList, separator)
+          writeReplicates(node, writer, replicateIds, metadataList, separator)
           //here is the regular case
 
-          printTree(node, "", writer, metadataList,separator, exclusion = true)
+          printTree(node, "", writer, metadataList, separator, exclusion = true)
+          writer.close()
+          true
         }
         catch {
-          case e: IOException => logger.error("couldn't read the json tree: " + e.getMessage)
+          case e: IOException =>
+            logger.error("couldn't read the json tree: " + e.getMessage)
+            false
         }
-        writer.close()
       }
     }
-    else
-      logger.warn("Json file not found: "+metadataJsonFileName)
+    else {
+      logger.warn("Json file not found: " + metadataJsonFileName)
+      false
+    }
   }
+
   /**
     * by getting the exclusion list of encode metadata, generates (if not generated before) the exclusionRegex list.
+    *
     * @param source source with the parameters of exclusion for encode.
     */
-  def fillMetadataExclusion(source: GMQLSource): Unit ={
-    if(exclusionRegex.isEmpty) {
+  def fillMetadataExclusion(source: GMQLSource): Unit = {
+    if (exclusionRegex.isEmpty) {
       //fills the exclusion regexes into the list.
       source.parameters.filter(parameter => parameter._1.equalsIgnoreCase("encode_metadata_exclusion"))
         .foreach(param => {
@@ -195,37 +240,39 @@ class ENCODETransformer extends GMQLTransformer {
         })
     }
   }
+
   /**
     * handles the particular case of files, writes its metadata and returns a list with the replicates IDs used.
-    * @param rootNode initial node of the json file.
-    * @param writer output for metadata.
+    *
+    * @param rootNode                 initial node of the json file.
+    * @param writer                   output for metadata.
     * @param fileNameWithoutExtension id of the file that metadata is being extracted without the .meta.
-    * @param metaList list with already inserted meta to avoid duplication.
+    * @param metaList                 list with already inserted meta to avoid duplication.
     * @return list with the replicates referred by the file.
     */
-  def getReplicatesAndWriteFile(rootNode: JsonNode, writer: PrintWriter, fileNameWithoutExtension:String,
-                                metaList: java.util.ArrayList[(String,String)], separator: String): List[String] ={
+  def getReplicatesAndWriteFile(rootNode: JsonNode, writer: PrintWriter, fileNameWithoutExtension: String,
+                                metaList: java.util.ArrayList[(String, String)], separator: String): List[String] = {
     //particular cases first one is to find just the correct file to use its metadata.
     var replicates = List[String]()
-    if(rootNode.has("files")){
+    if (rootNode.has("files")) {
       val files = rootNode.get("files").getElements
       while (files.hasNext) {
         val file = files.next()
         if (file.has("@id") && file.get("@id").asText().contains(fileNameWithoutExtension)) {
-          if(file.has("biological_replicates")){
+          if (file.has("biological_replicates")) {
             val biologicalReplicates = file.get("biological_replicates")
-            if(biologicalReplicates.isArray){
+            if (biologicalReplicates.isArray) {
               val values = biologicalReplicates.getElements
-              while(values.hasNext){
+              while (values.hasNext) {
                 val replicate = values.next()
-                if(replicate.asText() != ""){
+                if (replicate.asText() != "") {
                   replicates = replicates :+ replicate.asText()
                 }
               }
             }
           }
           //here is where the file is wrote
-          printTree(file, "file", writer, metaList,separator, exclusion = false)
+          printTree(file, "file", writer, metaList, separator, exclusion = false)
         }
       }
     }
@@ -234,22 +281,23 @@ class ENCODETransformer extends GMQLTransformer {
 
   /**
     * handles the particular case of biological replicates, writes their metadata from a list of replicates
-    * @param rootNode initial node of the json file.
-    * @param writer output for metadata.
+    *
+    * @param rootNode     initial node of the json file.
+    * @param writer       output for metadata.
     * @param replicateIds list with the biological_replicate_number used by the file.
-    * @param metaList list with already inserted meta to avoid duplication.
+    * @param metaList     list with already inserted meta to avoid duplication.
     */
-  def writeReplicates(rootNode: JsonNode, writer: PrintWriter, replicateIds:List[String],
-                      metaList: java.util.ArrayList[(String,String)], separator: String): Unit ={
-    if(rootNode.has("replicates")){
+  def writeReplicates(rootNode: JsonNode, writer: PrintWriter, replicateIds: List[String],
+                      metaList: java.util.ArrayList[(String, String)], separator: String): Unit = {
+    if (rootNode.has("replicates")) {
       val replicatesNode = rootNode.get("replicates")
-      if(replicatesNode.isArray) {
+      if (replicatesNode.isArray) {
         val replicates = replicatesNode.getElements
-        while (replicates.hasNext){
+        while (replicates.hasNext) {
           val replicate = replicates.next()
-          if(replicate.has("biological_replicate_number") &&
+          if (replicate.has("biological_replicate_number") &&
             replicateIds.contains(replicate.get("biological_replicate_number").asText()))
-            printTree(replicate,s"replicates$separator${replicate.get("biological_replicate_number").asText()}",writer,metaList,separator, exclusion = false)
+            printTree(replicate, s"replicates$separator${replicate.get("biological_replicate_number").asText()}", writer, metaList, separator, exclusion = false)
         }
       }
     }
@@ -259,7 +307,7 @@ class ENCODETransformer extends GMQLTransformer {
     * gets the "hard coded" exclusion categories, meant to be used for the particular cases
     * Files and Replicates should be always be there, other exclusions are managed from xml file with regex.
     */
-  val exclusionCategories: java.util.ArrayList[String] ={
+  val exclusionCategories: java.util.ArrayList[String] = {
     val list = new java.util.ArrayList[String]()
     list.add("files")
     list.add("replicates")
@@ -274,18 +322,19 @@ class ENCODETransformer extends GMQLTransformer {
   /**
     * by giving an initial node, prints into the .meta file its metadata and its children's metadata also.
     * I use java arraylist as scala list cannot be put as var in the parameters.
-    * @param node current node
-    * @param parents path separated by dots for each level
-    * @param writer file writer with the open .meta file
+    *
+    * @param node     current node
+    * @param parents  path separated by dots for each level
+    * @param writer   file writer with the open .meta file
     * @param metaList list with already inserted meta to avoid duplication.
     */
-  def printTree(node: JsonNode, parents: String, writer: PrintWriter, metaList: java.util.ArrayList[(String,String)], separator: String, exclusion: Boolean): Unit = {
+  def printTree(node: JsonNode, parents: String, writer: PrintWriter, metaList: java.util.ArrayList[(String, String)], separator: String, exclusion: Boolean): Unit = {
     //base case, the node is value
-    if(node.isValueNode && node.asText() != ""
-    && !metaList.contains(node.asText(),parents)
+    if (node.isValueNode && node.asText() != ""
+      && !metaList.contains(node.asText(), parents)
     ) {
       writer.write(parents + "\t" + node.asText() + "\n")
-      metaList.add((node.asText(),parents))
+      metaList.add((node.asText(), parents))
     }
     else {
       val fields: util.Iterator[String] = node.getFieldNames
@@ -297,10 +346,10 @@ class ENCODETransformer extends GMQLTransformer {
           val currentName = if (parents == "") name else parents + separator + name
           //check the regex
           var regexMatch = false
-          for(i<-0 until exclusionRegex.size())
-            if(currentName.matches(exclusionRegex.get(i)))
+          for (i <- 0 until exclusionRegex.size())
+            if (currentName.matches(exclusionRegex.get(i)))
               regexMatch = true
-          if(!regexMatch) {
+          if (!regexMatch) {
             if (element.isArray) {
               val subElements = element.getElements
               while (subElements.hasNext)
@@ -314,36 +363,36 @@ class ENCODETransformer extends GMQLTransformer {
     }
   }
 
-//  //--------------------------------------------SCHEMA SECTION----------------------------------------------------------
-//  /**
-//    * using information in the loader should arrange the files into a single folder
-//    * where data and metadata are paired as (file,file.meta) and should put also
-//    * the schema file inside the folder.
-//    * ENCODE schema file is not provided in the same folder as the data
-//    * for the moment the schemas have to be given locally.
-//    *
-//    * @param source contains specific download and sorting info.
-//    */
-//  def organize(source: GMQLSource): Unit = {
-//    source.datasets.foreach(dataset => {
-//      if(dataset.transformEnabled) {
-//        if (dataset.schemaLocation == SCHEMA_LOCATION.LOCAL) {
-//          val src = new File(dataset.schemaUrl)
-//          val dest = new File(source.outputFolder + File.separator + dataset.outputFolder + File.separator +
-//            "Transformations" + File.separator + dataset.name + ".schema")
-//
-//          try {
-//            Files.copy(src, dest)
-//            logger.info("Schema copied from: " + src.getAbsolutePath + " to " + dest.getAbsolutePath)
-//          }
-//          catch {
-//            case e: IOException => logger.error("could not copy the file " +
-//              src.getAbsolutePath + " to " + dest.getAbsolutePath)
-//          }
-//        }
-//      }
-//    })
-//  }
+  //  //--------------------------------------------SCHEMA SECTION----------------------------------------------------------
+  //  /**
+  //    * using information in the loader should arrange the files into a single folder
+  //    * where data and metadata are paired as (file,file.meta) and should put also
+  //    * the schema file inside the folder.
+  //    * ENCODE schema file is not provided in the same folder as the data
+  //    * for the moment the schemas have to be given locally.
+  //    *
+  //    * @param source contains specific download and sorting info.
+  //    */
+  //  def organize(source: GMQLSource): Unit = {
+  //    source.datasets.foreach(dataset => {
+  //      if(dataset.transformEnabled) {
+  //        if (dataset.schemaLocation == SCHEMA_LOCATION.LOCAL) {
+  //          val src = new File(dataset.schemaUrl)
+  //          val dest = new File(source.outputFolder + File.separator + dataset.outputFolder + File.separator +
+  //            "Transformations" + File.separator + dataset.name + ".schema")
+  //
+  //          try {
+  //            Files.copy(src, dest)
+  //            logger.info("Schema copied from: " + src.getAbsolutePath + " to " + dest.getAbsolutePath)
+  //          }
+  //          catch {
+  //            case e: IOException => logger.error("could not copy the file " +
+  //              src.getAbsolutePath + " to " + dest.getAbsolutePath)
+  //          }
+  //        }
+  //      }
+  //    })
+  //  }
   //-------------------------------------UTILS -------------------------------------------------------------------------
   /**
     * extracts the gzipFile into the outputPath.
@@ -351,25 +400,32 @@ class ENCODETransformer extends GMQLTransformer {
     * @param gzipFile   full location of the gzip
     * @param outputPath full path of destination, filename included.
     */
-  def unGzipIt(gzipFile: String, outputPath: String): Unit = {
+  def unGzipIt(gzipFile: String, outputPath: String): Boolean = {
     val bufferSize = 1024
     val buffer = new Array[Byte](bufferSize)
+    var unGzipped = false
+    var timesTried = 0
+    while (timesTried < 4 && !unGzipped) {
+      try {
+        val zis = new GZIPInputStream(new BufferedInputStream(new FileInputStream(gzipFile)))
+        val newFile = new File(outputPath)
+        val fos = new FileOutputStream(newFile)
 
-    try {
-      val zis = new GZIPInputStream(new BufferedInputStream(new FileInputStream(gzipFile)))
-      val newFile = new File(outputPath)
-      val fos = new FileOutputStream(newFile)
+        var ze: Int = zis.read(buffer)
+        while (ze >= 0) {
 
-      var ze: Int = zis.read(buffer)
-      while (ze >= 0) {
-
-        fos.write(buffer, 0, ze)
-        ze = zis.read(buffer)
+          fos.write(buffer, 0, ze)
+          ze = zis.read(buffer)
+        }
+        fos.close()
+        zis.close()
+        unGzipped = true
+      } catch {
+        case e: IOException => timesTried += 1
       }
-      fos.close()
-      zis.close()
-    } catch {
-      case e: IOException => logger.error("Couldnt UnGzip the file: " + outputPath, e)
     }
+    if (!unGzipped)
+      logger.error("Couldnt UnGzip the file: " + outputPath)
+    unGzipped
   }
 }
