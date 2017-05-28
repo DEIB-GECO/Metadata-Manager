@@ -511,19 +511,20 @@ case class dbContainer() {
     */
   def getFilesToProcess(datasetId: Int, stage: STAGE.Value):Seq[(Int,String,Int)]={
     val query = (for (f <- files.filter(f => f.datasetId === datasetId && f.stage === stage.toString &&
-      (f.status === FILE_STATUS.UPDATED.toString))
+      (f.status === FILE_STATUS.UPDATED.toString && !(f.size === "")))
     ) yield (f.id,f.name,f.copyNumber)).result
     val execution = database.run(query)
     Await.result(execution, Duration.Inf)
   }
   /**
     * returns all the failed files in the dataset with its copy number.
+    * files marked as UPDATED without size are also considered as FAILED
     * @param datasetId dataset from where files are required.
     * @return (fileId, filename, copyNumber, url, hash)
     */
   def getFailedFiles(datasetId: Int, stage: STAGE.Value):Seq[(Int,String,Int,String,String)]={
     val query = (for (f <- files.filter(f => f.datasetId === datasetId && f.stage === stage.toString &&
-      (f.status === FILE_STATUS.FAILED.toString))
+      (f.status === FILE_STATUS.FAILED.toString || (f.status === FILE_STATUS.UPDATED.toString && f.size ==="")))
     ) yield (f.id,f.name,f.copyNumber,f.url,f.hash)).result
     val execution = database.run(query)
     Await.result(execution, Duration.Inf)
