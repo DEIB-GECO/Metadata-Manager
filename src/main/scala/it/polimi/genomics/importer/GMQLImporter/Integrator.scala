@@ -47,109 +47,119 @@ object Integrator {
       var modifiedMetadataFilesSource = 0
       var wrongSchemaFilesSource = 0
       //integration process for each dataset contained in the source.
-      source.datasets.foreach(dataset => {
-        if (dataset.transformEnabled) {
-          var modifiedRegionFilesDataset = 0
-          var modifiedMetadataFilesDataset = 0
-          var wrongSchemaFilesDataset = 0
-          var totalTransformedFiles = 0
-          val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+      val integrateThreads = source.datasets.map(dataset => {
+        new Thread {
+          override def run(): Unit = {
+            if (dataset.transformEnabled) {
+              var modifiedRegionFilesDataset = 0
+              var modifiedMetadataFilesDataset = 0
+              var wrongSchemaFilesDataset = 0
+              var totalTransformedFiles = 0
+              val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
 
-          val datasetOutputFolder = source.outputFolder + File.separator + dataset.outputFolder
-          val downloadsFolder = datasetOutputFolder + File.separator + "Downloads"
-          val transformationsFolder = datasetOutputFolder + File.separator + "Transformations"
+              val datasetOutputFolder = source.outputFolder + File.separator + dataset.outputFolder
+              val downloadsFolder = datasetOutputFolder + File.separator + "Downloads"
+              val transformationsFolder = datasetOutputFolder + File.separator + "Transformations"
 
-          // puts the schema into the transformations folder.
-          if (schemaFinder.downloadSchema(source.rootOutputFolder, dataset, transformationsFolder, source))
-            logger.debug("Schema downloaded for: " + dataset.name)
-          else
-            logger.warn("Schema not found for: " + dataset.name)
+              // puts the schema into the transformations folder.
+              if (schemaFinder.downloadSchema(source.rootOutputFolder, dataset, transformationsFolder, source))
+                logger.debug("Schema downloaded for: " + dataset.name)
+              else
+                logger.warn("Schema not found for: " + dataset.name)
 
-          val folder = new File(transformationsFolder)
-          if (!folder.exists()) {
-            folder.mkdirs()
-            logger.debug("Folder created: " + folder)
-          }
-          logger.info("Transformation for dataset: " + dataset.name)
+              val folder = new File(transformationsFolder)
+              if (!folder.exists()) {
+                folder.mkdirs()
+                logger.debug("Folder created: " + folder)
+              }
+              logger.info("Transformation for dataset: " + dataset.name)
 
-          FileDatabase.markToCompare(datasetId, STAGE.TRANSFORM)
-          //id, filename, copy number.
-          var filesToTransform = 0
-          FileDatabase.getFilesToProcess(datasetId, STAGE.DOWNLOAD).foreach(file => {
-            val originalFileName =
-              if (file._3 == 1) file._2
-              else file._2.replaceFirst("\\.", "_" + file._3 + ".")
+              FileDatabase.markToCompare(datasetId, STAGE.TRANSFORM)
+              //id, filename, copy number.
+              var filesToTransform = 0
+              FileDatabase.getFilesToProcess(datasetId, STAGE.DOWNLOAD).foreach(file => {
+                val originalFileName =
+                  if (file._3 == 1) file._2
+                  else file._2.replaceFirst("\\.", "_" + file._3 + ".")
 
-            val fileDownloadPath = downloadsFolder + File.separator + originalFileName
-            val files = Class
-              .forName(source.transformer)
-              .newInstance.asInstanceOf[GMQLTransformer]
-              .getCandidateNames(originalFileName, dataset, source)
-              .map(candidateName => {
-                FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName)
-              })
-            filesToTransform = filesToTransform + files.length
-            files.foreach(fileId => {
-              val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
-              val name =
-                if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
-                else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
-              val originDetails = FileDatabase.getFileDetails(file._1)
+                val fileDownloadPath = downloadsFolder + File.separator + originalFileName
+                val files = Class
+                  .forName(source.transformer)
+                  .newInstance.asInstanceOf[GMQLTransformer]
+                  .getCandidateNames(originalFileName, dataset, source)
+                  .map(candidateName => {
+                    FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName)
+                  })
+                filesToTransform = filesToTransform + files.length
+                files.foreach(fileId => {
+                  val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
+                  val name =
+                    if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
+                    else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
+                  val originDetails = FileDatabase.getFileDetails(file._1)
 
-              //I always transform, so the boolean checkIfUpdate is not used here.
-              FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-              Class
-                .forName(source.transformer)
-                .newInstance.asInstanceOf[GMQLTransformer]
-                .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
-              val fileTransformationPath = transformationsFolder + File.separator + name
-              //add copy numbers if needed.
-              if (name.endsWith(".meta")) {
-                val separator =
-                  if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
-                    source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+                  //I always transform, so the boolean checkIfUpdate is not used here.
+                  FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
+                  val transformed = Class
+                    .forName(source.transformer)
+                    .newInstance.asInstanceOf[GMQLTransformer]
+                    .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
+                  val fileTransformationPath = transformationsFolder + File.separator + name
+                  //add copy numbers if needed.
+                  if(transformed) {
+                    if (name.endsWith(".meta")) {
+                      val separator =
+                        if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
+                          source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+                        else
+                          "__"
+                      val maxCopy = FileDatabase.getMaxCopyNumber(datasetId, file._2, STAGE.DOWNLOAD)
+                      if (maxCopy > 1) {
+                        val writer = new FileWriter(fileTransformationPath, true)
+                        writer.write("manually_curated" + separator + "file_copy_total_count\t" + maxCopy + "\n")
+                        writer.write("manually_curated" + separator + "file_copy_number\t" + file._3 + "\n")
+                        writer.write("manually_curated" + separator + "file_name_replaced\ttrue\n")
+                        writer.close()
+                      }
+                      //metadata renaming. (standardizing of the metadata values should happen here also.
+                      if (changeMetadataKeys(metadataRenaming, fileTransformationPath))
+                        modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
+                      totalTransformedFiles = totalTransformedFiles + 1
+                    }
+                    //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
+                    else {
+                      val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
+                      val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
+                      if (modifiedAndSchema._1)
+                        modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
+                      if (!modifiedAndSchema._2)
+                        wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
+                      totalTransformedFiles = totalTransformedFiles + 1
+
+                    }
+                    //standardization of the region data should be here.
+                    FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
+                  }
                   else
-                    "__"
-                val maxCopy = FileDatabase.getMaxCopyNumber(datasetId, file._2, STAGE.DOWNLOAD)
-                if (maxCopy > 1) {
-                  val writer = new FileWriter(fileTransformationPath, true)
-                  writer.write("manually_curated" + separator + "file_copy_total_count\t" + maxCopy + "\n")
-                  writer.write("manually_curated" + separator + "file_copy_number\t" + file._3 + "\n")
-                  writer.write("manually_curated" + separator + "file_name_replaced\ttrue\n")
-                  writer.close()
-                }
-                //metadata renaming. (standardizing of the metadata values should happen here also.
-                if (changeMetadataKeys(metadataRenaming, fileTransformationPath))
-                  modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
-                totalTransformedFiles = totalTransformedFiles + 1
-              }
-              //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
-              else {
-                val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
-                val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
-                if (modifiedAndSchema._1)
-                  modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
-                if (!modifiedAndSchema._2)
-                  wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
-                totalTransformedFiles = totalTransformedFiles + 1
-
-              }
-              //standardization of the region data should be here.
-              FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
-              //                }
-            })
-          })
-          FileDatabase.markAsOutdated(datasetId, STAGE.TRANSFORM)
-//          FileDatabase.markAsProcessed(datasetId, STAGE.DOWNLOAD)
-          FileDatabase.runDatasetTransformAppend(datasetId,dataset,filesToTransform,totalTransformedFiles)
-          modifiedMetadataFilesSource = modifiedMetadataFilesSource + modifiedMetadataFilesDataset
-          modifiedRegionFilesSource = modifiedRegionFilesSource + modifiedRegionFilesDataset
-          wrongSchemaFilesSource = wrongSchemaFilesSource + wrongSchemaFilesDataset
-          logger.info(modifiedRegionFilesDataset + " region data files modified in dataset: " + dataset.name)
-          logger.info(modifiedMetadataFilesDataset + " metadata files modified in dataset: " + dataset.name)
-          logger.info(wrongSchemaFilesDataset + " region data files do not respect the schema in dataset: " + dataset.name)
+                    FileDatabase.markAsFailed(fileId)
+                  //                }
+                })
+              })
+              FileDatabase.markAsOutdated(datasetId, STAGE.TRANSFORM)
+              //          FileDatabase.markAsProcessed(datasetId, STAGE.DOWNLOAD)
+              FileDatabase.runDatasetTransformAppend(datasetId, dataset, filesToTransform, totalTransformedFiles)
+              modifiedMetadataFilesSource = modifiedMetadataFilesSource + modifiedMetadataFilesDataset
+              modifiedRegionFilesSource = modifiedRegionFilesSource + modifiedRegionFilesDataset
+              wrongSchemaFilesSource = wrongSchemaFilesSource + wrongSchemaFilesDataset
+              logger.info(modifiedRegionFilesDataset + " region data files modified in dataset: " + dataset.name)
+              logger.info(modifiedMetadataFilesDataset + " metadata files modified in dataset: " + dataset.name)
+              logger.info(wrongSchemaFilesDataset + " region data files do not respect the schema in dataset: " + dataset.name)
+            }
+          }
         }
       })
+      integrateThreads.foreach(_.start())
+      integrateThreads.foreach(_.join())
       logger.info(modifiedRegionFilesSource + " region data files modified in source: " + source.name)
       logger.info(modifiedMetadataFilesSource + " metadata files modified in source: " + source.name)
       logger.info(wrongSchemaFilesSource + " region data files do not respect the schema in source: " + source.name)
@@ -252,6 +262,7 @@ object Integrator {
             replaced = true
             metadataKey = change._1.r.replaceFirstIn(metadataKey, change._2)
           })
+          //this is already handled in metadataReplacementTcga.xml
           metadataKey = metadataKey.replace(" ", "_").replace("|","__")
           if(!metadataList.contains((metadataKey,metadataValue))) {
             metadataList = metadataList :+ (metadataKey, metadataValue)
