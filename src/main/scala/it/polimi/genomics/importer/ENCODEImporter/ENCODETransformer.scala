@@ -4,7 +4,7 @@ import java.io.{File, _}
 import java.util
 import java.util.zip.GZIPInputStream
 
-import it.polimi.genomics.importer.FileDatabase.FileDatabase
+import it.polimi.genomics.importer.FileDatabase.{FILE_STATUS, FileDatabase, STAGE}
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource, GMQLTransformer}
 import org.codehaus.jackson.map.MappingJsonFactory
 import org.codehaus.jackson.{JsonNode, JsonParser, JsonToken}
@@ -33,51 +33,76 @@ class ENCODETransformer extends GMQLTransformer {
     * @return candidate names for the files derived from the original filename.
     */
   override def getCandidateNames(filename: String, dataset: GMQLDataset, source: GMQLSource): List[String] = {
+    val sourceId = FileDatabase.sourceId(source.name)
+    val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
     if (filename.endsWith(".gz")) {
-      if (source.parameters.exists(_._1 == "assembly_exclude")) {
+//      if (source.parameters.exists(_._1 == "assembly_exclude")) {
         val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
         val file = Source.fromFile(path + File.separator + "metadata" + ".tsv")
-        val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(source.name), dataset.name)
         val header = file.getLines().next().split("\t")
-        val assembly = header.lastIndexOf("Assembly")
+//        val assembly = header.lastIndexOf("Assembly")
         val url = header.lastIndexOf("File download URL")
-
-        if (Source.fromFile(path + File.separator + "metadata.tsv").getLines().exists(line => {
-          line.split("\t")(url).contains(filename) &&
-            line.split("\t")(assembly).toLowerCase == source.parameters.filter(_._1.toLowerCase ==
-              "assembly_exclude").head._2.toLowerCase
-        })
-        )
-          List[String]()
-        else
+//  NOW ALL OF THIS ASSEMBLY HANDLING IS DONE IN DOWNLOADING PHASE.
+//        if (Source.fromFile(path + File.separator + "metadata.tsv").getLines().exists(line => {
+//          line.split("\t")(url).contains(filename) &&
+//            line.split("\t")(assembly).toLowerCase == source.parameters.filter(_._1.toLowerCase ==
+//              "assembly_exclude").head._2.toLowerCase
+//        })
+//        )
+//          List[String]()
+//        else
           List[String](filename.substring(0, filename.lastIndexOf(".")))
-      }
-      else
-        List[String](filename.substring(0, filename.lastIndexOf(".")))
+//      }
+//      else
+//        List[String](filename.substring(0, filename.lastIndexOf(".")))
     }
     else {
       if (source.parameters.exists(_._1 == "metadata_extraction") &&
         source.parameters.filter(_._1 == "metadata_extraction").head._2 == "json") {
-        if (filename.endsWith(".gz.json"))
-          List[String](filename.replace(".gz.json", ".meta"))
+        if (filename.endsWith(".gz.json")) {
+          val bedFilePath = source.outputFolder + File.separator + dataset.outputFolder +File.separator+ "Downloads" +
+            File.separator + filename.replace(".json","")
+          if(new File(bedFilePath).exists())
+            List[String](filename.replace(".gz.json", ".meta"))
+          else List[String]()
+        }
         else List[String]()
       }
       else if (source.parameters.exists(_._1 == "metadata_extraction") &&
         source.parameters.filter(_._1 == "metadata_extraction").head._2 != "json" &&
         source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(filename)) {
         import scala.io.Source
-        val header = Source.fromFile(source.outputFolder +
-          File.separator + dataset.outputFolder + File.separator + "Downloads" + File.separator + filename).getLines().next().split("\t")
+        val metadataPath = source.outputFolder + File.separator +
+          dataset.outputFolder + File.separator +
+          "Downloads" + File.separator + filename
+        val header = Source.fromFile(metadataPath).getLines().next().split("\t")
 
         //this "File download URL" maybe should be in the parameters of the XML.
         val url = header.lastIndexOf("File download URL")
-        Source.fromFile(source.outputFolder +
-          File.separator + dataset.outputFolder + File.separator + "Downloads" + File.separator + filename).getLines().drop(1).map(line => {
+
+        //here I have to check if the .gz file is UPDATED or OUTDATED.
+        Source.fromFile(metadataPath).getLines().drop(1).filter(line =>{
+          val fields = line.split("\t")
+          val bedFileStatus = FileDatabase.fileStatus(datasetId,fields(url),STAGE.DOWNLOAD).getOrElse(FILE_STATUS.OUTDATED)
+          if(bedFileStatus == FILE_STATUS.UPDATED){
+            true
+          }
+          else {
+            false
+          }
+        }).map(line => {
           //create file .meta
           val fields = line.split("\t")
           val aux1 = fields(url).split("/").last
           val aux2 = aux1.substring(0, aux1.lastIndexOf(".")) + ".meta" //this is the meta name
           aux2
+        }).filter(file =>{
+          val bedFilePath = source.outputFolder + File.separator + dataset.outputFolder +File.separator+ "Downloads" +
+            File.separator + file.replace(".meta",".gz")
+          if(new File(bedFilePath).exists())
+            true
+          else
+            false
         }).toList
       }
       else List[String]()
@@ -170,8 +195,8 @@ class ENCODETransformer extends GMQLTransformer {
       for (i <- 0 until fields.size) {
         if (fields(i).nonEmpty) {
           if (gmqlSource.parameters.exists(_._1 == "multiple_comma_separated") &&
-            gmqlSource.parameters.filter(_._1 == "multiple_comma_separated").head._2 == header(i))
-            for (value <- fields(i).split(","))
+            gmqlSource.parameters.filter(_._1 == "multiple_comma_separated").exists(_._2 == header(i)))
+            for (value <- fields(i).split(", "))
               writer.write(header(i) + "\t" + value + "\n")
           else
             writer.write(header(i) + "\t" + fields(i) + "\n")

@@ -76,8 +76,9 @@ class ENCODEDownloader extends GMQLDownloader {
                 hash = computeHash(filePath)
                 timesTried += 1
               }
-              if (timesTried == 4)
+              if (timesTried == 4 || !downloaded) {
                 FileDatabase.markAsFailed(file._1)
+              }
               else {
                 FileDatabase.markAsUpdated(file._1, downloadedFile.length.toString)
               }
@@ -235,7 +236,7 @@ class ENCODEDownloader extends GMQLDownloader {
     */
   private def generateParameterSet(dataset: GMQLDataset): String = {
     var set = ""
-    dataset.parameters.filterNot(_._1 == "loading_name").foreach(parameter => {
+    dataset.parameters.filter(_._4 == "url_generation").foreach(parameter => {
       set = set + parameter._1 + "=" + parameter._2 + "&"
     })
     if (set.endsWith("&"))
@@ -253,8 +254,14 @@ class ENCODEDownloader extends GMQLDownloader {
   def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Boolean = {
     try {
       new URL(url) #> new File(path) !!;
-      logger.info(s"Downloading [$number/$total]: " + path + " from: " + url + " DONE")
-      true
+      if(new File(path).exists()) {
+        logger.info(s"Downloading [$number/$total]: " + path + " from: " + url + " DONE")
+        true
+      }
+      else {
+        logger.error("Downloading: " + path + " from: " + url + " failed: ")
+        false
+      }
     }
     catch {
       case e: Throwable =>
@@ -289,28 +296,37 @@ class ENCODEDownloader extends GMQLDownloader {
       //to be used
       val md5sum = header.lastIndexOf("md5sum")
       val url = header.lastIndexOf("File download URL")
-      val assembly = header.lastIndexOf("Assembly")
+      val excluders = source.parameters.filter(_._4=="exclusion").map(exclusion =>{
+        (header.lastIndexOf(exclusion._1), exclusion._2)
+      })
       var counter = 0
       var downloadedFiles = 0
       //add if json metadata *2, is metadata.tsv *1
-      val assemblyExclusion = source.parameters.exists(_._1 == "assembly_exclude")
-
-      val total = Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(line => {
-            if(assemblyExclusion){
-              line == "" || line.split("\t")(assembly) == source.parameters.filter(_._1 == "assembly_exclude").head._2
-            }
-            else{
-              line == ""
-            }
-          }).drop(1).length * 2
-      Source.fromFile(path + File.separator + "metadata.tsv").getLines().filterNot(line => {
-        if(assemblyExclusion){
-          line == "" || line.split("\t")(assembly) == source.parameters.filter(_._1.toLowerCase ==
-            "assembly_exclude").head._2.toLowerCase
+      val total = Source.fromFile(path + File.separator + "metadata.tsv").
+        getLines().filterNot(line => {
+        var filter = false
+        if(line == "")
+          filter = true
+        else {
+          for (i <- excluders) {
+            if (line.split("\t")(i._1) == i._2)
+              filter = true
+          }
         }
-        else{
-          line == ""
+        filter
+      }).drop(1).length * 2
+      Source.fromFile(path + File.separator + "metadata.tsv").
+        getLines().filterNot(line => {
+        var filter = false
+        if(line == "")
+          filter = true
+        else {
+          for (i <- excluders) {
+            if (line.split("\t")(i._1) == i._2)
+              filter = true
+          }
         }
+        filter
       }).drop(1).foreach(line => {
         val fields = line.split("\t")
         val candidateName = fields(url).split(File.separator).last
