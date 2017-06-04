@@ -284,6 +284,16 @@ object FileDatabase {
   def markToCompare(datasetId: Int, stage: STAGE.Value): Unit ={
     db.markToCompare(datasetId, stage)
   }
+
+  /**
+    * Gives the current status of a file
+    * @param datasetId dataset where the file belongs to
+    * @param url origin url for the file
+    * @param stage whether is download or transform.
+    */
+  def fileStatus(datasetId: Int, url: String, stage: STAGE.Value): Option[FILE_STATUS.Value] ={
+    db.fileStatus(datasetId,url,stage)
+  }
 }
 
 

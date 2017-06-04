@@ -597,6 +597,24 @@ case class dbContainer() {
     Await.result(execution, Duration.Inf)
   }
 
+  /**
+    * Gives the current status of a file
+    * @param datasetId dataset where the file belongs to
+    * @param url origin url for the file
+    * @param stage whether is download or transform.
+    */
+  def fileStatus(datasetId: Int, url: String, stage: STAGE.Value): Option[FILE_STATUS.Value] ={
+    val query = for (f <- files.filter(f => f.datasetId === datasetId
+      && f.url === url && f.stage === stage.toString)
+    )yield f.status
+    val execution = database.run(query.result)
+    val res = Await.result(execution, Duration.Inf)
+    if(res.nonEmpty)
+      Option(FILE_STATUS.withName(res.head))
+    else
+      None
+  }
+
   //------------------------------DATABASE BASIC OPERATIONS OPEN/CLOSE--------------------------------------------------
   /**
     * Opens or create the database, checks the existence of its tables and creates them if do not exist.
