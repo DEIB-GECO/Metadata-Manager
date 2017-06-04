@@ -191,7 +191,7 @@ object program {
     //general settings
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
-        "https://raw.githubusercontent.com/nachodox/utils/master/configurationSchema.xsd"
+        "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/master/Example/xml/configurationSchema.xsd"
       if (schemaValidator.validate(xmlConfigPath, schemaUrl)) {
 
         logger.info("Xml file is valid for the schema")
@@ -434,7 +434,7 @@ object program {
         if ((source \ "load_enabled").text.toLowerCase == "true") true else false,
         (source \ "loader").text,
         (source \ "parameter_list" \ "parameter").map(parameter => {
-          ((parameter \ "key").text, (parameter \ "value").text,(parameter \ "description").text)
+          ((parameter \ "key").text, (parameter \ "value").text,(parameter \ "description").text, (parameter \ "type").text)
         }),
         (source \ "dataset_list" \ "dataset").map(dataset => {
           GMQLDataset(
@@ -446,21 +446,7 @@ object program {
             if ((dataset \ "transform_enabled").text.toLowerCase == "true") true else false,
             if ((dataset \ "load_enabled").text.toLowerCase == "true") true else false,
             (dataset \ "parameter_list" \ "parameter").map(parameter => {
-              ((parameter \ "key").text, (parameter \ "value").text,(parameter \ "description").text )
-            })
-          )
-        }),
-        (source \ "dataset_list" \ "merged_dataset").map(dataset => {
-          GMQLDataset(
-            (dataset \ "@name").text,
-            (dataset \ "output_folder").text,
-            "",//because merged schema has to be created.
-            SCHEMA_LOCATION.LOCAL,
-            downloadEnabled = false,//I dont use download. and I use transform to put the merge.
-            transformEnabled = if ((dataset \ "merge_enabled").text.toLowerCase == "true") true else false,
-            loadEnabled = if ((dataset \ "load_enabled").text.toLowerCase == "true") true else false,
-            (dataset \ "origin_dataset_list" \ "origin_dataset").map(parameter => {
-              ("origin_dataset", parameter.text,"asdas")
+              ((parameter \ "key").text, (parameter \ "value").text,(parameter \ "description").text , (parameter \ "type").text)
             })
           )
         })
