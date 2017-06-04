@@ -233,7 +233,7 @@ object Integrator {
             val src = new File(tempFile)
             val dest = new File(dataFilePath)
             new FileOutputStream(dest) getChannel() transferFrom(
-              new FileInputStream(src) getChannel, 0, Long.MaxValue)
+              new FileInputStream(src) getChannel(), 0, Long.MaxValue)
             new File(tempFile).delete()
           }
           catch {
@@ -293,7 +293,7 @@ object Integrator {
         val src = new File(tempFile)
         val dest = new File(metadataFilePath)
         new FileOutputStream(dest) getChannel() transferFrom(
-          new FileInputStream(src) getChannel, 0, Long.MaxValue)
+          new FileInputStream(src) getChannel(), 0, Long.MaxValue)
         new File(tempFile).delete()
       }
       catch {

@@ -28,8 +28,7 @@ case class GMQLSource(
                         transformer:String,
                         loadEnabled: Boolean,
                         loader:String,
-                        parameters: Seq[(String,String,String)],
-                        datasets:Seq[GMQLDataset],
-                        mergedDatasets:Seq[GMQLDataset]//not used
+                        parameters: Seq[(String,String,String,String)],
+                        datasets:Seq[GMQLDataset]
                       ) {
 }
