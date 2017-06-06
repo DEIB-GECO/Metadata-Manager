@@ -253,7 +253,7 @@ class ENCODEDownloader extends GMQLDownloader {
     */
   def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Boolean = {
     try {
-      new URL(url) #> new File(path) !!;
+      new URL(url) #> new File(path) !!
       if(new File(path).exists()) {
         logger.info(s"Downloading [$number/$total]: " + path + " from: " + url + " DONE")
         true
@@ -358,7 +358,9 @@ class ENCODEDownloader extends GMQLDownloader {
               hash = computeHash(filePath)
               timesTried += 1
             }
-            if (timesTried == 4)
+            if(!file.exists())
+              downloaded = false
+            if (timesTried == 4 || !downloaded)
               FileDatabase.markAsFailed(fileId)
             else {
               FileDatabase.markAsUpdated(fileId, file.length.toString)
@@ -404,11 +406,12 @@ class ENCODEDownloader extends GMQLDownloader {
           }
           else {
             FileDatabase.markAsFailed(fileId)
+            FileDatabase.markAsFailed(fileIdJson)
             logger.error("could not download " + fields(url) + "path does not exist")
           }
         }
         else
-          logger.info(s"File ${fields(url)} is already up to date.")
+          logger.info(s"Source: ${source.name}|Dataset: ${dataset.name} File ${fields(url)} is already up to date.")
       })
       FileDatabase.runDatasetDownloadAppend(datasetId, dataset, total, counter)
       if (total == downloadedFiles) {
@@ -446,8 +449,7 @@ class ENCODEDownloader extends GMQLDownloader {
           case _: Throwable =>
             //here means there is no internet connection, have to wait and try again.
             logger.warn("Seems internet connection was lost, retrying in 5 minutes")
-            Thread.sleep(5 * 60 * 1000)
-            urlExists(path)
+            false
         }
     }
   }
