@@ -27,6 +27,6 @@ Once you have downloaded and installed [GMQL Project](https://github.com/akaitou
 
 
 ## Contributors
-                                                                                                  | username                                                       | talk to me about...                               |
---------------------------------------------------------------------------------------------------|----------------------------------------------------------------|---------------------------------------------------|
- <img src="https://avatars.githubusercontent.com/nachodox"      height="50px" title="Nacho Vera"/>        | [`@NachoVera`](https://github.com/nachodox)           | Everything related to the GMQL-Importer for now, documentation, bugs, procedures |
+|           | username                                           | talk to me about...                               |
+|-----------|----------------------------------------------------|---------------------------------------------------|
+|<img src="https://avatars.githubusercontent.com/nachodox"      height="50px" title="Nacho Vera"/>        | [`@NachoVera`](https://github.com/nachodox)           | Everything related to the GMQL-Importer for now, documentation, bugs, procedures |
