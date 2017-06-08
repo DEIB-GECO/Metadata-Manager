@@ -7,6 +7,7 @@ import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
+import scala.util.matching.Regex
 import scala.xml.XML
 
 /**
@@ -28,19 +29,19 @@ object Integrator {
       val sourceId = FileDatabase.sourceId(source.name)
 
       //I load the renaming list from the source parameters.
-      val metadataRenaming: Seq[(String, String)] =
+      val metadataRenaming: Seq[(Regex, String)] =
         try {
           (XML.loadFile(source.rootOutputFolder + File.separator + source.parameters
             .filter(_._1.equalsIgnoreCase("metadata_replacement")).head._2) \\ "metadata_replace_list" \ "metadata_replace")
-            .map(replacement => ((replacement \ "regex").text, (replacement \ "replace").text))
+            .map(replacement => ((replacement \ "regex").text.r, (replacement \ "replace").text))
         }
         catch {
           case e: IOException =>
             logger.error("not valid metadata replacement xml file: ")
-            Seq[(String, String)]()
+            Seq.empty
           case e: NoSuchElementException =>
             logger.info("no metadata replacement defined for: " + source.name)
-            Seq[(String, String)]()
+            Seq.empty
         }
       //counters
       var modifiedRegionFilesSource = 0
@@ -257,7 +258,7 @@ object Integrator {
     * @param changeKeys pair regex, replacement. uses regex.replaceAll(_1,_2)
     * @param metadataFilePath origin file of metadata.
     */
-  def changeMetadataKeys(changeKeys: Seq[(String,String)], metadataFilePath: String): Boolean ={
+  def changeMetadataKeys(changeKeys: Seq[(Regex,String)], metadataFilePath: String): Boolean ={
     var replaced = false
     if(new File(metadataFilePath).exists()){
       var metadataList: Seq[(String, String)] = Seq[(String,String)]()
@@ -265,10 +266,9 @@ object Integrator {
         if(line.split('\t').length==2) {
           var metadataKey = line.split('\t')(0)
           val metadataValue = line.split('\t')(1)
-          changeKeys.filter(change => change._1.r.findFirstIn(metadataKey).isDefined).foreach(change =>{
-
+          changeKeys.filter(change => change._1.findFirstIn(metadataKey).isDefined).foreach(change =>{
             replaced = true
-            metadataKey = change._1.r.replaceFirstIn(metadataKey, change._2)
+            metadataKey = change._1.replaceFirstIn(metadataKey, change._2)
           })
           //this is already handled in metadataReplacementTcga.xml
           metadataKey = metadataKey.replace(" ", "_").replace("|","__")
