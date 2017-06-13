@@ -254,6 +254,7 @@ class ENCODEDownloader extends GMQLDownloader {
   def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Boolean = {
     try {
       new URL(url) #> new File(path) !!
+
       if(new File(path).exists()) {
         logger.info(s"Downloading [$number/$total]: " + path + " from: " + url + " DONE")
         true
