@@ -35,6 +35,7 @@ class ENCODEDownloader extends GMQLDownloader {
     }
     downloadIndexAndMeta(source, parallelExecution)
     downloadFailedFiles(source, parallelExecution)
+    logger.info("Download for: " + source.name +" finished")
   }
 
 /**
@@ -58,6 +59,7 @@ class ENCODEDownloader extends GMQLDownloader {
           val failedFiles = FileDatabase.getFailedFiles(datasetId, STAGE.DOWNLOAD)
           var counter = 0
           val totalFiles = failedFiles.size
+          val t0Dataset = System.nanoTime()
           failedFiles.foreach(file => {
             //in file I have (fileId,name,copyNumber,url, hash)
             val filename =
@@ -89,6 +91,8 @@ class ENCODEDownloader extends GMQLDownloader {
             }
             FileDatabase.runDatasetDownloadAppend(datasetId, dataset, 0, counter)
           })
+          val t1Dataset = System.nanoTime()
+          logger.info(s"Total time for download dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
         }
       }
     }
@@ -150,7 +154,7 @@ class ENCODEDownloader extends GMQLDownloader {
             * the files will change their state while I check each one of them. If there is
             * a file deleted from the server will be marked as OUTDATED before saving the table back*/
               FileDatabase.markToCompare(datasetId, stage)
-
+              logger.info(s"Downloading dataset: ${dataset.name}")
               val metadataCandidateName = "metadata.tsv"
               var downloaded = downloadFileFromURL(
                 indexAndMetaUrl,
@@ -253,8 +257,11 @@ class ENCODEDownloader extends GMQLDownloader {
     */
   def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Boolean = {
     try {
-      new URL(url) #> new File(path) !!
-      if(new File(path).exists()) {
+      logger.info(s"Downloading [$number/$total]: " + path + " from: " + url)
+      new URL(url).#>(new File(path)) !!
+
+      val file = new File(path)
+      if(file.exists()) {
         logger.info(s"Downloading [$number/$total]: " + path + " from: " + url + " DONE")
         true
       }
@@ -420,13 +427,20 @@ class ENCODEDownloader extends GMQLDownloader {
       }
       else {
         //add the warning message to the database
-        logger.warn(s"Dataset ${dataset.name} of source ${source.name} downloaded $downloadedFiles/$total files.")
+        logger.info(s"Dataset ${dataset.name} of source ${source.name} downloaded $downloadedFiles/$total files.")
       }
     }
     else
       logger.debug("metadata.tsv file is empty")
   }
 
+  def getTotalTimeFormatted(t0:Long, t1:Long): String = {
+
+    val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
+    val minutes = Integer.parseInt(""+(t1-t0)/1000000000/60)
+    val seconds = Integer.parseInt(""+(t1-t0)/1000000000)
+    s"$hours:$minutes:$seconds"
+  }
   /**
     * checks if the given URL exists
     *

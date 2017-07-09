@@ -89,7 +89,7 @@ class FTPDownloader extends GMQLDownloader {
               ftpDownload.disconnect()
             }
             else
-              logger.error(s"couldn't connect to ${source.url}")
+              logger.warn(s"couldn't connect to ${source.url}")
           }
         }
         catch {
@@ -196,6 +196,7 @@ class FTPDownloader extends GMQLDownloader {
       filter(dataset => dataset.downloadEnabled &&
         workingDirectory.matches(dataset.parameters.filter(_._1 == "folder_regex").head._2)).
       foreach({ dataset =>
+        val t0Folder = System.nanoTime()
         val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
         val outputPath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
         //check existence of the directory
@@ -203,9 +204,10 @@ class FTPDownloader extends GMQLDownloader {
         if (!new java.io.File(outputPath).exists) {
           try {
             new java.io.File(outputPath).mkdirs()
+            logger.debug(s"$outputPath created")
           }
           catch {
-            case ex: Exception => logger.error(s"could not create the folder $outputPath")
+            case ex: Exception => logger.warn(s"could not create the folder $outputPath")
           }
         }
         val files: List[FTPFile] =
@@ -290,6 +292,7 @@ class FTPDownloader extends GMQLDownloader {
             //Im handling the Thread pool here without locking it, have to make it secure for synchronization
             while (runningThreads > 10) {
               Thread.sleep(1000)
+              runningThreads += 0
             }
             thread.start()
             runningThreads = runningThreads + 1
@@ -317,6 +320,8 @@ class FTPDownloader extends GMQLDownloader {
         else {
           logger.info(s"File count for dataset ${dataset.name} of source ${source.name} is not activated (check configuration xml).")
         }
+        val t1Folder = System.nanoTime()
+        logger.info(s"Total time for download folder $workingDirectory: ${getTotalTimeFormatted(t0Folder,t1Folder)}")
       })
   }
 
@@ -395,6 +400,7 @@ class FTPDownloader extends GMQLDownloader {
                       else
                         logger.info(s"$workingDirectory, file ${file.getName} download does not match with hash, trying again.")
                     }
+                    logger.info(s"$workingDirectory, Downloading [$counter/$total]: " + url + "DONE")
                   }
                   else {
                     if (!ftpDownload.connected) {
@@ -625,6 +631,13 @@ class FTPDownloader extends GMQLDownloader {
     filesReturn
   }
 
+  def getTotalTimeFormatted(t0:Long, t1:Long): String = {
+
+    val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
+    val minutes = Integer.parseInt(""+(t1-t0)/1000000000/60)
+    val seconds = Integer.parseInt(""+(t1-t0)/1000000000)
+    s"$hours:$minutes:$seconds"
+  }
   /**
     * downloads the failed files from the source defined in the loader
     * into the folder defined in the loader
