@@ -150,7 +150,7 @@ object program {
                   dataset.schemaLocation.toString
                 )
                 if(runDatasetId!=0) {
-                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId)
+                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId,runId==FileDatabase.getMaxRunNumber)
                   FileDatabase.printRunDatasetTransformLog(runDatasetId)
                 }
               })
@@ -175,7 +175,7 @@ object program {
                 dataset.schemaUrl,
                 dataset.schemaLocation.toString
               )
-              FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId)
+              FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId,runId==FileDatabase.getMaxRunNumber)
               FileDatabase.printRunDatasetTransformLog(runDatasetId)
             })
           })
@@ -368,7 +368,7 @@ object program {
               )
               if (runDatasetId != -1) {
                 if (downloadEnabled && source.downloadEnabled && dataset.downloadEnabled) {
-                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId)
+                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId,showNewReadyFailed = true)
                 }
                 if (transformEnabled && source.transformEnabled && dataset.transformEnabled) {
                   FileDatabase.printRunDatasetTransformLog(runDatasetId)
