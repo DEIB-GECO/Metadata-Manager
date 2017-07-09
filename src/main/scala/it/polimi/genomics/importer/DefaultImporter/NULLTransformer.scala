@@ -82,7 +82,7 @@ class NULLTransformer extends GMQLTransformer {
       val src = new File(fileDownloadPath)
       val dest = new File(fileTransformationPath)
       new FileOutputStream(dest) getChannel() transferFrom(
-        new FileInputStream(src) getChannel, 0, Long.MaxValue)
+        new FileInputStream(src) getChannel(), 0, Long.MaxValue)
       //here have to add the metadata of copy number and total copies
       logger.info("File: " + fileDownloadPath + " copied into " + fileTransformationPath)
       transformed = true;
@@ -91,7 +91,7 @@ class NULLTransformer extends GMQLTransformer {
       case e: IOException => timesTried +=1
     }
     if(!transformed)
-      logger.error("could not copy the file " +
+      logger.warn("could not copy the file " +
       fileDownloadPath + " to " +
       fileTransformationPath)
     transformed
