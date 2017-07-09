@@ -120,8 +120,10 @@ object FileDatabase {
     * prints the log for dataset downloaded files for a specified run
     * @param runDatasetId identifies of the rundataset.
     */
-  def printRunDatasetDownloadLog(runDatasetId: Int): Unit ={
-    db.printRunDatasetLog(runDatasetId,STAGE.DOWNLOAD)
+  def printRunDatasetDownloadLog(runDatasetId: Int, datasetId: Int, showNewReadyFailed: Boolean): Unit = {
+    db.printRunDatasetLog(runDatasetId, STAGE.DOWNLOAD)
+    if(showNewReadyFailed)
+      db.printNewReadyFailedFiles(datasetId)
   }
   /**
     * prints the log for dataset downloaded files for a specified run

@@ -453,6 +453,51 @@ case class dbContainer() {
   }
 
   /**
+    * gets the previous run based in the given run
+    * @param runNumber queried run
+    * @return previous run or 0 if no previous run exists
+    */
+  def getPreviousRunNumber(runNumber: Int): Int = {
+    var previousRun = runNumber-1
+    while(!existsRun(previousRun) && previousRun>0)
+      previousRun-=1
+    previousRun
+  }
+
+  /**
+    * prints the number of files that are downloaded and ready to process, the failed files and the new files
+    * downloaded in the last run
+    * @param datasetId dataset where the files belong to
+    */
+  def printNewReadyFailedFiles(datasetId: Int): Unit = {
+    val runNumber = getMaxRunNumber
+    val previousRunNumber = getPreviousRunNumber(runNumber)
+      val readyFiles = getFilesToProcess(datasetId,STAGE.DOWNLOAD).size
+      logger.info(s"\t\t$readyFiles readyToProcess files")
+      val failedFiles = getFailedFiles(datasetId,STAGE.DOWNLOAD).size
+      logger.info(s"\t\t$failedFiles failed files")
+    if (previousRunNumber > 0) {
+      val newfiles = getNewFiles(datasetId,previousRunNumber)
+      logger.info(s"\t\t$newfiles new files")
+    }
+    else{
+    }
+  }
+  def getNewFiles(datasetId: Int, previousRunNumber: Int): Int =
+  {
+    var totalNewFiles = 0
+    val actualFiles: Seq[(Int, String, Int)] = getFilesToProcess(datasetId,STAGE.DOWNLOAD)
+    for(file <- actualFiles){
+      val query = (for (f <- runFiles.filter(f => f.fileId === file._1 && f.runId === previousRunNumber )
+      ) yield f.runId).result
+      val execution = database.run(query)
+      if(Await.result(execution, Duration.Inf).nonEmpty)
+        totalNewFiles += 1
+    }
+    totalNewFiles
+  }
+
+  /**
     * checks if the given file has to be updated based on its hash, size and last update.
     * @param fileId id for the file.
     * @param hash hash of the file.
