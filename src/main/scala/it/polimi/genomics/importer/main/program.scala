@@ -83,17 +83,27 @@ object program {
             }
             catch {
               case e: NumberFormatException =>
-                logger.error("Defined run must be integer value.")
+                logger.warn("Defined run must be integer value.")
             }
           }
           else {
+            val t0: Long = System.nanoTime()
             runGMQLImporter(args.head, args.drop(1).head.toString,args.contains("-retry"))
+            val t1 = System.nanoTime()
+            logger.info(s"Total time for the run ${getTotalTimeFormatted(t0,t1)}")
           }
         }
         else
           logger.warn("No configuration file or gmql_conf folder specified")
       }
     }
+  }
+  def getTotalTimeFormatted(t0:Long, t1:Long): String = {
+
+    val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
+    val minutes = Integer.parseInt(""+(t1-t0)/1000000000/60)
+    val seconds = Integer.parseInt(""+(t1-t0)/1000000000)
+    s"$hours:$minutes:$seconds"
   }
 
   /**
@@ -140,7 +150,7 @@ object program {
                   dataset.schemaLocation.toString
                 )
                 if(runDatasetId!=0) {
-                  FileDatabase.printRunDatasetDownloadLog(runDatasetId)
+                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId)
                   FileDatabase.printRunDatasetTransformLog(runDatasetId)
                 }
               })
@@ -165,7 +175,7 @@ object program {
                 dataset.schemaUrl,
                 dataset.schemaLocation.toString
               )
-              FileDatabase.printRunDatasetDownloadLog(runDatasetId)
+              FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId)
               FileDatabase.printRunDatasetTransformLog(runDatasetId)
             })
           })
@@ -223,7 +233,7 @@ object program {
         fa.setName("FileLogger")
         fa.setFile(logName)
         fa.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
-        fa.setThreshold(Level.WARN)
+        fa.setThreshold(Level.INFO)
         fa.setAppend(true)
         fa.activateOptions()
         Logger.getRootLogger.addAppender(fa)
@@ -277,19 +287,23 @@ object program {
           val downloadThreads = sources.filter(_.downloadEnabled && downloadEnabled ).map( source =>{
             new Thread {
               override def run(): Unit = {
-                  if (!retryDownload) {
-                    logger.info(s"Starting download for ${source.name}")
-                    Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source,parallelExecution)
-                    logger.info(s"Download for ${source.name} Finished")
-                  }
-                  else {
-                    logger.info(s"Retrying failed downloads for ${source.name}")
-                    Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source,parallelExecution)
-                    logger.info(s"Download for ${source.name} Finished")
-                  }
+                val t0Source = System.nanoTime()
+                if (!retryDownload) {
+                  logger.info(s"Starting download for ${source.name}")
+                  Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source, parallelExecution)
+                  logger.info(s"Download for ${source.name} Finished")
+                }
+                else {
+                  logger.info(s"Retrying failed downloads for ${source.name}")
+                  Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source, parallelExecution)
+                  logger.info(s"Download for ${source.name} Finished")
+                }
+                val t1Source = System.nanoTime()
+                logger.info(s"Total time download source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
               }
             }
           })
+          val t0: Long = System.nanoTime()
           if(parallelExecution) {
             downloadThreads.foreach(_.start())
             downloadThreads.foreach(_.join())
@@ -299,36 +313,47 @@ object program {
               thread.start()
               thread.join()
             })
+          val t1 = System.nanoTime()
+          logger.info(s"Total time for downloads: ${getTotalTimeFormatted(t0,t1)}")
 
 
           val integrateThreads = sources.filter(_.transformEnabled && transformEnabled).map( source =>{
             new Thread {
               override def run(): Unit = {
-                  logger.info(s"Starting integration for ${source.name}")
-                  Integrator.integrate(source, parallelExecution)
-                  logger.info(s"Integration for ${source.name} Finished")
+                val t0Source = System.nanoTime()
+                logger.info(s"Starting integration for ${source.name}")
+                Transformer.integrate(source, parallelExecution)
+                logger.info(s"Integration for ${source.name} Finished")
+                val t1Source = System.nanoTime()
+                logger.info(s"Total time transform source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
               }
             }
           })
+          val t2: Long = System.nanoTime()
           if(parallelExecution) {
-          integrateThreads.foreach(_.start())
-          integrateThreads.foreach(_.join())
+            integrateThreads.foreach(_.start())
+            integrateThreads.foreach(_.join())
           }
           else
             integrateThreads.foreach(thread => {
               thread.start()
               thread.join()
             })
+          val t3 = System.nanoTime()
+          logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2,t3)}")
 
           sources.filter(_.loadEnabled && loadEnabled).foreach(source => {
               logger.info(s"Starting load for ${source.name}")
               Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
               logger.info(s"Loading for ${source.name} Finished")
           })
+          val t4: Long = System.nanoTime()
           sources.foreach(source => {
+            val t0Source = System.nanoTime()
             val sourceId = FileDatabase.sourceId(source.name)
-            logger.info(s"Log for source: ${source.name}")
+            logger.info(s"Statistics for source: ${source.name}")
             source.datasets.foreach(dataset => {
+              val t0Dataset = System.nanoTime()
 
               val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
               val runDatasetId = FileDatabase.runDatasetId(
@@ -343,14 +368,20 @@ object program {
               )
               if (runDatasetId != -1) {
                 if (downloadEnabled && source.downloadEnabled && dataset.downloadEnabled) {
-                  FileDatabase.printRunDatasetDownloadLog(runDatasetId)
+                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId)
                 }
                 if (transformEnabled && source.transformEnabled && dataset.transformEnabled) {
                   FileDatabase.printRunDatasetTransformLog(runDatasetId)
                 }
               }
+              val t1Dataset = System.nanoTime()
+              logger.info(s"Total time load dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
             })
+            val t1Source = System.nanoTime()
+            logger.info(s"Total time load source ${source.name}: ${getTotalTimeFormatted(t0Source,t1Source)}")
           })
+          val t5 = System.nanoTime()
+          logger.info(s"Total time for loads: ${getTotalTimeFormatted(t4,t5)}")
         }
         else{
           logger.info("The user has canceled the run")
