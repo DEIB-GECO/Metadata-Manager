@@ -154,7 +154,7 @@ class ENCODEDownloader extends GMQLDownloader {
             * the files will change their state while I check each one of them. If there is
             * a file deleted from the server will be marked as OUTDATED before saving the table back*/
               FileDatabase.markToCompare(datasetId, stage)
-              logger.info(s"Downloading dataset: ${dataset.name}")
+
               val metadataCandidateName = "metadata.tsv"
               var downloaded = downloadFileFromURL(
                 indexAndMetaUrl,
@@ -257,11 +257,9 @@ class ENCODEDownloader extends GMQLDownloader {
     */
   def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Boolean = {
     try {
-      logger.info(s"Downloading [$number/$total]: " + path + " from: " + url)
-      new URL(url).#>(new File(path)) !!
+      new URL(url) #> new File(path) !!
 
-      val file = new File(path)
-      if(file.exists()) {
+      if(new File(path).exists()) {
         logger.info(s"Downloading [$number/$total]: " + path + " from: " + url + " DONE")
         true
       }

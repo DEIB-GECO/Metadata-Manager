@@ -104,4 +104,5 @@ There is just one way to load data into the GMQLRepository, so GMQLLoader is a s
 ###Interaction between GMQLImporter base classes
 
 
-<p align="center">![Alt text](https://dl.dropboxusercontent.com/u/24829944/GMQL%20Git/img/base%20classes%20interaction.png "Base classes interaction UML")
+<p align="center"><img src="https://u24829944.dl.dropboxusercontent.com/u/24829944/GMQL%20Git/img/base%20class%20interaction%20diagram.png"/>
+

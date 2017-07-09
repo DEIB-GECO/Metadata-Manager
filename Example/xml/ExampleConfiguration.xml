@@ -5,9 +5,10 @@
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/home/nachon/IdeaProjects/Importer/GMQL-Importer/Example</base_working_directory>
-        <download_enabled>false</download_enabled>
-        <transform_enabled>true</transform_enabled>
+        <download_enabled>true</download_enabled>
+        <transform_enabled>false</transform_enabled>
         <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
         <source name="TCGA2BED">
@@ -37,20 +38,21 @@
                 </parameter>
             </parameter_list>
             <dataset_list>
-                <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <!--THE SCHEMA URL HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
                 <dataset name="cnv">
-                    <dataset_working_directory>ExampleCNV</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/cnv/header.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <dataset_working_directory>cnv</dataset_working_directory>
+                    <schema_url location="local">schemas/cnv.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
+                            <description>We look for all the cnv folders inside the bed directory</description>
                             <key>folder_regex</key>
                             <value>^/bed/.*/cnv</value>
                         </parameter>
                         <parameter>
-                            <!--In the example downloads all the .bed and .meta-->
+                            <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
                             <value>.*\.bed(\.meta)?$</value>
                         </parameter>
@@ -60,28 +62,57 @@
                             <value>md5table.txt</value>
                         </parameter>
                         <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="dnamethylation">
+                    <dataset_working_directory>dnamethylation</dataset_working_directory>
+                    <schema_url location="local">schemas/dnamethylation.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the dnamethylation folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/dnamethylation.*</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
                             <key>exp_info_tcga2bed</key>
                             <value>exp_info.tsv</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
                 <dataset name="dnaseq">
-                    <dataset_working_directory>ExampleDNASEQ</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/dnaseq/header.schema</schema_url>
+                    <dataset_working_directory>dnaseq</dataset_working_directory>
+                    <schema_url location="local">schemas/dnaseq.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
-                            <description>this downloads all the dnaseq folders from tcga2bed.</description>
+                            <description>We look for all the dnaseq folders inside the bed directory</description>
                             <key>folder_regex</key>
                             <value>^/bed/.*/dnaseq</value>
                         </parameter>
                         <parameter>
-                            <description>the regex for filtering the files inside each folder.</description>
+                            <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*11D-A30X-08\.bed(\.meta)?$</value>
+                            <value>.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -89,28 +120,28 @@
                             <value>md5table.txt</value>
                         </parameter>
                         <parameter>
-                            <!--used for tcga2bed to check the md5 hash-->
+                            <!--used for tcga2bed to check the number of files-->
                             <key>exp_info_tcga2bed</key>
                             <value>exp_info.tsv</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="dnamethyltest">
-                    <dataset_working_directory>dnamethylation</dataset_working_directory>
-                    <schema_url location="local">schemas/dnamethylation.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                <dataset name="mirnaseq_isoform">
+                    <dataset_working_directory>mirnaseq_isoform</dataset_working_directory>
+                    <schema_url location="local">schemas/mirnaseq_isoform.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
-                            <description>this downloads all the dnaseq folders from tcga2bed.</description>
+                            <description>We look for all the mirnaseq/isoform.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/laml/dnameth.*</value>
+                            <value>^/bed/.*/mirnaseq/isoform.quantification</value>
                         </parameter>
                         <parameter>
-                            <description>the regex for filtering the files inside each folder.</description>
+                            <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*280.*.bed(\.meta)?$</value>
+                            <value>.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -118,7 +149,239 @@
                             <value>md5table.txt</value>
                         </parameter>
                         <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="mirnaseq_mirna">
+                    <dataset_working_directory>mirnaseq_mirna</dataset_working_directory>
+                    <schema_url location="local">schemas/mirnaseq_mirna.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the mirnaseq/mirna.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/mirnaseq/mirna.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseq_exon">
+                    <dataset_working_directory>rnaseq_exon</dataset_working_directory>
+                    <schema_url location="local">schemas/rnaseq_exon.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseq/exon.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseq/exon.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseq_gene">
+                    <dataset_working_directory>rnaseq_gene</dataset_working_directory>
+                    <schema_url location="local">schemas/rnaseq_gene.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseq/gene.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseq/gene.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseq_spljxn">
+                    <dataset_working_directory>rnaseq_spljxn</dataset_working_directory>
+                    <schema_url location="local">schemas/rnaseq_spljxn.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseq/spljxn.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseq/spljxn.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_exon">
+                    <dataset_working_directory>rnaseqv2_exon</dataset_working_directory>
+                    <schema_url location="local">schemas/rnaseqv2_exon.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseq2/exon.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/exon.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_gene">
+                    <dataset_working_directory>rnaseqv2_gene</dataset_working_directory>
+                    <schema_url location="local">schemas/rnaseqv2_gene.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseqv2/gene.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/gene.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_isoform">
+                    <dataset_working_directory>rnaseqv2_isoform</dataset_working_directory>
+                    <schema_url location="local">schemas/rnaseqv2_isoform.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseqv2/isoform.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/isoform.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_spljxn">
+                    <dataset_working_directory>rnaseqv2_spljxn</dataset_working_directory>
+                    <schema_url location="local">schemas/rnaseqv2_spljxn.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseqv2/spljxn.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/spljxn.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
                             <key>exp_info_tcga2bed</key>
                             <value>exp_info.tsv</value>
                         </parameter>
@@ -144,7 +407,7 @@
                 <parameter>
                     <description>| is the default but anyway we put it to know possibilities</description>
                     <key>metadata_name_separation_char</key>
-                    <value>|</value>
+                    <value>__</value>
                 </parameter>
                 <parameter>
                     <description>for downloading the .tsv from encode we need to add this at the end of the url</description>
@@ -206,8 +469,74 @@
                     <key>metadata_extraction</key>
                     <value>tsv</value>
                 </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit WARNING</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit INTERNAL_ACTION</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit NOT_COMPLIANT</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit ERROR</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude h19 references</description>
+                    <type>exclusion</type>
+                    <key>Biosample Age</key>
+                    <value>unknown</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude GRCh38 references</description>
+                    <type>exclusion</type>
+                    <key>Assembly</key>
+                    <value>hg19</value>
+                </parameter>
             </parameter_list>
             <dataset_list>
+                <dataset name="broadPeak">
+                    <dataset_working_directory>broadPeak</dataset_working_directory>
+                    <schema_url location="local">schemas/broadPeak.schema</schema_url>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_ENCODE_BROAD_MAY_2017</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>BroadPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+broadPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>GRCh38 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>assembly</key>
+                            <value>GRCh38</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
                 <dataset name="exampleNarrowPeak">
                     <dataset_working_directory>ExampleNARROWPEAK</dataset_working_directory>
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url>
@@ -217,31 +546,37 @@
                     <parameter_list>
                         <parameter>
                             <description>always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
                             <key>type</key>
                             <value>Experiment</value>
                         </parameter>
                         <parameter>
                             <description>for now we are using just narrowpeak format, broadpeak should be added in other parameter</description>
+                            <type>url_generation</type>
                             <key>files.file_type</key>
                             <value>bed+narrowPeak</value>
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
                             <key>organ_slims</key>
                             <value>liver</value>
                         </parameter>
                         <parameter>
                             <description>this one selects chip-seq experiments.</description>
+                            <type>url_generation</type>
                             <key>assay_title</key>
                             <value>ChIP-seq</value>
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
                             <key>award.project</key>
                             <value>Roadmap</value>
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
                             <key>target.investigated_as</key>
                             <value>narrow+histone+mark</value>
                         </parameter>
@@ -256,21 +591,25 @@
                     <parameter_list>
                         <parameter>
                             <description>always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
                             <key>type</key>
                             <value>Experiment</value>
                         </parameter>
                         <parameter>
                             <description>trying now with broadpeaks to merge</description>
+                            <type>url_generation</type>
                             <key>files.file_type</key>
                             <value>bed+broadPeak</value>
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
                             <key>assay_title</key>
                             <value>RIP-seq</value>
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
                             <key>target.investigated_as</key>
                             <value>control</value>
                         </parameter>
@@ -285,26 +624,31 @@
                     <parameter_list>
                         <parameter>
                             <description>always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
                             <key>type</key>
                             <value>Experiment</value>
                         </parameter>
                         <parameter>
                             <description>trying now with broadpeaks to merge</description>
+                            <type>url_generation</type>
                             <key>files.file_type</key>
                             <value>bed+broadPeak</value>
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
                             <key>assay_title</key>
                             <value>ChIP-seq</value>
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
                             <key>organ_slims</key>
                             <value>liver</value>
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
                             <key>target.investigated_as</key>
                             <value>transcription+factor</value>
                         </parameter>
