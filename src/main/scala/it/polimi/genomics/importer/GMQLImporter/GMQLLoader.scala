@@ -5,7 +5,7 @@ import java.util
 
 import it.polimi.genomics.core.DataStructures.IRDataSet
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import it.polimi.genomics.repository.FSRepository.LFSRepository
+import it.polimi.genomics.repository.FSRepository.DFSRepository
 import it.polimi.genomics.repository.GMQLSample
 import org.slf4j.LoggerFactory
 /**
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
   */
 class GMQLLoader {
   val logger = LoggerFactory.getLogger(this.getClass)
-  val repo = new LFSRepository
+  val repo = new DFSRepository
   /**
     * using information in the information, will insert into GMQLRepository the files
     * already downloaded, transformed and organized.
@@ -30,9 +30,9 @@ class GMQLLoader {
   def loadIntoGMQL(source: GMQLSource): Unit = {
     val gmqlUser = source.parameters.filter(_._1=="gmql_user").head._2
     val stage = STAGE.TRANSFORM
-    logger.info("Preparing for loading datasets into GMQL")
+    logger.info(s"Preparing for loading ${source.name} datasets into GMQL")
     source.datasets.foreach(dataset =>{
-      logger.debug("dataset "+dataset.name)
+      logger.info("dataset "+dataset.name)
       if(dataset.loadEnabled) {
         val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Transformations"
 
@@ -53,7 +53,6 @@ class GMQLLoader {
         })
 
         if (listAdd.size() > 0) {
-          //CHANGE GMQLUSER TO SOURCE PARAMETERS
           logger.info("Trying to add " + dataset.name +" to user: "+ gmqlUser)
           val datasetName =
             if(dataset.parameters.exists(_._1=="loading_name"))
