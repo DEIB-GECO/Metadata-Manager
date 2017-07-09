@@ -12,7 +12,7 @@ import scala.xml.XML
 /**
   * Created by nachon on 12/6/16.
   */
-object Integrator {
+object Transformer {
   val logger = LoggerFactory.getLogger(this.getClass)
 
   /**
@@ -51,6 +51,7 @@ object Integrator {
         new Thread {
           override def run(): Unit = {
             if (dataset.transformEnabled) {
+              val t0Dataset: Long = System.nanoTime()
               var modifiedRegionFilesDataset = 0
               var modifiedMetadataFilesDataset = 0
               var wrongSchemaFilesDataset = 0
@@ -61,6 +62,7 @@ object Integrator {
               val downloadsFolder = datasetOutputFolder + File.separator + "Downloads"
               val transformationsFolder = datasetOutputFolder + File.separator + "Transformations"
 
+              logger.info("Starting download for: " + dataset.name)
               // puts the schema into the transformations folder.
               if (schemaFinder.downloadSchema(source.rootOutputFolder, dataset, transformationsFolder, source))
                 logger.debug("Schema downloaded for: " + dataset.name)
@@ -154,6 +156,8 @@ object Integrator {
               logger.info(modifiedRegionFilesDataset + " region data files modified in dataset: " + dataset.name)
               logger.info(modifiedMetadataFilesDataset + " metadata files modified in dataset: " + dataset.name)
               logger.info(wrongSchemaFilesDataset + " region data files do not respect the schema in dataset: " + dataset.name)
+              val t1Dataset = System.nanoTime()
+              logger.info(s"Total time for transformation dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
             }
           }
         }
@@ -171,6 +175,7 @@ object Integrator {
       logger.info(modifiedRegionFilesSource + " region data files modified in source: " + source.name)
       logger.info(modifiedMetadataFilesSource + " metadata files modified in source: " + source.name)
       logger.info(wrongSchemaFilesSource + " region data files do not respect the schema in source: " + source.name)
+      logger.info(s"Source ${source.name} integration finished")
     }
   }
 
@@ -237,7 +242,7 @@ object Integrator {
             new File(tempFile).delete()
           }
           catch {
-            case e: IOException => logger.error("could not change the file " + dataFilePath)
+            case e: IOException => logger.warn("could not change the file " + dataFilePath)
           }
         }
         else {
@@ -266,12 +271,22 @@ object Integrator {
           var metadataKey = line.split('\t')(0)
           val metadataValue = line.split('\t')(1)
           changeKeys.filter(change => change._1.r.findFirstIn(metadataKey).isDefined).foreach(change =>{
-
             replaced = true
             metadataKey = change._1.r.replaceFirstIn(metadataKey, change._2)
           })
           //this is already handled in metadataReplacementTcga.xml
-          metadataKey = metadataKey.replace(" ", "_").replace("|","__")
+          if(metadataKey.contains(" ")){
+            logger.debug(s"$metadataKey replaced to ${metadataKey.replace(" ", "_")}")
+            metadataKey = metadataKey.replace(" ", "_")
+          }
+          if(metadataKey.contains("|")) {
+            logger.debug(s"$metadataKey replaced to ${metadataKey.replace("|", "_")}")
+            metadataKey = metadataKey.replace("|", "__")
+          }
+          if(!isValidJavaIdentifier(metadataKey)){
+            logger.debug(s"$metadataKey replaced to ${transformToValidJavaIdentifier(metadataKey)}")
+            metadataKey = transformToValidJavaIdentifier(metadataKey)
+          }
           if(!metadataList.contains((metadataKey,metadataValue))) {
             metadataList = metadataList :+ (metadataKey, metadataValue)
           }
@@ -301,5 +316,43 @@ object Integrator {
       }
     }
     replaced
+  }
+
+  def getTotalTimeFormatted(t0:Long, t1:Long): String = {
+
+    val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
+    val minutes = Integer.parseInt(""+(t1-t0)/1000000000/60)
+    val seconds = Integer.parseInt(""+(t1-t0)/1000000000)
+    s"$hours:$minutes:$seconds"
+  }
+  /**
+    * Traverses a string checking all characters are valid to be java identifiers.
+    * @param s candidate name for identifier
+    * @return whethers the candidate name is valid or not.
+    */
+  def isValidJavaIdentifier(s: String): Boolean = {
+    var isValid = true
+    if (s == "")
+      isValid = false
+    else if (!Character.isJavaIdentifierStart(s.charAt(0)))
+      isValid = false
+
+    for (i <- 1 until s.length)
+      if (!Character.isJavaIdentifierPart(s.charAt(i))) {
+        isValid = false
+      }
+    isValid
+  }
+
+  /**
+    * makes sure the name of a metadata attribute is valid for java instantiation
+    * @param s candidate name for attribute.
+    * @return name corrected if needed.
+    */
+  def transformToValidJavaIdentifier(s:String): String ={
+    var output = s.map{c => if(Character.isJavaIdentifierPart(c)) c else '_'}
+    if(!Character.isJavaIdentifierStart(output.head))
+      output = output.replaceFirst(output.head.toString, "_")
+    output
   }
 }
