@@ -91,6 +91,12 @@ class GMQLLoader {
     })
   }
 
+  /**
+    * by checking in the GMQLRepository indicates if the dataset exists
+    * @param username user for the datasets to be added
+    * @param datasetName name of the dataset to check
+    * @return whether the dataset exists for the username given
+    */
   def dsExists(username: String, datasetName: String): Boolean = {
     val dss: util.List[IRDataSet] = repo.listAllDSs(username)
     var exists = false

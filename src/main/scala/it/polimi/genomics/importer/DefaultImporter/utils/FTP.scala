@@ -10,6 +10,9 @@ import org.apache.commons.net.ftp._
 
 import scala.util.Try
 
+/**
+  * https://gist.github.com/owainlewis/06e8bdfa6c42acec2ef9dec756c05c2f
+  */
 final class FTP() {
 
   val client: FTPClient = new FTPClient

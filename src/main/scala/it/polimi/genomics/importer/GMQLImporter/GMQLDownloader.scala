@@ -25,6 +25,7 @@ trait GMQLDownloader {
     * /source.outputFolder/dataset.outputFolder/Downloads
     *
     * @param source contains specific download and sorting info.
+    * @param parallelExecution defines parallel or sequential execution
     */
   def downloadFailedFiles(source: GMQLSource, parallelExecution: Boolean):Unit
 }

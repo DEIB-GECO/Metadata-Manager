@@ -5,7 +5,7 @@ import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource}
 import it.polimi.genomics.importer.GMQLImporter.utils.SCHEMA_LOCATION
 
 /**
-  * Created by nachon on 12/13/16.
+  * Created by Nacho on 12/13/16.
   */
 object schemaFinder {
   /**
@@ -14,6 +14,7 @@ object schemaFinder {
     * @param rootFolder root working directory.
     * @param dataset GMQL dataset.
     * @param outputFolder folder where to put the schema.
+    * @param source gmql source
     */
   def downloadSchema(rootFolder: String, dataset: GMQLDataset, outputFolder: String, source: GMQLSource): Boolean ={
     val outputPath = outputFolder+File.separator+dataset.name+".schema"

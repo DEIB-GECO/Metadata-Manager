@@ -173,8 +173,10 @@ class ENCODETransformer extends GMQLTransformer {
   /**
     * by giving a metadata.tsv file creates all the metadata for the files.
     *
-    * @param originPath        full path to metadata.tsv file
+    * @param originPath full path to metadata.tsv file
     * @param destinationFolder transformations folder of the dataset.
+    * @param accession experiment accession number for the file.
+    * @param gmqlSource source being transformed
     */
   def transformMetaFromTsv(originPath: String, destinationFolder: String, accession: String, gmqlSource: GMQLSource): Unit = {
     import scala.io.Source
@@ -214,6 +216,7 @@ class ENCODETransformer extends GMQLTransformer {
     * @param metadataJsonFileName     origin json file
     * @param metadataFileName         destination .meta file
     * @param fileNameWithoutExtension id of the file being converted.
+    * @param separator separator string used to mark nested metadata
     */
   def transformMetaFromJson(metadataJsonFileName: String, metadataFileName: String, fileNameWithoutExtension: String
                             , separator: String): Boolean = {
@@ -279,6 +282,7 @@ class ENCODETransformer extends GMQLTransformer {
     * @param writer                   output for metadata.
     * @param fileNameWithoutExtension id of the file that metadata is being extracted without the .meta.
     * @param metaList                 list with already inserted meta to avoid duplication.
+    * @param separator                separator string to use for separating the nested metadata
     * @return list with the replicates referred by the file.
     */
   def getReplicatesAndWriteFile(rootNode: JsonNode, writer: PrintWriter, fileNameWithoutExtension: String,
@@ -317,6 +321,7 @@ class ENCODETransformer extends GMQLTransformer {
     * @param writer       output for metadata.
     * @param replicateIds list with the biological_replicate_number used by the file.
     * @param metaList     list with already inserted meta to avoid duplication.
+    * @param separator                separator string to use for separating the nested metadata
     */
   def writeReplicates(rootNode: JsonNode, writer: PrintWriter, replicateIds: List[String],
                       metaList: java.util.ArrayList[(String, String)], separator: String): Unit = {
@@ -358,6 +363,8 @@ class ENCODETransformer extends GMQLTransformer {
     * @param parents  path separated by dots for each level
     * @param writer   file writer with the open .meta file
     * @param metaList list with already inserted meta to avoid duplication.
+    * @param separator separator string to use for separating the nested metadata
+    * @param exclusion list with all metadata names to be excluded
     */
   def printTree(node: JsonNode, parents: String, writer: PrintWriter, metaList: java.util.ArrayList[(String, String)], separator: String, exclusion: Boolean): Unit = {
     //base case, the node is value

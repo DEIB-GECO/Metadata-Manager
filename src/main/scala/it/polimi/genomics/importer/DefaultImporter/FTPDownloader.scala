@@ -13,6 +13,7 @@ import scala.io.Source
 
 /**
   * Created by Nacho on 10/13/16.
+  * handles download from ftp server, walking into every folder in tree structure matching folders by regex
   */
 class FTPDownloader extends GMQLDownloader {
   val logger = LoggerFactory.getLogger(this.getClass)
@@ -22,6 +23,7 @@ class FTPDownloader extends GMQLDownloader {
     * into the folder defined in the source
     *
     * @param source contains specific download and sorting info.
+    * @param parallelExecution if the execution is in parallel or sequentially
     */
   override def download(source: GMQLSource, parallelExecution: Boolean): Unit = {
     if (source.downloadEnabled) {
@@ -114,6 +116,7 @@ class FTPDownloader extends GMQLDownloader {
     *
     * @param workingDirectory current folder of the ftp connection
     * @param source           configuration for the downloader, folders for input and output by regex and also for files.
+    * @param parallelExecution if the execution is in parallel or sequentially
     */
   private def recursiveDownload(workingDirectory: String, source: GMQLSource, parallelExecution: Boolean): Unit = {
     downloadSubfolders(workingDirectory, source, parallelExecution)
@@ -185,6 +188,7 @@ class FTPDownloader extends GMQLDownloader {
     *
     * @param workingDirectory current state of the ftp connection
     * @param source           configuration for downloader, folders for input and output by regex and also for files
+    * @param parallelExecution if the execution is in parallel or sequentially
     */
   private def checkFolderForDownloads(workingDirectory: String, source: GMQLSource, parallelExecution: Boolean): Unit = {
     //id of the source with the name
@@ -558,6 +562,7 @@ class FTPDownloader extends GMQLDownloader {
     *
     * @param workingDirectory current folder of the ftp connection
     * @param source           configuration for downloader, folders for input and output by regex and also for files
+    * @param parallelExecution if the execution is in parallel or sequentially
     */
   private def downloadSubfolders(workingDirectory: String, source: GMQLSource,parallelExecution: Boolean): Unit = {
 
@@ -631,6 +636,12 @@ class FTPDownloader extends GMQLDownloader {
     filesReturn
   }
 
+  /**
+    * gets the time between 2 timestamps in hh:mm:ss format
+    * @param t0 start time
+    * @param t1 end time
+    * @return hh:mm:ss as string
+    */
   def getTotalTimeFormatted(t0:Long, t1:Long): String = {
 
     val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
@@ -646,6 +657,7 @@ class FTPDownloader extends GMQLDownloader {
     * /source.outputFolder/dataset.outputFolder/Downloads
     *
     * @param source contains specific download and sorting info.
+    * @param parallelExecution if the execution is in parallel or sequentially
     */
   override def downloadFailedFiles(source: GMQLSource, parallelExecution: Boolean): Unit = {
     logger.info(s"Downloading failed files for source ${source.name}")

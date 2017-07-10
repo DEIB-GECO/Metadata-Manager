@@ -1,7 +1,7 @@
 package it.polimi.genomics.importer.FileDatabase
 
 /**
-  * Created by nachon on 12/1/16.
+  * Created by Nacho on 12/1/16.
   * Represents the stage of the process
   */
 object STAGE extends Enumeration {

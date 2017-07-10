@@ -11,17 +11,17 @@ import scala.util.matching.Regex
 import scala.xml.XML
 
 /**
-  * Created by nachon on 12/6/16.
+  * Created by Nacho on 12/6/16.
   */
 object Transformer {
   val logger = LoggerFactory.getLogger(this.getClass)
 
   /**
     * Transforms the data and metadata into GDM friendly formats using the transformers.
-    * Normalizes the metadata key names and values.
-    * Normalizes the region data values.
+    * Normalizes the metadata key names as indicated in the settings.
     * Puts the schema file into the transformations folders.
     * @param source source to be integrated.
+    * @param parallelExecution defines if the execution is in parallel or sequential
     */
   def integrate(source: GMQLSource, parallelExecution: Boolean): Unit = {
     if (source.transformEnabled) {
@@ -319,6 +319,13 @@ object Transformer {
     replaced
   }
 
+
+  /**
+    * gets the time between 2 timestamps in hh:mm:ss format
+    * @param t0 start time
+    * @param t1 end time
+    * @return hh:mm:ss as string
+    */
   def getTotalTimeFormatted(t0:Long, t1:Long): String = {
 
     val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)

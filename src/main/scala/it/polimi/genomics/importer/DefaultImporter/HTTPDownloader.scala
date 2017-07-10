@@ -12,9 +12,10 @@ import scala.language.postfixOps
 import scala.sys.process._
 
 /**
-  * Created by NachoBook on 19/09/2016.
+  * Created by Nacho on 19/09/2016.
   * Handles HTTP connection for downloading files
   */
+//RESERVED TO DOWNLOAD ROADMAP DATASETS
 class HTTPDownloader extends GMQLDownloader {
   val logger = LoggerFactory.getLogger(this.getClass)
   /**

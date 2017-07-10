@@ -1,7 +1,8 @@
 package it.polimi.genomics.importer.FileDatabase
 
 /**
-  * Represents the current action to be done over a file.
+  * Created by Nacho
+  * Represents the current status for a file in the local copies
   */
 object FILE_STATUS extends Enumeration {
   type FILE_STATUS = Value

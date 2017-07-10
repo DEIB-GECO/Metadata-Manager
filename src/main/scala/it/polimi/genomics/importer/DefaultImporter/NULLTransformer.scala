@@ -15,7 +15,8 @@ class NULLTransformer extends GMQLTransformer {
     * by receiving an original filename returns the new GDM candidate name.
     *
     * @param filename original filename
-    * @param dataset dataser where the file belongs to
+    * @param dataset dataset where the file belongs to
+    * @param source GMQLSource where the dataset belongs to
     * @return candidate names for the files derived from the original filename.
     */
   override def getCandidateNames(filename: String, dataset :GMQLDataset, source: GMQLSource): List[String] = {

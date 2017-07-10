@@ -5,7 +5,7 @@ import javax.xml.validation.SchemaFactory
 import javax.xml.validation.{Validator=>JValidator}
 import org.xml.sax.SAXException
 /**
-  * Created by nachon on 12/14/16.
+  * Created by Nacho on 12/14/16.
   */
 object schemaValidator {
   /**

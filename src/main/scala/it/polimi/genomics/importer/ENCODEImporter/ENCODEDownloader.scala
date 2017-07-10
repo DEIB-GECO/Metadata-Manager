@@ -16,6 +16,7 @@ import scala.xml.{Elem, XML}
 
 /**
   * Created by Nacho on 10/13/16.
+  * ENCODEDownloader handles the download phase for ENCODE, downloads metadata as tsv or as json.
   */
 class ENCODEDownloader extends GMQLDownloader {
   val logger = LoggerFactory.getLogger(this.getClass)
@@ -26,6 +27,7 @@ class ENCODEDownloader extends GMQLDownloader {
     * recursively checks all folders and subfolders matching with the regular expressions defined in the loader
     *
     * @param source contains specific download and sorting info.
+    * @param parallelExecution defines if the execution is in parallel or sequential
     */
   override def download(source: GMQLSource, parallelExecution: Boolean): Unit = {
     if (!new java.io.File(source.outputFolder).exists) {
@@ -45,6 +47,7 @@ class ENCODEDownloader extends GMQLDownloader {
     * /source.outputFolder/dataset.outputFolder/Downloads
     *
     * @param source contains specific download and sorting info.
+  * @param parallelExecution defines if the execution is in parallel or sequential
     */
   override def downloadFailedFiles(source: GMQLSource, parallelExecution: Boolean): Unit = {
     logger.info(s"Downloading failed files for source ${source.name}")
@@ -134,6 +137,7 @@ class ENCODEDownloader extends GMQLDownloader {
     * downloads all the files linked by it.
     *
     * @param source information needed for downloading ENCODE datasets.
+    * @param parallelDownload defines if the execution is in parallel or sequential
     */
   private def downloadIndexAndMeta(source: GMQLSource, parallelDownload: Boolean): Unit = {
     val downloadThreads = source.datasets.map { dataset =>
@@ -172,6 +176,7 @@ class ENCODEDownloader extends GMQLDownloader {
               FileDatabase.getFileNameAndCopyNumber(fileId)
 
               if (downloaded && file.exists()) {
+                FileDatabase.runDatasetDownloadAppend(datasetId, dataset, 1, 1)
                 val hash = computeHash(filePath)
                 FileDatabase.checkIfUpdateFile(fileId, hash, file.length.toString, DateTime.now.toString)
                 FileDatabase.markAsUpdated(fileId, file.length.toString)
@@ -219,23 +224,10 @@ class ENCODEDownloader extends GMQLDownloader {
   /*def generateReportUrl(source: GMQLSource, dataset: GMQLDataset): String ={
     source.url + source.parameters.filter(_._1.equalsIgnoreCase("report_prefix")).head._2 + generateParameterSet(dataset) + "&" + generateFieldSet(source)
   }*/
-  def generateFieldSet(source: GMQLSource): String = {
-    val file: Elem = XML.loadFile(source.parameters.filter(_._1.equalsIgnoreCase("encode_metadata_configuration")).head._2)
-    var set = ""
-    ((file \\ "encode_metadata_config" \ "parameter_list").filter(list =>
-      (list \ "@name").text.equalsIgnoreCase("encode_report_tsv")) \ "parameter").filter(field =>
-      (field \ "@include").text.equalsIgnoreCase("true") && (field \ "key").text.equalsIgnoreCase("field")).foreach(field => {
-      set = set + (field \\ "key").text + "=" + (field \\ "value").text + "&"
-    })
-    if (set.endsWith("&"))
-      set.substring(0, set.length - 1)
-    else
-      set
-  }
 
   /**
     * concatenates all the folder's parameters with & in between them
-    * and = inside them
+    * and = inside them, used for the filter section for tsv download
     *
     * @param dataset contains all the parameters information
     * @return string with parameter=value & ....
@@ -256,6 +248,8 @@ class ENCODEDownloader extends GMQLDownloader {
     *
     * @param url  source file url.
     * @param path destination file path and name.
+    * @param number index of the being downloaded file
+    * @param total total number of files being downloaded
     */
   def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Boolean = {
     try {
@@ -434,6 +428,12 @@ class ENCODEDownloader extends GMQLDownloader {
       logger.debug("metadata.tsv file is empty")
   }
 
+  /**
+    * gets the time between 2 timestamps in hh:mm:ss format
+    * @param t0 start time
+    * @param t1 end time
+    * @return hh:mm:ss as string
+    */
   def getTotalTimeFormatted(t0:Long, t1:Long): String = {
 
     val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
