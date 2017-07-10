@@ -16,6 +16,10 @@ import org.joda.time.format.DateTimeFormat
 import scala.concurrent.Future
 import scala.xml.{Elem, XML}
 
+/**
+  * Handles the execution of the GMQLImporter, gets the arguments and process them.
+  * Created by Nacho
+  */
 object program {
   val logger: Logger = Logger.getLogger(this.getClass)
 
@@ -58,9 +62,9 @@ object program {
           + "\t Run with configuration_xml_path and gmql_conf_folder as arguments\n"
           + "\t\t -Will run whole process defined in xml file\n"
           + "\t Add log\n"
-          + "\t\t-Shows log and statistics for all runs\n"
+          + "\t\t-Shows how many runs the program has executed\n"
           + "\t Add log -n\n"
-          + "\t\t-Shows log and statistics run n\n"
+          + "\t\t-Shows log and statistics n-th last runs, 1 for last run and use comma as separator if multiple runs requested\n"
           + "\t Add -retry\n"
           + "\t\t-Tries to download failed files only for each dataset with download enabled\n"
         )
@@ -72,14 +76,16 @@ object program {
         logger.info(s"path for the gmql Configuration folder = $gmqlConfPath")
         if (xmlPath.endsWith(".xml") && new File(gmqlConfPath).isDirectory) {
           if (args.contains("log")) {
-            val run =
-              if(args.exists(arg => {arg.contains("-")&& arg.length<5}))
-                args.filter(arg => {arg.contains("-")&& arg.length<5}).head.replace("-","")
+            val runs =
+              if(args.exists(arg => {arg.contains("--")}))
+                args.filter(arg => {arg.contains("--")}).head.replace("--","")
               else
                 "0"
             try{
-              val runId = Integer.parseInt(run)
-              showDatabaseLog(args.head, args.drop(1).head.toString,runId)
+              for(run <- runs.split(",")) {
+                val runId = Integer.parseInt(run)
+                showDatabaseLog(args.head, args.drop(1).head.toString, runId)
+              }
             }
             catch {
               case e: NumberFormatException =>
@@ -98,6 +104,13 @@ object program {
       }
     }
   }
+
+  /**
+    * gets the time between 2 timestamps in hh:mm:ss format
+    * @param t0 start time
+    * @param t1 end time
+    * @return hh:mm:ss as string
+    */
   def getTotalTimeFormatted(t0:Long, t1:Long): String = {
 
     val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
@@ -120,27 +133,27 @@ object program {
         "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/master/Example/xml/configurationSchema.xsd"
       if (schemaValidator.validate(xmlConfigPath, schemaUrl)) {
 
-        logger.info("Xml file is valid for the schema")
         val file: Elem = XML.loadFile(xmlConfigPath)
         val outputFolder = (file \\ "settings" \ "base_working_directory").text
 
         //start database
         FileDatabase.setDatabase(outputFolder)
-        //load sources
-        val sources = loadSources(xmlConfigPath)
-        //here I have to print all download and transform logs
-        if(runId == 0){
-          val runNumbers = FileDatabase.getMaxRunNumber
-          logger.info("Printing all runs' details")
-          for(i <- 1 until runNumbers){
-            logger.info(s"Printing details for run $i")
+        var run = FileDatabase.getMaxRunNumber
+        if(runId <= run) {
+          for (i <- 1 until runId)
+            run = FileDatabase.getPreviousRunNumber(run)
+          if (run > 0 && runId != 0) {
+            //load sources
+            val sources = loadSources(xmlConfigPath)
+            //here I print just the detail of the selected run
+            logger.info(s"Printing details for run $run")
             sources.foreach(source => {
               logger.info(s"Source: ${source.name}")
               val sourceId = FileDatabase.sourceId(source.name)
               source.datasets.foreach(dataset => {
                 val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
                 val runDatasetId = FileDatabase.runDatasetId(
-                  i,
+                  runId,
                   datasetId,
                   dataset.outputFolder,
                   dataset.downloadEnabled.toString,
@@ -149,39 +162,18 @@ object program {
                   dataset.schemaUrl,
                   dataset.schemaLocation.toString
                 )
-                if(runDatasetId!=0) {
-                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId,runId==FileDatabase.getMaxRunNumber)
-                  FileDatabase.printRunDatasetTransformLog(runDatasetId)
-                }
+                FileDatabase.printRunDatasetDownloadLog(runDatasetId, datasetId, run)
+                FileDatabase.printRunDatasetTransformLog(runDatasetId)
               })
             })
+            //close database
+          }
+          else {
+            logger.info(s"Actually ${FileDatabase.getNumberOfRuns} runs have been executed")
           }
         }
-        //here I print just the detail of the selected run
-        else{
-          logger.info(s"Printing details for run $runId")
-          sources.foreach(source => {
-            logger.info(s"Source: ${source.name}")
-            val sourceId = FileDatabase.sourceId(source.name)
-            source.datasets.foreach(dataset => {
-              val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
-              val runDatasetId = FileDatabase.runDatasetId(
-                runId,
-                datasetId,
-                dataset.outputFolder,
-                dataset.downloadEnabled.toString,
-                dataset.transformEnabled.toString,
-                dataset.loadEnabled.toString,
-                dataset.schemaUrl,
-                dataset.schemaLocation.toString
-              )
-              FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId,runId==FileDatabase.getMaxRunNumber)
-              FileDatabase.printRunDatasetTransformLog(runDatasetId)
-            })
-          })
-
-        }
-        //close database
+        else
+          logger.info(s"Requested nº$runId but only $run executions exist")
         FileDatabase.closeDatabase()
       }
       else
@@ -195,6 +187,7 @@ object program {
     * datasets if defined to.
     * @param xmlConfigPath xml configuration file location
     * @param gmqlConfigPath path to the gmql_conf folder
+    * @param retryDownload defines if the execution is only for retrying failed files or normal execution
     */
   def runGMQLImporter(xmlConfigPath: String, gmqlConfigPath: String, retryDownload: Boolean): Unit = {
     Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
@@ -314,7 +307,8 @@ object program {
               thread.join()
             })
           val t1 = System.nanoTime()
-          logger.info(s"Total time for downloads: ${getTotalTimeFormatted(t0,t1)}")
+          if(downloadEnabled)
+            logger.info(s"Total time for downloads: ${getTotalTimeFormatted(t0,t1)}")
 
 
           val integrateThreads = sources.filter(_.transformEnabled && transformEnabled).map( source =>{
@@ -340,7 +334,8 @@ object program {
               thread.join()
             })
           val t3 = System.nanoTime()
-          logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2,t3)}")
+          if(transformEnabled)
+            logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2,t3)}")
 
           sources.filter(_.loadEnabled && loadEnabled).foreach(source => {
               logger.info(s"Starting load for ${source.name}")
@@ -351,6 +346,7 @@ object program {
           sources.foreach(source => {
             val t0Source = System.nanoTime()
             val sourceId = FileDatabase.sourceId(source.name)
+            if(source.loadEnabled || source.transformEnabled || source.downloadEnabled)
             logger.info(s"Statistics for source: ${source.name}")
             source.datasets.foreach(dataset => {
               val t0Dataset = System.nanoTime()
@@ -368,20 +364,23 @@ object program {
               )
               if (runDatasetId != -1) {
                 if (downloadEnabled && source.downloadEnabled && dataset.downloadEnabled) {
-                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId,showNewReadyFailed = true)
+                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId,runId)
                 }
                 if (transformEnabled && source.transformEnabled && dataset.transformEnabled) {
                   FileDatabase.printRunDatasetTransformLog(runDatasetId)
                 }
               }
               val t1Dataset = System.nanoTime()
-              logger.info(s"Total time load dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
+              if(dataset.loadEnabled && source.loadEnabled && loadEnabled)
+                logger.info(s"Total time load dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
             })
             val t1Source = System.nanoTime()
-            logger.info(s"Total time load source ${source.name}: ${getTotalTimeFormatted(t0Source,t1Source)}")
+            if(source.loadEnabled)
+              logger.info(s"Total time load source ${source.name}: ${getTotalTimeFormatted(t0Source,t1Source)}")
           })
           val t5 = System.nanoTime()
-          logger.info(s"Total time for loads: ${getTotalTimeFormatted(t4,t5)}")
+          if(loadEnabled)
+            logger.info(s"Total time for loads: ${getTotalTimeFormatted(t4,t5)}")
         }
         else{
           logger.info("The user has canceled the run")

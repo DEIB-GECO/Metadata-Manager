@@ -1,6 +1,7 @@
 package it.polimi.genomics.importer.FileDatabase
 import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
 /**
+  * Created by Nacho
   * this object handles the uniqueness of the database and keeps it instantiated.
   * also works as a facade for the dbContainer.
   *
@@ -8,9 +9,18 @@ import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
   */
 object FileDatabase {
   private val db = new dbContainer
+
+  /**
+    * connects to the database
+    * @param path storage path for the database
+    */
   def setDatabase(path:String): Unit ={
     db.setDatabase(path)
   }
+
+  /**
+    * closes the connection to the database
+    */
   def closeDatabase(): Unit ={
     db.closeDatabase()
   }
@@ -64,6 +74,27 @@ object FileDatabase {
     db.getMaxRunNumber
   }
 
+  /**
+    * by receiving a run number, gets the previous one
+    * @param runNumber run number to check the previous
+    * @return previous run number or 0 if no run before
+    */
+  def getPreviousRunNumber(runNumber: Int): Int = {
+    db.getPreviousRunNumber(runNumber)
+  }
+  /**
+    * counts the number of executions already run in the database
+    * @return count of runs
+    */
+  def getNumberOfRuns: Int = {
+    var numberOfRuns = 0
+    var runAux = getMaxRunNumber
+    while (runAux > 0) {
+      runAux = getPreviousRunNumber(runAux)
+      numberOfRuns += 1
+    }
+    numberOfRuns
+  }
   //--------------------------SECONDARY INSERTIONS RUNSOURCE/RUNDATASET/RUNFILE/PARAMETERS------------------------------
 
   /**
@@ -120,17 +151,19 @@ object FileDatabase {
     * prints the log for dataset downloaded files for a specified run
     * @param runDatasetId identifies of the rundataset.
     */
-  def printRunDatasetDownloadLog(runDatasetId: Int, datasetId: Int, showNewReadyFailed: Boolean): Unit = {
-    db.printRunDatasetLog(runDatasetId, STAGE.DOWNLOAD)
-    if(showNewReadyFailed)
-      db.printNewReadyFailedFiles(datasetId)
+  def printRunDatasetDownloadLog(runDatasetId: Int, datasetId: Int, runId: Int): Unit = {
+    if(runDatasetId>0) {
+      db.printRunDatasetLog(runDatasetId, STAGE.DOWNLOAD)
+      db.printNewReadyFailedFiles(datasetId, runId)
+    }
   }
   /**
-    * prints the log for dataset downloaded files for a specified run
+    * prints the log for dataset transformed files for a specified run
     * @param runDatasetId identifies of the rundataset.
     */
   def printRunDatasetTransformLog(runDatasetId: Int): Unit ={
-    db.printRunDatasetLog(runDatasetId,STAGE.TRANSFORM)
+    if(runDatasetId>0)
+      db.printRunDatasetLog(runDatasetId,STAGE.TRANSFORM)
   }
   /**
     * Inserts the parameters used by a source
@@ -144,6 +177,14 @@ object FileDatabase {
     db.runDatasetParameterId(runDatasetId, description, key, value)
   }
 
+  /**
+    * feeds the total downloaded files and possible downloads for a dataset
+    * @param datasetId dataset identifier in the database
+    * @param dataset dataset where the files are being downloaded
+    * @param totalFiles total number of files to be downloaded
+    * @param downloadedFiles total of successful downloads out of totalFiles
+    * @return id for the runDatasetLog created
+    */
   def runDatasetDownloadAppend(datasetId: Int, dataset: GMQLDataset,totalFiles: Int, downloadedFiles: Int): Int = {
     val runId = db.getMaxRunNumber
     val runDatasetId = db.runDatasetId(
@@ -158,7 +199,15 @@ object FileDatabase {
     )
     db.runDatasetLogId(runDatasetId, STAGE.DOWNLOAD,totalFiles, downloadedFiles)
   }
-  def runDatasetTransformAppend(datasetId: Int, dataset: GMQLDataset,totalFiles: Int, downloadedFiles: Int): Int = {
+  /**
+    * feeds the total downloaded files and possible transforms for a dataset
+    * @param datasetId dataset identifier in the database
+    * @param dataset dataset where the files are being transformed
+    * @param totalFiles total number of files to be transformed
+    * @param transformedFiles total of successful transformed out of totalFiles
+    * @return id for the runDatasetLog created
+    */
+  def runDatasetTransformAppend(datasetId: Int, dataset: GMQLDataset,totalFiles: Int, transformedFiles: Int): Int = {
     val runId = db.getMaxRunNumber
     val runDatasetId = db.runDatasetId(
       datasetId,
@@ -170,7 +219,7 @@ object FileDatabase {
       dataset.schemaLocation.toString,
       Option(runId)
     )
-    db.runDatasetLogId(runDatasetId, STAGE.TRANSFORM,totalFiles, downloadedFiles)
+    db.runDatasetLogId(runDatasetId, STAGE.TRANSFORM,totalFiles, transformedFiles)
   }
   /**
     * Generates the versioning for the metadata of the files.

@@ -11,8 +11,8 @@ import slick.profile.FixedSqlAction
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 /**
-  * Created by nachon on 11/11/16.
-  * dbContainder is the interface between the h2 database and the file logger.
+  * Created by Nacho on 11/11/16.
+  * dbContainer is the interface between the h2 database and the file logger.
   * for the development of GMQLImporter all the asynchronous operations in the database are done
   * synchronous waiting them to finish.
   *
@@ -62,19 +62,21 @@ case class dbContainer() {
       downloadedFiles = downloadedFiles + log._2
     })
 
-    val datasetQuery = (for (f <- runDatasets.filter(f => f.id === runDatasetId)) yield f.datasetId).result
+    val datasetQuery = runDatasets.filter(_.id === runDatasetId).result
     val datasetExecution = database.run(datasetQuery)
     val datasetResult = Await.result(datasetExecution,Duration.Inf)
-    val datasetId = datasetResult.head
+    if(datasetResult.nonEmpty) {
+      val datasetId = datasetResult.head._3
 
-    val datasetNameQuery = (for (f <- datasets.filter(f => f.id === datasetId)) yield f.name).result
-    val datasetNameExecution = database.run(datasetNameQuery)
-    val datasetNameResult = Await.result(datasetNameExecution,Duration.Inf)
-    val datasetName = datasetNameResult.head
+      val datasetNameQuery = (for (f <- datasets.filter(f => f.id === datasetId)) yield f.name).result
+      val datasetNameExecution = database.run(datasetNameQuery)
+      val datasetNameResult = Await.result(datasetNameExecution, Duration.Inf)
+      val datasetName = datasetNameResult.head
 
-    logger.info(s"\tDataset $datasetName ${stage.toString} statistics:")
-    logger.info(s"\t\tTotal files to ${stage.toString}: $totalFiles")
-    logger.info(s"\t\t${stage.toString} successful files: $downloadedFiles")
+      logger.info(s"\tDataset $datasetName ${stage.toString} statistics:")
+      logger.info(s"\t\tTotal files to ${stage.toString}: $totalFiles")
+      logger.info(s"\t\t${stage.toString} successful files: $downloadedFiles")
+    }
 
   }
   //-------------------------------BASIC INSERTIONS SOURCE/DATASET/FILE/RUN---------------------------------------------
@@ -240,7 +242,7 @@ case class dbContainer() {
     * @param loadEnabled indicates if the source is being loaded.
     * @param schemaUrl indicates the url of the schema.
     * @param schemaLocation indicates whether the schema is local or remote.
-    * @return the runDataset id.
+    * @return the runDataset id, 0 if any error occurs.
     */
   def runDatasetId(datasetId: Int, outputFolder: String, downloadEnabled: String, transformEnabled: String,
                    loadEnabled: String,schemaUrl: String, schemaLocation: String, runId2: Option[Int]
@@ -268,7 +270,7 @@ case class dbContainer() {
   }
 
   /**
-    *
+    * indicates whether the run consulted exists or does not
     * @param runId identifier for the run to check
     */
   def existsRun(runId: Int): Boolean ={
@@ -350,7 +352,7 @@ case class dbContainer() {
   }
   //-------------------------------Run closing--------------------------------------------------------------------------
   /**
-    * puts the time finished of the run
+    * Puts the time finished of the run
     * @param runId id for the run.
     */
   def endRun(runId: Int): Unit ={
@@ -382,7 +384,7 @@ case class dbContainer() {
       ("FileDoesNotExist", 0)
   }
   /**
-    * returns hash, size and last update.
+    * Returns hash, size and last update.
     * @param fileId identifier of the file.
     * @return hash, size and last update.
     */
@@ -402,6 +404,7 @@ case class dbContainer() {
     * @param name candidate name.
     * @param datasetId dataset.
     * @param copyNumber actual guess of the number of copy the file is.
+    * @param stage whether is download or transform
     * @return unique name among the dataset's files.
     */
   private def getFileName(fileId: Int, name: String, datasetId: Int, copyNumber: Int, stage: STAGE.Value): (String,Int) ={
@@ -441,7 +444,7 @@ case class dbContainer() {
   }
 
   /**
-    * gets the actual run
+    * gets the last run ever run
     * @return max id of runs
     */
 //  def getMaxRunNumber: Int ={
@@ -449,7 +452,10 @@ case class dbContainer() {
     val query = (for (r <- runs) yield r.id).max.result
     val execution = database.run(query)
     val result = Await.result(execution, Duration.Inf)
-    result.max
+    if(result.nonEmpty)
+      result.max
+    else
+      0
   }
 
   /**
@@ -466,35 +472,47 @@ case class dbContainer() {
 
   /**
     * prints the number of files that are downloaded and ready to process, the failed files and the new files
-    * downloaded in the last run
+    * downloaded in the selected run
     * @param datasetId dataset where the files belong to
+    * @param runId corresponden run to be consulted
     */
-  def printNewReadyFailedFiles(datasetId: Int): Unit = {
-    val runNumber = getMaxRunNumber
-    val previousRunNumber = getPreviousRunNumber(runNumber)
-      val readyFiles = getFilesToProcess(datasetId,STAGE.DOWNLOAD).size
-      logger.info(s"\t\t$readyFiles readyToProcess files")
-      val failedFiles = getFailedFiles(datasetId,STAGE.DOWNLOAD).size
-      logger.info(s"\t\t$failedFiles failed files")
-    if (previousRunNumber > 0) {
-      val newfiles = getNewFiles(datasetId,previousRunNumber)
-      logger.info(s"\t\t$newfiles new files")
+  def printNewReadyFailedFiles(datasetId: Int, runId: Int): Unit = {
+
+    val updatedFiles = getFilesForStatistics(datasetId,runId,STAGE.DOWNLOAD,FILE_STATUS.UPDATED)
+    val failedFiles = getFilesForStatistics(datasetId,runId,STAGE.DOWNLOAD,FILE_STATUS.FAILED)
+    val compareFiles = getFilesForStatistics(datasetId,runId,STAGE.DOWNLOAD,FILE_STATUS.COMPARE)
+    val outdatedFiles = getFilesForStatistics(datasetId,runId,STAGE.DOWNLOAD,FILE_STATUS.OUTDATED)
+
+    val totalFiles = updatedFiles+failedFiles+compareFiles+outdatedFiles
+    logger.info(s"\t\t$updatedFiles ready to process files")
+    logger.info(s"\t\t$failedFiles failed files")
+
+    val previousRunId = getPreviousRunNumber(runId)
+    if(previousRunId > 0){
+      val updatedFilesPast = getFilesForStatistics(datasetId,previousRunId,STAGE.DOWNLOAD,FILE_STATUS.UPDATED)
+      val failedFilesPast = getFilesForStatistics(datasetId,previousRunId,STAGE.DOWNLOAD,FILE_STATUS.FAILED)
+      val compareFilesPast = getFilesForStatistics(datasetId,previousRunId,STAGE.DOWNLOAD,FILE_STATUS.COMPARE)
+      val outdatedFilesPast = getFilesForStatistics(datasetId,previousRunId,STAGE.DOWNLOAD,FILE_STATUS.OUTDATED)
+
+      val newFiles = totalFiles-updatedFilesPast-failedFilesPast-compareFilesPast-outdatedFilesPast
+      logger.info(s"\t\t$newFiles new files indexed")
     }
-    else{
+    else {
+      logger.info(s"\t\t$totalFiles new files indexed")
     }
   }
-  def getNewFiles(datasetId: Int, previousRunNumber: Int): Int =
-  {
-    var totalNewFiles = 0
-    val actualFiles: Seq[(Int, String, Int)] = getFilesToProcess(datasetId,STAGE.DOWNLOAD)
-    for(file <- actualFiles){
-      val query = (for (f <- runFiles.filter(f => f.fileId === file._1 && f.runId === previousRunNumber )
-      ) yield f.runId).result
-      val execution = database.run(query)
-      if(Await.result(execution, Duration.Inf).nonEmpty)
-        totalNewFiles += 1
-    }
-    totalNewFiles
+  /**
+    * returns all the non outdated files with its copy number.
+    * @param datasetId dataset from where files are required.
+    * @param runId run requested to check
+    * @param stage indicates if is download or transform
+    * @param status indicates if is UPDATED, FAILED or OUTDATED
+    * @return (fileId, filename, copyNumber)
+    */
+  def getFilesForStatistics(datasetId: Int, runId: Int, stage: STAGE.Value, status: FILE_STATUS.Value):Int={
+    val query = runFiles.filter(runFile => runFile.File.filter(file => file.datasetId === datasetId && file.stage === stage.toString).exists && runFile.runId === runId && runFile.status === status.toString).length
+    val execution = database.run(query.result)
+    Await.result(execution, Duration.Inf)
   }
 
   /**
@@ -505,8 +523,21 @@ case class dbContainer() {
     * @param originLastUpdate original last updated in the source.
     * @return true = has to be updated.
     */
-  def checkIfUpdateFile(fileId: Int, hash: String, originSize: String, originLastUpdate: String): Boolean ={
-
+  def checkIfUpdateFile(fileId: Int, hash: String, originSize: String, originLastUpdate: String): Boolean = {
+    val toReturn = checkIfUpdateFileAux(fileId,hash,originSize,originLastUpdate)
+    if(!toReturn)
+      runFileId(fileId)
+    toReturn
+  }
+  /**
+    * checks if the given file has to be updated based on its hash, size and last update.
+    * @param fileId id for the file.
+    * @param hash hash of the file.
+    * @param originSize original size in the source.
+    * @param originLastUpdate original last updated in the source.
+    * @return true = has to be updated.
+    */
+  def checkIfUpdateFileAux(fileId: Int, hash: String, originSize: String, originLastUpdate: String): Boolean ={
     val query = for (f <- files.filter(f => f.id === fileId)) yield (f.status, f.hash, f.originSize, f.originLastUpdate)
 
     val queryResult = query.result
@@ -552,6 +583,7 @@ case class dbContainer() {
   /**
     * returns all the non outdated files with its copy number.
     * @param datasetId dataset from where files are required.
+    * @param stage whether is download or transform
     * @return (fileId, filename, copyNumber)
     */
   def getFilesToProcess(datasetId: Int, stage: STAGE.Value):Seq[(Int,String,Int)]={
@@ -565,6 +597,7 @@ case class dbContainer() {
     * returns all the failed files in the dataset with its copy number.
     * files marked as UPDATED without size are also considered as FAILED
     * @param datasetId dataset from where files are required.
+    * @param stage whether is download or transform
     * @return (fileId, filename, copyNumber, url, hash)
     */
   def getFailedFiles(datasetId: Int, stage: STAGE.Value):Seq[(Int,String,Int,String,String)]={
@@ -577,6 +610,7 @@ case class dbContainer() {
   /**
     * marks indicated file as to be UPDATED.
     * @param fileId identifier for the file.
+    * @param size downloaded or transformed file's size
     */
   def markAsUpdated(fileId: Int, size:String): Unit ={
     val query = (for (f <- files.filter(f => f.id === fileId ))
@@ -588,6 +622,8 @@ case class dbContainer() {
   /**
     * marks indicated file as to be UPDATED.
     * @param fileId identifier for the file.
+    * @param size downloaded or transformed file's size.
+    * @param hash downloaded or transformed file's hash.
     */
   def markAsUpdated(fileId: Int, size:String, hash: String): Unit ={
     val query = (for (f <- files.filter(f => f.id === fileId ))
