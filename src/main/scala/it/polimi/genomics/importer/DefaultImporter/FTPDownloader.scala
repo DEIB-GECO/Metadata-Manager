@@ -404,7 +404,6 @@ class FTPDownloader extends GMQLDownloader {
                       else
                         logger.info(s"$workingDirectory, file ${file.getName} download does not match with hash, trying again.")
                     }
-                    logger.info(s"$workingDirectory, Downloading [$counter/$total]: " + url + "DONE")
                   }
                   else {
                     if (!ftpDownload.connected) {
@@ -432,7 +431,6 @@ class FTPDownloader extends GMQLDownloader {
               FileDatabase.markAsFailed(fileId)
             }
             else {
-              logger.info(s"$workingDirectory, Downloading [$counter/$total]: " + url + " DONE")
               //here I have to get the hash and update it for the meta and the data files.
               //so I wait to get the meta file and then I mark the data file to updated
               val hash = computeHash(outputUrl)
