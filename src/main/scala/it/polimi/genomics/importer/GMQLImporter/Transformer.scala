@@ -329,8 +329,8 @@ object Transformer {
   def getTotalTimeFormatted(t0:Long, t1:Long): String = {
 
     val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
-    val minutes = Integer.parseInt(""+(t1-t0)/1000000000/60)
-    val seconds = Integer.parseInt(""+(t1-t0)/1000000000)
+    val minutes = Integer.parseInt(""+((t1-t0)/1000000000/60-hours*60))
+    val seconds = Integer.parseInt(""+((t1-t0)/1000000000-hours*60*60-minutes*60))
     s"$hours:$minutes:$seconds"
   }
   /**

@@ -431,6 +431,7 @@ class FTPDownloader extends GMQLDownloader {
               FileDatabase.markAsFailed(fileId)
             }
             else {
+              logger.info(s"Downloading [$counter/$total]: " + url + " DONE")
               //here I have to get the hash and update it for the meta and the data files.
               //so I wait to get the meta file and then I mark the data file to updated
               val hash = computeHash(outputUrl)
@@ -643,8 +644,8 @@ class FTPDownloader extends GMQLDownloader {
   def getTotalTimeFormatted(t0:Long, t1:Long): String = {
 
     val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
-    val minutes = Integer.parseInt(""+(t1-t0)/1000000000/60)
-    val seconds = Integer.parseInt(""+(t1-t0)/1000000000)
+    val minutes = Integer.parseInt(""+((t1-t0)/1000000000/60-hours*60))
+    val seconds = Integer.parseInt(""+((t1-t0)/1000000000-hours*60*60-minutes*60))
     s"$hours:$minutes:$seconds"
   }
   /**

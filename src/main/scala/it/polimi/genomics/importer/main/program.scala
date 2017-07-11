@@ -114,8 +114,8 @@ object program {
   def getTotalTimeFormatted(t0:Long, t1:Long): String = {
 
     val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
-    val minutes = Integer.parseInt(""+(t1-t0)/1000000000/60)
-    val seconds = Integer.parseInt(""+(t1-t0)/1000000000)
+    val minutes = Integer.parseInt(""+((t1-t0)/1000000000/60-hours*60))
+    val seconds = Integer.parseInt(""+((t1-t0)/1000000000-hours*60*60-minutes*60))
     s"$hours:$minutes:$seconds"
   }
 
@@ -222,20 +222,13 @@ object program {
 
         //creation of the file log
         val logName = "run "+runId+" "+DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
-        val fa = new FileAppender()
-        fa.setName("FileLogger")
-        fa.setFile(logName)
-        fa.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
-        fa.setThreshold(Level.INFO)
-        fa.setAppend(true)
-        fa.activateOptions()
-        Logger.getRootLogger.addAppender(fa)
+
 
         val fa2 = new FileAppender()
         fa2.setName("FileLogger")
         fa2.setFile(logName)
         fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
-        fa2.setThreshold(Level.TRACE)
+        fa2.setThreshold(Level.DEBUG)
         fa2.setAppend(true)
         fa2.activateOptions()
         Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
@@ -315,9 +308,9 @@ object program {
             new Thread {
               override def run(): Unit = {
                 val t0Source = System.nanoTime()
-                logger.info(s"Starting integration for ${source.name}")
+                logger.info(s"Starting transformation for ${source.name}")
                 Transformer.integrate(source, parallelExecution)
-                logger.info(s"Integration for ${source.name} Finished")
+                logger.info(s"Transformation for ${source.name} Finished")
                 val t1Source = System.nanoTime()
                 logger.info(s"Total time transform source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
               }
@@ -375,7 +368,7 @@ object program {
                 logger.info(s"Total time load dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
             })
             val t1Source = System.nanoTime()
-            if(source.loadEnabled)
+            if(source.loadEnabled && loadEnabled)
               logger.info(s"Total time load source ${source.name}: ${getTotalTimeFormatted(t0Source,t1Source)}")
           })
           val t5 = System.nanoTime()
