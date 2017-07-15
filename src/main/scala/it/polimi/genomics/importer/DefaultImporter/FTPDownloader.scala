@@ -87,11 +87,12 @@ class FTPDownloader extends GMQLDownloader {
                 logger.info("Seems internet connection is lost, resuming in 5 minutes.")
                 Thread.sleep(1000 * 60 * 5)
               }
-              timesTried += 1
               ftpDownload.disconnect()
             }
-            else
+            else{           
+              timesTried += 1
               logger.warn(s"couldn't connect to ${source.url}")
+            }
           }
         }
         catch {
