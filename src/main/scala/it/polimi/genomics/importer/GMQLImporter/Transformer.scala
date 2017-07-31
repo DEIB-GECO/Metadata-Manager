@@ -25,6 +25,7 @@ object Transformer {
     */
   def integrate(source: GMQLSource, parallelExecution: Boolean): Unit = {
     if (source.transformEnabled) {
+
       logger.info("Starting integration for: " + source.outputFolder)
       val sourceId = FileDatabase.sourceId(source.name)
 
@@ -63,6 +64,8 @@ object Transformer {
               val downloadsFolder = datasetOutputFolder + File.separator + "Downloads"
               val transformationsFolder = datasetOutputFolder + File.separator + "Transformations"
 
+
+
               logger.info("Starting download for: " + dataset.name)
               // puts the schema into the transformations folder.
               if (schemaFinder.downloadSchema(source.rootOutputFolder, dataset, transformationsFolder, source))
@@ -70,6 +73,10 @@ object Transformer {
               else
                 logger.warn("Schema not found for: " + dataset.name)
 
+              val folder1 = new File(transformationsFolder)
+              if(folder1.exists()){
+                deleteFolder(folder1)
+              }
               val folder = new File(transformationsFolder)
               if (!folder.exists()) {
                 folder.mkdirs()
@@ -389,5 +396,41 @@ object Transformer {
     if(!Character.isJavaIdentifierStart(output.head))
       output = output.replaceFirst(output.head.toString, "_")
     output
+  }
+
+  /**
+    * deletes folder recursively
+    * @param path base folder path
+    */
+  def deleteFolder(path: File): Unit ={
+    try {
+      if (path.exists()) {
+        try {
+          val files = path.listFiles()
+          files.foreach(file => {
+            try {
+              if (file.isDirectory)
+                deleteFolder(file)
+              else
+                try {
+                  file.delete()
+                }
+                catch {
+                  case ex: SecurityException => logger.warn(s"Couldn't delete $path: ${ex.getMessage}")
+                }
+            }
+            catch {
+              case ex: SecurityException => logger.warn(s"Couldn't access $path: ${ex.getMessage}")
+            }
+          })
+        }
+        catch {
+          case ex: SecurityException => logger.warn(s"Couldn't list files from $path: ${ex.getMessage}")
+        }
+      }
+    }
+    catch {
+      case ex: SecurityException => logger.warn(s"Couldn't delete folder $path: ${ex.getMessage}")
+    }
   }
 }
