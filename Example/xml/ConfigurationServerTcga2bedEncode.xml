@@ -537,7 +537,7 @@
                         <parameter>
                             <description>Hg19 reference genome is selected</description>
                             <type>url_generation</type>
-                            <key>assembly</key>
+                            <key>files.assembly</key>
                             <value>hg19</value>
                         </parameter>
                     </parameter_list>
@@ -575,7 +575,7 @@
                         <parameter>
                             <description>Hg19 reference genome is selected</description>
                             <type>url_generation</type>
-                            <key>assembly</key>
+                            <key>files.assembly</key>
                             <value>hg19</value>
                         </parameter>
                     </parameter_list>
@@ -716,7 +716,7 @@
                         <parameter>
                             <description>GRCh38 reference genome is selected</description>
                             <type>url_generation</type>
-                            <key>assembly</key>
+                            <key>files.assembly</key>
                             <value>GRCh38</value>
                         </parameter>
                     </parameter_list>
@@ -754,7 +754,7 @@
                         <parameter>
                             <description>GRCh38 reference genome is selected</description>
                             <type>url_generation</type>
-                            <key>assembly</key>
+                            <key>files.assembly</key>
                             <value>GRCh38</value>
                         </parameter>
                     </parameter_list>
