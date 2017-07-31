@@ -140,62 +140,60 @@ class ENCODEDownloader extends GMQLDownloader {
     * @param parallelDownload defines if the execution is in parallel or sequential
     */
   private def downloadIndexAndMeta(source: GMQLSource, parallelDownload: Boolean): Unit = {
-    val downloadThreads = source.datasets.map { dataset =>
+    val downloadThreads = source.datasets.filter(_.downloadEnabled).map { dataset =>
       new Thread {
         override def run(): Unit = {
-          if (dataset.downloadEnabled) {
-            val t0Dataset = System.nanoTime()
-            val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(source.name), dataset.name)
-            val stage = STAGE.DOWNLOAD
-            val outputPath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
-            if (!new java.io.File(outputPath).exists) {
-              new java.io.File(outputPath).mkdirs()
-            }
-            val indexAndMetaUrl = generateDownloadIndexAndMetaUrl(source, dataset)
-            //ENCODE always provides the last version of this .meta file.
-            if (urlExists(indexAndMetaUrl)) {
-              /*I will check all the server files against the local ones so i mark as to compare,
+          val t0Dataset = System.nanoTime()
+          val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(source.name), dataset.name)
+          val stage = STAGE.DOWNLOAD
+          val outputPath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
+          if (!new java.io.File(outputPath).exists) {
+            new java.io.File(outputPath).mkdirs()
+          }
+          val indexAndMetaUrl = generateDownloadIndexAndMetaUrl(source, dataset)
+          //ENCODE always provides the last version of this .meta file.
+          if (urlExists(indexAndMetaUrl)) {
+            /*I will check all the server files against the local ones so i mark as to compare,
             * the files will change their state while I check each one of them. If there is
             * a file deleted from the server will be marked as OUTDATED before saving the table back*/
-              FileDatabase.markToCompare(datasetId, stage)
+            FileDatabase.markToCompare(datasetId, stage)
 
-              val metadataCandidateName = "metadata.tsv"
-              var downloaded = downloadFileFromURL(
+            val metadataCandidateName = "metadata.tsv"
+            var downloaded = downloadFileFromURL(
+              indexAndMetaUrl,
+              outputPath + File.separator + metadataCandidateName, 1, 1)
+            var timesTried = 0
+            while (!downloaded && timesTried < 4) {
+              downloaded = downloadFileFromURL(
                 indexAndMetaUrl,
                 outputPath + File.separator + metadataCandidateName, 1, 1)
-              var timesTried = 0
-              while (!downloaded && timesTried < 4) {
-                downloaded = downloadFileFromURL(
-                  indexAndMetaUrl,
-                  outputPath + File.separator + metadataCandidateName, 1, 1)
-                timesTried += 1
-              }
-              val filePath = outputPath + File.separator + metadataCandidateName
-              val file = new File(filePath)
-              val fileId = FileDatabase.fileId(datasetId, indexAndMetaUrl, stage, metadataCandidateName)
-              FileDatabase.getFileNameAndCopyNumber(fileId)
+              timesTried += 1
+            }
+            val filePath = outputPath + File.separator + metadataCandidateName
+            val file = new File(filePath)
+            val fileId = FileDatabase.fileId(datasetId, indexAndMetaUrl, stage, metadataCandidateName)
+            FileDatabase.getFileNameAndCopyNumber(fileId)
 
-              if (downloaded && file.exists()) {
-                FileDatabase.runDatasetDownloadAppend(datasetId, dataset, 1, 1)
-                val hash = computeHash(filePath)
-                FileDatabase.checkIfUpdateFile(fileId, hash, file.length.toString, DateTime.now.toString)
-                FileDatabase.markAsUpdated(fileId, file.length.toString)
-                downloadFilesFromMetadataFile(source, dataset)
-                logger.info("download for " + dataset.outputFolder + " completed")
-              }
-              else {
-                FileDatabase.markAsFailed(fileId)
-                logger.warn("couldn't download metadata.tsv file")
-              }
-              FileDatabase.markAsOutdated(datasetId, stage)
+            if (downloaded && file.exists()) {
+              FileDatabase.runDatasetDownloadAppend(datasetId, dataset, 1, 1)
+              val hash = computeHash(filePath)
+              FileDatabase.checkIfUpdateFile(fileId, hash, file.length.toString, DateTime.now.toString)
+              FileDatabase.markAsUpdated(fileId, file.length.toString)
+              downloadFilesFromMetadataFile(source, dataset, parallelDownload)
+              logger.info("download for " + dataset.outputFolder + " completed")
             }
             else {
-              logger.error("download link generated by " + dataset.outputFolder + " does not exist")
-              logger.debug("download link: " + indexAndMetaUrl)
+              FileDatabase.markAsFailed(fileId)
+              logger.warn("couldn't download metadata.tsv file")
             }
-            val t1Dataset = System.nanoTime()
-            logger.info(s"Total time for download dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
+            FileDatabase.markAsOutdated(datasetId, stage)
           }
+          else {
+            logger.error("download link generated by " + dataset.outputFolder + " does not exist")
+            logger.debug("download link: " + indexAndMetaUrl)
+          }
+          val t1Dataset = System.nanoTime()
+          logger.info(s"Total time for download dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset, t1Dataset)}")
         }
       }
     }
@@ -279,7 +277,7 @@ class ENCODEDownloader extends GMQLDownloader {
     * @param source  contains information for ENCODE download.
     * @param dataset dataset specific information about its location.
     */
-  private def downloadFilesFromMetadataFile(source: GMQLSource, dataset: GMQLDataset): Unit = {
+  private def downloadFilesFromMetadataFile(source: GMQLSource, dataset: GMQLDataset, parallelDownload: Boolean): Unit = {
     //attributes that im looking into the line:
     //Experiment date released (22), Size (36), md5sum (38), File download URL(39)
     //maybe this parameters should be entered by xml file
@@ -297,7 +295,7 @@ class ENCODEDownloader extends GMQLDownloader {
       //to be used
       val md5sum = header.lastIndexOf("md5sum")
       val url = header.lastIndexOf("File download URL")
-      val excluders = source.parameters.filter(_._4=="exclusion").map(exclusion =>{
+      val excluders = source.parameters.filter(_._4 == "exclusion").map(exclusion => {
         (header.lastIndexOf(exclusion._1), exclusion._2)
       })
       var counter = 0
@@ -306,7 +304,7 @@ class ENCODEDownloader extends GMQLDownloader {
       val total = Source.fromFile(path + File.separator + "metadata.tsv").
         getLines().filterNot(line => {
         var filter = false
-        if(line == "")
+        if (line == "")
           filter = true
         else {
           for (i <- excluders) {
@@ -316,10 +314,11 @@ class ENCODEDownloader extends GMQLDownloader {
         }
         filter
       }).drop(1).length * 2
-      Source.fromFile(path + File.separator + "metadata.tsv").
+      var runningThreads = 0
+      val downloadThreads = Source.fromFile(path + File.separator + "metadata.tsv").
         getLines().filterNot(line => {
         var filter = false
-        if(line == "")
+        if (line == "")
           filter = true
         else {
           for (i <- excluders) {
@@ -328,92 +327,116 @@ class ENCODEDownloader extends GMQLDownloader {
           }
         }
         filter
-      }).drop(1).foreach(line => {
-        val fields = line.split("\t")
-        val candidateName = fields(url).split(File.separator).last
-        val fileId = FileDatabase.fileId(datasetId, fields(url), stage, candidateName)
-        val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
+      }).drop(1).map(line => {
+        new Thread {
+          override def run(): Unit = {
+            val fields = line.split("\t")
+            val candidateName = fields(url).split(File.separator).last
+            val fileId = FileDatabase.fileId(datasetId, fields(url), stage, candidateName)
+            val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
 
-        val filename =
-          if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
-          else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
+            val filename =
+              if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
+              else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
 
-        val filePath = path + File.separator + filename
+            val filePath = path + File.separator + filename
 
-        val candidateNameJson = fields(url).split(File.separator).last + ".json"
-        val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
-        val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
-        FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
+            val candidateNameJson = fields(url).split(File.separator).last + ".json"
+            val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
+            val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
+            FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
 
-        if (FileDatabase.checkIfUpdateFile(fileId, fields(md5sum), fields(originSize), fields(originLastUpdate))) {
-          //this is the region data part.
-          if (urlExists(fields(url))) {
-            var downloaded = downloadFileFromURL(fields(url), filePath, counter + 1, total)
-            val file = new File(filePath)
-            var hash = computeHash(filePath)
+            if (FileDatabase.checkIfUpdateFile(fileId, fields(md5sum), fields(originSize), fields(originLastUpdate))) {
+              //this is the region data part.
+              if (urlExists(fields(url))) {
+                var downloaded = downloadFileFromURL(fields(url), filePath, counter + 1, total)
+                val file = new File(filePath)
+                var hash = computeHash(filePath)
 
-            var timesTried = 0
+                var timesTried = 0
 
-            while ((!downloaded || hash != fields(md5sum)) && timesTried < 4) {
-              downloaded = downloadFileFromURL(fields(url), filePath, counter + 1, total)
-              hash = computeHash(filePath)
-              timesTried += 1
-            }
-            if(!file.exists())
-              downloaded = false
-            if (timesTried == 4 || !downloaded)
-              FileDatabase.markAsFailed(fileId)
-            else {
-              FileDatabase.markAsUpdated(fileId, file.length.toString)
-              downloadedFiles = downloadedFiles + 1
-            }
-            counter = counter + 1
+                while ((!downloaded || hash != fields(md5sum)) && timesTried < 4) {
+                  downloaded = downloadFileFromURL(fields(url), filePath, counter + 1, total)
+                  hash = computeHash(filePath)
+                  timesTried += 1
+                }
+                if (!file.exists())
+                  downloaded = false
+                if (timesTried == 4 || !downloaded)
+                  FileDatabase.markAsFailed(fileId)
+                else {
+                  FileDatabase.markAsUpdated(fileId, file.length.toString)
+                  downloadedFiles = downloadedFiles + 1
+                }
+                counter = counter + 1
 
 
-            //this is the metadata part.
-            //example of json url https://www.encodeproject.org/experiments/ENCSR570HXV/?frame=embedded&format=json
-            //            val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
-            //have to implement if metadata is from json, else do not download (include just metadata.tsv metadata)
-            if (urlExists(urlExperimentJson)) {
-              //              val candidateNameJson = fields(url).split(File.separator).last + ".json"
-              //              val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
-              val fileNameAndCopyNumberJson = FileDatabase.getFileNameAndCopyNumber(fileIdJson)
-              val jsonName =
-                if (fileNameAndCopyNumberJson._2 == 1) fileNameAndCopyNumberJson._1
-                else fileNameAndCopyNumberJson._1.replaceFirst("\\.", "_" + fileNameAndCopyNumberJson._2 + ".")
+                //this is the metadata part.
+                //example of json url https://www.encodeproject.org/experiments/ENCSR570HXV/?frame=embedded&format=json
+                //            val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
+                //have to implement if metadata is from json, else do not download (include just metadata.tsv metadata)
+                if (urlExists(urlExperimentJson)) {
+                  //              val candidateNameJson = fields(url).split(File.separator).last + ".json"
+                  //              val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
+                  val fileNameAndCopyNumberJson = FileDatabase.getFileNameAndCopyNumber(fileIdJson)
+                  val jsonName =
+                    if (fileNameAndCopyNumberJson._2 == 1) fileNameAndCopyNumberJson._1
+                    else fileNameAndCopyNumberJson._1.replaceFirst("\\.", "_" + fileNameAndCopyNumberJson._2 + ".")
 
-              val filePathJson = path + File.separator + jsonName
-              //As I dont have the metadata for the json file i use the same as the region data.
-              //              if(FileDatabase.checkIfUpdateFile(fileIdJson,fields(md5sum),fields(originSize),fields(originLastUpdate))){
-              //              FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
-              var jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
-              timesTried = 0
-              while (!jsonDownloaded && timesTried < 4 && downloaded) {
-                jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
-                timesTried += 1
+                  val filePathJson = path + File.separator + jsonName
+                  //As I dont have the metadata for the json file i use the same as the region data.
+                  //              if(FileDatabase.checkIfUpdateFile(fileIdJson,fields(md5sum),fields(originSize),fields(originLastUpdate))){
+                  //              FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
+                  var jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
+                  timesTried = 0
+                  while (!jsonDownloaded && timesTried < 4 && downloaded) {
+                    jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
+                    timesTried += 1
+                  }
+                  val file = new File(filePathJson)
+                  //cannot check the correctness of the download for the json.
+                  if (jsonDownloaded && downloaded) {
+                    FileDatabase.markAsUpdated(fileIdJson, file.length.toString)
+                    downloadedFiles = downloadedFiles + 1
+                  }
+                  else
+                    FileDatabase.markAsFailed(fileIdJson)
+                  // if metadata is from json add this other +1.
+                  counter = counter + 1
+                  //              }
+                }
               }
-              val file = new File(filePathJson)
-              //cannot check the correctness of the download for the json.
-              if (jsonDownloaded && downloaded) {
-                FileDatabase.markAsUpdated(fileIdJson, file.length.toString)
-                downloadedFiles = downloadedFiles + 1
-              }
-              else
+              else {
+                FileDatabase.markAsFailed(fileId)
                 FileDatabase.markAsFailed(fileIdJson)
-              // if metadata is from json add this other +1.
-              counter = counter + 1
-              //              }
+                logger.error("could not download " + fields(url) + "path does not exist")
+              }
             }
-          }
-          else {
-            FileDatabase.markAsFailed(fileId)
-            FileDatabase.markAsFailed(fileIdJson)
-            logger.error("could not download " + fields(url) + "path does not exist")
+            else
+              logger.info(s"Source: ${source.name}|Dataset: ${dataset.name} File ${fields(url)} is already up to date.")
+            runningThreads = runningThreads - 1
           }
         }
-        else
-          logger.info(s"Source: ${source.name}|Dataset: ${dataset.name} File ${fields(url)} is already up to date.")
       })
+      if (parallelDownload) {
+        for (thread <- downloadThreads) {
+          //Im handling the Thread pool here without locking it, have to make it secure for synchronization
+          while (runningThreads > 10) {
+            Thread.sleep(1000)
+            runningThreads += 0
+          }
+          thread.start()
+          runningThreads = runningThreads + 1
+        }
+        for (thread <- downloadThreads)
+          thread.join()
+      }
+      else {
+        for (thread <- downloadThreads) {
+          thread.start()
+          thread.join()
+        }
+      }
       FileDatabase.runDatasetDownloadAppend(datasetId, dataset, total, counter)
       if (total == downloadedFiles) {
         //add successful message to database.
