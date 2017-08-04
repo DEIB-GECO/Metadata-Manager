@@ -92,7 +92,7 @@ object Table {
     * @param tag
     */
   class Donors(tag: Tag) extends
-    Table[(Option[Int], String, String, String, Int, String, String)](tag, "DONORS") {
+    Table[(Option[Int], String, String, Int, String, String)](tag, "DONORS") {
     def donorId = column[Int]("DONOR_ID", O.PrimaryKey, O.AutoInc)
 
     def sourceId = column[String]("SOURCE_ID")
@@ -111,7 +111,7 @@ object Table {
   val donors = TableQuery[Donors]
 
   class BioSamples(tag: Tag) extends
-    Table[(Option[Int], Int, String, String, String, Boolean, String](tag, "BIOSAMPLES") {
+    Table[(Option[Int], Int, String, String, String, Boolean, String)](tag, "BIOSAMPLES") {
     def bioSampleId = column[Int]("BIO_SAMPLE_ID", O.PrimaryKey, O.AutoInc)
 
     def donorId = column[Int]("DONOR_ID")
@@ -124,7 +124,7 @@ object Table {
 
     def isHealty = column[Boolean]("IS_HEALTY")
 
-    def disease = column["String"]("DISEASE")
+    def disease = column[String]("DISEASE")
 
     def donor = foreignKey("BIOSAMPLES_DONOR_FK", donorId, donors)(
       _.donorId,
@@ -239,7 +239,7 @@ object Table {
   val containers = TableQuery[Containers]
 
   class Items(tag: Tag) extends
-    Table[(Option[Int], Int, String, String, String, Int, String, String, String)](tag, "ITEMS") {
+    Table[(Option[Int], Int, Int, String, String, String, Int, String, String, String)](tag, "ITEMS") {
     def itemId = column[Int]("ITEM_ID", O.PrimaryKey, O.AutoInc)
 
     def replicateId = column[Int]("REPLICATE_ID")
@@ -266,7 +266,7 @@ object Table {
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def replicate = foreignKey("ITEMS_CONTAINER_FK", replicateId, containers)(
+    def container = foreignKey("ITEMS_CONTAINER_FK", replicateId, containers)(
       _.containerId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade

@@ -16,7 +16,7 @@ case class Person(id: Int, name: String)
 object Main extends App{
 
   val db = Table.setDatabase()
-  
+
   /*val logger: Logger = LoggerFactory.getLogger(this.getClass)
   val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
   val driver = "org.postgresql.Driver"
