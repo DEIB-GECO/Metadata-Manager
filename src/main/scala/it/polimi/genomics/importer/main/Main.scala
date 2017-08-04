@@ -1,29 +1,23 @@
 package it.polimi.genomics.importer.main
 
 
-import org.joda.time.DateTime
-import org.slf4j.{Logger, LoggerFactory}
-import slick.dbio.Effect.Write
-import slick.driver.PostgresDriver.api._
-import slick.lifted.{ProvenShape, Tag}
-import slick.jdbc.meta.MTable
-
-
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import it.polimi.genomics.importer.RemoteDatabase.{Table}
 
 case class Person(id: Int, name: String)
 
-class Persons(tag: Tag) extends Table[Person](tag, "persons") {
+/*class Persons(tag: Tag) extends Table[Person](tag, "persons") {
 
   val id: Rep[Int] = column[Int]("id", O.PrimaryKey)
   val name: Rep[String] = column[String]("name")
 
   override def * : ProvenShape[Person] = (id, name) <> (Person.tupled, Person.unapply)
-}
+}*/
 
 object Main extends App{
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
+  val db = Table.setDatabase()
+  
+  /*val logger: Logger = LoggerFactory.getLogger(this.getClass)
   val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
   val driver = "org.postgresql.Driver"
   val database = Database.forURL(connectionUrl, driver, keepAliveConnection = true)
@@ -38,7 +32,7 @@ object Main extends App{
   )
 
   val setup = database.run(queries)
-  Await.result(setup, Duration.Inf)
+  Await.result(setup, Duration.Inf)*/
 
  /* val setup = DBIO.seq(suppliers.schema.create)
   val setupFuture = database.run(setup)
