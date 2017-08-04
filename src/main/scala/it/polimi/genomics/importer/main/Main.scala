@@ -1,7 +1,7 @@
 package it.polimi.genomics.importer.main
 
 
-import it.polimi.genomics.importer.RemoteDatabase.{Table}
+import it.polimi.genomics.importer.RemoteDatabase.{DbHandler}
 
 case class Person(id: Int, name: String)
 
@@ -15,7 +15,7 @@ case class Person(id: Int, name: String)
 
 object Main extends App{
 
-  val db = Table.setDatabase()
+  val db = DbHandler.setDatabase()
 
   /*val logger: Logger = LoggerFactory.getLogger(this.getClass)
   val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
