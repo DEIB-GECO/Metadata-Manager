@@ -113,13 +113,24 @@ object DbHandler {
     }
   }
 
-  def insertDonor(): Unit ={
+  def insertDonor(sourceId: String, species : String, age: Int, gender: String, ethnicity: String): Int ={
+    /*val queries = DBIO.seq(
+      donors.map(d => (d.sourceId, d.species, d.age, d.gender, d.ethnicity)) += (sourceId, species, age, gender, ethnicity)
+    )*/
+    val idQuery = (donors returning donors.map(_.donorId)) += (None, sourceId, species, age, gender, ethnicity)
+    val executionId = database.run(idQuery)
+    val donorId = Await.result(executionId, Duration.Inf)
+    donorId
+  }
+
+  def insertBioSample(donorId: Int, sourceId: String, types : String, cellLine: String, isHealty: Boolean, disease: String): Unit ={
     val queries = DBIO.seq(
-      donors.map(d => (d.sourceId, d.species, d.age, d.gender, d.ethnicity)) += ("ENCDO000AAL", "Homo Sapiens", 0, "female", "Caucasian")
+      bioSamples.map(b => (b.donorId, b.sourceId, b.types, b.cellLine, b.isHealty, b.disease)) += (donorId, sourceId, types, cellLine, isHealty, disease)
     )
     val insert = database.run(queries)
     Await.result(insert, Duration.Inf)
   }
+
 
 
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------

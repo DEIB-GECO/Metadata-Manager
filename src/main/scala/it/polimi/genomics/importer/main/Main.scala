@@ -15,7 +15,10 @@ case class Person(id: Int, name: String)
 
 object Main extends App{
 
-  val db = DbHandler.setDatabase()
+  //val db = DbHandler.setDatabase()
+
+  val donorId = DbHandler.insertDonor("prova", "prova", 1, "prova", "prova")
+  print(donorId)
 
   /*val logger: Logger = LoggerFactory.getLogger(this.getClass)
   val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
