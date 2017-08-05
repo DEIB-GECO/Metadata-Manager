@@ -65,6 +65,11 @@ object Transformer {
               val transformationsFolder = datasetOutputFolder + File.separator + "Transformations"
 
 
+              val folder = new File(transformationsFolder)
+              if(folder.exists()){
+                deleteFolder(folder)
+              }
+
 
               logger.info("Starting download for: " + dataset.name)
               // puts the schema into the transformations folder.
@@ -73,11 +78,7 @@ object Transformer {
               else
                 logger.warn("Schema not found for: " + dataset.name)
 
-              val folder1 = new File(transformationsFolder)
-              if(folder1.exists()){
-                deleteFolder(folder1)
-              }
-              val folder = new File(transformationsFolder)
+
               if (!folder.exists()) {
                 folder.mkdirs()
                 logger.debug("Folder created: " + folder)
