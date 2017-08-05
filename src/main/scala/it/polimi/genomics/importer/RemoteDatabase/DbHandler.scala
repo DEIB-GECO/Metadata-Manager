@@ -15,11 +15,12 @@ import scala.concurrent.duration.Duration
 object DbHandler {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
+  val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
+  val driver = "org.postgresql.Driver"
+  val database = Database.forURL(connectionUrl, driver, keepAliveConnection = true)
 
   def setDatabase(): Unit = {
-    val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
-    val driver = "org.postgresql.Driver"
-    val database = Database.forURL(connectionUrl, driver, keepAliveConnection = true)
+
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList
 
     for (table <- Table.values) print(table +" ")
@@ -111,6 +112,15 @@ object DbHandler {
       logger.info("Table CASESITEMS created")
     }
   }
+
+  def insertDonor(): Unit ={
+    val queries = DBIO.seq(
+      donors.map(d => (d.sourceId, d.species, d.age, d.gender, d.ethnicity)) += ("ENCDO000AAL", "Homo Sapiens", 0, "female", "Caucasian")
+    )
+    val insert = database.run(queries)
+    Await.result(insert, Duration.Inf)
+  }
+
 
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------
 
