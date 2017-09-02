@@ -15,6 +15,8 @@ case class Person(id: Int, name: String)
 
 object Main extends App{
 
+  DbHandler.checkDonorId("ENCDO000AAL")
+  DbHandler.checkDonorId("ENCDO000A")
   //val db = DbHandler.setDatabase()
 
   /*val logger: Logger = LoggerFactory.getLogger(this.getClass)

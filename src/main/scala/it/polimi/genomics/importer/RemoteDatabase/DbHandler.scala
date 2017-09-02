@@ -113,25 +113,79 @@ object DbHandler {
     }
   }
 
+  //Insert Method
+
   def insertDonor(sourceId: String, species : String, age: Int, gender: String, ethnicity: String): Int ={
-    /*val queries = DBIO.seq(
-      donors.map(d => (d.sourceId, d.species, d.age, d.gender, d.ethnicity)) += (sourceId, species, age, gender, ethnicity)
-    )*/
     val idQuery = (donors returning donors.map(_.donorId)) += (None, sourceId, species, age, gender, ethnicity)
     val executionId = database.run(idQuery)
-    val donorId = Await.result(executionId, Duration.Inf)
-    donorId
+    val id = Await.result(executionId, Duration.Inf)
+    id
   }
 
-  def insertBioSample(donorId: Int, sourceId: String, types : String, cellLine: String, isHealty: Boolean, disease: String): Unit ={
-    val queries = DBIO.seq(
-      bioSamples.map(b => (b.donorId, b.sourceId, b.types, b.cellLine, b.isHealty, b.disease)) += (donorId, sourceId, types, cellLine, isHealty, disease)
-    )
+  def insertBioSample(donorId: Int, sourceId: String, types : String, cellLine: String, isHealty: Boolean, disease: String): Int ={
+    val idQuery = (bioSamples returning bioSamples.map(_.bioSampleId))+= (None, donorId, sourceId, types, cellLine, isHealty, disease)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
+  }
+
+  def insertReplicate(bioSampleId: Int, sourceId: String, bioReplicateNum : Int, techReplicateNum: Int): Int ={
+    val idQuery = (replicates returning replicates.map(_.replicateId))+= (None, bioSampleId, sourceId, bioReplicateNum, techReplicateNum)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
+  }
+
+  def insertExperimentType(technique: String, feature: String, platform : String, target: String, antibody: String): Int ={
+    val idQuery = (experimentsType returning experimentsType.map(_.experimentTypeId))+= (None, technique, feature, platform, target, antibody)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
+  }
+
+  def insertProject(projectName: String, programName: String): Int ={
+    val idQuery = (projects returning projects.map(_.projectId))+= (None, projectName, programName)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
+  }
+
+  def insertCase(projectId: Int, sourceId: String, sourceSite: String): Int ={
+    val idQuery = (cases returning cases.map(_.caseId))+= (None, projectId, sourceId, sourceSite)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
+  }
+
+  def insertContainer(experimentTypeId: Int, name: String, assembly: String, isAnn: Boolean, annotation: String): Int ={
+    val idQuery = (containers returning containers.map(_.containerId))+= (None, experimentTypeId, name, assembly, isAnn, annotation)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
+  }
+
+  def insertItem(replicateId: Int, containerId: Int, sourceId: String, dataType: String, format: String, size: Int, pipeline: String, sourceUrl: String, localUrl: String): Int ={
+    val idQuery = (items returning items.map(_.itemId))+= (None, replicateId, containerId, sourceId, dataType, format, size, pipeline, sourceUrl, localUrl)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
+  }
+
+  def insertCaseItem(itemId: Int, caseId: Int): Unit ={
+    val queries = DBIO.seq(casesItems.map(c => (c.itemId, c.caseId)) += (itemId, caseId))
     val insert = database.run(queries)
     Await.result(insert, Duration.Inf)
   }
 
+  def checkDonorId(id: String): Unit = {
+    val query = donors.filter(_.sourceId === id)
+    val action = query.result
+    val result = database.run(action)
+    Await.result(result, Duration.Inf)
+    val sql = action.statements.head
+    println(sql)
 
+  }
 
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------
 
