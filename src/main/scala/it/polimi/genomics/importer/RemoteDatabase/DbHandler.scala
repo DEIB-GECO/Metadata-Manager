@@ -6,10 +6,11 @@ import slick.dbio.Effect.Write
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{ProvenShape, Tag}
 import slick.jdbc.meta.MTable
-import it.polimi.genomics.importer.RemoteDatabase.{Table}
+import it.polimi.genomics.importer.RemoteDatabase.Table
 
-
-import scala.concurrent.Await
+import scala.util.{Failure, Success, Try}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
 object DbHandler {
@@ -177,15 +178,103 @@ object DbHandler {
     Await.result(insert, Duration.Inf)
   }
 
-  def checkDonorId(id: String): Unit = {
+  def checkResult(result: Future[Seq[Any]]): Boolean = {
+    var res = false
+    Await.result(result, Duration.Inf)
+    result.onComplete({
+      case Success(v) => {
+        if(v.isEmpty){
+          println("Inserire il valore")
+          res = true
+        }
+        else{
+          println("valore già presente in DB " + v)
+        }
+      }
+      case Failure(exception) => {
+        println(exception.getMessage)
+      }
+
+    })
+    return res
+  }
+
+  def checkInsertDonor(id: String): Boolean = {
     val query = donors.filter(_.sourceId === id)
     val action = query.result
     val result = database.run(action)
-    Await.result(result, Duration.Inf)
-    val sql = action.statements.head
-    println(sql)
+    return checkResult(result)
 
   }
+
+  def checkInsertBioSample(id: String): Boolean = {
+    val query = bioSamples.filter(_.sourceId === id)
+    val action = query.result
+    val result = database.run(action)
+    return checkResult(result)
+  }
+
+  def checkInsertReplicate(id: String): Boolean = {
+    val query = replicates.filter(_.sourceId === id)
+    val action = query.result
+    val result = database.run(action)
+    return checkResult(result)
+  }
+
+  def checkInsertExperimentType(id: String): Boolean = {
+    val query = experimentsType.filter(_.technique === id)
+    val action = query.result
+    val result = database.run(action)
+    return checkResult(result)
+  }
+
+  def checkInsertProjectId(id: String): Boolean = {
+    val query = projects.filter(_.programName === id)
+    val action = query.result
+    val result = database.run(action)
+    return checkResult(result)
+  }
+
+  def checkInsertCaseId(id: String): Boolean = {
+    val query = cases.filter(_.sourceId === id)
+    val action = query.result
+    val result = database.run(action)
+    return checkResult(result)
+  }
+
+  def checkInsertContainer(id: String): Boolean = {
+    val query = containers.filter(_.name === id)
+    val action = query.result
+    val result = database.run(action)
+    return checkResult(result)
+  }
+
+  def checkInsertItem(id: String): Boolean = {
+    val query = items.filter(_.sourceId === id)
+    val action = query.result
+    val result = database.run(action)
+    return checkResult(result)
+  }
+
+  /*def checkCasesItemId(id: String): Unit = {
+    val query = casesItems.filter(_.pk === id)
+    val action = query.result
+    val result = database.run(action)
+    result.onComplete({
+      case Success(v) => {
+        if(v.isEmpty){
+          println("Inserire il valore")
+        }
+        else{
+          println("valore già presente in DB " + v)
+        }
+      }
+      case Failure(exception) => {
+        println(exception.getMessage)
+      }
+    })
+  }*/
+
 
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------
 
