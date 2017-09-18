@@ -6,12 +6,13 @@ import slick.dbio.Effect.Write
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{ProvenShape, Tag}
 import slick.jdbc.meta.MTable
-import it.polimi.genomics.importer.RemoteDatabase.Table
 
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
+import it.polimi.genomics.importer.ModelDatabase.{EncodeTableEnum}
+
 
 object DbHandler {
 
@@ -24,7 +25,7 @@ object DbHandler {
 
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList
 
-    for (table <- Table.values) print(table +" ")
+    for (table <- EncodeTableEnum.values) print(table +" ")
     //donors
     if (!tables.exists(_.name.name == "DONORS")) {
       var queries = DBIO.seq(donors.schema.create)
@@ -123,8 +124,8 @@ object DbHandler {
     id
   }
 
-  def insertBioSample(donorId: Int, sourceId: String, types : String, cellLine: String, isHealty: Boolean, disease: String): Int ={
-    val idQuery = (bioSamples returning bioSamples.map(_.bioSampleId))+= (None, donorId, sourceId, types, cellLine, isHealty, disease)
+  def insertBioSample(donorId: Int, sourceId: String, types : String, tIussue: String, cellLine: String, isHealty: Boolean, disease: String): Int ={
+    val idQuery = (bioSamples returning bioSamples.map(_.bioSampleId))+= (None, donorId, sourceId, types, tIssue, cellLine, isHealty, disease)
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
@@ -275,6 +276,37 @@ object DbHandler {
     })
   }*/
 
+  def getDonorId(id: String): Unit = {
+    val query = donors.filter(_.sourceId === id).map(_.donorId)
+    val action = query.result
+    val result = database.run(action)
+    Await.result(result, Duration.Inf)
+    result.onComplete({
+    case Success(v) => {
+      //return v
+    }
+    case Failure(exception) => {
+      //exception
+    }
+    })
+  }
+
+
+  def getBioSampleId(id: String): Unit = {
+    val query = bioSamples.filter(_.sourceId === id).map(_.bioSampleId)
+    val action = query.result
+    val result = database.run(action)
+    Await.result(result, Duration.Inf)
+    result.onComplete({
+      case Success(v) => {
+        //return v
+      }
+      case Failure(exception) => {
+        //exception
+      }
+    })
+  }
+
 
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------
 
@@ -303,7 +335,7 @@ object DbHandler {
   val donors = TableQuery[Donors]
 
   class BioSamples(tag: Tag) extends
-    Table[(Option[Int], Int, String, String, String, Boolean, String)](tag, "BIOSAMPLES") {
+    Table[(Option[Int], Int, String, String, String, String, Boolean, String)](tag, "BIOSAMPLES") {
     def bioSampleId = column[Int]("BIO_SAMPLE_ID", O.PrimaryKey, O.AutoInc)
 
     def donorId = column[Int]("DONOR_ID")
@@ -311,6 +343,8 @@ object DbHandler {
     def sourceId = column[String]("SOURCE_ID")
 
     def types = column[String]("TYPE")
+
+    def tIssue = column[String]("TISSUE")
 
     def cellLine = column[String]("CELLLINE")
 
@@ -324,8 +358,9 @@ object DbHandler {
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def * = (bioSampleId.?, donorId, sourceId, types, cellLine, isHealty, disease)
+    def * = (bioSampleId.?, donorId, sourceId, types, tIssue, cellLine, isHealty, disease)
   }
+
 
   val bioSamples = TableQuery[BioSamples]
 

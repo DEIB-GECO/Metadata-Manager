@@ -1,0 +1,162 @@
+<?xml version="1.0" ?>
+<root>
+    <table name="DONORS">
+        <mapping>
+            <source_key>replicates__X__library__biosample__donor__accession</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__donor__organism__scientific_name</source_key>
+            <global_key>species</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__donor__age</source_key>
+            <global_key>age</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__donor__sex</source_key>
+            <global_key>gender</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__donor__ethnicity</source_key>
+            <global_key>ethnicity</global_key>
+        </mapping>
+    </table>
+    <table name="BIOSAMPLES">
+        <mapping>
+            <source_key>replicates__X__library__biosample__accession</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__biosample_type</source_key>
+            <global_key>types</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__biosample_type</source_key>
+            <global_key>Tissue</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
+            <global_key>cellLine</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
+            <global_key>cellLine</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__health_status</source_key>
+            <global_key>isHealty</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__X__library__biosample__health_status</source_key>
+            <global_key>disease</global_key>
+        </mapping>
+    </table>
+    <table name="REPLICATES">
+        <mapping>
+            <source_key>replicates__2__uuid</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__2__biological_replicate_number</source_key>
+            <global_key>bioReplicateNum</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__2__technical_replicate_number</source_key>
+            <global_key>techReplicateNum</global_key>
+        </mapping>
+    </table>
+    <table name="EXPERIMENTSTYPE">
+        <mapping>
+            <source_key>file__replicate__experiment__assay_term_id + file__replicate__experiment__assay_term_name</source_key>
+            <global_key>technique</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__replicate__experiment__target__investigated_as</source_key>
+            <global_key>feature</global_key>
+        </mapping>
+        <mapping>
+            <source_key>cerca nel file originale</source_key>
+            <global_key>platform</global_key>
+        </mapping>
+        <mapping>
+            <source_key>target__name</source_key>
+            <global_key>target</global_key>
+        </mapping>
+        <mapping>
+            <source_key>replicates__2__antibody__title + replicates__2__antibody__url</source_key>
+            <global_key>antibody</global_key>
+        </mapping>
+    </table>
+    <table name="PROJECTS">
+        <mapping>
+            <source_key>encode</source_key>
+            <global_key>projectName</global_key>
+        </mapping>
+        <mapping>
+            <source_key>award__project</source_key>
+            <global_key>programName</global_key>
+        </mapping>
+    </table>
+    <table name="CASES">
+        <mapping>
+            <source_key>accession</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>submitted_by__lab</source_key>
+            <global_key>sourceSite</global_key>
+        </mapping>
+    </table>
+    <table name="CONTAINERS">
+        <mapping>
+            <source_key>file__file_type</source_key>
+            <global_key>name</global_key>
+        </mapping>
+        <mapping>
+            <source_key>ignote_source_key</source_key>
+            <global_key>assembly</global_key>
+        </mapping>
+        <mapping>
+            <source_key>files__assembly</source_key>
+            <global_key>isAnn</global_key>
+        </mapping>
+        <mapping>
+            <source_key>ignote_source_key</source_key>
+            <global_key>annotation</global_key>
+        </mapping>
+    </table>
+    <table name="ITEMS">
+        <mapping>
+            <source_key>file__accession</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__output_type</source_key>
+            <global_key>dataType</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__file_type</source_key>
+            <global_key>format</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__file_size</source_key>
+            <global_key>size</global_key>
+        </mapping>
+
+        <mapping>
+            <source_key>ignote_source_key</source_key>
+            <global_key>pipeline</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__href</source_key>
+            <global_key>sourceUrl</global_key>
+        </mapping>
+        <mapping>
+            <source_key>ignote_source_key</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <table name="CASESITEMS">
+        </table>
+    </table>
+</root>
