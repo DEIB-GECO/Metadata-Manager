@@ -1,11 +1,14 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import scala.collection.mutable
 
-trait Tables {
 
-  protected val tables = collection.mutable.Map[EncodeTableEnum.Value, EncodeTable]()
+trait Tables extends Enumeration{
 
-  def selectTableByName(name: String): EncodeTable = tables(EncodeTableEnum.withName(name))
-  def selectTableByValue(enum: EncodeTableEnum.Value): EncodeTable = tables(enum)
+
+  protected val tables: mutable.Map[Value, Table] = collection.mutable.Map[this.Value, Table]()
+
+  def selectTableByName(name: String): Table
+  def selectTableByValue(enum: this.Value): Table
 
 }

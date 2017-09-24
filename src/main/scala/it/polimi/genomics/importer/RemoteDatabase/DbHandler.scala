@@ -1,17 +1,12 @@
 package it.polimi.genomics.importer.RemoteDatabase
 
-import org.joda.time.DateTime
 import org.slf4j.{Logger, LoggerFactory}
-import slick.dbio.Effect.Write
 import slick.driver.PostgresDriver.api._
-import slick.lifted.{ProvenShape, Tag}
 import slick.jdbc.meta.MTable
+import slick.lifted.Tag
 
-import scala.util.{Failure, Success, Try}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
-import it.polimi.genomics.importer.ModelDatabase.{EncodeTableEnum}
+import scala.concurrent.{Await, Future}
 
 
 object DbHandler {
@@ -25,7 +20,7 @@ object DbHandler {
 
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList
 
-    for (table <- EncodeTableEnum.values) print(table +" ")
+    //for (table <- EncodeTableEnum.values) print(table +" ")
     //donors
     if (!tables.exists(_.name.name == "DONORS")) {
       var queries = DBIO.seq(donors.schema.create)
@@ -125,7 +120,7 @@ object DbHandler {
   }
 
   def insertBioSample(donorId: Int, sourceId: String, types : String, tIussue: String, cellLine: String, isHealty: Boolean, disease: String): Int ={
-    val idQuery = (bioSamples returning bioSamples.map(_.bioSampleId))+= (None, donorId, sourceId, types, tIssue, cellLine, isHealty, disease)
+    val idQuery = (bioSamples returning bioSamples.map(_.bioSampleId)) += (None, donorId, sourceId, types, tIussue, cellLine, isHealty, disease)
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
@@ -173,148 +168,175 @@ object DbHandler {
     id
   }
 
-  def insertCaseItem(itemId: Int, caseId: Int): Unit ={
-    val queries = DBIO.seq(casesItems.map(c => (c.itemId, c.caseId)) += (itemId, caseId))
-    val insert = database.run(queries)
-    Await.result(insert, Duration.Inf)
+  def insertCaseItem(itemId: Int, caseId: Int): Int ={
+   /* val idQuery = DBIO.seq(casesItems.map(c => (c.itemId, c.caseId)) += (itemId, caseId))
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    -1 //valore  null per far funzionare il trait nelle Table*/
+    val idQuery = (casesItems returning casesItems.map(_.itemId))+= (itemId,caseId)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
   }
 
+  /**
+    *
+    * @param result A general query
+    * @return true if the element must be inserted,
+    *         false if the element is already available in the Database
+    */
   def checkResult(result: Future[Seq[Any]]): Boolean = {
-    var res = false
-    Await.result(result, Duration.Inf)
-    result.onComplete({
-      case Success(v) => {
-        if(v.isEmpty){
-          println("Inserire il valore")
-          res = true
-        }
-        else{
-          println("valore già presente in DB " + v)
-        }
-      }
-      case Failure(exception) => {
-        println(exception.getMessage)
-      }
-
-    })
-    return res
+    val res = Await.result(result, Duration.Inf)
+    if(res.isEmpty)
+      true
+    else
+      false
   }
 
-  def checkInsertDonor(id: String): Boolean = {
-    val query = donors.filter(_.sourceId === id)
-    val action = query.result
-    val result = database.run(action)
-    return checkResult(result)
-
+  /**
+    *
+    * @param result A general query
+    * @return the table id
+    */
+  def checkId(result: Future[Seq[Int]]): Int = {
+    val res = Await.result(result, Duration.Inf)
+    if(res.isEmpty)
+      -1
+    else
+      res.head
   }
 
-  def checkInsertBioSample(id: String): Boolean = {
-    val query = bioSamples.filter(_.sourceId === id)
+  def checkInsertDonor(sourceId: String): Boolean = {
+    val query = donors.filter(_.sourceId === sourceId)
     val action = query.result
     val result = database.run(action)
-    return checkResult(result)
+    checkResult(result)
   }
 
-  def checkInsertReplicate(id: String): Boolean = {
-    val query = replicates.filter(_.sourceId === id)
+  def checkInsertBioSample(sourceId: String): Boolean = {
+    val query = bioSamples.filter(_.sourceId === sourceId)
     val action = query.result
     val result = database.run(action)
-    return checkResult(result)
+    checkResult(result)
   }
 
-  def checkInsertExperimentType(id: String): Boolean = {
-    val query = experimentsType.filter(_.technique === id)
+  def checkInsertReplicate(sourceId: String): Boolean = {
+    val query = replicates.filter(_.sourceId === sourceId)
     val action = query.result
     val result = database.run(action)
-    return checkResult(result)
+    checkResult(result)
   }
 
-  def checkInsertProjectId(id: String): Boolean = {
-    val query = projects.filter(_.programName === id)
+  def checkInsertExperimentType(technique: String, platform: String): Boolean = {
+    val query = experimentsType.filter(_.technique === technique).filter(_.platform === platform)
     val action = query.result
     val result = database.run(action)
-    return checkResult(result)
+    checkResult(result)
   }
 
-  def checkInsertCaseId(id: String): Boolean = {
-    val query = cases.filter(_.sourceId === id)
+  def checkInsertProjectId(projectName: String): Boolean = {
+    val query = projects.filter(_.projectName === projectName)
     val action = query.result
     val result = database.run(action)
-    return checkResult(result)
+    checkResult(result)
   }
 
-  def checkInsertContainer(id: String): Boolean = {
-    val query = containers.filter(_.name === id)
+  def checkInsertCaseId(sourceId: String): Boolean = {
+    val query = cases.filter(_.sourceId === sourceId)
     val action = query.result
     val result = database.run(action)
-    return checkResult(result)
+    checkResult(result)
   }
 
-  def checkInsertItem(id: String): Boolean = {
-    val query = items.filter(_.sourceId === id)
+  def checkInsertContainer(name: String): Boolean = {
+    val query = containers.filter(_.name === name)
     val action = query.result
     val result = database.run(action)
-    return checkResult(result)
+    checkResult(result)
   }
 
-  /*def checkCasesItemId(id: String): Unit = {
-    val query = casesItems.filter(_.pk === id)
+  def checkInsertItem(sourceId: String): Boolean = {
+    val query = items.filter(_.sourceId === sourceId)
     val action = query.result
     val result = database.run(action)
-    result.onComplete({
-      case Success(v) => {
-        if(v.isEmpty){
-          println("Inserire il valore")
-        }
-        else{
-          println("valore già presente in DB " + v)
-        }
-      }
-      case Failure(exception) => {
-        println(exception.getMessage)
-      }
-    })
-  }*/
+    checkResult(result)
+  }
 
-  def getDonorId(id: String): Unit = {
+  def checkInsertCaseItem(itemId: Int, caseId: Int): Boolean = {
+    val query = casesItems.filter(_.itemId === itemId).filter(_.caseId === caseId)
+    val action = query.result
+    val result = database.run(action)
+    checkResult(result)
+  }
+
+
+  def getDonorId(id: String): Int = {
     val query = donors.filter(_.sourceId === id).map(_.donorId)
     val action = query.result
     val result = database.run(action)
-    Await.result(result, Duration.Inf)
-    result.onComplete({
-    case Success(v) => {
-      //return v
-    }
-    case Failure(exception) => {
-      //exception
-    }
-    })
+    checkId(result)
   }
 
 
-  def getBioSampleId(id: String): Unit = {
-    val query = bioSamples.filter(_.sourceId === id).map(_.bioSampleId)
+  def getBioSampleId(sourceId: String): Int = {
+    val query = bioSamples.filter(_.sourceId === sourceId).map(_.bioSampleId)
     val action = query.result
     val result = database.run(action)
-    Await.result(result, Duration.Inf)
-    result.onComplete({
-      case Success(v) => {
-        //return v
-      }
-      case Failure(exception) => {
-        //exception
-      }
-    })
+    checkId(result)
   }
 
+  def getReplicateId(sourceId: String): Int = {
+    val query = replicates.filter(_.sourceId === sourceId).map(_.replicateId)
+    val action = query.result
+    val result = database.run(action)
+    checkId(result)
+  }
 
+  def getExperimentTypeId(technique: String, platform: String): Int = {
+    val query = experimentsType.filter(_.technique === technique).filter(_.platform === platform).map(_.experimentTypeId)
+    val action = query.result
+    val result = database.run(action)
+    checkId(result)
+  }
+
+  def getProjectId(projectName : String): Int = {
+    val query = projects.filter(_.projectName === projectName).map(_.projectId)
+    val action = query.result
+    val result = database.run(action)
+    checkId(result)
+  }
+
+  def getCaseId(sourceId : String): Int = {
+    val query = cases.filter(_.sourceId === sourceId).map(_.caseId)
+    val action = query.result
+    val result = database.run(action)
+    checkId(result)
+  }
+
+  def getContainerId(name : String): Int = {
+    val query = containers.filter(_.name === name).map(_.containerId)
+    val action = query.result
+    val result = database.run(action)
+    checkId(result)
+  }
+
+  def getItemId(sourceId : String): Int = {
+    val query = items.filter(_.sourceId === sourceId).map(_.itemId)
+    val action = query.result
+    val result = database.run(action)
+    checkId(result)
+  }
+
+  /*def getCasesItemId(itemId : Int, caseId: Int): Int = {
+    val query = casesItems.filter(_.itemId === itemId).filter(_.caseId === caseId).map(_.pk)
+    val action = query.result
+    val result = database.run(action)
+    checkId(result)
+  }*/
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------
 
   //---------------------------------- Definition of the SOURCES table--------------------------------------------------
-  /**
-    *
-    * @param tag
-    */
+
   class Donors(tag: Tag) extends
     Table[(Option[Int], String, String, Int, String, String)](tag, "DONORS") {
     def donorId = column[Int]("DONOR_ID", O.PrimaryKey, O.AutoInc)
@@ -505,7 +527,7 @@ object DbHandler {
   val items = TableQuery[Items]
 
   class CasesItems(tag: Tag) extends
-    Table[(Option[Int], Option[Int])](tag, "CASESITEMS") {
+    Table[(Int, Int)](tag, "CASESITEMS") {
     def itemId = column[Int]("ITEM_ID")
 
     def caseId = column[Int]("CASE_ID")
@@ -524,7 +546,7 @@ object DbHandler {
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def * = (itemId.?, caseId.?)
+    def * = (itemId, caseId)
   }
 
   val casesItems = TableQuery[CasesItems]

@@ -12,4 +12,19 @@ class Project extends EncodeTable{
       case "PROGRAMNAME" => this.programName = setValue(this.programName,param)
       case _ => noMatching(dest)
     }
+
+  override def insert() = {
+    dbHandler.insertProject(this.programName,this.programName)
+  }
+
+  override def setForeignKeys(table: Table): Unit = {
+  }
+
+  override def checkInsert(): Boolean ={
+    dbHandler.checkInsertDonor(this.projectName)
+  }
+
+  override def getId() = {
+    dbHandler.getProjectId(this.projectName)
+  }
 }

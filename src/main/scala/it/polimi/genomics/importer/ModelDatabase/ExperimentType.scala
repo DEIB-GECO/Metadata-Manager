@@ -21,4 +21,20 @@ class ExperimentType extends EncodeTable{
     case _ => noMatching(dest)
 
   }
+
+  override def checkInsert(): Boolean = {
+    dbHandler.checkInsertExperimentType(this.technique,this.platform)
+  }
+
+  override def insert(): Int = {
+    dbHandler.insertExperimentType(this.technique,this.feature,this.platform,this.target,this.antibody)
+  }
+
+  override def setForeignKeys(table: Table): Unit = {
+
+  }
+
+  override def getId() = {
+    dbHandler.getExperimentTypeId(this.technique,this.platform)
+  }
 }

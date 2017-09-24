@@ -3,8 +3,6 @@ package it.polimi.genomics.importer.ModelDatabase
 
 class Donor extends EncodeTable{
 
-  var donorId: Int = _
-
   var sourceId: String = _
 
   var species :String = _
@@ -27,5 +25,18 @@ class Donor extends EncodeTable{
     }
   }
 
- // override def setValue(actualParam: String, newParam: String): String = super.setValue(actualParam,newParam)
+  override def insert(): Int ={
+    dbHandler.insertDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity)
+  }
+
+  override def setForeignKeys(table: Table): Unit = {
+  }
+
+  override def checkInsert(): Boolean ={
+    dbHandler.checkInsertDonor(this.sourceId)
+  }
+
+  def getId(): Int = {
+    dbHandler.getDonorId(this.sourceId)
+  }
 }

@@ -1,6 +1,5 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-
 class BioSample extends EncodeTable{
 
   var donorId: Int = _
@@ -17,6 +16,9 @@ class BioSample extends EncodeTable{
 
   var disease: String = _
 
+  _hasForeignKeys = true
+
+  _foreignKeysTables = List("DONORS")
 
   override def setParameter(param: String, dest: String): Unit = {
     dest.toUpperCase match{
@@ -30,5 +32,22 @@ class BioSample extends EncodeTable{
     }
   }
 
+  override def insert(): Int ={
+    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tIssue,this.cellLine,this.isHealty,this.disease)
+  }
+
+  override def setForeignKeys(table: Table): Unit = {
+    this.donorId = table.getId
+  }
+
+
+
+  override def checkInsert(): Boolean ={
+    dbHandler.checkInsertBioSample(this.sourceId)
+  }
+
+  override def getId() = {
+    dbHandler.getBioSampleId(this.sourceId)
+  }
 
 }

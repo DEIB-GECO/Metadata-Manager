@@ -2,8 +2,12 @@ package it.polimi.genomics.importer.ModelDatabase
 
 
 import exceptions.NoGlobalKeyException
+import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 
 abstract class EncodeTable extends Table{
+
+  protected val dbHandler = DbHandler
+
 
   def setValue(actualParam: String, newParam: String): String = {
     if(actualParam == null) {
@@ -13,9 +17,7 @@ abstract class EncodeTable extends Table{
       return actualParam.concat(" " + newParam)
   }
 
-  def checkInsert(): Boolean = true
 
-  def insert(): Int = 1
 
   def noMatching(message: String): Unit = {
     throw new NoGlobalKeyException("No global key for " + message)

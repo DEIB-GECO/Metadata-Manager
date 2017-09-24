@@ -4,8 +4,7 @@ import exceptions.NoTableNameException
 
 object EncodeTableEnum extends Enumeration{
 
-    val Donors = Value("DONORS")
-    val BioSamples = Value("BIOSAMPLES")
+/*    val BioSamples = Value("BIOSAMPLES")
     val Replicates = Value("REPLICATES")
     val ExperimentsType = Value("EXPERIMENTSTYPE")
     val Projects = Value("PROJECTS")
@@ -32,5 +31,6 @@ object EncodeTableEnum extends Enumeration{
   def getOrderOfInsertion(): List[Value] ={
     return List(Donors,BioSamples,Replicates,ExperimentsType,Projects,Containers,Cases,Items,CasesItems)
   }
+*/
 
 }

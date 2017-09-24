@@ -3,26 +3,40 @@ package it.polimi.genomics.importer.ModelDatabase
 
 class Replicate extends EncodeTable{
 
-  var experimentTypeId : Int = _
+  var bioSampleId : Int = _
 
-  var technique : String = _
+  var sourceId :String = _
 
-  var feature : String = _
+  var bioReplicateNum : Int = _
 
-  var platform : String = _
+  var techReplicateNum : Int = _
 
-  var target : String = _
+  _hasForeignKeys = true
 
-  var antibody : String = _
+  _foreignKeysTables = List("BIOSAMPLES")
 
   override def setParameter(param: String, dest: String): Unit = {
     dest.toUpperCase match{
-      case "TECHNIQUE" => this.technique = setValue(this.technique,param)
-      case "FEATURE" => this.feature = setValue(this.feature,param)
-      case "PLATFORM" => this.platform = setValue(this.platform, param)
-      case "TARGET" => this.target = setValue(this.target, param)
-      case "ANTIBODY" => this.antibody = setValue(this.antibody, param)
+      case "SOURCEID" => this.sourceId = setValue(this.sourceId,param)
+      case "BIOREPLICATENUM" => this.bioReplicateNum = param.toInt
+      case "TECHREPLICATENUM" => this.techReplicateNum = param.toInt
       case _ => noMatching(dest)
     }
+  }
+
+  override def insert() = {
+    dbHandler.insertReplicate(this.bioSampleId,this.sourceId,this.bioReplicateNum,this.techReplicateNum)
+  }
+
+  override def setForeignKeys(table: Table): Unit = {
+    this.bioSampleId = table.getId()
+  }
+
+  override def checkInsert(): Boolean ={
+    dbHandler.checkInsertDonor(this.sourceId)
+  }
+
+  override def getId() = {
+    dbHandler.getReplicateId(this.sourceId)
   }
 }
