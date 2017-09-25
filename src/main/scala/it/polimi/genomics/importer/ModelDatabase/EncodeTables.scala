@@ -48,7 +48,7 @@ class EncodeTables extends Tables{
         table.primaryKey_(id)
       }
       else {
-        val id = table.getId()
+        val id = table.getId
         table.primaryKey_(id)
       }
       if(table.hasForeignKeys){

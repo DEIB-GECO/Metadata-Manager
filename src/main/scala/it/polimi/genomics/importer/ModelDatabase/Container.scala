@@ -5,13 +5,13 @@ class Container extends EncodeTable{
 
   var experimentTypeId : Int = _
 
-  var name : String = _
+  var name : String = "ENCODE"
 
   var assembly: String = _
 
-  var isAnn: Boolean = _
+  var isAnn: Boolean = false
 
-  var annotation: String = _
+  var annotation: String = null
 
   _hasForeignKeys = true
 
@@ -20,8 +20,8 @@ class Container extends EncodeTable{
   override def setParameter(param: String, dest: String): Unit = dest.toUpperCase match {
     case "NAME" => this.name = setValue(this.name,param)
     case "ASSEMBLY" => this.assembly = setValue(this.assembly,param)
-    case "ISANN" => this.isAnn = false
-    case "ANNOTATION" => this.annotation = null
+    case "ISANN" => this.isAnn = false   //manually curated
+    case "ANNOTATION" => this.annotation = null     //manually curated
     case _ => noMatching(dest)
   }
 

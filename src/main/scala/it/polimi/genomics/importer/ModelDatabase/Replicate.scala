@@ -29,7 +29,7 @@ class Replicate extends EncodeTable{
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    this.bioSampleId = table.getId()
+    this.bioSampleId = table.getId
   }
 
   override def checkInsert(): Boolean ={

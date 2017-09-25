@@ -40,8 +40,6 @@ class BioSample extends EncodeTable{
     this.donorId = table.getId
   }
 
-
-
   override def checkInsert(): Boolean ={
     dbHandler.checkInsertBioSample(this.sourceId)
   }

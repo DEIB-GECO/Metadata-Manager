@@ -42,9 +42,9 @@ class Item extends EncodeTable{
 
   override def setForeignKeys(table: Table): Unit = {
     if(table.isInstanceOf[Replicate])
-      this.replicateId = table.getId()
+      this.replicateId = table.getId
     if(table.isInstanceOf[Container])
-      this.containerId = table.getId()
+      this.containerId = table.getId
   }
 
   override def checkInsert(): Boolean ={
