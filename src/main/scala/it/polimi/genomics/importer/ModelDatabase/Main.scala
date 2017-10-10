@@ -2,13 +2,15 @@ package it.polimi.genomics.importer.ModelDatabase
 
 
 import it.polimi.genomics.importer.ModelDatabase.Utils.XMLReader
+import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 
 import scala.io.Source
 
 
 object main extends App{
 
-  val xml = new XMLReader("/Users/federicogatti/IdeaProjects/GMQL-Importer/src/main/scala/it/polimi/genomics/importer/ModelDatabase/setting.xml")
+//  DbHandler.setDatabase()
+  val xml = new XMLReader("/Users/federicogatti/IdeaProjects/GMQL-Importer/src/main/scala/it/polimi/genomics/importer/ModelDatabase/Utils/setting-donor.xml")
 
   //creo il mapping nel file di nacho, problema degli spazi
   val lines = Source.fromFile("/Users/federicogatti/IdeaProjects/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF607OLJ.bed.meta").getLines.toArray
@@ -27,6 +29,7 @@ object main extends App{
 
   def populateTable(list: List[String], table: Table): Unit ={
     table.setParameter(states(list(1)),list(2))
+    //println(states(list(1)),list(2))
   }
 
  /* def setForeignKeys(table: Table): Unit = {
@@ -46,8 +49,10 @@ object main extends App{
      // println(x.head)
 
     } catch {
-      case e: Exception => println("Source_key non trovata")
+      case e: Exception => println("Source_key non trovata: " + x)
   })
+
+  tables.insertDonor()
 
   /*println(states("replicates__1__library__biosample__donor__accession"))
   println(states(operationsList(0)(1)))

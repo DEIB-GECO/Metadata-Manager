@@ -5,11 +5,11 @@ class Donor extends EncodeTable{
 
   var sourceId: String = _
 
-  var species :String = _
+  var species : String = _
 
   var age : Int = _
 
-  var gender : String = _
+  var gender : String= _
 
   var ethnicity : String = _
 
@@ -26,7 +26,7 @@ class Donor extends EncodeTable{
   }
 
   override def insert(): Int ={
-    dbHandler.insertDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity)
+    dbHandler.insertDonor(this.sourceId,this.sourceId,this.age,this.gender,this.ethnicity)
   }
 
   override def setForeignKeys(table: Table): Unit = {

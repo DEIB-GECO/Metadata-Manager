@@ -113,10 +113,13 @@ object DbHandler {
   //Insert Method
 
   def insertDonor(sourceId: String, species : String, age: Int, gender: String, ethnicity: String): Int ={
-    val idQuery = (donors returning donors.map(_.donorId)) += (None, sourceId, species, age, gender, ethnicity)
+    val valori = (None, sourceId, Option(species), Option(age), Option(gender), Option(ethnicity))
+    val idQuery = (donors returning donors.map(_.donorId)) += valori
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
+    logger.info("Insert Donor: " + id + ", " + sourceId + ", " + species + ", " + age + ", " + gender + ", " + ethnicity)
     id
+    1
   }
 
   def insertBioSample(donorId: Int, sourceId: String, types : String, tIussue: String, cellLine: String, isHealty: Boolean, disease: String): Int ={
@@ -338,18 +341,19 @@ object DbHandler {
   //---------------------------------- Definition of the SOURCES table--------------------------------------------------
 
   class Donors(tag: Tag) extends
-    Table[(Option[Int], String, String, Int, String, String)](tag, "DONORS") {
+    Table[(Option[Int], String, Option[String], Option[Int], Option[String], Option[String])](tag, "DONORS") {
     def donorId = column[Int]("DONOR_ID", O.PrimaryKey, O.AutoInc)
 
     def sourceId = column[String]("SOURCE_ID")
 
-    def species = column[String]("SPECIES")
+    def species = column[Option[String]]("SPECIES", O.Default(None))
 
-    def age = column[Int]("AGE")
+    def age = column[Option[Int]]("AGE", O.Default(None))
 
-    def gender = column[String]("GENDER")
+    def gender = column[Option[String]]("GENDER", O.Default(None))
 
-    def ethnicity = column[String]("ETHNICITY")
+    def ethnicity = column[Option[String]]("ETHNICITY", O.Default(None))
+
 
     def * = (donorId.?, sourceId, species, age, gender, ethnicity)
   }
@@ -550,5 +554,6 @@ object DbHandler {
   }
 
   val casesItems = TableQuery[CasesItems]
+
 
 }

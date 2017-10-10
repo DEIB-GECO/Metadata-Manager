@@ -56,7 +56,10 @@ class EncodeTables extends Tables{
       }
     }
     )
+  }
 
+  def insertDonor(): Unit = {
+    this.selectTableByName("DONORS").insert()
   }
 
   def getOrderOfInsertion(): List[Value] ={
