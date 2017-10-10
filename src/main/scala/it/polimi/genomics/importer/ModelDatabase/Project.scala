@@ -24,7 +24,7 @@ class Project extends EncodeTable{
     dbHandler.checkInsertDonor(this.projectName)
   }
 
-  override def getId() = {
+  override def getId(): Int = {
     dbHandler.getProjectId(this.projectName)
   }
 }

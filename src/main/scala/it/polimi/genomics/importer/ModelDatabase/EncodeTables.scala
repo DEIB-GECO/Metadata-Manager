@@ -43,6 +43,9 @@ class EncodeTables extends Tables{
   def insertTables(): Unit ={
     //getOrderOfInsertion().map(table => this.selectTableByValue(table).insert())
     getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table =>{
+      if(table.hasForeignKeys){
+        table.foreignKeysTables.map(t => this.selectTableByName(t)).map(t => table.setForeignKeys(t))
+      }
       if(table.checkInsert()) {
         val id = table.insert()
         table.primaryKey_(id)
@@ -51,16 +54,11 @@ class EncodeTables extends Tables{
         val id = table.getId
         table.primaryKey_(id)
       }
-      if(table.hasForeignKeys){
-        table.foreignKeysTables.map(t => this.selectTableByName(t)).map(t => table.setForeignKeys(t))
-      }
+
     }
     )
   }
 
-  def insertDonor(): Unit = {
-    this.selectTableByName("DONORS").insert()
-  }
 
   def getOrderOfInsertion(): List[Value] ={
     return List(Donors,BioSamples,Replicates,ExperimentsType,Projects,Containers,Cases,Items,CasesItems)

@@ -44,7 +44,7 @@ class BioSample extends EncodeTable{
     dbHandler.checkInsertBioSample(this.sourceId)
   }
 
-  override def getId() = {
+  override def getId(): Int = {
     dbHandler.getBioSampleId(this.sourceId)
   }
 

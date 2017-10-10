@@ -2,6 +2,7 @@ package it.polimi.genomics.importer.ModelDatabase
 
 
 import it.polimi.genomics.importer.ModelDatabase.Utils.XMLReader
+import org.apache.log4j.BasicConfigurator
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 
 import scala.io.Source
@@ -9,17 +10,20 @@ import scala.io.Source
 
 object main extends App{
 
-//  DbHandler.setDatabase()
-  val xml = new XMLReader("/Users/federicogatti/IdeaProjects/GMQL-Importer/src/main/scala/it/polimi/genomics/importer/ModelDatabase/Utils/setting-donor.xml")
+  //DbHandler.setDatabase()
+
+
+ // BasicConfigurator.configure()
+  val xml = new XMLReader("/Users/federicogatti/IdeaProjects/GMQL-Importer/src/main/scala/it/polimi/genomics/importer/ModelDatabase/Utils/setting.xml")
 
   //creo il mapping nel file di nacho, problema degli spazi
-  val lines = Source.fromFile("/Users/federicogatti/IdeaProjects/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF607OLJ.bed.meta").getLines.toArray
+  val lines = Source.fromFile("/Users/federicogatti/IdeaProjects/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF718ITI.bed.meta").getLines.toArray
   var states = collection.mutable.Map[String, String]()
   var tables = new EncodeTables
 
 
   for(l <- lines){
-    val first = l.split(" ", 2)
+    val first = l.split("\t", 2)
    // println(first(0) + " " + first(1))
     states += (first(0) -> first(1))
   }
@@ -27,10 +31,7 @@ object main extends App{
 
   val operationsList = xml.operationsList
 
-  def populateTable(list: List[String], table: Table): Unit ={
-    table.setParameter(states(list(1)),list(2))
-    //println(states(list(1)),list(2))
-  }
+
 
  /* def setForeignKeys(table: Table): Unit = {
     table.setForeignKeys()
@@ -51,8 +52,11 @@ object main extends App{
     } catch {
       case e: Exception => println("Source_key non trovata: " + x)
   })
+  tables.insertTables()
+  def populateTable(list: List[String], table: Table): Unit ={
+    table.setParameter(states(list(1)),list(2))
+  }
 
-  tables.insertDonor()
 
   /*println(states("replicates__1__library__biosample__donor__accession"))
   println(states(operationsList(0)(1)))

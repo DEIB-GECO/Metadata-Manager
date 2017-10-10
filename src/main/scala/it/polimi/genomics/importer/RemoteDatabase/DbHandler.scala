@@ -123,49 +123,49 @@ object DbHandler {
   }
 
   def insertBioSample(donorId: Int, sourceId: String, types : String, tIussue: String, cellLine: String, isHealty: Boolean, disease: String): Int ={
-    val idQuery = (bioSamples returning bioSamples.map(_.bioSampleId)) += (None, donorId, sourceId, types, tIussue, cellLine, isHealty, disease)
+    val idQuery = (bioSamples returning bioSamples.map(_.bioSampleId)) += (None, donorId, sourceId, Option(types), Option(tIussue), Option(cellLine), isHealty, Option(disease))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
   def insertReplicate(bioSampleId: Int, sourceId: String, bioReplicateNum : Int, techReplicateNum: Int): Int ={
-    val idQuery = (replicates returning replicates.map(_.replicateId))+= (None, bioSampleId, sourceId, bioReplicateNum, techReplicateNum)
+    val idQuery = (replicates returning replicates.map(_.replicateId))+= (None, bioSampleId, sourceId, Option(bioReplicateNum), Option(techReplicateNum))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
   def insertExperimentType(technique: String, feature: String, platform : String, target: String, antibody: String): Int ={
-    val idQuery = (experimentsType returning experimentsType.map(_.experimentTypeId))+= (None, technique, feature, platform, target, antibody)
+    val idQuery = (experimentsType returning experimentsType.map(_.experimentTypeId))+= (None, Option(technique), Option(feature), Option(platform), Option(target), Option(antibody))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
   def insertProject(projectName: String, programName: String): Int ={
-    val idQuery = (projects returning projects.map(_.projectId))+= (None, projectName, programName)
+    val idQuery = (projects returning projects.map(_.projectId))+= (None, Option(projectName), Option(programName))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
   def insertCase(projectId: Int, sourceId: String, sourceSite: String): Int ={
-    val idQuery = (cases returning cases.map(_.caseId))+= (None, projectId, sourceId, sourceSite)
+    val idQuery = (cases returning cases.map(_.caseId))+= (None, projectId, sourceId, Option(sourceSite))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
   def insertContainer(experimentTypeId: Int, name: String, assembly: String, isAnn: Boolean, annotation: String): Int ={
-    val idQuery = (containers returning containers.map(_.containerId))+= (None, experimentTypeId, name, assembly, isAnn, annotation)
+    val idQuery = (containers returning containers.map(_.containerId))+= (None, experimentTypeId, Option(name), Option(assembly), isAnn, Option(annotation))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
   def insertItem(replicateId: Int, containerId: Int, sourceId: String, dataType: String, format: String, size: Int, pipeline: String, sourceUrl: String, localUrl: String): Int ={
-    val idQuery = (items returning items.map(_.itemId))+= (None, replicateId, containerId, sourceId, dataType, format, size, pipeline, sourceUrl, localUrl)
+    val idQuery = (items returning items.map(_.itemId))+= (None, replicateId, containerId, sourceId, Option(dataType), Option(format), Option(size), Option(pipeline), Option(sourceUrl), Option(localUrl))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
@@ -361,22 +361,22 @@ object DbHandler {
   val donors = TableQuery[Donors]
 
   class BioSamples(tag: Tag) extends
-    Table[(Option[Int], Int, String, String, String, String, Boolean, String)](tag, "BIOSAMPLES") {
+    Table[(Option[Int], Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])](tag, "BIOSAMPLES") {
     def bioSampleId = column[Int]("BIO_SAMPLE_ID", O.PrimaryKey, O.AutoInc)
 
     def donorId = column[Int]("DONOR_ID")
 
     def sourceId = column[String]("SOURCE_ID")
 
-    def types = column[String]("TYPE")
+    def types = column[Option[String]]("TYPE", O.Default(None))
 
-    def tIssue = column[String]("TISSUE")
+    def tIssue = column[Option[String]]("TISSUE", O.Default(None))
 
-    def cellLine = column[String]("CELLLINE")
+    def cellLine = column[Option[String]]("CELLLINE", O.Default(None))
 
     def isHealty = column[Boolean]("IS_HEALTY")
 
-    def disease = column[String]("DISEASE")
+    def disease = column[Option[String]]("DISEASE", O.Default(None))
 
     def donor = foreignKey("BIOSAMPLES_DONOR_FK", donorId, donors)(
       _.donorId,
@@ -391,16 +391,16 @@ object DbHandler {
   val bioSamples = TableQuery[BioSamples]
 
   class Replicates(tag: Tag) extends
-    Table[(Option[Int], Int, String, Int, Int)](tag, "REPLICATES") {
+    Table[(Option[Int], Int, String, Option[Int], Option[Int])](tag, "REPLICATES") {
     def replicateId = column[Int]("REPLICATE_ID", O.PrimaryKey, O.AutoInc)
 
     def bioSampleId = column[Int]("BIO_SAMPLE_ID")
 
     def sourceId = column[String]("SOURCE_ID")
 
-    def bioReplicateNum = column[Int]("BIO_REPLICATE_NUM")
+    def bioReplicateNum = column[Option[Int]]("BIO_REPLICATE_NUM", O.Default(None))
 
-    def techReplicateNum = column[Int]("TECH_REPLICATE_NUM")
+    def techReplicateNum = column[Option[Int]]("TECH_REPLICATE_NUM", O.Default(None))
 
     def bioSample = foreignKey("REPLICATES_DONOR_FK", bioSampleId, bioSamples)(
       _.bioSampleId,
@@ -414,18 +414,18 @@ object DbHandler {
   val replicates = TableQuery[Replicates]
 
   class ExperimentsType(tag: Tag) extends
-    Table[(Option[Int], String, String, String, String, String)](tag, "EXPERIMENTSTYPE") {
+    Table[(Option[Int], Option[String], Option[String], Option[String], Option[String], Option[String])](tag, "EXPERIMENTSTYPE") {
     def experimentTypeId = column[Int]("EXPERIMENT_TYPE_ID", O.PrimaryKey, O.AutoInc)
 
-    def technique = column[String]("TECHNIQUE")
+    def technique = column[Option[String]]("TECHNIQUE", O.Default(None))
 
-    def feature = column[String]("FEATURE")
+    def feature = column[Option[String]]("FEATURE", O.Default(None))
 
-    def platform = column[String]("PLATFORM")
+    def platform = column[Option[String]]("PLATFORM", O.Default(None))
 
-    def target = column[String]("TARGET")
+    def target = column[Option[String]]("TARGET", O.Default(None))
 
-    def antibody = column[String]("ANTIBODY")
+    def antibody = column[Option[String]]("ANTIBODY", O.Default(None))
 
     def * = (experimentTypeId.?, technique, feature, platform, target, antibody)
   }
@@ -433,12 +433,12 @@ object DbHandler {
   val experimentsType = TableQuery[ExperimentsType]
 
   class Projects(tag: Tag) extends
-    Table[(Option[Int], String, String)](tag, "PROJECTS") {
+    Table[(Option[Int], Option[String], Option[String])](tag, "PROJECTS") {
     def projectId = column[Int]("PROJECT_ID", O.PrimaryKey, O.AutoInc)
 
-    def projectName = column[String]("PROJECT_NAME")
+    def projectName =  column[Option[String]]("PROJECT_NAME", O.Default(None))
 
-    def programName = column[String]("PROGRAM_NAME")
+    def programName =  column[Option[String]]("PROGRAM_NAME", O.Default(None))
 
     def * = (projectId.?, projectName, programName)
   }
@@ -446,14 +446,14 @@ object DbHandler {
   val projects = TableQuery[Projects]
 
   class Cases(tag: Tag) extends
-    Table[(Option[Int], Int, String, String)](tag, "CASES") {
+    Table[(Option[Int], Int, String, Option[String])](tag, "CASES") {
     def caseId = column[Int]("CASE_ID", O.PrimaryKey, O.AutoInc)
 
     def projectId = column[Int]("PROJECT_ID")
 
     def sourceId = column[String]("SOURCE_ID")
 
-    def sourceSite = column[String]("SOURCE_SITE")
+    def sourceSite = column[Option[String]]("SOURCE_SITE", O.Default(None))
 
     def project = foreignKey("CASES_PROJECT_FK", projectId, projects)(
       _.projectId,
@@ -467,18 +467,18 @@ object DbHandler {
   val cases = TableQuery[Cases]
 
   class Containers(tag: Tag) extends
-    Table[(Option[Int], Int, String, String, Boolean, String)](tag, "CONTAINERS") {
+    Table[(Option[Int], Int, Option[String], Option[String], Boolean, Option[String])](tag, "CONTAINERS") {
     def containerId = column[Int]("CONTAINER_ID", O.PrimaryKey, O.AutoInc)
 
     def experimentTypeId = column[Int]("EXPERIMENT_TYPE_ID")
 
-    def name = column[String]("NAME")
+    def name = column[Option[String]]("NAME", O.Default(None))
 
-    def assembly = column[String]("ASSEMBLY")
+    def assembly = column[Option[String]]("ASSEMBLY", O.Default(None))
 
     def isAnn = column[Boolean]("IS_ANN")
 
-    def annotation = column[String]("ANNOTATION")
+    def annotation = column[Option[String]]("ANNOTATION", O.Default(None))
 
     def experimentType = foreignKey("CONTAINERS_EXPERIMENT_TYPE_FK", containerId, experimentsType)(
       _.experimentTypeId,
@@ -492,7 +492,7 @@ object DbHandler {
   val containers = TableQuery[Containers]
 
   class Items(tag: Tag) extends
-    Table[(Option[Int], Int, Int, String, String, String, Int, String, String, String)](tag, "ITEMS") {
+    Table[(Option[Int], Int, Int, String, Option[String], Option[String], Option[Int], Option[String], Option[String], Option[String])](tag, "ITEMS") {
     def itemId = column[Int]("ITEM_ID", O.PrimaryKey, O.AutoInc)
 
     def replicateId = column[Int]("REPLICATE_ID")
@@ -501,17 +501,17 @@ object DbHandler {
 
     def sourceId = column[String]("SOURCE_ID")
 
-    def dataType = column[String]("DATA_TYPE")
+    def dataType = column[Option[String]]("DATA_TYPE", O.Default(None))
 
-    def format = column[String]("FORMAT")
+    def format = column[Option[String]]("FORMAT", O.Default(None))
 
-    def size = column[Int]("SIZE")
+    def size = column[Option[Int]]("SIZE", O.Default(None))
 
-    def pipeline = column[String]("PIPELINE")
+    def pipeline = column[Option[String]]("PIPELINE", O.Default(None))
 
-    def sourceUrl = column[String]("SOURCE_URL")
+    def sourceUrl = column[Option[String]]("SOURCE_URL", O.Default(None))
 
-    def localUrl = column[String]("LOCAL_URL")
+    def localUrl = column[Option[String]]("LOCAL_URL", O.Default(None))
 
     def replicate = foreignKey("ITEMS_REPLICATE_FK", replicateId, replicates)(
       _.replicateId,

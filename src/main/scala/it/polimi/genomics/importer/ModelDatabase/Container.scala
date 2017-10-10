@@ -37,7 +37,7 @@ class Container extends EncodeTable{
     dbHandler.checkInsertContainer(this.name)
   }
 
-  override def getId() = {
+  override def getId(): Int = {
     dbHandler.getContainerId(this.name)
   }
 }

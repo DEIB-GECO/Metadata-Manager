@@ -28,7 +28,7 @@ class CaseItem extends EncodeTable{
 
   }
 
-  override def getId() = {
+  override def getId(): Int = {
    // dbHandler.getCasesItemId(this.itemId,this.caseId)
     1
   }

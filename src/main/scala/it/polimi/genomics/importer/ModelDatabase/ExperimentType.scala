@@ -12,12 +12,12 @@ class ExperimentType extends EncodeTable{
 
   var antibody : String = _
 
-  override def setParameter(param: String, dest: String): Unit = dest match{
+  override def setParameter(param: String, dest: String): Unit = dest.toUpperCase()  match{
     case "TECHNIQUE" => this.technique = setValue(this.technique,param)
     case "FEATURE" => this.feature = setValue(this.feature,param)
     case "PLATFORM" => this.platform = setValue(this.platform,param)
     case "TARGET" => this.target = setValue(this.target,param)
-    case "ANTOBODY" => this.antibody = setValue(this.antibody,param)
+    case "ANTIBODY" => this.antibody = setValue(this.antibody,param)
     case _ => noMatching(dest)
 
   }
@@ -34,7 +34,7 @@ class ExperimentType extends EncodeTable{
 
   }
 
-  override def getId() = {
+  override def getId(): Int = {
     dbHandler.getExperimentTypeId(this.technique,this.platform)
   }
 }

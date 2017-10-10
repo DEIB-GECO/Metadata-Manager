@@ -32,7 +32,7 @@ class Case extends EncodeTable{
     dbHandler.checkInsertCaseId(this.sourceId)
   }
 
-  override def getId() = {
+  override def getId(): Int = {
     dbHandler.getCaseId(this.sourceId)
   }
 

@@ -33,10 +33,10 @@ class Replicate extends EncodeTable{
   }
 
   override def checkInsert(): Boolean ={
-    dbHandler.checkInsertDonor(this.sourceId)
+    dbHandler.checkInsertReplicate(this.sourceId)
   }
 
-  override def getId() = {
+  override def getId(): Int = {
     dbHandler.getReplicateId(this.sourceId)
   }
 }
