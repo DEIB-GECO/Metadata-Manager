@@ -5,7 +5,7 @@ import java.security.{DigestInputStream, MessageDigest}
 
 import it.polimi.genomics.importer.DefaultImporter.utils.FTP
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLDownloader, GMQLSource}
+import it.polimi.genomics.importer.GMQLImporter.{GMQLDownloader, GMQLSource}
 import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.LoggerFactory
 
@@ -78,7 +78,15 @@ class FTPDownloader extends GMQLDownloader {
               source.parameters.filter(_._1 == "password").head._2).getOrElse(false)
             if (connected) {
               logger.info(s"connected to ftp ${source.name}")
-              workingDirectory = ftpDownload.workingDirectory()
+              val startDir = source.parameters.filter(_._1 == "start_directory").head._2
+              if(ftpDownload.cd(startDir).getOrElse(false)) {
+                workingDirectory = startDir
+                logger.info(s"Base working directory set as $startDir")
+              }
+              else {
+                logger.warn("Fail to change base working directory, try with server default")
+                workingDirectory = ftpDownload.workingDirectory()
+              }
               directoryOk = true
               if (timesTried == 3) {
                 logger.warn("Connection lost with the FTP server, skipping")
@@ -89,7 +97,7 @@ class FTPDownloader extends GMQLDownloader {
               }
               ftpDownload.disconnect()
             }
-            else{           
+            else{
               timesTried += 1
               logger.warn(s"couldn't connect to ${source.url}")
             }
@@ -569,10 +577,10 @@ class FTPDownloader extends GMQLDownloader {
     val directories: Array[FTPFile] = getDirectories(source, workingDirectory)
     directories.foreach({ directory =>
       recursiveDownload(
-        if (workingDirectory.endsWith(File.separator))
+        if (workingDirectory.endsWith("/"))
           workingDirectory + directory.getName
         else
-          workingDirectory + File.separator + directory.getName, source,parallelExecution)
+          workingDirectory + "/" + directory.getName, source,parallelExecution)
     })
   }
 
