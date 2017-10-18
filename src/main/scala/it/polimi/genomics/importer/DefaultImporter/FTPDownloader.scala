@@ -236,7 +236,7 @@ class FTPDownloader extends GMQLDownloader {
           val aux2 = dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed")
           val aux1 = aux2.head._2
           val file = unfilteredFiles.filter(_.getName == aux1).head
-          val url = workingDirectory + File.separator + file.getName
+          val url = workingDirectory + "/" + file.getName
           val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
           md5Downloaded = downloadFile(fileId, "", file, outputPath, source, workingDirectory, url, 1, 1)
         }
@@ -246,7 +246,7 @@ class FTPDownloader extends GMQLDownloader {
           val aux2 = dataset.parameters.filter(_._1 == "exp_info_tcga2bed")
           val aux1 = aux2.head._2
           val file = unfilteredFiles.filter(_.getName == aux1).head
-          val url = workingDirectory + File.separator + file.getName
+          val url = workingDirectory + "/" + file.getName
           val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
           expInfoDownloaded = downloadFile(fileId, "", file, outputPath, source, workingDirectory, url, 1, 1)
 
@@ -265,12 +265,12 @@ class FTPDownloader extends GMQLDownloader {
         val downloadThreads = files.map { file =>
           new Thread {
             override def run(): Unit = {
-              val url = workingDirectory + File.separator + file.getName
+              val url = workingDirectory + "/" + file.getName
               val fileId = FileDatabase.fileId(datasetId, url, STAGE.DOWNLOAD, file.getName)
               val hash =
                 if (dataset.parameters.exists(_._1 == "md5_checksum_tcga2bed") && md5Downloaded) {
                   val md5Filename = dataset.parameters.filter(_._1 == "md5_checksum_tcga2bed").head._2
-                  val md5Url = workingDirectory + File.separator + md5Filename
+                  val md5Url = workingDirectory + "/" + md5Filename
                   val md5FileId = FileDatabase.fileId(datasetId, md5Url, STAGE.DOWNLOAD, md5Filename)
 
                   val nameAndCopyNumber: (String, Int) = FileDatabase.getFileNameAndCopyNumber(md5FileId)
@@ -490,7 +490,7 @@ class FTPDownloader extends GMQLDownloader {
     if (!folder.exists())
       folder.mkdirs()
     var fileDownloaded = false
-    val url = workingDirectory + File.separator + filename
+    val url = workingDirectory + "/" + filename
     val threadDownload = new Thread {
       override def run(): Unit = {
         try {
@@ -681,7 +681,7 @@ class FTPDownloader extends GMQLDownloader {
           val totalFiles = failedFiles.size
           //in file I have (fileId,name,copyNumber,url, hash)
           failedFiles.foreach(file => {
-            val workingDirectory = file._4.substring(0, file._4.lastIndexOf(File.separator))
+            val workingDirectory = file._4.substring(0, file._4.lastIndexOf("/"))
             val filename =
               if (file._3 == 1) file._2
               else file._2.replaceFirst("\\.", "_" + file._3 + ".")
