@@ -89,23 +89,24 @@ The possible status of every file are updated, compare, failed or outdated. And 
 If the download method needed for getting the files from a source is not available, a GMQLDownloader module can be implemented and integrated with the solution, and by giving corresponding parameters for the download, the GMQLImporter tool can get newer or better versions of the downloading procedures. The goal of the download section is to get all the needed files from the source to import the requested datasets. For developing a GMQLDownloader class some requirements have to be achieved in order to correctly integrate it into GMQLImporter:
 You must import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE} and develop your GMQLDownloader implementing all the following steps in the “download” and “downloadFailedFiles methods inherited
 
-  * Get source id
+  * __Get source id__
   
      val sourceId = FileDatabase.sourceId(source.name)
      val stage = STAGE.DOWNLOAD
      
-  * Get dataset id
+  * __Get dataset id__
   
      for(dataset in source)
         val datasetId = FileDatabase.datasetId(sourceId,dataset.name)
         
-  * Mark dataset for comparison (only in download and not in download failed files)
+  * __Mark dataset for comparison__ (only in download and not in download failed files)
   
         FileDatabase.markToCompare(datasetId,stage)
         
-  * Get file id and real filename
+  * __Get file id and real filename__
   
      for(file in dataset)
+     
 		      val fileId = FileDatabase.fileId(datasetId, url,stage, candidateName)
         val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
         val filename = if (fileNameAndCopyNumber._2 == 1)
@@ -113,19 +114,31 @@ You must import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE} a
            Else
               fileNameAndCopyNumber._1.replaceFirst("\\.", "_" +fileNameAndCopyNumber._2 + ".")
               
-  * Check if update the file
+  * __Check if update the file__
   
 		if (FileDatabase.checkIfUpdateFile(fileId,md5sum,fileSize,lastUpdate))
   
-  * Mark file as updated or failed
+  * __Mark file as updated or failed__
   
   if(downloadOK)
      FileDatabase.markAsUpdated(fileId, localFileSize)
   else
      FileDatabase.markAsFailed(fileId)
      
-  * Mark dataset outdated files (only in download and not in download failed files)
+  * __Mark dataset outdated files__ (only in download and not in download failed files)
   
      FileDatabase.markAsOutdated(datasetId,stage)
 
 ### 4. Transformer
+
+If the transform method needed for transforming original file format into bed is not available, a GMQLTransformer module can be implemented and integrated with the solution, and by giving corresponding parameters for the transformation, the GMQLImporter tool can get newer or better versions of the transforming procedures. The goal of the transform section is to change the files format into bed format for erevy file in the requested datasets. 
+GMQLImporter gives the GMQLTransformer trait that holds the methods transform and getCandidateNames that have to implemented to integrate correctly into GMQLImporter. The method transform must transform one file from the downloaded files into one bed file. For managing multiple files that are created from a single file, the method getCandidateNames must be implemented, this method gets the original file name and then must return all the files that output from it.
+You must import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE} and develop your GMQLTransformer implementing all the following steps in the “transform” and “getCandidateNames” methods inherited:
+
+* __getCandidateNames__
+
+Method receives the file name, the dataset where it belongs and the source of the dataset, and must return a List[String] with the names of the files that output from the input file.
+
+* __transform__
+
+By receiving the source, original path, destination path, original file name and destination file name must transform the original file located in the original path into a bed file with destination name in destination path and return a boolean value indicating wether the transformation was done correctly. The FileDatabase file status management is done in the generic step of the transformation.
