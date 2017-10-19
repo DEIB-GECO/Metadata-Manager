@@ -26,9 +26,9 @@ The full [GMQL Project](https://github.com/DEIB-GECO/GMQL) can be pulled from th
 
 Once you have downloaded and installed [GMQL Project](https://github.com/DEIB-GECO/GMQL) inside the [Source Folder](https://github.com/DEIB-GECO/GMQL-Importer/tree/master/src/main/scala/it/polimi/genomics/importer), there is an [example](https://github.com/DEIB-GECO/GMQL-Importer/tree/master/Example) to run and check the basic functionallity of GMQL-Importer
 
-
 ## Contributors
 |           | username                                           | talk to me about...                               |
 |-----------|----------------------------------------------------|---------------------------------------------------|
 |<img src="https://avatars.githubusercontent.com/acanakoglu"      height="50px" title="Arif Canakoglu"/>        | [`@acanakoglu`](https://github.com/acanakoglu)           | Supervisor for the design and development of GMQLImporter |
-|<img src="https://avatars.githubusercontent.com/nachodox"      height="50px" title="Nacho Vera"/>        | [`@NachoVera`](https://github.com/nachodox)           | Everything related to the GMQL-Importer for now, documentation, bugs, procedures |
+|<img src="https://avatars.githubusercontent.com/nachodox"      height="50px" title="Nacho Vera"/>        | [`@NachoVera`](https://github.com/nachodox)           | Anything related to the GMQL-Importer for now |
+|<img src="https://avatars.githubusercontent.com/federicogatti"      height="50px" title="Federico Gatti"/>        | [`@federicogatti`](https://github.com/federicogatti)           | Federico's role |
