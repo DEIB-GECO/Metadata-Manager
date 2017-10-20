@@ -1,3 +1,4 @@
+# Console Manual
 To run GMQLImporter is done by command line by invoking the following line:
 
 (Assuming the compiled Scala code is in GMQLImporter.jar)
