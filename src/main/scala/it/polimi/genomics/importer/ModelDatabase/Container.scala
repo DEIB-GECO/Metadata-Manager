@@ -9,7 +9,7 @@ class Container extends EncodeTable{
 
   var assembly: String = _
 
-  var isAnn: Boolean = false
+  var isAnn: Boolean = _
 
   var annotation: String = null
 
@@ -17,11 +17,13 @@ class Container extends EncodeTable{
 
   _foreignKeysTables = List("EXPERIMENTSTYPE")
 
-  override def setParameter(param: String, dest: String): Unit = dest.toUpperCase match {
-    case "NAME" => this.name = setValue(this.name,param)
-    case "ASSEMBLY" => this.assembly = setValue(this.assembly,param)
-    case "ISANN" => this.isAnn = false   //manually curated
-    case "ANNOTATION" => this.annotation = null     //manually curated
+  override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit = dest.toUpperCase match {
+    case "NAME" => this.name = insertMethod(this.name,param)
+    case "ASSEMBLY" => this.assembly = insertMethod(this.assembly,param)
+   /* case "ISANN" => this.isAnn = false   //manually curated
+    case "ANNOTATION" => this.annotation = null     //manually curated*/
+    case "ISANN" => this.isAnn = if(insertMethod(this.isAnn.toString,param).equals("true")) true else false
+    case "ANNOTATION" => this.annotation = insertMethod(this.annotation,param)
     case _ => noMatching(dest)
   }
 
@@ -30,7 +32,7 @@ class Container extends EncodeTable{
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    this.experimentTypeId = table.getId
+    this.experimentTypeId = table.primaryKey
   }
 
   override def checkInsert(): Boolean ={

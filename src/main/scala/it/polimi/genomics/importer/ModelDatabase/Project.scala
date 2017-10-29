@@ -3,25 +3,25 @@ package it.polimi.genomics.importer.ModelDatabase
 
 class Project extends EncodeTable{
 
-    var projectName: String = "ENCODE"
+    var projectName: String = _
 
     var programName: String = _
 
-    override def setParameter(param: String, dest: String): Unit = dest.toUpperCase() match {
-      case "PROJECTNAME" => this.projectName = "ENCODE"
-      case "PROGRAMNAME" => this.programName = setValue(this.programName,param)
+    override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = dest.toUpperCase() match {
+      case "PROJECTNAME" => {this.projectName = insertMethod(this.projectName,param); println("Project name " + this.projectName)}
+      case "PROGRAMNAME" => this.programName = insertMethod(this.programName,param)
       case _ => noMatching(dest)
     }
 
   override def insert() = {
-    dbHandler.insertProject(this.programName,this.programName)
+    dbHandler.insertProject(this.projectName.toUpperCase(),this.programName)
   }
 
   override def setForeignKeys(table: Table): Unit = {
   }
 
   override def checkInsert(): Boolean ={
-    dbHandler.checkInsertDonor(this.projectName)
+    dbHandler.checkInsertProject(this.projectName.toUpperCase())
   }
 
   override def getId(): Int = {

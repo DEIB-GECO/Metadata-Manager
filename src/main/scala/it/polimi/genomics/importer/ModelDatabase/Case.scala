@@ -8,28 +8,31 @@ class Case extends EncodeTable{
 
     var sourceSite : String = _
 
+    var externalRef: String = _
+
   _hasForeignKeys = true
 
   _foreignKeysTables = List("PROJECTS")
 
-  override def setParameter(param: String, dest: String): Unit =   dest.toUpperCase() match{
-    case "SOURCEID" => this.sourceId = setValue(this.sourceId,param)
-    case "SOURCESITE" => this.sourceSite = setValue(this.sourceSite,param)
+  override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit =   dest.toUpperCase() match{
+    case "SOURCEID" => this.sourceId = insertMethod(this.sourceId,param)
+    case "SOURCESITE" => this.sourceSite = insertMethod(this.sourceSite,param)
+    case "EXTERNALREF" => this.externalRef =  insertMethod(this.externalRef,param)
     case _ => noMatching(dest)
   }
 
 
   override def insert() = {
-    dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite)
+    dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
 
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    this.projectId = table.getId
+    this.projectId = table.primaryKey
   }
 
   override def checkInsert(): Boolean ={
-    dbHandler.checkInsertCaseId(this.sourceId)
+    dbHandler.checkInsertCase(this.sourceId)
   }
 
   override def getId(): Int = {

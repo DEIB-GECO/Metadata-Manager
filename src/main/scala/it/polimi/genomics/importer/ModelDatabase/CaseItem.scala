@@ -10,7 +10,13 @@ class CaseItem extends EncodeTable{
 
   _foreignKeysTables = List("ITEMS","CASES")
 
-  override def setParameter(param: String, dest: String): Unit = ???
+  override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit = ???
+
+  override def insertRow(): Unit ={
+      if(this.checkInsert()) {
+        this.insert
+      }
+  }
 
   override def insert() : Int ={
     dbHandler.insertCaseItem(itemId,caseId)
@@ -18,9 +24,9 @@ class CaseItem extends EncodeTable{
 
   override def setForeignKeys(table: Table): Unit = {
     if(table.isInstanceOf[Item])
-      this.itemId = table.getId
+      this.itemId = table.primaryKey
     if(table.isInstanceOf[Case])
-      this.caseId = table.getId
+      this.caseId = table.primaryKey
   }
 
   override def checkInsert(): Boolean ={
@@ -30,6 +36,6 @@ class CaseItem extends EncodeTable{
 
   override def getId(): Int = {
    // dbHandler.getCasesItemId(this.itemId,this.caseId)
-    1
+    -1
   }
 }

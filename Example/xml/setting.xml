@@ -2,67 +2,67 @@
 <root>
     <table name="DONORS">
         <mapping>
-            <source_key>replicates__1__library__biosample__donor__accession</source_key>
+            <source_key>replicates__X__library__biosample__donor__accession</source_key>
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__1__library__biosample__donor__organism__scientific_name</source_key>
+            <source_key>replicates__X__library__biosample__donor__organism__scientific_name</source_key>
             <global_key>species</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__1__library__biosample__donor__age</source_key>
+            <source_key>replicates__X__library__biosample__donor__age</source_key>
             <global_key>age</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__1__library__biosample__donor__sex</source_key>
+            <source_key>replicates__X__library__biosample__donor__sex</source_key>
             <global_key>gender</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__1__library__biosample__donor__ethnicity</source_key>
+            <source_key>replicates__X__library__biosample__donor__ethnicity</source_key>
             <global_key>ethnicity</global_key>
         </mapping>
     </table>
     <table name="BIOSAMPLES">
         <mapping>
-            <source_key>replicates__1__library__biosample__accession</source_key>
+            <source_key>replicates__X__library__biosample__accession</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping>
-            <source_key>replicates__1__library__biosample__biosample_type</source_key>
+        <mapping method="CONCAT">
+            <source_key>replicates__X__library__biosample__biosample_type</source_key>
             <global_key>types</global_key>
         </mapping>
-        <mapping>
-            <source_key>replicates__1__library__biosample__biosample_type</source_key>
+        <mapping method="CONCAT">
+            <source_key>replicates__X__library__biosample__biosample_type</source_key>
             <global_key>Tissue</global_key>
         </mapping>
-        <mapping>
-            <source_key>replicates__1__library__biosample__biosample_term_name</source_key>
+        <mapping method="CONCAT">
+            <source_key>replicates__X__library__biosample__biosample_term_id</source_key>
             <global_key>cellLine</global_key>
         </mapping>
-        <mapping>
-            <source_key>replicates__1__library__biosample__biosample_term_name</source_key>
+        <mapping method="CONCAT">
+            <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
             <global_key>cellLine</global_key>
         </mapping>
-        <mapping>
-            <source_key>replicates__1__library__biosample__health_status</source_key>
+        <mapping method="CONCAT">
+            <source_key>replicates__X__library__biosample__health_status</source_key>
             <global_key>isHealty</global_key>
         </mapping>
-        <mapping>
-            <source_key>replicates__1__library__biosample__health_status</source_key>
+        <mapping method="CONCAT">
+            <source_key>replicates__X__library__biosample__health_status</source_key>
             <global_key>disease</global_key>
         </mapping>
     </table>
     <table name="REPLICATES">
         <mapping>
-            <source_key>replicates__1__uuid</source_key>
+            <source_key>replicates__X__uuid</source_key>
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__1__biological_replicate_number</source_key>
+            <source_key>replicates__X__biological_replicate_number</source_key>
             <global_key>bioReplicateNum</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__1__technical_replicate_number</source_key>
+            <source_key>replicates__X__technical_replicate_number</source_key>
             <global_key>techReplicateNum</global_key>
         </mapping>
     </table>
@@ -88,19 +88,19 @@
             <global_key>target</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__1__antibody__title </source_key>
+            <source_key>replicates__X__antibody__title </source_key>
             <global_key>antibody</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__1__antibody__url</source_key>
+            <source_key>replicates__X__antibody__url</source_key>
             <global_key>antibody</global_key>
         </mapping>
     </table>
     <table name="PROJECTS">
-        <!--     <mapping>
-                <source_key>manually_curated</source_key>
+             <mapping method="MANUALLY">
+                <source_key>ENCODE</source_key>
                 <global_key>projectName</global_key>
-            </mapping> -->
+            </mapping>
             <mapping>
                 <source_key>award__project</source_key>
                 <global_key>programName</global_key>
@@ -121,22 +121,22 @@
                 <source_key>file__file_type</source_key>
                 <global_key>name</global_key>
             </mapping>
-            <mapping>
+            <mapping method="CONCAT">
                 <source_key>file__assembly</source_key>
                 <global_key>name</global_key>
             </mapping>
-            <mapping>
+            <mapping method="CONCAT">
                 <source_key>file__assembly</source_key>
                 <global_key>assembly</global_key>
             </mapping>
-          <!--  <mapping>
-                <source_key>manually_curated</source_key>
+            <mapping method="MANUALLY">
+                <source_key>false</source_key>
                 <global_key>isAnn</global_key>
             </mapping>
-            <mapping>
-                <source_key>manually_curated</source_key>
+            <mapping method="MANUALLY">
+                <source_key>null</source_key>
                 <global_key>annotation</global_key>
-            </mapping> -->
+            </mapping>
     </table>
     <table name="ITEMS">
         <mapping>
@@ -155,20 +155,9 @@
             <source_key>file__file_size</source_key>
             <global_key>size</global_key>
         </mapping>
-
-      <!--  <mapping>
-            <source_key>ignote_source_key</source_key>
-            <global_key>pipeline</global_key>
-        </mapping> -->
         <mapping>
             <source_key>file__href</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
-        <!--   <mapping>
-              <source_key>ignote_source_key</source_key>
-              <global_key>localUrl</global_key>
-          </mapping> -->
-        <!--   <table name="CASESITEMS">
-          </table>-->
       </table>
   </root>

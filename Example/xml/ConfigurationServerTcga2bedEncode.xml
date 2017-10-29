@@ -4,11 +4,11 @@
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
-        <base_working_directory>/Users/federicogatti/IdeaProjects/Encode_Download</base_working_directory>
+        <base_working_directory>/home/federico/Encode_Download</base_working_directory>
         <download_enabled>true</download_enabled>
         <transform_enabled>true</transform_enabled>
         <load_enabled>false</load_enabled>
-        <parallel_execution>true</parallel_execution>
+        <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
         <source name="HG19_TCGA">
@@ -544,13 +544,13 @@
                             <description>Hg19 reference genome is selected</description>
                             <type>url_generation</type>
                             <key>biosample_term_name</key>
-                            <value>heart</value>
+                            <value>K562</value>
                         </parameter>
                         <parameter>
                             <description>Hg19 reference genome is selected</description>
                             <type>url_generation</type>
                             <key>assay_title</key>
-                            <value>DNase-seq</value>
+                            <value>ChIP-seq</value>
                         </parameter>
                     </parameter_list>
                 </dataset>

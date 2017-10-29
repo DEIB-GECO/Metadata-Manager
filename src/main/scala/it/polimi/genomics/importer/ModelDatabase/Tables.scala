@@ -10,5 +10,4 @@ trait Tables extends Enumeration{
 
   def selectTableByName(name: String): Table
   def selectTableByValue(enum: this.Value): Table
-
-}
+  }

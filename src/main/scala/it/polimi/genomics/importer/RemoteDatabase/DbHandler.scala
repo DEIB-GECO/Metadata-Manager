@@ -1,7 +1,10 @@
 package it.polimi.genomics.importer.RemoteDatabase
 
+import com.typesafe.config.ConfigFactory
 import org.slf4j.{Logger, LoggerFactory}
-import slick.driver.PostgresDriver.api._
+//import slick.driver.PostgresDriver.api._
+import slick.driver.MySQLDriver.api._
+
 import slick.jdbc.meta.MTable
 import slick.lifted.Tag
 
@@ -10,18 +13,27 @@ import scala.concurrent.{Await, Future}
 
 
 object DbHandler {
+  val conf = ConfigFactory.load()
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
-  val driver = "org.postgresql.Driver"
-  val database = Database.forURL(connectionUrl, driver, keepAliveConnection = true)
+  //val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
 
+  //val driver = "com.mysql.jdbc.Driver"
+ // val database = Database.forURL(connectionUrl, driver, keepAliveConnection = true)
+ val database = Database.forURL(
+   conf.getString("database.url"),
+   conf.getString("database.username"),
+   conf.getString("database.password"),
+   driver=conf.getString("database.driver")
+ )
   def setDatabase(): Unit = {
 
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList
 
     //for (table <- EncodeTableEnum.values) print(table +" ")
     //donors
+    logger.info("Start to create the database")
+
     if (!tables.exists(_.name.name == "DONORS")) {
       var queries = DBIO.seq(donors.schema.create)
       val setup = database.run(queries)
@@ -99,6 +111,15 @@ object DbHandler {
       logger.info("Table ITEMS created")
     }
 
+    if (!tables.exists(_.name.name == "REPLICATESITEMS")) {
+      val queries = DBIO.seq(
+        replicatesItems.schema.create
+      )
+      val setup = database.run(queries)
+      Await.result(setup, Duration.Inf)
+      logger.info("Table REPLICATESITEMS created")
+    }
+
     //caseitem
     if (!tables.exists(_.name.name == "CASESITEMS")) {
       val queries = DBIO.seq(
@@ -150,8 +171,8 @@ object DbHandler {
     id
   }
 
-  def insertCase(projectId: Int, sourceId: String, sourceSite: String): Int ={
-    val idQuery = (cases returning cases.map(_.caseId))+= (None, projectId, sourceId, Option(sourceSite))
+  def insertCase(projectId: Int, sourceId: String, sourceSite: String, externalRef: String): Int ={
+    val idQuery = (cases returning cases.map(_.caseId))+= (None, projectId, sourceId, Option(sourceSite), Option(externalRef))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
@@ -164,22 +185,29 @@ object DbHandler {
     id
   }
 
-  def insertItem(replicateId: Int, containerId: Int, sourceId: String, dataType: String, format: String, size: Int, pipeline: String, sourceUrl: String, localUrl: String): Int ={
-    val idQuery = (items returning items.map(_.itemId))+= (None, replicateId, containerId, sourceId, Option(dataType), Option(format), Option(size), Option(pipeline), Option(sourceUrl), Option(localUrl))
+  def insertItem(containerId: Int, sourceId: String, dataType: String, format: String, size: Int, pipeline: String, sourceUrl: String, localUrl: String): Int ={
+    val idQuery = (items returning items.map(_.itemId))+= (None, containerId, sourceId, Option(dataType), Option(format), Option(size), Option(pipeline), Option(sourceUrl), Option(localUrl))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
+  def insertReplicateItem(itemId: Int, replicateId: Int): Int ={
+    val insertActions = DBIO.seq(
+      replicatesItems += (itemId,replicateId)
+    )
+
+    Await.result(database.run(insertActions), Duration.Inf)
+    1
+  }
+
   def insertCaseItem(itemId: Int, caseId: Int): Int ={
-   /* val idQuery = DBIO.seq(casesItems.map(c => (c.itemId, c.caseId)) += (itemId, caseId))
-    val executionId = database.run(idQuery)
-    val id = Await.result(executionId, Duration.Inf)
-    -1 //valore  null per far funzionare il trait nelle Table*/
-    val idQuery = (casesItems returning casesItems.map(_.itemId))+= (itemId,caseId)
-    val executionId = database.run(idQuery)
-    val id = Await.result(executionId, Duration.Inf)
-    id
+    val insertActions = DBIO.seq(
+      casesItems += (itemId,caseId)
+    )
+
+    Await.result(database.run(insertActions), Duration.Inf)
+    1
   }
 
   /**
@@ -237,14 +265,14 @@ object DbHandler {
     checkResult(result)
   }
 
-  def checkInsertProjectId(projectName: String): Boolean = {
+  def checkInsertProject(projectName: String): Boolean = {
     val query = projects.filter(_.projectName === projectName)
     val action = query.result
     val result = database.run(action)
     checkResult(result)
   }
 
-  def checkInsertCaseId(sourceId: String): Boolean = {
+  def checkInsertCase(sourceId: String): Boolean = {
     val query = cases.filter(_.sourceId === sourceId)
     val action = query.result
     val result = database.run(action)
@@ -267,6 +295,13 @@ object DbHandler {
 
   def checkInsertCaseItem(itemId: Int, caseId: Int): Boolean = {
     val query = casesItems.filter(_.itemId === itemId).filter(_.caseId === caseId)
+    val action = query.result
+    val result = database.run(action)
+    checkResult(result)
+  }
+
+  def checkInsertReplicateItem(itemId: Int, replicateId: Int): Boolean = {
+    val query = replicatesItems.filter(_.itemId === itemId).filter(_.replicateId === replicateId)
     val action = query.result
     val result = database.run(action)
     checkResult(result)
@@ -341,7 +376,7 @@ object DbHandler {
   //---------------------------------- Definition of the SOURCES table--------------------------------------------------
 
   class Donors(tag: Tag) extends
-    Table[(Option[Int], String, Option[String], Option[Int], Option[String], Option[String])](tag, "DONORS") {
+    Table[(Option[Int], String, Option[String], Option[Int], Option[String], Option[String])](tag, "donors") {
     def donorId = column[Int]("DONOR_ID", O.PrimaryKey, O.AutoInc)
 
     def sourceId = column[String]("SOURCE_ID")
@@ -354,14 +389,13 @@ object DbHandler {
 
     def ethnicity = column[Option[String]]("ETHNICITY", O.Default(None))
 
-
     def * = (donorId.?, sourceId, species, age, gender, ethnicity)
   }
 
   val donors = TableQuery[Donors]
 
   class BioSamples(tag: Tag) extends
-    Table[(Option[Int], Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])](tag, "BIOSAMPLES") {
+    Table[(Option[Int], Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])](tag, "biosamples") {
     def bioSampleId = column[Int]("BIO_SAMPLE_ID", O.PrimaryKey, O.AutoInc)
 
     def donorId = column[Int]("DONOR_ID")
@@ -391,7 +425,7 @@ object DbHandler {
   val bioSamples = TableQuery[BioSamples]
 
   class Replicates(tag: Tag) extends
-    Table[(Option[Int], Int, String, Option[Int], Option[Int])](tag, "REPLICATES") {
+    Table[(Option[Int], Int, String, Option[Int], Option[Int])](tag, "replicates") {
     def replicateId = column[Int]("REPLICATE_ID", O.PrimaryKey, O.AutoInc)
 
     def bioSampleId = column[Int]("BIO_SAMPLE_ID")
@@ -414,7 +448,7 @@ object DbHandler {
   val replicates = TableQuery[Replicates]
 
   class ExperimentsType(tag: Tag) extends
-    Table[(Option[Int], Option[String], Option[String], Option[String], Option[String], Option[String])](tag, "EXPERIMENTSTYPE") {
+    Table[(Option[Int], Option[String], Option[String], Option[String], Option[String], Option[String])](tag, "experimentstype") {
     def experimentTypeId = column[Int]("EXPERIMENT_TYPE_ID", O.PrimaryKey, O.AutoInc)
 
     def technique = column[Option[String]]("TECHNIQUE", O.Default(None))
@@ -433,7 +467,7 @@ object DbHandler {
   val experimentsType = TableQuery[ExperimentsType]
 
   class Projects(tag: Tag) extends
-    Table[(Option[Int], Option[String], Option[String])](tag, "PROJECTS") {
+    Table[(Option[Int], Option[String], Option[String])](tag, "projects") {
     def projectId = column[Int]("PROJECT_ID", O.PrimaryKey, O.AutoInc)
 
     def projectName =  column[Option[String]]("PROJECT_NAME", O.Default(None))
@@ -446,7 +480,7 @@ object DbHandler {
   val projects = TableQuery[Projects]
 
   class Cases(tag: Tag) extends
-    Table[(Option[Int], Int, String, Option[String])](tag, "CASES") {
+    Table[(Option[Int], Int, String, Option[String], Option[String])](tag, "cases") {
     def caseId = column[Int]("CASE_ID", O.PrimaryKey, O.AutoInc)
 
     def projectId = column[Int]("PROJECT_ID")
@@ -455,19 +489,21 @@ object DbHandler {
 
     def sourceSite = column[Option[String]]("SOURCE_SITE", O.Default(None))
 
+    def externalRef = column[Option[String]]("EXTERNAL_REF", O.Default(None))
+
     def project = foreignKey("CASES_PROJECT_FK", projectId, projects)(
       _.projectId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def * = (caseId.?, projectId, sourceId, sourceSite)
+    def * = (caseId.?, projectId, sourceId, sourceSite, externalRef)
   }
 
   val cases = TableQuery[Cases]
 
   class Containers(tag: Tag) extends
-    Table[(Option[Int], Int, Option[String], Option[String], Boolean, Option[String])](tag, "CONTAINERS") {
+    Table[(Option[Int], Int, Option[String], Option[String], Boolean, Option[String])](tag, "containers") {
     def containerId = column[Int]("CONTAINER_ID", O.PrimaryKey, O.AutoInc)
 
     def experimentTypeId = column[Int]("EXPERIMENT_TYPE_ID")
@@ -492,10 +528,8 @@ object DbHandler {
   val containers = TableQuery[Containers]
 
   class Items(tag: Tag) extends
-    Table[(Option[Int], Int, Int, String, Option[String], Option[String], Option[Int], Option[String], Option[String], Option[String])](tag, "ITEMS") {
+    Table[(Option[Int], Int, String, Option[String], Option[String], Option[Int], Option[String], Option[String], Option[String])](tag, "items") {
     def itemId = column[Int]("ITEM_ID", O.PrimaryKey, O.AutoInc)
-
-    def replicateId = column[Int]("REPLICATE_ID")
 
     def containerId = column[Int]("CONTAINER_ID")
 
@@ -513,25 +547,20 @@ object DbHandler {
 
     def localUrl = column[Option[String]]("LOCAL_URL", O.Default(None))
 
-    def replicate = foreignKey("ITEMS_REPLICATE_FK", replicateId, replicates)(
-      _.replicateId,
-      onUpdate = ForeignKeyAction.Restrict,
-      onDelete = ForeignKeyAction.Cascade
-    )
 
-    def container = foreignKey("ITEMS_CONTAINER_FK", replicateId, containers)(
+    def container = foreignKey("ITEMS_CONTAINER_FK", containerId, containers)(
       _.containerId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def * = (itemId.?, replicateId, containerId, sourceId, dataType, format, size, pipeline, sourceUrl, localUrl)
+    def * = (itemId.?, containerId, sourceId, dataType, format, size, pipeline, sourceUrl, localUrl)
   }
 
   val items = TableQuery[Items]
 
   class CasesItems(tag: Tag) extends
-    Table[(Int, Int)](tag, "CASESITEMS") {
+    Table[(Int, Int)](tag, "casesitems") {
     def itemId = column[Int]("ITEM_ID")
 
     def caseId = column[Int]("CASE_ID")
@@ -555,5 +584,29 @@ object DbHandler {
 
   val casesItems = TableQuery[CasesItems]
 
+  class ReplicatesItems(tag: Tag) extends
+    Table[(Int, Int)](tag, "replicatesitems") {
+    def itemId = column[Int]("ITEM_ID")
+
+    def replicateId = column[Int]("REPLICATE_ID")
+
+    def pk = primaryKey("ITEM_REPLICATE_ID", (itemId, replicateId))
+
+    def item = foreignKey("ITEMS_REPLICATEITEM_FK", itemId, items)(
+      _.itemId,
+      onUpdate = ForeignKeyAction.Restrict,
+      onDelete = ForeignKeyAction.Cascade
+    )
+
+    def caseFK = foreignKey("REPLICATES_REPLICATEITEM_FK", replicateId, replicates)(
+      _.replicateId,
+      onUpdate = ForeignKeyAction.Restrict,
+      onDelete = ForeignKeyAction.Cascade
+    )
+
+    def * = (itemId, replicateId)
+  }
+
+  val replicatesItems = TableQuery[ReplicatesItems]
 
 }

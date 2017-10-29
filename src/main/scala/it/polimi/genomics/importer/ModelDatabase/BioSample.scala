@@ -20,12 +20,12 @@ class BioSample extends EncodeTable{
 
   _foreignKeysTables = List("DONORS")
 
-  override def setParameter(param: String, dest: String): Unit = {
+  override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = {
     dest.toUpperCase match{
-      case "SOURCEID" => this.sourceId = setValue(this.sourceId,param)
-      case "TYPES" => this.types = setValue(this.types,param)
-      case "TISSUE" => this.tIssue = if(types.equals("tissue")) setValue(this.tIssue, param) else null
-      case "CELLLINE" => this.cellLine = if(types.equals("cell_line")) setValue(this.cellLine, param) else null
+      case "SOURCEID" => this.sourceId = insertMethod(this.sourceId,param)
+      case "TYPES" => this.types = insertMethod(this.types,param)
+      case "TISSUE" => this.tIssue = if(types.equals("tissue")) insertMethod(this.tIssue, param) else null
+      case "CELLLINE" => this.cellLine = if(types.equals("cell_line")) insertMethod(this.cellLine, param) else null
       case "ISHEALTY" => this.isHealty = if(param.contains("healthy")) true else false
       case "DISEASE" => if(this.isHealty) this.isHealty.toString else null
       case _ => noMatching(dest)
@@ -37,7 +37,7 @@ class BioSample extends EncodeTable{
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    this.donorId = table.getId
+    this.donorId = table.primaryKey
   }
 
   override def checkInsert(): Boolean ={

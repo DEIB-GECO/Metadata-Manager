@@ -14,7 +14,7 @@ class Donor extends EncodeTable{
   var ethnicity : String = _
 
 
-  def setParameter(param: String, dest: String): Unit ={
+  override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit ={
     dest.toUpperCase() match {
       case "SOURCEID" => this.sourceId = setValue(this.sourceId, param)
       case "SPECIES" => this.species = setValue(this.species, param)
