@@ -52,12 +52,12 @@ object main{
     else {
       val pathXML = args.head
       val pathGMQL = args.drop(1).head
-      val schemaUrl = "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xsd"
+      val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico/Example/xml/setting.xsd"
       if (schemaValidator.validate(pathXML, schemaUrl)){
         logger.info("Xml file is valid for the schema")
         DbHandler.setDatabase()
         val t0: Long = System.nanoTime()
-        recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString))
+        recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
         //recursiveListFiles(new File("/home/federico/Encode_Download/")).filter(f=> r.findFirstIn(f.getName).isDefined).map(println)
         //analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF015LNH.bed.meta")
         val t1 = System.nanoTime()
@@ -70,7 +70,7 @@ object main{
     }
   }
 
-  def analizeFile(path: String) {
+  def analizeFile(path: String, pathXML: String) {
 
     logger.info(s"Start to read $path")
     val lines = Source.fromFile(path).getLines.toArray
@@ -83,7 +83,7 @@ object main{
       states += (first(0) -> first(1))
     }
 
-    val xml = new XMLReader("/home/federico/IdeaProjects/GMQL-Importer/src/main/scala/it/polimi/genomics/importer/ModelDatabase/Utils/setting.xml", replicateList)
+    val xml = new XMLReader(pathXML, replicateList)
 
 
     val operationsList = xml.operationsList

@@ -34,7 +34,7 @@ object DbHandler {
     //donors
     logger.info("Start to create the database")
 
-    if (!tables.exists(_.name.name == "DONORS")) {
+    if (!tables.exists(_.name.name == "donors")) {
       var queries = DBIO.seq(donors.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
@@ -42,7 +42,7 @@ object DbHandler {
     }
 
     //biosample
-    if (!tables.exists(_.name.name == "BIOSAMPLES")) {
+    if (!tables.exists(_.name.name == "biosamples")) {
       val queries = DBIO.seq(
       bioSamples.schema.create
     )
@@ -52,7 +52,7 @@ object DbHandler {
     }
 
     //replicate
-    if (!tables.exists(_.name.name == "REPLICATES")) {
+    if (!tables.exists(_.name.name == "replicates")) {
       val queries = DBIO.seq(
       replicates.schema.create
     )
@@ -62,7 +62,7 @@ object DbHandler {
     }
 
     //experimentType
-    if (!tables.exists(_.name.name == "EXPERIMENTSTYPE")) {
+    if (!tables.exists(_.name.name == "experimentstype")) {
       val queries = DBIO.seq(
         experimentsType.schema.create
       )
@@ -72,7 +72,7 @@ object DbHandler {
     }
 
     //project
-    if (!tables.exists(_.name.name == "PROJECTS")) {
+    if (!tables.exists(_.name.name == "projects")) {
       val queries = DBIO.seq(
       projects.schema.create
       )
@@ -82,7 +82,7 @@ object DbHandler {
     }
 
     //container
-    if (!tables.exists(_.name.name == "CONTAINERS")) {
+    if (!tables.exists(_.name.name == "containers")) {
       val queries = DBIO.seq(
       containers.schema.create
       )
@@ -92,7 +92,7 @@ object DbHandler {
     }
 
     //case
-    if (!tables.exists(_.name.name == "CASES")) {
+    if (!tables.exists(_.name.name == "cases")) {
       val queries = DBIO.seq(
       cases.schema.create
       )
@@ -102,7 +102,7 @@ object DbHandler {
     }
 
     //item
-    if (!tables.exists(_.name.name == "ITEMS")) {
+    if (!tables.exists(_.name.name == "items")) {
       val queries = DBIO.seq(
       items.schema.create
       )
@@ -111,7 +111,7 @@ object DbHandler {
       logger.info("Table ITEMS created")
     }
 
-    if (!tables.exists(_.name.name == "REPLICATESITEMS")) {
+    if (!tables.exists(_.name.name == "replicatesitems")) {
       val queries = DBIO.seq(
         replicatesItems.schema.create
       )
@@ -121,7 +121,7 @@ object DbHandler {
     }
 
     //caseitem
-    if (!tables.exists(_.name.name == "CASESITEMS")) {
+    if (!tables.exists(_.name.name == "casesitems")) {
       val queries = DBIO.seq(
       casesItems.schema.create
       )
