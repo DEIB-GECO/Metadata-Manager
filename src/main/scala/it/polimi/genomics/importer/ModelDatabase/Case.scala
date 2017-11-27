@@ -24,7 +24,10 @@ class Case extends EncodeTable{
 
   override def insert() = {
     dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+  }
 
+  override def update() = {
+    dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -39,4 +42,7 @@ class Case extends EncodeTable{
     dbHandler.getCaseId(this.sourceId)
   }
 
+  override def checkConsistency(): Boolean = {
+    if(this.sourceId != null) true else false
+  }
 }

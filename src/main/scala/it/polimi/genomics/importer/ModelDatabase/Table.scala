@@ -20,13 +20,20 @@ trait Table {
 
   protected var _primaryKeys: ListBuffer[Int] = new ListBuffer[Int]
   def primaryKeys:ListBuffer[Int] = _primaryKeys
-  def primaryKeys_ (value: ListBuffer[Int]):Unit = _primaryKeys = value
+  def primaryKeys_ (value: Int):Unit = _primaryKeys += value
 
   def getId: Int
   def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit
 
   def checkInsert():Boolean
   def insert(): Int
+  def update(): Int
   def setForeignKeys(table: Table): Unit
   def insertRow(): Unit
+  def checkConsistency(): Boolean
+
+  protected var _filePath: String = _
+
+  def filePath: String = _filePath
+  def filePath_: (filePath: String): Unit = this._filePath = filePath
 }

@@ -31,6 +31,10 @@ class Container extends EncodeTable{
     dbHandler.insertContainer(experimentTypeId,this.name,this.assembly,this.isAnn,this.annotation)
   }
 
+  override def update() : Int ={
+    dbHandler.updateContainer(experimentTypeId,this.name,this.assembly,this.isAnn,this.annotation)
+  }
+
   override def setForeignKeys(table: Table): Unit = {
     this.experimentTypeId = table.primaryKey
   }
@@ -41,5 +45,9 @@ class Container extends EncodeTable{
 
   override def getId(): Int = {
     dbHandler.getContainerId(this.name)
+  }
+
+  override def checkConsistency(): Boolean = {
+    if(this.name != null) true else false
   }
 }

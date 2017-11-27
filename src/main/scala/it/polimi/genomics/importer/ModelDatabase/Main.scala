@@ -1,21 +1,26 @@
 package it.polimi.genomics.importer.ModelDatabase
 
 
-import it.polimi.genomics.importer.ModelDatabase.Utils.{ReplicateList, XMLReader}
+import it.polimi.genomics.importer.ModelDatabase.Utils.{PlatformRetriver, ReplicateList, Statistics, XMLReader}
 import java.io._
 
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import it.polimi.genomics.importer.main.program.{getTotalTimeFormatted, logger}
 import org.apache.log4j._
 import it.polimi.genomics.importer.GMQLImporter.schemaValidator
+import org.codehaus.jackson.{JsonNode, JsonParser}
+import org.codehaus.jackson.map.MappingJsonFactory
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
+import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 
 object main{
   val logger: Logger = Logger.getLogger(this.getClass)
   private val r = ".*.bed.meta".r
-
+  var filePath: String = _
 
   def main(args: Array[String]): Unit = {
     val console = new ConsoleAppender() //create appender
@@ -27,6 +32,7 @@ object main{
     //add appender to any Logger (here is root)
     Logger.getRootLogger.addAppender(console)
     val console2 = new ConsoleAppender()
+
     //configure the appender
     console2.setLayout(new PatternLayout(PATTERN))
     console2.setThreshold(Level.INFO)
@@ -40,7 +46,13 @@ object main{
     console3.activateOptions()
     Logger.getLogger("slick").addAppender(console3)
     //BasicConfigurator.configure()
-    if (args.length == 0) {
+
+
+    DbHandler.setDatabase()
+    analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
+
+    analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF657TPI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
+   /* if (args.length == 0) {
       logger.warn(s"No arguments specified")
     }
     else if( args.length != 2){
@@ -56,47 +68,77 @@ object main{
       if (schemaValidator.validate(pathXML, schemaUrl)){
         logger.info("Xml file is valid for the schema")
         DbHandler.setDatabase()
+
+        val logName = "run " + " "+DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
+
+
+        val fa2 = new FileAppender()
+        fa2.setName("FileLogger")
+        fa2.setFile(logName)
+        fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
+        fa2.setThreshold(Level.DEBUG)
+        fa2.setAppend(true)
+        fa2.activateOptions()
+        Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
+
         val t0: Long = System.nanoTime()
+        println(pathGMQL)
         recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
         //recursiveListFiles(new File("/home/federico/Encode_Download/")).filter(f=> r.findFirstIn(f.getName).isDefined).map(println)
         //analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF015LNH.bed.meta")
         val t1 = System.nanoTime()
         logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
+        logger.info(s"Total file analized ${Statistics.fileNumber}")
+        logger.info(s"Total file released ${Statistics.released}")
+        logger.info(s"Total file archived ${Statistics.archived}")
+        logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
+        logger.info(s"Total Item inserted or Updated ${Statistics.itemInserted}")
+
+        logger_file.close()
+        DbHandler.closeDatabase()
       }
       else
         logger.warn("Xml file is not valid according the specified schema, check: " + schemaUrl)
-
-
-    }
+    }*/
   }
 
   def analizeFile(path: String, pathXML: String) {
-
+    Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
     val lines = Source.fromFile(path).getLines.toArray
     var states = collection.mutable.Map[String, String]()
     var tables = new EncodeTables
+    tables.filePath_:(path)
+    tables.setPathOnTables()
+    filePath = path
     val replicateList = new ReplicateList(lines)
 
     for (l <- lines) {
       val first = l.split("\t", 2)
       states += (first(0) -> first(1))
     }
+    val status = states("file__status")
+    if(status.equals("released")) {
+      Statistics.released += 1
+      logger.info(s"File status released, start populate table")
+      val xml = new XMLReader(pathXML, replicateList)
 
-    val xml = new XMLReader(pathXML, replicateList)
+      val operationsList = xml.operationsList
+      operationsList.map(x =>
+        try {
+          populateTable(x, tables.selectTableByName(x.head))
+
+        } catch {
+          case e: Exception => logger.warn(s"SourceKey does't find for $x")
 
 
-    val operationsList = xml.operationsList
-    operationsList.map(x =>
-      try {
-        populateTable(x, tables.selectTableByName(x.head))
-
-      } catch {
-        case e: Exception => logger.warn(s"SourceKey does't find for $x")
-
-
-      })
-    tables.insertTables()
+        })
+      tables.insertTables()
+    }
+    else{
+      Statistics.archived += 1
+      logger.info(s"File status $status, go to next file" )
+    }
 
     def populateTable(list: List[String], table: Table): Unit = {
       val insertMethod = selectInsertionMethod(list(1),list(2),list(3))
@@ -114,6 +156,7 @@ object main{
       .filter(_.isDirectory)
       .map(_.getName)
   }
+
   def recursiveListFiles(f: File): Array[File] = {
     val these = f.listFiles
     these ++ these.filter(_.isDirectory).flatMap(recursiveListFiles)
@@ -124,6 +167,7 @@ object main{
       case "MANUALLY" => if(sourceKey == "null") null else sourceKey
       case "CONCAT" => if (actualParam == null) newParam else actualParam.concat(" " + newParam)
       case "DEFAULT" => newParam
+      //case "PLATFORM" => new PlatformRetriver(filePath).getPlatform(newParam)
       case _ => actualParam
     }
   }

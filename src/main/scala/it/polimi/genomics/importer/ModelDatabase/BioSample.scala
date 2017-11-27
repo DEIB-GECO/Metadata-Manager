@@ -36,6 +36,10 @@ class BioSample extends EncodeTable{
     dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tIssue,this.cellLine,this.isHealty,this.disease)
   }
 
+  override def update(): Int = {
+    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tIssue,this.cellLine,this.isHealty,this.disease)
+  }
+
   override def setForeignKeys(table: Table): Unit = {
     this.donorId = table.primaryKey
   }
@@ -46,6 +50,10 @@ class BioSample extends EncodeTable{
 
   override def getId(): Int = {
     dbHandler.getBioSampleId(this.sourceId)
+  }
+
+  override def checkConsistency(): Boolean = {
+    if(this.sourceId != null) true else false
   }
 
 }

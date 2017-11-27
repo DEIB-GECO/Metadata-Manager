@@ -13,22 +13,29 @@ class ReplicateItem extends EncodeTable{
 
   _foreignKeysTables = List("ITEMS","REPLICATES")
 
+  var actualPosition: Int = _
+
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = ???
 
   override def insertRow(): Unit ={
     this.replicateId.map(replicate=>{
-      if(this.checkInsertReplicateItem(replicate)) {
-        this.insertReplicateItem(replicate)
+      this.actualPosition = replicateId.indexOf(replicate)
+      if(this.checkInsert()) {
+        this.insert()
       }})
   }
 
   override def insert() : Int ={
-    dbHandler.insertReplicateItem(itemId,replicateId.head)
+    dbHandler.insertReplicateItem(itemId,replicateId(this.actualPosition))
   }
 
-  def insertReplicateItem(replicateId: Int) : Int ={
-    dbHandler.insertReplicateItem(itemId,replicateId)
+  override def update() : Int ={
+   -1 //ritorno un valore senza senso in quanto non ci possono essere update per le tabelle di congiunzione, al massimo si inserisce una riga nuova
   }
+
+ /* def insertReplicateItem(replicateId: Int) : Int ={
+    dbHandler.insertReplicateItem(itemId,replicateId)
+  }*/
 
   override def setForeignKeys(table: Table): Unit = {
     if(table.isInstanceOf[Item])
@@ -38,12 +45,12 @@ class ReplicateItem extends EncodeTable{
   }
 
   override def checkInsert(): Boolean ={
-     dbHandler.checkInsertReplicateItem(this.itemId,this.replicateId.head)
+     dbHandler.checkInsertReplicateItem(this.itemId,this.replicateId(this.actualPosition))
   }
 
-  def checkInsertReplicateItem(replicateId: Int): Boolean ={
+  /*def checkInsertReplicateItem(replicateId: Int): Boolean ={
     dbHandler.checkInsertReplicateItem(this.itemId,replicateId)
-  }
+  }*/
 
   override def getId(): Int = {
     -1

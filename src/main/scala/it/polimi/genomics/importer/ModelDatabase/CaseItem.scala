@@ -13,13 +13,17 @@ class CaseItem extends EncodeTable{
   override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit = ???
 
   override def insertRow(): Unit ={
-      if(this.checkInsert()) {
+    if(this.checkInsert()) {
         this.insert
       }
   }
 
   override def insert() : Int ={
     dbHandler.insertCaseItem(itemId,caseId)
+  }
+
+  override def update() : Int ={
+    -1 //ritorno un valore senza senso in quanto non ci possono essere update per le tabelle di congiunzione, al massimo si inserisce una riga nuova
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -38,4 +42,5 @@ class CaseItem extends EncodeTable{
    // dbHandler.getCasesItemId(this.itemId,this.caseId)
     -1
   }
+
 }

@@ -1,11 +1,15 @@
 package it.polimi.genomics.importer.ModelDatabase.Utils
 
+import org.slf4j.{Logger, LoggerFactory}
+
 import scala.collection.mutable.ListBuffer
 import scala.xml.XML
 
 class XMLReader(val path: String, val replicates: ReplicateList) {
   private val xml = XML.loadFile(path)
   private val default: String = "DEFAULT"
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
 
   private var list = List(((xml \\ "table" \ "mapping" \ "source_key").text), ((xml \\ "table" \ "mapping" \ "global_key").text), (xml \\ "@name"))
 
@@ -38,7 +42,7 @@ class XMLReader(val path: String, val replicates: ReplicateList) {
         }
       }
     } catch {
-      case e: Exception => println("Source_key non trovata")
+      case e: Exception => logger.warn(s"Source Key ${((x \ "mapping" \ "source_key").text)} doesn't find for table ${((x \ "@name").toString())}")
     }
   }
 

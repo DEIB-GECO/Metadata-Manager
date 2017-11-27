@@ -17,6 +17,10 @@ class Project extends EncodeTable{
     dbHandler.insertProject(this.projectName.toUpperCase(),this.programName)
   }
 
+  override def update() = {
+    dbHandler.updateProject(this.projectName.toUpperCase(),this.programName)
+  }
+
   override def setForeignKeys(table: Table): Unit = {
   }
 
@@ -26,5 +30,9 @@ class Project extends EncodeTable{
 
   override def getId(): Int = {
     dbHandler.getProjectId(this.projectName)
+  }
+
+  override def checkConsistency(): Boolean = {
+    if(this.projectName != null) true else false
   }
 }
