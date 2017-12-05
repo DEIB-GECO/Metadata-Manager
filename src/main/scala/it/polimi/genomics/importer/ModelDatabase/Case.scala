@@ -1,6 +1,6 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-class Case extends EncodeTable{
+class Case(ciao:Prova) extends EncodeTable{
 
     var projectId : Int = _
 
@@ -14,6 +14,9 @@ class Case extends EncodeTable{
 
   _foreignKeysTables = List("PROJECTS")
 
+  this.prova = ciao
+
+
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit =   dest.toUpperCase() match{
     case "SOURCEID" => this.sourceId = insertMethod(this.sourceId,param)
     case "SOURCESITE" => this.sourceSite = insertMethod(this.sourceSite,param)
@@ -23,11 +26,15 @@ class Case extends EncodeTable{
 
 
   override def insert() = {
-    dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    EncodesTableId.caseId_(id)
+    id
   }
 
   override def update() = {
-    dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    EncodesTableId.caseId_(id)
+    id
   }
 
   override def setForeignKeys(table: Table): Unit = {

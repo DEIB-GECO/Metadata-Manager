@@ -2,19 +2,22 @@ package it.polimi.genomics.importer.ModelDatabase
 
 
 import exceptions.NoTableNameException
+import it.polimi.genomics.importer.ModelDatabase.Encode.Table.DonorEncode
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 import org.apache.log4j.Logger
 
 
-class EncodeTables extends Tables{
+class EncodeTables() extends Tables{
 
   protected var _filePath: String = _
+
+
 
   def filePath: String = _filePath
   def filePath_: (filePath: String): Unit = this._filePath = filePath
 
   val logger: Logger = Logger.getLogger(this.getClass)
-  val Donors = Value("DONORS")
+/*  val Donors = Value("DONORS")
   val BioSamples = Value("BIOSAMPLES")
   val Replicates = Value("REPLICATES")
   val ExperimentsType = Value("EXPERIMENTSTYPE")
@@ -23,7 +26,7 @@ class EncodeTables extends Tables{
   val Cases = Value("CASES")
   val Items = Value("ITEMS")
   val CasesItems = Value("CASESITEMS")
-  val ReplicatesItems = Value ("REPLICATESITEMS")
+  val ReplicatesItems = Value ("REPLICATESITEMS")*/
 
   //private val tables = collection.mutable.Map[String, AbstractTable]()
   //EncodeTableEnum.values.foreach(v => tables += v ->EncodeTableEnum.getTable(v))
@@ -39,15 +42,15 @@ class EncodeTables extends Tables{
     getOrderOfInsertion().map(t => this.selectTableByValue(t).filePath_:(this._filePath))
   }
 
-  def getNewTable(value: Value): EncodeTable = {
+  def getNewTable(value: Value): Table = {
     value match {
-      case Donors => return new Donor
-      case BioSamples => return new BioSample
+      case Donors => return new DonorEncode
+      case BioSamples => return new BioSampleEncode(EncodesTableId.bioSampleQuantity, new Prova)
       case Replicates => return new Replicate
       case ExperimentsType => return new ExperimentType
       case Projects => return new Project
       case Containers => return new Container
-      case Cases => return new Case
+      case Cases => return new Case(new Prova)
       case Items => return new Item
       case CasesItems => return new CaseItem
       case ReplicatesItems => return new ReplicateItem

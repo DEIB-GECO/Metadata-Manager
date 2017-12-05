@@ -36,25 +36,25 @@ class ENCODETransformer extends GMQLTransformer {
     val sourceId = FileDatabase.sourceId(source.name)
     val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
     if (filename.endsWith(".gz")) {
-//      if (source.parameters.exists(_._1 == "assembly_exclude")) {
-        val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
-        val file = Source.fromFile(path + File.separator + "metadata" + ".tsv")
-        val header = file.getLines().next().split("\t")
-//        val assembly = header.lastIndexOf("Assembly")
-        val url = header.lastIndexOf("File download URL")
-//  NOW ALL OF THIS ASSEMBLY HANDLING IS DONE IN DOWNLOADING PHASE.
-//        if (Source.fromFile(path + File.separator + "metadata.tsv").getLines().exists(line => {
-//          line.split("\t")(url).contains(filename) &&
-//            line.split("\t")(assembly).toLowerCase == source.parameters.filter(_._1.toLowerCase ==
-//              "assembly_exclude").head._2.toLowerCase
-//        })
-//        )
-//          List[String]()
-//        else
-          List[String](filename.substring(0, filename.lastIndexOf(".")))
-//      }
-//      else
-//        List[String](filename.substring(0, filename.lastIndexOf(".")))
+      //      if (source.parameters.exists(_._1 == "assembly_exclude")) {
+      val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
+      val file = Source.fromFile(path + File.separator + "metadata" + ".tsv")
+      val header = file.getLines().next().split("\t")
+      //        val assembly = header.lastIndexOf("Assembly")
+      val url = header.lastIndexOf("File download URL")
+      //  NOW ALL OF THIS ASSEMBLY HANDLING IS DONE IN DOWNLOADING PHASE.
+      //        if (Source.fromFile(path + File.separator + "metadata.tsv").getLines().exists(line => {
+      //          line.split("\t")(url).contains(filename) &&
+      //            line.split("\t")(assembly).toLowerCase == source.parameters.filter(_._1.toLowerCase ==
+      //              "assembly_exclude").head._2.toLowerCase
+      //        })
+      //        )
+      //          List[String]()
+      //        else
+      List[String](filename.substring(0, filename.lastIndexOf(".")))
+      //      }
+      //      else
+      //        List[String](filename.substring(0, filename.lastIndexOf(".")))
     }
     else {
       if (source.parameters.exists(_._1 == "metadata_extraction") &&

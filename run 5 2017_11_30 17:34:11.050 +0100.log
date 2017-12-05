@@ -1,0 +1,30 @@
+2017-11-30 17:34:13,364 INFO  [program$] Total time for downloads: 0:0:0
+2017-11-30 17:34:13,366 INFO  [program$] Starting transformation for HG19_ENCODE
+2017-11-30 17:34:13,368 INFO  [Transformer$] Starting integration for: /home/federico/_Encode_Realeased/HG19_ENCODE
+2017-11-30 17:34:13,393 INFO  [Transformer$] Starting download for: broadPeak
+2017-11-30 17:34:13,395 WARN  [Transformer$] Schema not found for: broadPeak
+2017-11-30 17:34:13,398 INFO  [Transformer$] Transformation for dataset: broadPeak
+2017-11-30 17:34:35,260 DEBUG [ENCODETransformer] Start unGzipping: ENCFF001STU.bed.gz
+2017-11-30 17:34:35,303 INFO  [ENCODETransformer] UnGzipping: ENCFF001STU.bed.gz DONE
+2017-11-30 17:34:35,408 DEBUG [ENCODETransformer] Start unGzipping: ENCFF001TDG.bed.gz
+2017-11-30 17:34:35,445 INFO  [ENCODETransformer] UnGzipping: ENCFF001TDG.bed.gz DONE
+2017-11-30 17:34:35,564 DEBUG [ENCODETransformer] Start unGzipping: ENCFF001XDH.bed.gz
+2017-11-30 17:34:35,594 INFO  [ENCODETransformer] UnGzipping: ENCFF001XDH.bed.gz DONE
+2017-11-30 17:34:35,692 DEBUG [ENCODETransformer] Start unGzipping: ENCFF001XDI.bed.gz
+2017-11-30 17:34:35,693 ERROR [ENCODETransformer] Couldnt UnGzip the file: /home/federico/_Encode_Realeased/HG19_ENCODE/broadPeak/Transformations/ENCFF001XDI.bed
+2017-11-30 17:34:35,792 INFO  [Transformer$] 0 region data files modified in dataset: broadPeak
+2017-11-30 17:34:35,792 INFO  [Transformer$] 0 metadata files modified in dataset: broadPeak
+2017-11-30 17:34:35,793 INFO  [Transformer$] 0 region data files do not respect the schema in dataset: broadPeak
+2017-11-30 17:34:35,794 INFO  [Transformer$] Total time for transformation dataset broadPeak: 0:0:22
+2017-11-30 17:34:35,795 INFO  [Transformer$] 0 region data files modified in source: HG19_ENCODE
+2017-11-30 17:34:35,795 INFO  [Transformer$] 0 metadata files modified in source: HG19_ENCODE
+2017-11-30 17:34:35,795 INFO  [Transformer$] 0 region data files do not respect the schema in source: HG19_ENCODE
+2017-11-30 17:34:35,795 INFO  [Transformer$] Source HG19_ENCODE transformation finished
+2017-11-30 17:34:35,795 INFO  [program$] Transformation for HG19_ENCODE Finished
+2017-11-30 17:34:35,795 INFO  [program$] Total time transform source HG19_ENCODE: 0:0:22
+2017-11-30 17:34:35,796 INFO  [program$] Total time for transformations: 0:0:22
+2017-11-30 17:34:35,953 INFO  [program$] Statistics for source: HG19_ENCODE
+2017-11-30 17:34:35,984 INFO  [dbContainer] 	Dataset broadPeak TRANSFORM statistics:
+2017-11-30 17:34:35,984 INFO  [dbContainer] 		Total files to TRANSFORM: 7
+2017-11-30 17:34:35,984 INFO  [dbContainer] 		TRANSFORM successful files: 0
+2017-11-30 17:34:36,045 INFO  [program$] Total time for the run 0:0:28

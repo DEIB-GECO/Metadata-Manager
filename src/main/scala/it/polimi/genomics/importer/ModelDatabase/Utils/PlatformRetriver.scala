@@ -1,39 +1,33 @@
 package it.polimi.genomics.importer.ModelDatabase.Utils
 
-import org.codehaus.jackson.{JsonNode, JsonParser, JsonToken}
+import org.codehaus.jackson.{JsonNode, JsonParser}
 import org.codehaus.jackson.map.MappingJsonFactory
 import java.io.File
 
-import it.polimi.genomics.importer.ModelDatabase.{DerivedFrom, Item}
+import it.polimi.genomics.importer.ModelDatabase._
 import org.apache.log4j.Logger
 
 
 class PlatformRetriver (val path: String, val originalSourceId: String){
   val logger: Logger = Logger.getLogger(this.getClass)
+
   private val replaceTransformation = "Transformations".r
   private val replaceExtensions = ".bed.meta".r
-  println(path)
   val jsonFile = new File(replaceExtensions.replaceAllIn(replaceTransformation.replaceAllIn(path,"Downloads"),".bed.gz.json"))
-  println(replaceExtensions.replaceAllIn(replaceTransformation.replaceAllIn(path,"Downloads"),".bed.gz.json"))
   val f = new MappingJsonFactory()
   val jp: JsonParser = f.createJsonParser(jsonFile)
   val rootNode: JsonNode = jp.readValueAsTree()
- // var platform : String = new String
-  //var replicateId : String =_
-
+  var description: String = _
   var containerId: Int = _
-  //var finalItemId: Int = _
+  var caseId: Int = _
 
-  def getItems(finalItemId:Int, containerId: Int): Unit ={
-
+  def getItems(finalItemId:Int, containerId: Int, caseId: Int): Unit = {
     this.containerId = containerId
-    //this.replicateId = replicateId
-    println(finalItemId)
-    recursiveItems(path.split('/').last.split('.')(0), finalItemId)
+    this.caseId = caseId
+    recursiveItems(path.split('/').last.split('.')(0), finalItemId, "")
   }
 
-  private def recursiveItems(fileId: String, finalItemId: Int): Unit ={
-   // println(fileId)
+  private def recursiveItems(fileId: String, finalItemId: Int, precDescription: String): Unit ={
     if (rootNode.has("files")) {
       val files = rootNode.get("files").getElements
       while(files.hasNext) {
@@ -42,125 +36,165 @@ class PlatformRetriver (val path: String, val originalSourceId: String){
           if(file.has("derived_from")) {
             var initialItemId = 0
             if(file.get("accession").asText() != originalSourceId){
-              println("Inserisci Item " + file.get("accession"))
-              var item = new Item
-              item.containerId = containerId
-              item.sourceId = file.get("accession").asText()
-              item.dataType = file.get("output_type").asText()
-              item.format = file.get("file_type").asText()
-              item.size = file.get("file_size").asInt()
-              item.sourceUrl = file.get("href").asText()
-              if(file.has("analysis_step_version")){
-              val pipelines = file.findValue("pipelines").getElements
-              while(pipelines.hasNext){
-                var pipeline = pipelines.next()
-                item.pipeline = item.pipeline.concat(" " + pipeline.get("title").asText())
-              }
-              }
-              //println(file.findValues("pipelines").forEach(value => value.get("description")))
-              if(item.checkInsert()){
+              description = null
+              val item = defineItem(file)
+              if (item.checkInsert()) {
                 initialItemId = item.specialInsert()
-                println("Item inserito " + initialItemId)
-                var derivedFrom = new DerivedFrom
-                derivedFrom.initialItemId = initialItemId
-                derivedFrom.finalItemId = finalItemId
-                if(file.has("analysis_step_version")) {
-                  val analysis = file.findValue("analysis_step_types").getElements
-                  println(analysis)
-                  while (analysis.hasNext) {
-                    var analys = analysis.next()
-                    println(analys.asText())
-                    derivedFrom.description = derivedFrom.description.concat(" " + analys.asText())
-                  }
-                }
-                if(derivedFrom.checkInsert())
-                  derivedFrom.insert()
-                else
-                  derivedFrom.update()
-              }else{
+              }
+              else {
                 initialItemId = item.specialUpdate()
-                println(item.sourceId)
-                println("Item aggiornato " + initialItemId)
-                var derivedFrom = new DerivedFrom
-                derivedFrom.initialItemId = initialItemId
-                derivedFrom.finalItemId = finalItemId
-                if(file.has("analysis_step_version")) {
-                  val analysis = file.findValue("analysis_step_types").getElements
-                  println(analysis)
-                  while (analysis.hasNext) {
-                    var analys = analysis.next()
-                    derivedFrom.description = derivedFrom.description.concat(" " + analys.asText())
-                  }
-                }
-                //derivedFrom.description = file.findValue("analysis_step").findValue("analysis_step").get("analysis_step_types").asText()
-                if(derivedFrom.checkInsert())
-                  derivedFrom.insert()
-                else
-                  derivedFrom.update()
+              }
+              insertCaseItem(initialItemId)
+             // getReplicatesAndInsert(file,initialItemId)
+              val derivedFrom = defineDerivedFrom(file,initialItemId,finalItemId,precDescription)
+              insertOrUpdateDerivedFrom(derivedFrom)
+            }
+            else{
+              if(file.has("analysis_step_version")) {
+                /*val analysis = file.findValue("analysis_step_types").getElements
+                while (analysis.hasNext) {
+                  val analys = analysis.next()
+                  if(description == null)
+                    this.description = analys.asText()
+                  else
+                    this.description = this.description.concat(" " + analys.asText())
+                }*/
+                setDescription(file)
               }
             }
             val nextFiles = file.get("derived_from").getElements
             while (nextFiles.hasNext) {
               val nextFile = nextFiles.next()
-              //println("Derived from: " + nextFile.asText().split("/")(2) + " in file " + file.get("@id").asText())
               if(file.get("accession").asText() == originalSourceId)
-                recursiveItems(nextFile.asText().split("/")(2),finalItemId)
+                recursiveItems(nextFile.asText().split("/")(2),finalItemId,description)
               else
-                recursiveItems(nextFile.asText().split("/")(2),initialItemId)
+                recursiveItems(nextFile.asText().split("/")(2),initialItemId,description)
             }
           }
           else {
-           // println("Not Derived from " + file.findValue("accession").asText() + " in file " +file.get("@id").asText())
             if(file.get("accession").asText() != originalSourceId) {
-              println("Inserisci Item " + file.get("accession"))
-              var item = new Item
               var initialItemId = 0
-              item.containerId = containerId
-              item.sourceId = file.get("accession").asText()
-              item.dataType = file.get("output_type").asText()
-              item.format = file.get("file_type").asText()
-              item.size = file.get("file_size").asInt()
-              item.sourceUrl = file.get("href").asText()
-              if(file.has("platform"))
-                item.platform = file.findValue("platform").get("term_name").asText()
+              val item = defineItem(file)
               if (item.checkInsert()) {
                 initialItemId = item.specialInsert()
-                println("Item inserito  " + initialItemId)
-                var derivedFrom = new DerivedFrom
-                derivedFrom.initialItemId = initialItemId
-                derivedFrom.finalItemId = finalItemId
-                if(file.has("analysis_step_version")) {
-                  val analysis = file.findValue("analysis_step_types").getElements
-                  println(analysis)
-                  while (analysis.hasNext) {
-                    var analys = analysis.next()
-                    derivedFrom.description = derivedFrom.description.concat(" " + analys.asText())
-                  }
-                }
-                  //derivedFrom.description = file.findValue("analysis_step").findValue("analysis_step").findValue("analysis_step_types").asText()
-                if (derivedFrom.checkInsert())
-                  derivedFrom.insert()
-                else
-                  derivedFrom.update()
               }
               else {
                 initialItemId = item.specialUpdate()
-                println("Item aggiornato " + initialItemId)
-                var derivedFrom = new DerivedFrom
-                derivedFrom.initialItemId = initialItemId
-                derivedFrom.finalItemId = finalItemId
-                //derivedFrom.description = file.findValue("analysis_step").findValue("analysis_step").findValue("analysis_step_types").asText()
-                if (derivedFrom.checkInsert())
-                  derivedFrom.insert()
-                else
-                  derivedFrom.update()
               }
+              insertCaseItem(initialItemId)
+             // getReplicatesAndInsert(file,initialItemId)
+              val derivedFrom = defineDerivedFrom(file,initialItemId,finalItemId,precDescription)
+              insertOrUpdateDerivedFrom(derivedFrom)
             }
           }
         }
-
       }
     }
-
   }
+
+  def defineItem(file: JsonNode): Item = {
+    val item = new Item
+    item.containerId = containerId
+    item.sourceId = file.get("accession").asText()
+    item.dataType = file.get("output_type").asText()
+    item.format = file.get("file_type").asText()
+    item.size = file.get("file_size").asLong()
+    item.sourceUrl = file.get("href").asText()
+    if(file.has("analysis_step_version")){
+      /*val pipelines = file.findValue("pipelines").getElements
+      while(pipelines.hasNext){
+        val pipeline = pipelines.next()
+        if(item.pipeline == null) {
+          item.pipeline = pipeline.get("title").asText()
+        }
+        else
+          item.pipeline = item.pipeline.concat(", " + pipeline.get("title").asText())
+      }*/
+      item.pipeline = getPipeline(file)
+    }
+    if(file.has("platform"))
+      item.platform = file.findValue("platform").get("term_name").asText()
+    item
+  }
+
+  def getPipeline(file: JsonNode): String = {
+    var pipelineString: String = null
+    val pipelines = file.findValue("pipelines").getElements
+    while(pipelines.hasNext){
+      val pipeline = pipelines.next()
+      if(pipelineString == null) {
+        pipelineString = pipeline.get("title").asText()
+      }
+      else
+        pipelineString = pipelineString.concat(", " + pipeline.get("title").asText())
+    }
+    pipelineString
+  }
+
+
+  def defineDerivedFrom(file: JsonNode, initialItemId: Int, finalItemId: Int, precDescription: String): DerivedFrom = {
+    val derivedFrom = new DerivedFrom
+    derivedFrom.initialItemId = initialItemId
+    derivedFrom.finalItemId = finalItemId
+    derivedFrom.description = precDescription
+    if(file.has("analysis_step_version")) {
+      /*val analysis = file.findValue("analysis_step_types").getElements
+      while (analysis.hasNext) {
+        val analys = analysis.next()
+        if(description == null) {
+          description = analys.asText()
+        }
+        else
+          description = description.concat(", " + analys.asText())
+      }*/
+      setDescription(file)
+    }
+    derivedFrom
+  }
+
+  def setDescription(file: JsonNode): Unit = {
+    val analysis = file.findValue("analysis_step_types").getElements
+    while (analysis.hasNext) {
+      val analys = analysis.next()
+      if(description == null) {
+        description = analys.asText()
+      }
+      else
+        description = description.concat(", " + analys.asText())
+    }
+  }
+
+  def insertOrUpdateDerivedFrom(derivedFrom: DerivedFrom): Unit = {
+    if (derivedFrom.checkInsert())
+      derivedFrom.insert()
+    else
+      derivedFrom.update()
+  }
+
+  def insertCaseItem(itemId: Int):Unit = {
+    val caseItem = new CaseItem
+    caseItem.itemId = itemId
+    caseItem.caseId = caseId
+    println("caseId " + caseItem.caseId)
+    println("itemId " + caseItem.itemId)
+    caseItem.insertRow()
+  }
+
+  def getReplicatesAndInsert(file: JsonNode, itemId: Int):Unit ={
+    if(file.has("technical_replicates")){
+      val replicates = file.get("technical_replicates").getElements
+      while(replicates.hasNext) {
+        val replicate = replicates.next()
+        insertReplicateItem(itemId,replicate.asText())
+      }
+    }
+  }
+
+  def insertReplicateItem(itemId: Int, key: String): Unit ={
+    val replicateItem = new ReplicateItem
+    replicateItem.itemId = itemId
+    replicateItem.repId = EncodesTableId.replicateMap(key)
+    replicateItem.insRow()
+  }
+
 }

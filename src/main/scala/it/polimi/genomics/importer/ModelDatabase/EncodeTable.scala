@@ -2,12 +2,10 @@ package it.polimi.genomics.importer.ModelDatabase
 
 
 import exceptions.NoGlobalKeyException
-import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 
 abstract class EncodeTable extends Table{
 
-  protected val dbHandler = DbHandler
-
+  var prova: Prova = _
 
   override def insertRow(): Unit ={
     if(this.checkInsert()) {

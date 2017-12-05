@@ -9,6 +9,8 @@ class ReplicateItem extends EncodeTable{
 
   var replicateId: ListBuffer[Int] = new ListBuffer[Int]
 
+  var repId: Int = _
+
   _hasForeignKeys = true
 
   _foreignKeysTables = List("ITEMS","REPLICATES")
@@ -23,6 +25,19 @@ class ReplicateItem extends EncodeTable{
       if(this.checkInsert()) {
         this.insert()
       }})
+  }
+
+  def insRow(): Unit = {
+    if(this.specialCheckInsert())
+      this.specialInsert()
+  }
+
+  def specialInsert(): Int = {
+    dbHandler.insertReplicateItem(itemId,repId)
+  }
+
+  def specialCheckInsert(): Boolean ={
+    dbHandler.checkInsertReplicateItem(itemId,repId)
   }
 
   override def insert() : Int ={

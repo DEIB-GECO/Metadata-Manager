@@ -27,27 +27,27 @@
             <source_key>replicates__X__library__biosample__accession</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>replicates__X__library__biosample__biosample_type</source_key>
             <global_key>types</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>replicates__X__library__biosample__biosample_type</source_key>
-            <global_key>Tissue</global_key>
+            <global_key>tissue</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>replicates__X__library__biosample__biosample_term_id</source_key>
             <global_key>cellLine</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
             <global_key>cellLine</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>replicates__X__library__biosample__health_status</source_key>
             <global_key>isHealty</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>replicates__X__library__biosample__health_status</source_key>
             <global_key>disease</global_key>
         </mapping>
@@ -67,11 +67,11 @@
         </mapping>
     </table>
     <table name="EXPERIMENTSTYPE">
-        <mapping>
+        <mapping method="CONCAT">
             <source_key>assay_term_id</source_key>
             <global_key>technique</global_key>
         </mapping>
-        <mapping>
+        <mapping method="CONCAT">
             <source_key>assay_term_name</source_key>
             <global_key>technique</global_key>
         </mapping>
@@ -83,11 +83,11 @@
             <source_key>target__name</source_key>
             <global_key>target</global_key>
         </mapping>
-        <mapping>
+        <mapping method="CONCAT">
             <source_key>replicates__X__antibody__title </source_key>
             <global_key>antibody</global_key>
         </mapping>
-        <mapping>
+        <mapping method="CONCAT">
             <source_key>replicates__X__antibody__url</source_key>
             <global_key>antibody</global_key>
         </mapping>

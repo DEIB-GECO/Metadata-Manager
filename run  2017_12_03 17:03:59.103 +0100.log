@@ -1,0 +1,389 @@
+2017-12-03 17:03:59,322 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SYU.bed.meta
+2017-12-03 17:03:59,399 INFO  [main$] File status archived, go to next file
+2017-12-03 17:03:59,399 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UHN.bed.meta
+2017-12-03 17:03:59,418 INFO  [main$] File status archived, go to next file
+2017-12-03 17:03:59,418 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF916TPJ.bed.meta
+2017-12-03 17:03:59,432 INFO  [main$] File status archived, go to next file
+2017-12-03 17:03:59,432 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TYA.bed.meta
+2017-12-03 17:03:59,442 INFO  [main$] File status archived, go to next file
+2017-12-03 17:03:59,442 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VXC.bed.meta
+2017-12-03 17:03:59,457 INFO  [main$] File status released, start populate table
+2017-12-03 17:03:59,524 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:03:59,524 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:03:59,525 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:03:59,526 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:01,440 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF331MKY.bed.meta
+2017-12-03 17:04:01,458 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:01,458 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF408AKJ.bed.meta
+2017-12-03 17:04:01,465 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:01,465 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TCQ.bed.meta
+2017-12-03 17:04:01,478 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:01,478 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001STW.bed.meta
+2017-12-03 17:04:01,488 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:01,489 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VXE.bed.meta
+2017-12-03 17:04:01,496 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:01,509 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:01,509 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:01,509 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:01,509 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:02,572 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UDG.bed.meta
+2017-12-03 17:04:02,575 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:02,575 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001WUD.bed.meta
+2017-12-03 17:04:02,578 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:02,578 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF622SGZ.bed.meta
+2017-12-03 17:04:02,598 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:02,599 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF935EAP.bed.meta
+2017-12-03 17:04:02,609 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:02,610 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF830PPR.bed.meta
+2017-12-03 17:04:02,615 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:02,626 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:02,626 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:02,627 WARN  [main$] SourceKey does't find for List(BIOSAMPLES, replicates__1__library__biosample__health_status, isHealty, CONCAT)
+2017-12-03 17:04:02,627 WARN  [main$] SourceKey does't find for List(BIOSAMPLES, replicates__1__library__biosample__health_status, disease, CONCAT)
+2017-12-03 17:04:02,627 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:02,627 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:02,627 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:02,628 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:04,448 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VAK.bed.meta
+2017-12-03 17:04:04,462 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:04,470 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:04,470 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:04,471 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:05,224 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UMG.bed.meta
+2017-12-03 17:04:05,239 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:05,239 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF718ITI.bed.meta
+2017-12-03 17:04:05,243 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:05,243 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UFL.bed.meta
+2017-12-03 17:04:05,250 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:05,250 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001WTB.bed.meta
+2017-12-03 17:04:05,258 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:05,258 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF239LHL.bed.meta
+2017-12-03 17:04:05,260 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:05,260 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UME.bed.meta
+2017-12-03 17:04:05,267 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:05,267 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TAU.bed.meta
+2017-12-03 17:04:05,277 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:05,277 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF682YKZ.bed.meta
+2017-12-03 17:04:05,286 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:05,286 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TAJ.bed.meta
+2017-12-03 17:04:05,295 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:05,295 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VRV.bed.meta
+2017-12-03 17:04:05,307 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:05,316 WARN  [main$] SourceKey does't find for List(BIOSAMPLES, replicates__1__library__biosample__health_status, isHealty, CONCAT)
+2017-12-03 17:04:05,316 WARN  [main$] SourceKey does't find for List(BIOSAMPLES, replicates__1__library__biosample__health_status, disease, CONCAT)
+2017-12-03 17:04:05,316 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:05,316 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:05,317 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:05,317 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:06,038 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UCP.bed.meta
+2017-12-03 17:04:06,060 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:06,060 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF228TCV.bed.meta
+2017-12-03 17:04:06,061 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:06,062 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UQP.bed.meta
+2017-12-03 17:04:06,068 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:06,077 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:06,077 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:06,727 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001URM.bed.meta
+2017-12-03 17:04:06,743 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:06,743 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UAB.bed.meta
+2017-12-03 17:04:06,753 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:06,753 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UBK.bed.meta
+2017-12-03 17:04:06,763 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:06,764 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SYI.bed.meta
+2017-12-03 17:04:06,769 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:06,769 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VSG.bed.meta
+2017-12-03 17:04:06,774 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:06,788 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:06,788 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:06,788 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:06,788 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:08,325 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TWL.bed.meta
+2017-12-03 17:04:08,343 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:08,343 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SOI.bed.meta
+2017-12-03 17:04:08,345 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:08,356 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:08,356 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:08,356 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:08,356 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:08,357 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:08,357 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:09,026 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TYG.bed.meta
+2017-12-03 17:04:09,045 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:09,045 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TWB.bed.meta
+2017-12-03 17:04:09,053 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:09,054 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UHB.bed.meta
+2017-12-03 17:04:09,063 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:09,063 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XHD.bed.meta
+2017-12-03 17:04:09,070 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:09,070 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VWH.bed.meta
+2017-12-03 17:04:09,078 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:09,085 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:09,085 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:09,086 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:09,086 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:09,086 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:09,086 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:09,769 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XOL.bed.meta
+2017-12-03 17:04:09,789 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:09,789 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VUC.bed.meta
+2017-12-03 17:04:09,794 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:09,797 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:09,798 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:09,798 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:09,798 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:09,798 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:09,798 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:10,471 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF413YRT.bed.meta
+2017-12-03 17:04:10,491 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:10,491 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UKM.bed.meta
+2017-12-03 17:04:10,503 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:10,503 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF942JEG.bed.meta
+2017-12-03 17:04:10,509 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:10,519 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:10,519 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:10,520 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:10,520 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:12,368 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VVM.bed.meta
+2017-12-03 17:04:12,385 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:12,390 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:12,390 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:12,391 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:12,391 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:12,391 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:12,391 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:13,030 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TZT.bed.meta
+2017-12-03 17:04:13,048 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:13,048 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XCQ.bed.meta
+2017-12-03 17:04:13,052 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:13,052 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001STJ.bed.meta
+2017-12-03 17:04:13,063 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:13,064 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SZJ.bed.meta
+2017-12-03 17:04:13,072 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:13,073 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TCU.bed.meta
+2017-12-03 17:04:13,080 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:13,080 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001STK.bed.meta
+2017-12-03 17:04:13,083 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:13,084 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VTZ.bed.meta
+2017-12-03 17:04:13,093 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:13,097 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:13,097 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:13,098 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:13,098 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:13,098 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:13,098 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:13,699 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF727KPF.bed.meta
+2017-12-03 17:04:13,718 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:13,718 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XEY.bed.meta
+2017-12-03 17:04:13,730 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:13,730 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VAW.bed.meta
+2017-12-03 17:04:13,743 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:13,747 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:14,411 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF088FKG.bed.meta
+2017-12-03 17:04:14,428 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:14,431 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:14,431 WARN  [main$] SourceKey does't find for List(BIOSAMPLES, replicates__1__library__biosample__health_status, isHealty, CONCAT)
+2017-12-03 17:04:14,432 WARN  [main$] SourceKey does't find for List(BIOSAMPLES, replicates__1__library__biosample__health_status, disease, CONCAT)
+2017-12-03 17:04:14,432 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:14,432 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:14,432 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:14,432 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:16,575 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SVX.bed.meta
+2017-12-03 17:04:16,588 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:16,593 WARN  [XMLReader] Source Key replicates__X__library__biosample__donor__accessionreplicates__X__library__biosample__donor__organism__scientific_namereplicates__X__library__biosample__donor__agereplicates__X__library__biosample__donor__sexreplicates__X__library__biosample__donor__ethnicity doesn't find for table DONORS
+2017-12-03 17:04:16,593 WARN  [XMLReader] Source Key replicates__X__library__biosample__accessionreplicates__X__library__biosample__biosample_typereplicates__X__library__biosample__biosample_typereplicates__X__library__biosample__biosample_term_idreplicates__X__library__biosample__biosample_term_namereplicates__X__library__biosample__health_statusreplicates__X__library__biosample__health_status doesn't find for table BIOSAMPLES
+2017-12-03 17:04:16,593 WARN  [XMLReader] Source Key assay_term_idassay_term_namefile__replicate__experiment__target__investigated_astarget__namereplicates__X__antibody__title replicates__X__antibody__url doesn't find for table EXPERIMENTSTYPE
+2017-12-03 17:04:16,593 WARN  [XMLReader] Source Key ENCODEaward__project doesn't find for table PROJECTS
+2017-12-03 17:04:16,593 WARN  [XMLReader] Source Key accessionsubmitted_by__labdbxrefs doesn't find for table CASES
+2017-12-03 17:04:16,594 WARN  [XMLReader] Source Key file__file_typefile__assemblyfile__assemblyfalsenull doesn't find for table CONTAINERS
+2017-12-03 17:04:16,594 WARN  [XMLReader] Source Key file__accessionfile__output_typefile__file_typefile__file_sizefile__href doesn't find for table ITEMS
+2017-12-03 17:04:16,594 WARN  [EncodeTables] Primary key of it.polimi.genomics.importer.ModelDatabase.Encode.Table.DonorEncode@5df7e31b doesn't find
+2017-12-03 17:04:16,594 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001WYK.bed.meta
+2017-12-03 17:04:16,603 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:16,604 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TSE.bed.meta
+2017-12-03 17:04:16,605 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:16,605 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UFT.bed.meta
+2017-12-03 17:04:16,611 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:16,611 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TYX.bed.meta
+2017-12-03 17:04:16,618 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:16,619 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001WXX.bed.meta
+2017-12-03 17:04:16,622 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:16,622 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF394XFG.bed.meta
+2017-12-03 17:04:16,623 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:16,624 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XJX.bed.meta
+2017-12-03 17:04:16,625 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:16,625 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UKX.bed.meta
+2017-12-03 17:04:16,629 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:16,629 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VUU.bed.meta
+2017-12-03 17:04:16,637 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:16,643 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:16,643 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:16,643 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:16,643 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:16,643 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:16,643 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:17,592 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UQT.bed.meta
+2017-12-03 17:04:17,671 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:17,671 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UJJ.bed.meta
+2017-12-03 17:04:17,741 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:17,748 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:17,748 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:18,338 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001WVS.bed.meta
+2017-12-03 17:04:18,359 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:18,359 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UFK.bed.meta
+2017-12-03 17:04:18,361 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:18,361 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XSK.bed.meta
+2017-12-03 17:04:18,371 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:18,371 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XDH.bed.meta
+2017-12-03 17:04:18,380 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:18,380 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF866LKD.bed.meta
+2017-12-03 17:04:18,386 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:18,386 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001WEN.bed.meta
+2017-12-03 17:04:18,390 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:18,390 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TCW.bed.meta
+2017-12-03 17:04:18,398 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:18,398 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TUY.bed.meta
+2017-12-03 17:04:18,407 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:18,412 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:19,090 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UPD.bed.meta
+2017-12-03 17:04:19,107 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:19,110 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:19,110 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:19,816 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UQV.bed.meta
+2017-12-03 17:04:19,834 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:19,834 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF382BZI.bed.meta
+2017-12-03 17:04:19,842 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:19,843 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XRJ.bed.meta
+2017-12-03 17:04:19,849 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:19,854 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:19,854 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:21,014 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VUI.bed.meta
+2017-12-03 17:04:21,030 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:21,038 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:21,038 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:21,038 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:21,038 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:21,038 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:21,038 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:21,658 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UIM.bed.meta
+2017-12-03 17:04:21,677 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:21,677 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TWA.bed.meta
+2017-12-03 17:04:21,688 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:21,690 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:22,821 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SXJ.bed.meta
+2017-12-03 17:04:22,822 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:22,822 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XHW.bed.meta
+2017-12-03 17:04:22,839 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:22,840 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SOB.bed.meta
+2017-12-03 17:04:22,851 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:22,856 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:22,857 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:22,857 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:22,857 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:22,857 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:23,739 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SOE.bed.meta
+2017-12-03 17:04:23,754 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:23,758 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:23,758 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:23,759 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:23,759 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:23,759 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:23,759 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:24,754 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TVU.bed.meta
+2017-12-03 17:04:24,769 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:24,773 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:25,728 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SXI.bed.meta
+2017-12-03 17:04:25,741 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:25,741 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TTC.bed.meta
+2017-12-03 17:04:25,751 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:25,751 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF069GYO.bed.meta
+2017-12-03 17:04:25,757 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:25,757 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UNM.bed.meta
+2017-12-03 17:04:25,758 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:25,760 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:27,036 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SNN.bed.meta
+2017-12-03 17:04:27,094 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:27,100 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:27,100 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:27,101 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:27,101 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:28,943 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UKK.bed.meta
+2017-12-03 17:04:28,956 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:28,956 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SVE.bed.meta
+2017-12-03 17:04:28,960 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:28,960 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UFU.bed.meta
+2017-12-03 17:04:28,967 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:28,968 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001URL.bed.meta
+2017-12-03 17:04:28,977 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:28,977 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TYW.bed.meta
+2017-12-03 17:04:28,986 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:28,986 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001WCP.bed.meta
+2017-12-03 17:04:28,994 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:28,994 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SSV.bed.meta
+2017-12-03 17:04:29,001 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:29,002 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XQW.bed.meta
+2017-12-03 17:04:29,010 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:29,010 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UMF.bed.meta
+2017-12-03 17:04:29,015 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:29,015 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SUC.bed.meta
+2017-12-03 17:04:29,018 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:29,022 WARN  [XMLReader] Source Key replicates__X__library__biosample__donor__accessionreplicates__X__library__biosample__donor__organism__scientific_namereplicates__X__library__biosample__donor__agereplicates__X__library__biosample__donor__sexreplicates__X__library__biosample__donor__ethnicity doesn't find for table DONORS
+2017-12-03 17:04:29,022 WARN  [XMLReader] Source Key replicates__X__library__biosample__accessionreplicates__X__library__biosample__biosample_typereplicates__X__library__biosample__biosample_typereplicates__X__library__biosample__biosample_term_idreplicates__X__library__biosample__biosample_term_namereplicates__X__library__biosample__health_statusreplicates__X__library__biosample__health_status doesn't find for table BIOSAMPLES
+2017-12-03 17:04:29,022 WARN  [XMLReader] Source Key assay_term_idassay_term_namefile__replicate__experiment__target__investigated_astarget__namereplicates__X__antibody__title replicates__X__antibody__url doesn't find for table EXPERIMENTSTYPE
+2017-12-03 17:04:29,022 WARN  [XMLReader] Source Key ENCODEaward__project doesn't find for table PROJECTS
+2017-12-03 17:04:29,022 WARN  [XMLReader] Source Key accessionsubmitted_by__labdbxrefs doesn't find for table CASES
+2017-12-03 17:04:29,022 WARN  [XMLReader] Source Key file__file_typefile__assemblyfile__assemblyfalsenull doesn't find for table CONTAINERS
+2017-12-03 17:04:29,022 WARN  [XMLReader] Source Key file__accessionfile__output_typefile__file_typefile__file_sizefile__href doesn't find for table ITEMS
+2017-12-03 17:04:29,022 WARN  [EncodeTables] Primary key of it.polimi.genomics.importer.ModelDatabase.Encode.Table.DonorEncode@6a2badb1 doesn't find
+2017-12-03 17:04:29,023 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UOP.bed.meta
+2017-12-03 17:04:29,034 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:29,034 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UBT.bed.meta
+2017-12-03 17:04:29,038 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:29,038 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UCR.bed.meta
+2017-12-03 17:04:29,041 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:29,041 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF586PUB.bed.meta
+2017-12-03 17:04:29,049 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:29,054 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:29,055 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:29,055 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:29,055 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:29,055 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:32,366 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VVZ.bed.meta
+2017-12-03 17:04:32,378 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:32,380 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:32,380 WARN  [main$] SourceKey does't find for List(DONORS, replicates__2__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:32,380 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:32,380 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:32,380 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:32,380 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__2__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:34,349 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XOM.bed.meta
+2017-12-03 17:04:34,365 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:34,365 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF373RBB.bed.meta
+2017-12-03 17:04:34,372 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:34,372 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UCU.bed.meta
+2017-12-03 17:04:34,375 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:34,375 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VUP.bed.meta
+2017-12-03 17:04:34,385 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:34,389 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__age, age, DEFAULT)
+2017-12-03 17:04:34,389 WARN  [main$] SourceKey does't find for List(DONORS, replicates__1__library__biosample__donor__ethnicity, ethnicity, DEFAULT)
+2017-12-03 17:04:34,389 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:34,389 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:34,389 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:34,389 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2017-12-03 17:04:35,809 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF121POU.bed.meta
+2017-12-03 17:04:35,826 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:35,826 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UAJ.bed.meta
+2017-12-03 17:04:35,833 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:35,833 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XPK.bed.meta
+2017-12-03 17:04:35,844 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:35,844 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001XLY.bed.meta
+2017-12-03 17:04:35,853 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:35,853 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TAL.bed.meta
+2017-12-03 17:04:35,858 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:35,859 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF311CBH.bed.meta
+2017-12-03 17:04:36,003 INFO  [main$] File status archived, go to next file
+2017-12-03 17:04:36,003 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF534YPV.bed.meta
+2017-12-03 17:04:36,040 INFO  [main$] File status released, start populate table
+2017-12-03 17:04:36,046 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-12-03 17:04:36,046 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-12-03 17:04:36,046 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, CONCAT)
+2017-12-03 17:04:36,046 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)

@@ -1,5 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import it.polimi.genomics.importer.RemoteDatabase.DbHandler
+
 import scala.collection.mutable.ListBuffer
 
 
@@ -8,6 +10,8 @@ trait Table {
  /* protected var _primaryKey: Set[Int] = _
   def primaryKey = _primaryKey
   def primaryKey_= (value:Set[Int]):Unit = _primaryKey = value*/
+  protected val dbHandler = DbHandler
+
 
   protected var _hasForeignKeys: Boolean = false
   protected var _foreignKeysTables: List[String] = _
@@ -29,8 +33,22 @@ trait Table {
   def insert(): Int
   def update(): Int
   def setForeignKeys(table: Table): Unit
-  def insertRow(): Unit
-  def checkConsistency(): Boolean
+
+  def insertRow(): Unit ={
+    if(this.checkInsert()) {
+      val id = this.insert
+      this.primaryKey_(id)
+    }
+    else {
+      //val id = this.getId
+      val id = this.update
+      this.primaryKey_(id)
+    }
+  }
+
+  def checkConsistency(): Boolean = {
+    true
+  }
 
   protected var _filePath: String = _
 

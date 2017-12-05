@@ -1,0 +1,15 @@
+2017-11-23 01:27:38,432 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001SYU.bed.meta
+2017-11-23 01:27:38,491 INFO  [main$] File status archived, go to next file
+2017-11-23 01:27:38,491 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001UHN.bed.meta
+2017-11-23 01:27:38,508 INFO  [main$] File status archived, go to next file
+2017-11-23 01:27:38,509 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF916TPJ.bed.meta
+2017-11-23 01:27:38,521 INFO  [main$] File status archived, go to next file
+2017-11-23 01:27:38,521 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001TYA.bed.meta
+2017-11-23 01:27:38,532 INFO  [main$] File status archived, go to next file
+2017-11-23 01:27:38,532 INFO  [main$] Start to read /home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF001VXC.bed.meta
+2017-11-23 01:27:38,546 INFO  [main$] File status released, start populate table
+2017-11-23 01:27:38,626 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2017-11-23 01:27:38,626 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2017-11-23 01:27:38,627 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title , antibody, DEFAULT)
+2017-11-23 01:27:38,627 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, DEFAULT)
+2017-11-23 01:27:39,266 INFO  [DbHandler$] Insert Donor: 2, ENCDO000ACX, Homo sapiens, 50, male, Caucasian

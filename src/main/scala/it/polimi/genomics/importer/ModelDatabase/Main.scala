@@ -1,8 +1,9 @@
 package it.polimi.genomics.importer.ModelDatabase
 
 
-import it.polimi.genomics.importer.ModelDatabase.Utils.{PlatformRetriver, ReplicateList, Statistics, XMLReader}
+import it.polimi.genomics.importer.ModelDatabase.Utils._
 import java.io._
+import javax.inject.Singleton
 
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import it.polimi.genomics.importer.main.program.{getTotalTimeFormatted, logger}
@@ -39,67 +40,71 @@ object main{
     console2.activateOptions()
     Logger.getLogger("it.polimi.genomics.importer").addAppender(console2)
 
-    val console3 = new ConsoleAppender()
+
     //configure the appender
+    val console3 = new ConsoleAppender()
     console3.setLayout(new PatternLayout(PATTERN))
     console3.setThreshold(Level.WARN)
     console3.activateOptions()
     Logger.getLogger("slick").addAppender(console3)
     //BasicConfigurator.configure()
 
-
-    DbHandler.setDatabase()
-    analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
-
-    analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF657TPI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
-   /* if (args.length == 0) {
-      logger.warn(s"No arguments specified")
-    }
-    else if( args.length != 2){
-      logger.warn(s"Incorrect number of arguments")
-      logger.info("GMQLImporter help:\n"
-        + "\t Run with configuration_xml_path and gmql_conf_folder as arguments\n"
-      )
-    }
-    else {
-      val pathXML = args.head
-      val pathGMQL = args.drop(1).head
-      val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico/Example/xml/setting.xsd"
-      if (schemaValidator.validate(pathXML, schemaUrl)){
-        logger.info("Xml file is valid for the schema")
-        DbHandler.setDatabase()
-
-        val logName = "run " + " "+DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
+    val prova = new Prova
+    val bioSampleEncode = new BioSampleEncode(1,prova)
+    val cases = new Case(prova)
 
 
-        val fa2 = new FileAppender()
-        fa2.setName("FileLogger")
-        fa2.setFile(logName)
-        fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
-        fa2.setThreshold(Level.DEBUG)
-        fa2.setAppend(true)
-        fa2.activateOptions()
-        Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
 
-        val t0: Long = System.nanoTime()
-        println(pathGMQL)
-        recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
-        //recursiveListFiles(new File("/home/federico/Encode_Download/")).filter(f=> r.findFirstIn(f.getName).isDefined).map(println)
-        //analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF015LNH.bed.meta")
-        val t1 = System.nanoTime()
-        logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
-        logger.info(s"Total file analized ${Statistics.fileNumber}")
-        logger.info(s"Total file released ${Statistics.released}")
-        logger.info(s"Total file archived ${Statistics.archived}")
-        logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
-        logger.info(s"Total Item inserted or Updated ${Statistics.itemInserted}")
 
-        logger_file.close()
-        DbHandler.closeDatabase()
-      }
-      else
-        logger.warn("Xml file is not valid according the specified schema, check: " + schemaUrl)
-    }*/
+     DbHandler.setDatabase()
+     analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
+    /* analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF657TPI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")*/
+     if (args.length == 0) {
+       logger.warn(s"No arguments specified")
+     }
+     else if( args.length != 2){
+       logger.warn(s"Incorrect number of arguments")
+       logger.info("GMQLImporter help:\n"
+         + "\t Run with configuration_xml_path and gmql_conf_folder as arguments\n"
+       )
+     }
+     else {
+       val pathXML = args.head
+       val pathGMQL = args.drop(1).head
+       val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico/Example/xml/setting.xsd"
+       if (schemaValidator.validate(pathXML, schemaUrl)){
+         logger.info("Xml file is valid for the schema")
+         DbHandler.setDatabase()
+
+         val logName = "run " + " "+DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
+
+
+         val fa2 = new FileAppender()
+         fa2.setName("FileLogger")
+         fa2.setFile(logName)
+         fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
+         fa2.setThreshold(Level.DEBUG)
+         fa2.setAppend(true)
+         fa2.activateOptions()
+         Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
+
+         val t0: Long = System.nanoTime()
+         println(pathGMQL)
+         recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
+         val t1 = System.nanoTime()
+         logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
+         logger.info(s"Total file analized ${Statistics.fileNumber}")
+         logger.info(s"Total file released ${Statistics.released}")
+         logger.info(s"Total file archived ${Statistics.archived}")
+         logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
+         logger.info(s"Total Item inserted or Updated ${Statistics.itemInserted}")
+
+         //logger_file.close()
+         DbHandler.closeDatabase()
+       }
+       else
+         logger.warn("Xml file is not valid according the specified schema, check: " + schemaUrl)
+     }
   }
 
   def analizeFile(path: String, pathXML: String) {
@@ -107,11 +112,17 @@ object main{
     logger.info(s"Start to read $path")
     val lines = Source.fromFile(path).getLines.toArray
     var states = collection.mutable.Map[String, String]()
+
+    filePath = path
+    val bioSampleList = new BioSampleList(lines)
+    val replicateList = new ReplicateList(lines,bioSampleList)
+    EncodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
+    EncodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
+    EncodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
     var tables = new EncodeTables
     tables.filePath_:(path)
     tables.setPathOnTables()
-    filePath = path
-    val replicateList = new ReplicateList(lines)
+
 
     for (l <- lines) {
       val first = l.split("\t", 2)
@@ -121,8 +132,7 @@ object main{
     if(status.equals("released")) {
       Statistics.released += 1
       logger.info(s"File status released, start populate table")
-      val xml = new XMLReader(pathXML, replicateList)
-
+      val xml = new XMLReader(pathXML, replicateList,bioSampleList,states)
       val operationsList = xml.operationsList
       operationsList.map(x =>
         try {

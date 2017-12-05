@@ -1,0 +1,36 @@
+2017-11-30 17:30:06,542 INFO  [program$] Total time for downloads: 0:0:0
+2017-11-30 17:30:06,544 INFO  [program$] Starting transformation for HG19_ENCODE
+2017-11-30 17:30:06,546 INFO  [Transformer$] Starting integration for: /home/federico/_Encode_Realeased/HG19_ENCODE
+2017-11-30 17:30:06,570 INFO  [Transformer$] Starting download for: broadPeak
+2017-11-30 17:30:06,598 WARN  [Transformer$] Schema not found for: broadPeak
+2017-11-30 17:30:06,599 INFO  [Transformer$] Transformation for dataset: broadPeak
+2017-11-30 17:30:06,820 DEBUG [ENCODETransformer] Start unGzipping: ENCFF001STU.bed.gz
+2017-11-30 17:30:06,850 INFO  [ENCODETransformer] UnGzipping: ENCFF001STU.bed.gz DONE
+2017-11-30 17:30:07,011 DEBUG [ENCODETransformer] Start metadata transformation: ENCFF001STU.bed.gz.json
+2017-11-30 17:30:07,321 INFO  [ENCODETransformer] Metadata transformation: ENCFF001STU.bed.gz.json DONE
+2017-11-30 17:30:07,513 DEBUG [ENCODETransformer] Start unGzipping: ENCFF001TDG.bed.gz
+2017-11-30 17:30:07,558 INFO  [ENCODETransformer] UnGzipping: ENCFF001TDG.bed.gz DONE
+2017-11-30 17:30:07,773 DEBUG [ENCODETransformer] Start metadata transformation: ENCFF001TDG.bed.gz.json
+2017-11-30 17:30:07,800 INFO  [ENCODETransformer] Metadata transformation: ENCFF001TDG.bed.gz.json DONE
+2017-11-30 17:30:07,977 DEBUG [ENCODETransformer] Start unGzipping: ENCFF001XDH.bed.gz
+2017-11-30 17:30:08,006 INFO  [ENCODETransformer] UnGzipping: ENCFF001XDH.bed.gz DONE
+2017-11-30 17:30:08,170 DEBUG [ENCODETransformer] Start metadata transformation: ENCFF001XDH.bed.gz.json
+2017-11-30 17:30:08,187 INFO  [ENCODETransformer] Metadata transformation: ENCFF001XDH.bed.gz.json DONE
+2017-11-30 17:30:08,358 DEBUG [ENCODETransformer] Start unGzipping: ENCFF001XDI.bed.gz
+2017-11-30 17:30:08,392 INFO  [ENCODETransformer] UnGzipping: ENCFF001XDI.bed.gz DONE
+2017-11-30 17:30:08,490 INFO  [Transformer$] 0 region data files modified in dataset: broadPeak
+2017-11-30 17:30:08,491 INFO  [Transformer$] 0 metadata files modified in dataset: broadPeak
+2017-11-30 17:30:08,491 INFO  [Transformer$] 0 region data files do not respect the schema in dataset: broadPeak
+2017-11-30 17:30:08,491 INFO  [Transformer$] Total time for transformation dataset broadPeak: 0:0:1
+2017-11-30 17:30:08,491 INFO  [Transformer$] 0 region data files modified in source: HG19_ENCODE
+2017-11-30 17:30:08,492 INFO  [Transformer$] 0 metadata files modified in source: HG19_ENCODE
+2017-11-30 17:30:08,492 INFO  [Transformer$] 0 region data files do not respect the schema in source: HG19_ENCODE
+2017-11-30 17:30:08,492 INFO  [Transformer$] Source HG19_ENCODE transformation finished
+2017-11-30 17:30:08,492 INFO  [program$] Transformation for HG19_ENCODE Finished
+2017-11-30 17:30:08,492 INFO  [program$] Total time transform source HG19_ENCODE: 0:0:1
+2017-11-30 17:30:08,492 INFO  [program$] Total time for transformations: 0:0:1
+2017-11-30 17:30:08,789 INFO  [program$] Statistics for source: HG19_ENCODE
+2017-11-30 17:30:08,845 INFO  [dbContainer] 	Dataset broadPeak TRANSFORM statistics:
+2017-11-30 17:30:08,845 INFO  [dbContainer] 		Total files to TRANSFORM: 7
+2017-11-30 17:30:08,845 INFO  [dbContainer] 		TRANSFORM successful files: 0
+2017-11-30 17:30:08,928 INFO  [program$] Total time for the run 0:0:7

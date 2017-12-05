@@ -7,7 +7,7 @@ import scala.collection.mutable.ListBuffer
 
 class Replicate extends EncodeTable{
 
-  var bioSampleId : Int = _
+  var bioSampleId : ListBuffer[Int] = new ListBuffer[Int]
 
   var sourceId : ListBuffer[String] = new ListBuffer[String]
 
@@ -25,60 +25,51 @@ class Replicate extends EncodeTable{
 
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = {
     dest.toUpperCase match{
-      case "SOURCEID" =>{ this.sourceId += insertMethod(param,param);
-                          //this.platform += new PlatformRetriver(this.filePath).getPlatform(param)
-      }
-      //case "PLATFORM" =>{ this.platform += insertMethod("","")}
-      case "BIOREPLICATENUM" => this.bioReplicateNum += param.toInt
-      case "TECHREPLICATENUM" => this.techReplicateNum += param.toInt
+      case "SOURCEID" => {this.sourceId += insertMethod(param,param); println("sourceid " + param)}
+      case "BIOREPLICATENUM" => {this.bioReplicateNum += param.toInt; println(" biorepnumb" + param)}
+      case "TECHREPLICATENUM" => {this.techReplicateNum += param.toInt; println("technumber " + param)}
       case _ => noMatching(dest)
     }
   }
 
   override def insertRow(): Unit ={
+    var id: Int = 0
     this.sourceId.map(source=>{
+      println(source)
       this.actualPosition = sourceId.indexOf(source)
-      if(this.checkInsertReplicate(source)) {
-
-        //val id = this.insertReplicate(sourceId.indexOf(source))
-        val id = this.insert
-        this.primaryKeys_(id)
-    }
-    else {
-      //val id = this.getIdReplicate(source)
-      val id = this.update
+      if(this.checkInsert()) {
+        id = this.insert
+      }
+      else {
+        id = this.update
+      }
       this.primaryKeys_(id)
-    }})
+     /* val replicateKey = bioReplicateNum(this.actualPosition).toString() + "_" + techReplicateNum(this.actualPosition).toString()
+      EncodesTableId.replicateMap_(replicateKey,id)*/
+    })
   }
 
   override def insert(): Int = {
-    this.dbHandler.insertReplicate(this.bioSampleId,this.sourceId(this.actualPosition),this.bioReplicateNum(this.actualPosition),this.techReplicateNum(this.actualPosition))
-
+    this.dbHandler.insertReplicate(this.bioSampleId(this.actualPosition),this.sourceId(this.actualPosition),this.bioReplicateNum(this.actualPosition),this.techReplicateNum(this.actualPosition))
   }
 
   override def update(): Int = {
-    this.dbHandler.updateReplicate(this.bioSampleId,this.sourceId(this.actualPosition),this.bioReplicateNum(this.actualPosition),this.techReplicateNum(this.actualPosition))
+    this.dbHandler.updateReplicate(this.bioSampleId(this.actualPosition),this.sourceId(this.actualPosition),this.bioReplicateNum(this.actualPosition),this.techReplicateNum(this.actualPosition))
   }
-
-  /* def insertReplicate(position: Int): Int = {
-    this.dbHandler.insertReplicate(this.bioSampleId,this.sourceId(position),this.bioReplicateNum(position),this.techReplicateNum(position))
-  }
-
-  def updateReplicate(position: Int): Int = {
-    this.dbHandler.updateReplicate(this.bioSampleId,this.sourceId(position),this.bioReplicateNum(position),this.techReplicateNum(position))
-  }*/
 
   override def setForeignKeys(table: Table): Unit = {
-    this.bioSampleId = table.primaryKey
+    println("Set Foreign Keys")
+    this.bioSampleId = table.primaryKeys
+    println(this.bioSampleId)
   }
 
   override def checkInsert(): Boolean ={
-     dbHandler.checkInsertReplicate(this.sourceId.head)
+     dbHandler.checkInsertReplicate(this.sourceId(actualPosition))
   }
 
-  def checkInsertReplicate(sourceId: String) = {
+ /* def checkInsertReplicate(sourceId: String) = {
     dbHandler.checkInsertReplicate(sourceId)
-  }
+  }*/
 
  /* override def primaryKey_(key: Int): Unit = {
     _primaryKeys += key
@@ -97,6 +88,8 @@ class Replicate extends EncodeTable{
   }
 
   override def checkConsistency(): Boolean = {
-    if(this.sourceId != null) true else false
+    //if(this.sourceId != null) true else false
+    this.sourceId.foreach(source => if(this.sourceId == null) false)
+    true
   }
 }

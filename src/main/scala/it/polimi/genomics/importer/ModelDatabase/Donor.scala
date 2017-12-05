@@ -1,7 +1,6 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-
-class Donor extends EncodeTable{
+trait Donor extends Table{
 
   var sourceId: String = _
 
@@ -13,17 +12,6 @@ class Donor extends EncodeTable{
 
   var ethnicity : String = _
 
-
-  override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit ={
-    dest.toUpperCase() match {
-      case "SOURCEID" => this.sourceId = insertMethod(this.sourceId, param)
-      case "SPECIES" => this.species = insertMethod(this.species, param)
-      case "AGE" => age = param.toInt
-      case "GENDER" => this.gender = insertMethod(this.gender, param)
-      case "ETHNICITY" => this.ethnicity = insertMethod(this.ethnicity, param)
-      case _ => noMatching(dest)
-    }
-  }
 
   override def insert(): Int ={
     dbHandler.insertDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity)
@@ -40,11 +28,12 @@ class Donor extends EncodeTable{
     dbHandler.checkInsertDonor(this.sourceId)
   }
 
-  def getId(): Int = {
-    dbHandler.getDonorId(this.sourceId)
-  }
-
   override def checkConsistency(): Boolean = {
     if(this.sourceId != null) true else false
   }
+
+  override def getId(): Int = {
+    dbHandler.getDonorId(this.sourceId)
+  }
+
 }

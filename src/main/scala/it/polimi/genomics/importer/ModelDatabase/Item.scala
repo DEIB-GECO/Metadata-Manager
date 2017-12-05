@@ -15,7 +15,7 @@ class Item extends EncodeTable{
 
   var size : Long = _
 
-  var pipeline : String = ""
+  var pipeline : String = _
 
   var platform : String =_
 
@@ -55,7 +55,7 @@ class Item extends EncodeTable{
   override def insert(): Int = {
     val id = dbHandler.insertItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId)
-    platformRetriver.getItems(id,this.containerId)
+    platformRetriver.getItems(id,this.containerId,EncodesTableId.caseId)
     Statistics.itemInserted += 1
     id
   }
@@ -70,7 +70,7 @@ class Item extends EncodeTable{
   override def update(): Int = {
     val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId)
-    platformRetriver.getItems(id,this.containerId)
+    platformRetriver.getItems(id,this.containerId,EncodesTableId.caseId)
     Statistics.itemInserted += 1
     id
   }

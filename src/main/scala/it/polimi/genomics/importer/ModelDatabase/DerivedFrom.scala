@@ -6,7 +6,7 @@ class DerivedFrom extends EncodeTable {
 
   var finalItemId: Int = _
 
-  var description: String = ""
+  var description: String = _
 
   override def getId: Int = ???
 

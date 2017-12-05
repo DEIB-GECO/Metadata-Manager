@@ -8,8 +8,6 @@ class ExperimentType extends EncodeTable{
 
   var feature : String = _
 
-  //var platform : String = _
-
   var target : String = _
 
   var antibody : String = _
@@ -17,7 +15,6 @@ class ExperimentType extends EncodeTable{
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = dest.toUpperCase()  match{
     case "TECHNIQUE" => this.technique = insertMethod(this.technique,param)
     case "FEATURE" => this.feature = insertMethod(this.feature,param)
-   // case "PLATFORM" => this.platform = new PlatformRetriver(this.filePath).getPlatform(this.technique)
     case "TARGET" => this.target = insertMethod(this.target,param)
     case "ANTIBODY" => this.antibody = insertMethod(this.antibody,param)
     case _ => noMatching(dest)
