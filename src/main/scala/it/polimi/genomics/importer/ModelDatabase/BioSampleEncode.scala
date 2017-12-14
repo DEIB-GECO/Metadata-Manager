@@ -32,7 +32,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
       case "SOURCEID" => {this.insertPosition += 1;this.sourceId(insertPosition) = insertMethod(this.sourceId(insertPosition),param);}
       case "TYPES" => this.types(insertPosition) = insertMethod(this.types(insertPosition),param)
       case "TISSUE" => this.tIssue(insertPosition) = if(types(insertPosition) .equals("tissue")) insertMethod(this.tIssue(insertPosition), param) else null
-      case "CELLLINE" => this.cellLine(insertPosition) = if(types(insertPosition) .equals("cell_line")) insertMethod(this.cellLine(insertPosition), param) else null
+      case "CELLLINE" => this.cellLine(insertPosition) = if(types(insertPosition) .contains("cell")) insertMethod(this.cellLine(insertPosition), param) else null
       case "ISHEALTY" => this.isHealty(insertPosition) = if(param.contains("healthy")) true else false
       case "DISEASE" => this.disease(insertPosition) = if(this.isHealty(insertPosition)) insertMethod(this.disease(insertPosition),param) else null
       case _ => noMatching(dest)

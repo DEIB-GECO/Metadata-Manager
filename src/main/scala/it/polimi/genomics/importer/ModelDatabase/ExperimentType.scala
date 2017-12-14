@@ -33,6 +33,10 @@ class ExperimentType(encodeTableId: EncodeTableId) extends EncodeTable(encodeTab
     dbHandler.updateExperimentType(this.technique,this.feature,this.target,this.antibody)
   }
 
+  override def checkConsistency(): Boolean = {
+    if(this.technique != null) true else false
+  }
+
   override def setForeignKeys(table: Table): Unit = {
 
   }
