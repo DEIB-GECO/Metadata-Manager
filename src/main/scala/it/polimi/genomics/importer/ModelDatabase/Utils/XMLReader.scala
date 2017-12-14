@@ -17,7 +17,7 @@ class XMLReader(val path: String, val replicates: ReplicateList, val biosamples:
   for (x <- xml \\ "table") {
     try {
       for(xi <- x \ "mapping") {
-        if((x \ "@name").toString() != "REPLICATES" && (x \ "@name").toString() != "BIOSAMPLES"){
+        if((x \ "@name").toString() != "REPLICATES" && (x \ "@name").toString() != "BIOSAMPLES" && (x \ "@name").toString() != "DONORS"){
           var app = new ListBuffer[String]()
           app += ((x \ "@name").toString())
           app += ((xi \ "source_key").text).replaceAll("X",biosamples.BiosampleList.head)
@@ -27,7 +27,7 @@ class XMLReader(val path: String, val replicates: ReplicateList, val biosamples:
           else
             app += default
           operations += app.toList
-        }else if((x \ "@name").toString() == "BIOSAMPLES"){
+        }else if((x \ "@name").toString() == "BIOSAMPLES" || (x \ "@name").toString() == "DONORS"){
           biosamples.BiosampleList.map(number =>{
             var app = new ListBuffer[String]()
             app += ((x \ "@name").toString())

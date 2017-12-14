@@ -2,8 +2,9 @@ package it.polimi.genomics.importer.ModelDatabase
 
 import scala.collection.mutable
 
-object EncodesTableId {
- /* private var _caseId: Int = _
+class EncodeTableId {
+
+  private var _caseId: Int = _
   private var _replicateMap: mutable.Map[String, Int] = collection.mutable.Map[String, Int]()
   private var _biosampleArray: Array[String] = _
   private var _bioSampleQuantity: Int = _
@@ -22,7 +23,7 @@ object EncodesTableId {
   def setQuantityTechReplicate(quantity: Int): Unit = _techReplicateArray = new Array[String](quantity)
   def techReplicateArray: Array[String] = _techReplicateArray
   def techReplicateArray(array: Array[String]): Unit = _techReplicateArray = array
- // def techReplicateArrayByPos(pos: Int): String = _techReplicateArray(pos)
+  // def techReplicateArrayByPos(pos: Int): String = _techReplicateArray(pos)
 
 
   def setBiosampleIdMapping(position: Int, value: Int): Unit = bioSampleMap += _biosampleArray(position) -> value
@@ -34,5 +35,5 @@ object EncodesTableId {
 
   def replicateMap(value: String): Int = _replicateMap(value)
   def replicateMap_(key: String, value: Int): Unit = _replicateMap += key -> value
-*/
+
 }

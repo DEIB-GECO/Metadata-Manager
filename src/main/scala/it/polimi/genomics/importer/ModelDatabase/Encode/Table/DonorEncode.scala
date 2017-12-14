@@ -1,54 +1,74 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
-import it.polimi.genomics.importer.ModelDatabase.{Donor, ProvaTable}
+import it.polimi.genomics.importer.ModelDatabase.{Donor, EncodesTableId, ProvaTable, Table, EncodeTableId}
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 
-class DonorEncode extends ProvaTable with Donor{
+import scala.util.control.Breaks.{break, breakable}
 
-  /*var sourceId: String = _
+class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends ProvaTable(encodeTableId) with Donor{
 
-  var species : String = _
+  val sourceIdArray: Array[String] = new Array[String](quantity)
 
-  var age : Int = _
+  var speciesArray: Array[String] = new Array[String](quantity)
 
-  var gender : String= _
+  var ageArray: Array[Int] = new Array[Int](quantity)
 
-  var ethnicity : String = _*/
+  var genderArray: Array[String] = new Array[String](quantity)
 
+  var ethnicityArray: Array[String] = new Array[String](quantity)
+
+  var actualPosition: Int = _
+
+  var insertPosition: Int = -1
 
   override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit ={
     dest.toUpperCase() match {
-      case "SOURCEID" => this.sourceId = insertMethod(this.sourceId, param)
-      case "SPECIES" => this.species = insertMethod(this.species, param)
-      case "AGE" => age = param.toInt
-      case "GENDER" => this.gender = insertMethod(this.gender, param)
-      case "ETHNICITY" => this.ethnicity = insertMethod(this.ethnicity, param)
+      case "SOURCEID" =>{this.insertPosition += 1 ; this.sourceIdArray(this.insertPosition) = insertMethod(this.sourceIdArray(this.insertPosition), param) }
+      case "SPECIES" => this.speciesArray(this.insertPosition) = insertMethod(this.speciesArray(this.insertPosition), param)
+      case "AGE" => ageArray(this.insertPosition) = param.toInt
+      case "GENDER" => this.genderArray(this.insertPosition) = insertMethod(this.genderArray(this.insertPosition), param)
+      case "ETHNICITY" => this.ethnicityArray(this.insertPosition) = insertMethod(this.ethnicityArray(this.insertPosition), param)
       case _ => noMatching(dest)
     }
   }
-/*
+
+  override def insertRow(): Unit ={
+    var id: Int = 0
+    for(sourcePosition <- 0 to sourceIdArray.length-1){
+      this.actualPosition = sourcePosition
+      if(this.checkInsert()) {
+        id = this.insert
+      }
+      else {
+        id = this.update
+      }
+      this.primaryKeys_(id)
+    }
+  }
+
   override def insert(): Int ={
-    dbHandler.insertDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity)
+    dbHandler.insertDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
   }
 
   override def update(): Int ={
-    dbHandler.updateDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity)
+    dbHandler.updateDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
   }
 
   override def setForeignKeys(table: Table): Unit = {
   }
 
   override def checkInsert(): Boolean ={
-    dbHandler.checkInsertDonor(this.sourceId)
+    dbHandler.checkInsertDonor(this.sourceIdArray(actualPosition))
   }
 
   override def checkConsistency(): Boolean = {
-    if(this.sourceId != null) true else false
+    this.sourceIdArray.foreach(source => if(this.sourceIdArray == null) false)
+    true
   }
 
   override def getId(): Int = {
-    dbHandler.getDonorId(this.sourceId)
+    dbHandler.getDonorId(this.sourceIdArray(actualPosition))
   }
-  */
+
 
 }

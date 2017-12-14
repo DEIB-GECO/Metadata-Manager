@@ -1,6 +1,6 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-class DerivedFrom extends EncodeTable {
+class DerivedFrom(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId) {
 
   var initialItemId: Int = _
 

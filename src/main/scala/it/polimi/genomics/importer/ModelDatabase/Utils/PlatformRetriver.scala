@@ -8,7 +8,7 @@ import it.polimi.genomics.importer.ModelDatabase._
 import org.apache.log4j.Logger
 
 
-class PlatformRetriver (val path: String, val originalSourceId: String){
+class PlatformRetriver (val path: String, val originalSourceId: String,var encodesTableId: EncodeTableId){
   val logger: Logger = Logger.getLogger(this.getClass)
 
   private val replaceTransformation = "Transformations".r
@@ -45,7 +45,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String){
                 initialItemId = item.specialUpdate()
               }
               insertCaseItem(initialItemId)
-             // getReplicatesAndInsert(file,initialItemId)
+              getReplicatesAndInsert(file,initialItemId)
               val derivedFrom = defineDerivedFrom(file,initialItemId,finalItemId,precDescription)
               insertOrUpdateDerivedFrom(derivedFrom)
             }
@@ -82,7 +82,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String){
                 initialItemId = item.specialUpdate()
               }
               insertCaseItem(initialItemId)
-             // getReplicatesAndInsert(file,initialItemId)
+              getReplicatesAndInsert(file,initialItemId)
               val derivedFrom = defineDerivedFrom(file,initialItemId,finalItemId,precDescription)
               insertOrUpdateDerivedFrom(derivedFrom)
             }
@@ -93,7 +93,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String){
   }
 
   def defineItem(file: JsonNode): Item = {
-    val item = new Item
+    val item = new Item(encodesTableId)
     item.containerId = containerId
     item.sourceId = file.get("accession").asText()
     item.dataType = file.get("output_type").asText()
@@ -133,7 +133,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String){
 
 
   def defineDerivedFrom(file: JsonNode, initialItemId: Int, finalItemId: Int, precDescription: String): DerivedFrom = {
-    val derivedFrom = new DerivedFrom
+    val derivedFrom = new DerivedFrom(encodesTableId)
     derivedFrom.initialItemId = initialItemId
     derivedFrom.finalItemId = finalItemId
     derivedFrom.description = precDescription
@@ -172,7 +172,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String){
   }
 
   def insertCaseItem(itemId: Int):Unit = {
-    val caseItem = new CaseItem
+    val caseItem = new CaseItem(encodesTableId)
     caseItem.itemId = itemId
     caseItem.caseId = caseId
     println("caseId " + caseItem.caseId)
@@ -191,9 +191,9 @@ class PlatformRetriver (val path: String, val originalSourceId: String){
   }
 
   def insertReplicateItem(itemId: Int, key: String): Unit ={
-    val replicateItem = new ReplicateItem
+    val replicateItem = new ReplicateItem(encodesTableId)
     replicateItem.itemId = itemId
-    replicateItem.repId = EncodesTableId.replicateMap(key)
+    replicateItem.repId = encodesTableId.replicateMap(key)
     replicateItem.insRow()
   }
 

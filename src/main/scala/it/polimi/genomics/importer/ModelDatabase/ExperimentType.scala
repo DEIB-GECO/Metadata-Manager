@@ -2,7 +2,7 @@ package it.polimi.genomics.importer.ModelDatabase
 
 import it.polimi.genomics.importer.ModelDatabase.Utils.PlatformRetriver
 
-class ExperimentType extends EncodeTable{
+class ExperimentType(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId) {
 
   var technique : String = _
 

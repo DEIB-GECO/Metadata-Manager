@@ -3,18 +3,15 @@ package it.polimi.genomics.importer.ModelDatabase
 
 import it.polimi.genomics.importer.ModelDatabase.Utils._
 import java.io._
-import javax.inject.Singleton
 
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import it.polimi.genomics.importer.main.program.{getTotalTimeFormatted, logger}
 import org.apache.log4j._
 import it.polimi.genomics.importer.GMQLImporter.schemaValidator
-import org.codehaus.jackson.{JsonNode, JsonParser}
-import org.codehaus.jackson.map.MappingJsonFactory
+
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 
@@ -49,17 +46,17 @@ object main{
     Logger.getLogger("slick").addAppender(console3)
     //BasicConfigurator.configure()
 
-    val prova = new Prova
+    /*val prova = new Prova
     val bioSampleEncode = new BioSampleEncode(1,prova)
-    val cases = new Case(prova)
+    val cases = new Case(prova)*/
 
 
 
 
      DbHandler.setDatabase()
-     analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
-    /* analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF657TPI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")*/
-     if (args.length == 0) {
+     //analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
+     analizeFile("/home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF942JEG.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
+    /* if (args.length == 0) {
        logger.warn(s"No arguments specified")
      }
      else if( args.length != 2){
@@ -104,7 +101,7 @@ object main{
        }
        else
          logger.warn("Xml file is not valid according the specified schema, check: " + schemaUrl)
-     }
+     }*/
   }
 
   def analizeFile(path: String, pathXML: String) {
@@ -114,12 +111,13 @@ object main{
     var states = collection.mutable.Map[String, String]()
 
     filePath = path
-    val bioSampleList = new BioSampleList(lines)
+    val encodesTableId = new EncodeTableId
+    val bioSampleList = new BioSampleList(lines,encodesTableId)
     val replicateList = new ReplicateList(lines,bioSampleList)
-    EncodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
-    EncodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
-    EncodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
-    var tables = new EncodeTables
+    encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
+    encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
+    encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
+    var tables = new EncodeTables(encodesTableId)
     tables.filePath_:(path)
     tables.setPathOnTables()
 

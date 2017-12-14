@@ -2,9 +2,9 @@ package it.polimi.genomics.importer.ModelDatabase
 
 import scala.util.control.Breaks._
 
-class BioSampleEncode(quantity: Int, ciao: Prova) extends EncodeTable{
+class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTable(encodeTableId){
 
-  var donorId: Int = _
+  var donorId: Array[Int] = new Array[Int](quantity)
 
   var sourceId: Array[String] = new Array[String](quantity)
 
@@ -26,7 +26,6 @@ class BioSampleEncode(quantity: Int, ciao: Prova) extends EncodeTable{
 
   _foreignKeysTables = List("DONORS")
 
-  this.prova = ciao
 
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = {
     dest.toUpperCase match{
@@ -52,7 +51,7 @@ class BioSampleEncode(quantity: Int, ciao: Prova) extends EncodeTable{
   override def insertRow(): Unit ={
     var id: Int = 0
     var position = 0
-    val array = EncodesTableId.techReplicateArray
+    val array = this.encodeTableId.techReplicateArray
     for(sourcePosition <- 0 to sourceId.length-1){
       this.actualPosition = sourcePosition
       if(this.checkInsert()) {
@@ -82,15 +81,15 @@ class BioSampleEncode(quantity: Int, ciao: Prova) extends EncodeTable{
 
 
   override def insert(): Int ={
-    dbHandler.insertBioSample(donorId,this.sourceId(actualPosition),this.types(actualPosition),this.tIssue(actualPosition),this.cellLine(actualPosition),this.isHealty(actualPosition),this.disease(actualPosition))
+    dbHandler.insertBioSample(donorId(actualPosition),this.sourceId(actualPosition),this.types(actualPosition),this.tIssue(actualPosition),this.cellLine(actualPosition),this.isHealty(actualPosition),this.disease(actualPosition))
   }
 
   override def update(): Int = {
-    dbHandler.updateBioSample(donorId,this.sourceId(actualPosition),this.types(actualPosition),this.tIssue(actualPosition),this.cellLine(actualPosition),this.isHealty(actualPosition),this.disease(actualPosition))
+    dbHandler.updateBioSample(donorId(actualPosition),this.sourceId(actualPosition),this.types(actualPosition),this.tIssue(actualPosition),this.cellLine(actualPosition),this.isHealty(actualPosition),this.disease(actualPosition))
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    this.donorId = table.primaryKey
+    this.donorId = table.primaryKeys.toArray
   }
 
   override def checkInsert(): Boolean ={

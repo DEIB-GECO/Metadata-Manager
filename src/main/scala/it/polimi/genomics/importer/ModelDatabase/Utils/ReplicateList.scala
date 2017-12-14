@@ -18,7 +18,6 @@ class ReplicateList(lines: Array[String], bioSampleList: BioSampleList) {
       println(mi)
       if(mi.hasNext) {
         mi.next()
-        println(l)
         val replicateUuid = l.split("\t")
         _uuidList += replicateUuid(1)
         _biologicalReplicateNumber += bioReplicateNumber
@@ -31,8 +30,9 @@ class ReplicateList(lines: Array[String], bioSampleList: BioSampleList) {
     for(l <- lines){
       val mi = r.findAllIn(l)
       if(mi.hasNext) {
-        val temp = mi.next()
-        val replicateNumber = l.split("__", 3)
+        mi.next()
+        val replicateNumber = l.split("\t")
+        //val replicateNumber = l.split("__", 3)
         _technicalReplicateNumberList += replicateNumber(1)
       }
     }

@@ -1,7 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase
 
 
-class Project extends EncodeTable{
+class Project(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId) {
 
     var projectName: String = _
 

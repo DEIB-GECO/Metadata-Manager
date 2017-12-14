@@ -5,7 +5,7 @@ import it.polimi.genomics.importer.ModelDatabase.Utils.PlatformRetriver
 import scala.collection.mutable.ListBuffer
 
 
-class Replicate extends EncodeTable{
+class Replicate(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
 
   var bioSampleId : ListBuffer[Int] = new ListBuffer[Int]
 
@@ -44,8 +44,8 @@ class Replicate extends EncodeTable{
         id = this.update
       }
       this.primaryKeys_(id)
-     /* val replicateKey = bioReplicateNum(this.actualPosition).toString() + "_" + techReplicateNum(this.actualPosition).toString()
-      EncodesTableId.replicateMap_(replicateKey,id)*/
+      val replicateKey = bioReplicateNum(this.actualPosition).toString() + "_" + techReplicateNum(this.actualPosition).toString()
+      encodeTableId.replicateMap_(replicateKey,id)
     })
   }
 
@@ -66,18 +66,6 @@ class Replicate extends EncodeTable{
   override def checkInsert(): Boolean ={
      dbHandler.checkInsertReplicate(this.sourceId(actualPosition))
   }
-
- /* def checkInsertReplicate(sourceId: String) = {
-    dbHandler.checkInsertReplicate(sourceId)
-  }*/
-
- /* override def primaryKey_(key: Int): Unit = {
-    _primaryKeys += key
-  }
-
-  override def primaryKey(): Int ={
-    _primaryKeys.head
-  }*/
 
   override def getId(): Int = {
     dbHandler.getReplicateId(this.sourceId.head)

@@ -3,9 +3,7 @@ package it.polimi.genomics.importer.ModelDatabase
 
 import exceptions.NoGlobalKeyException
 
-abstract class EncodeTable extends Table{
-
-  var prova: Prova = _
+abstract class EncodeTable(var encodeTableId: EncodeTableId) extends Table{
 
   override def insertRow(): Unit ={
     if(this.checkInsert()) {

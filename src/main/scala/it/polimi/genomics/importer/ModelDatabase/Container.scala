@@ -1,7 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase
 
 
-class Container extends EncodeTable{
+class Container(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
 
   var experimentTypeId : Int = _
 

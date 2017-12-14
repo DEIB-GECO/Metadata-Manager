@@ -3,7 +3,7 @@ package it.polimi.genomics.importer.ModelDatabase
 import scala.collection.mutable.ListBuffer
 
 
-class ReplicateItem extends EncodeTable{
+class ReplicateItem(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
 
   var itemId: Int = _
 

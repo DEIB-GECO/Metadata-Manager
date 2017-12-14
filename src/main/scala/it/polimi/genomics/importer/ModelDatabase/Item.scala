@@ -3,7 +3,7 @@ package it.polimi.genomics.importer.ModelDatabase
 import it.polimi.genomics.importer.ModelDatabase.Utils.{PlatformRetriver, Statistics}
 
 
-class Item extends EncodeTable{
+class Item(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
 
   var containerId : Int = _
 
@@ -54,8 +54,8 @@ class Item extends EncodeTable{
 
   override def insert(): Int = {
     val id = dbHandler.insertItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId)
-    platformRetriver.getItems(id,this.containerId,EncodesTableId.caseId)
+    val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId,this.encodeTableId)
+    platformRetriver.getItems(id,this.containerId,this.encodeTableId.caseId)
     Statistics.itemInserted += 1
     id
   }
@@ -69,8 +69,8 @@ class Item extends EncodeTable{
 
   override def update(): Int = {
     val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId)
-    platformRetriver.getItems(id,this.containerId,EncodesTableId.caseId)
+    val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId,this.encodeTableId)
+    platformRetriver.getItems(id,this.containerId,this.encodeTableId.caseId)
     Statistics.itemInserted += 1
     id
   }
