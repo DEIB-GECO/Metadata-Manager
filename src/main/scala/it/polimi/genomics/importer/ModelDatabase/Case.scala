@@ -1,38 +1,26 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-class Case(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
+trait Case extends Table{
 
-    var projectId : Int = _
+  var projectId : Int = _
 
-    var sourceId : String = _
+  var sourceId : String = _
 
-    var sourceSite : String = _
+  var sourceSite : String = _
 
-    var externalRef: String = _
+  var externalRef: String = _
 
   _hasForeignKeys = true
 
   _foreignKeysTables = List("PROJECTS")
 
 
-  override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit =   dest.toUpperCase() match{
-    case "SOURCEID" => this.sourceId = insertMethod(this.sourceId,param)
-    case "SOURCESITE" => this.sourceSite = insertMethod(this.sourceSite,param)
-    case "EXTERNALREF" => this.externalRef =  insertMethod(this.externalRef,param)
-    case _ => noMatching(dest)
-  }
-
-
   override def insert() = {
-    val id = dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
-    this.encodeTableId.caseId_(id)
-    id
+    dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
   }
 
   override def update() = {
-    val id = dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
-    this.encodeTableId.caseId_(id)
-    id
+    dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -50,4 +38,5 @@ class Case(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
   override def checkConsistency(): Boolean = {
     if(this.sourceId != null) true else false
   }
+
 }

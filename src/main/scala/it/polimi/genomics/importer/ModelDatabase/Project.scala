@@ -1,17 +1,10 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+trait Project extends Table{
 
-class Project(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId) {
+  var projectName: String = _
 
-    var projectName: String = _
-
-    var programName: String = _
-
-    override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = dest.toUpperCase() match {
-      case "PROJECTNAME" => {this.projectName = insertMethod(this.projectName,param); println("Project name " + this.projectName)}
-      case "PROGRAMNAME" => this.programName = insertMethod(this.programName,param)
-      case _ => noMatching(dest)
-    }
+  var programName: String = _
 
   override def insert() = {
     dbHandler.insertProject(this.projectName.toUpperCase(),this.programName)

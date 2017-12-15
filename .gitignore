@@ -39,4 +39,3 @@ build.log
 
 #SHITTY output not in target directory
 build.log
-src/main/scala/it/polimi/genomics/importer/FileReader/

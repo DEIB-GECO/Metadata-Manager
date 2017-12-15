@@ -1,4 +1,4 @@
-package it.polimi.genomics.importer.ModelDatabase.Utils
+package it.polimi.genomics.importer.ModelDatabase.Encode.Utils
 
 import scala.collection.mutable.ListBuffer
 
@@ -15,7 +15,6 @@ class ReplicateList(lines: Array[String], bioSampleList: BioSampleList) {
     val r = ("replicates__" + bioReplicateNumber +"__uuid").r
     for(l <- lines){
       val mi = r.findAllIn(l)
-      println(mi)
       if(mi.hasNext) {
         mi.next()
         val replicateUuid = l.split("\t")
@@ -37,11 +36,6 @@ class ReplicateList(lines: Array[String], bioSampleList: BioSampleList) {
       }
     }
   })
-
-  println(_uuidList)
-  println(_technicalReplicateNumberList)
-  println(_biologicalReplicateNumber)
-
 
   def UuidList: List[String] = _uuidList.toList
 

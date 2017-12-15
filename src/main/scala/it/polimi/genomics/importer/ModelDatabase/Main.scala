@@ -5,10 +5,11 @@ import it.polimi.genomics.importer.ModelDatabase.Utils._
 import java.io._
 
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
-import it.polimi.genomics.importer.main.program.{getTotalTimeFormatted, logger}
+import it.polimi.genomics.importer.main.program.getTotalTimeFormatted
 import org.apache.log4j._
 import it.polimi.genomics.importer.GMQLImporter.schemaValidator
-
+import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, ReplicateList}
+import it.polimi.genomics.importer.ModelDatabase.Encode.{EncodeTableId, EncodeTables}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
@@ -45,10 +46,6 @@ object main{
     console3.activateOptions()
     Logger.getLogger("slick").addAppender(console3)
     //BasicConfigurator.configure()
-
-    /*val prova = new Prova
-    val bioSampleEncode = new BioSampleEncode(1,prova)
-    val cases = new Case(prova)*/
 
 
 
@@ -130,7 +127,7 @@ object main{
     if(status.equals("released")) {
       Statistics.released += 1
       logger.info(s"File status released, start populate table")
-      val xml = new XMLReader(pathXML, replicateList,bioSampleList,states)
+      val xml = new XMLReaderEncode(pathXML, replicateList,bioSampleList,states)
       val operationsList = xml.operationsList
       operationsList.map(x =>
         try {
@@ -174,6 +171,7 @@ object main{
     method.toUpperCase() match {
       case "MANUALLY" => if(sourceKey == "null") null else sourceKey
       case "CONCAT" => if (actualParam == null) newParam else actualParam.concat(" " + newParam)
+      case "CONCAT-NOSPACE" => if (actualParam == null) newParam else actualParam.concat(newParam)
       case "DEFAULT" => newParam
       //case "PLATFORM" => new PlatformRetriver(filePath).getPlatform(newParam)
       case _ => actualParam

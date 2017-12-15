@@ -1,11 +1,12 @@
 package it.polimi.genomics.importer.ModelDatabase.Utils
 
+import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, ReplicateList}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable.ListBuffer
 import scala.xml.XML
 
-class XMLReader(val path: String, val replicates: ReplicateList, val biosamples: BioSampleList, var states: collection.mutable.Map[String, String]) {
+class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosamples: BioSampleList, var states: collection.mutable.Map[String, String]) {
   private val xml = XML.loadFile(path)
   private val default: String = "DEFAULT"
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
@@ -59,18 +60,6 @@ class XMLReader(val path: String, val replicates: ReplicateList, val biosamples:
               states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.TechnicalReplicateNumberList(position)
             operations += app.toList
           }
-         /* replicates..map(technicalReplicateNumber => {
-            var app = new ListBuffer[String]()
-            app += ((x \ "@name").toString())
-            app += ((xi \ "source_key").text  + "__" + uuid).replaceAll("X", number)
-            app += ((xi \ "global_key").text)
-
-            if ((xi \ "@method").toString() != "")
-              app += ((xi \ "@method").toString())
-            else
-              app += default
-            operations += app.toList
-          })*/
         }
       }
     } catch {

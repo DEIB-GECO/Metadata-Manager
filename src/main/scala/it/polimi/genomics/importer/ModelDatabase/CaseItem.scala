@@ -1,7 +1,9 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import it.polimi.genomics.importer.ModelDatabase.Encode.Table.{CaseEncode, ItemEncode}
 
-class CaseItem(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
+trait CaseItem extends Table{
+
   var itemId: Int = _
 
   var caseId: Int = _
@@ -10,12 +12,10 @@ class CaseItem(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
 
   _foreignKeysTables = List("ITEMS","CASES")
 
-  override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit = ???
-
   override def insertRow(): Unit ={
     if(this.checkInsert()) {
-        this.insert
-      }
+      this.insert
+    }
   }
 
   override def insert() : Int ={
@@ -27,9 +27,9 @@ class CaseItem(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    if(table.isInstanceOf[Item])
+    if(table.isInstanceOf[ItemEncode])
       this.itemId = table.primaryKey
-    if(table.isInstanceOf[Case])
+    if(table.isInstanceOf[CaseEncode])
       this.caseId = table.primaryKey
   }
 
@@ -39,7 +39,7 @@ class CaseItem(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
   }
 
   override def getId(): Int = {
-   // dbHandler.getCasesItemId(this.itemId,this.caseId)
+    // dbHandler.getCasesItemId(this.itemId,this.caseId)
     -1
   }
 

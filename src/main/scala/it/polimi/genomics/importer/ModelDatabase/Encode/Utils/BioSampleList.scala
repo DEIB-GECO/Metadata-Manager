@@ -1,10 +1,10 @@
-package it.polimi.genomics.importer.ModelDatabase.Utils
+package it.polimi.genomics.importer.ModelDatabase.Encode.Utils
 
-import it.polimi.genomics.importer.ModelDatabase.{EncodeTableId, EncodesTableId}
+import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
 
 import scala.collection.mutable.ListBuffer
 
-class DonorList(lines: Array[String], encodesTableId: EncodeTableId){
+class BioSampleList(lines: Array[String], encodeTableId: EncodeTableId) {
 
   private val r = "replicates__(\\d)+__library__biosample__accession".r
 
@@ -19,10 +19,10 @@ class DonorList(lines: Array[String], encodesTableId: EncodeTableId){
     }
   }
 
-  encodesTableId.bioSampleArray(_list.toArray)
+  encodeTableId.bioSampleArray(_list.toArray)
 
   def bioSampleQuantity = _list.length
 
-  def DonorList: List[String] = _list.toList
+  def BiosampleList: List[String] = _list.toList
 
 }

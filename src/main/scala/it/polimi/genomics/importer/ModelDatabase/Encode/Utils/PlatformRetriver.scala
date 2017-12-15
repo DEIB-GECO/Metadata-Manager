@@ -1,11 +1,12 @@
-package it.polimi.genomics.importer.ModelDatabase.Utils
+package it.polimi.genomics.importer.ModelDatabase.Encode.Utils
 
-import org.codehaus.jackson.{JsonNode, JsonParser}
-import org.codehaus.jackson.map.MappingJsonFactory
 import java.io.File
 
-import it.polimi.genomics.importer.ModelDatabase._
+import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
+import it.polimi.genomics.importer.ModelDatabase.Encode.Table.{CaseItemEncode, DerivedFromEncode, ItemEncode, ReplicateItemEncode}
 import org.apache.log4j.Logger
+import org.codehaus.jackson.map.MappingJsonFactory
+import org.codehaus.jackson.{JsonNode, JsonParser}
 
 
 class PlatformRetriver (val path: String, val originalSourceId: String,var encodesTableId: EncodeTableId){
@@ -92,8 +93,8 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
     }
   }
 
-  def defineItem(file: JsonNode): Item = {
-    val item = new Item(encodesTableId)
+  def defineItem(file: JsonNode): ItemEncode = {
+    val item = new ItemEncode(encodesTableId)
     item.containerId = containerId
     item.sourceId = file.get("accession").asText()
     item.dataType = file.get("output_type").asText()
@@ -132,8 +133,8 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
   }
 
 
-  def defineDerivedFrom(file: JsonNode, initialItemId: Int, finalItemId: Int, precDescription: String): DerivedFrom = {
-    val derivedFrom = new DerivedFrom(encodesTableId)
+  def defineDerivedFrom(file: JsonNode, initialItemId: Int, finalItemId: Int, precDescription: String): DerivedFromEncode = {
+    val derivedFrom = new DerivedFromEncode(encodesTableId)
     derivedFrom.initialItemId = initialItemId
     derivedFrom.finalItemId = finalItemId
     derivedFrom.description = precDescription
@@ -164,7 +165,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
     }
   }
 
-  def insertOrUpdateDerivedFrom(derivedFrom: DerivedFrom): Unit = {
+  def insertOrUpdateDerivedFrom(derivedFrom: DerivedFromEncode): Unit = {
     if (derivedFrom.checkInsert())
       derivedFrom.insert()
     else
@@ -172,11 +173,9 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
   }
 
   def insertCaseItem(itemId: Int):Unit = {
-    val caseItem = new CaseItem(encodesTableId)
+    val caseItem = new CaseItemEncode(encodesTableId)
     caseItem.itemId = itemId
     caseItem.caseId = caseId
-    println("caseId " + caseItem.caseId)
-    println("itemId " + caseItem.itemId)
     caseItem.insertRow()
   }
 
@@ -191,7 +190,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
   }
 
   def insertReplicateItem(itemId: Int, key: String): Unit ={
-    val replicateItem = new ReplicateItem(encodesTableId)
+    val replicateItem = new ReplicateItemEncode(encodesTableId)
     replicateItem.itemId = itemId
     replicateItem.repId = encodesTableId.replicateMap(key)
     replicateItem.insRow()

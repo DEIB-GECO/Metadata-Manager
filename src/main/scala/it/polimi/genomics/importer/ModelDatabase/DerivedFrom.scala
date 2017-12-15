@@ -1,6 +1,6 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-class DerivedFrom(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId) {
+trait DerivedFrom extends Table{
 
   var initialItemId: Int = _
 
@@ -10,7 +10,6 @@ class DerivedFrom(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableI
 
   override def getId: Int = ???
 
-  override def setParameter(param: String, dest: String, insertMethod: (String, String) => String): Unit = ???
 
   override def checkInsert(): Boolean = {
     dbHandler.checkInsertDerivedFrom(initialItemId,finalItemId)
@@ -25,4 +24,5 @@ class DerivedFrom(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableI
   }
 
   override def setForeignKeys(table: Table): Unit = ???
+
 }

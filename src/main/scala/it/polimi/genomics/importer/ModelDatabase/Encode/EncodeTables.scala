@@ -1,9 +1,9 @@
-package it.polimi.genomics.importer.ModelDatabase
-
+package it.polimi.genomics.importer.ModelDatabase.Encode
 
 import exceptions.NoTableNameException
-import it.polimi.genomics.importer.ModelDatabase.Encode.Table.DonorEncode
+import it.polimi.genomics.importer.ModelDatabase.Encode.Table._
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
+import it.polimi.genomics.importer.ModelDatabase.{Table, Tables}
 import org.apache.log4j.Logger
 
 
@@ -46,14 +46,14 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
     value match {
       case Donors => return new DonorEncode(encodeTableId, encodeTableId.bioSampleQuantity)
       case BioSamples => return new BioSampleEncode(encodeTableId, encodeTableId.bioSampleQuantity)
-      case Replicates => return new Replicate(encodeTableId)
-      case ExperimentsType => return new ExperimentType(encodeTableId)
-      case Projects => return new Project(encodeTableId)
-      case Containers => return new Container(encodeTableId)
-      case Cases => return new Case(encodeTableId)
-      case Items => return new Item(encodeTableId)
-      case CasesItems => return new CaseItem(encodeTableId)
-      case ReplicatesItems => return new ReplicateItem(encodeTableId)
+      case Replicates => return new ReplicateEncode(encodeTableId)
+      case ExperimentsType => return new ExperimentTypeEncode(encodeTableId)
+      case Projects => return new ProjectEncode(encodeTableId)
+      case Containers => return new ContainerEncode(encodeTableId)
+      case Cases => return new CaseEncode(encodeTableId)
+      case Items => return new ItemEncode(encodeTableId)
+      case CasesItems => return new CaseItemEncode(encodeTableId)
+      case ReplicatesItems => return new ReplicateItemEncode(encodeTableId)
       case _ => throw new NoTableNameException(value.toString)
     }
   }
@@ -70,7 +70,6 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
         Statistics.releasedItemNotInserted += 1
       }
       if(insert) {
-        println(table)
         table.insertRow()
       }
     }

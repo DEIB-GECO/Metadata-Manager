@@ -1,11 +1,12 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
-import it.polimi.genomics.importer.ModelDatabase.{Donor, EncodesTableId, ProvaTable, Table, EncodeTableId}
+import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
+import it.polimi.genomics.importer.ModelDatabase.{Donor, Table}
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 
 import scala.util.control.Breaks.{break, breakable}
 
-class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends ProvaTable(encodeTableId) with Donor{
+class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTable(encodeTableId) with Donor{
 
   val sourceIdArray: Array[String] = new Array[String](quantity)
 

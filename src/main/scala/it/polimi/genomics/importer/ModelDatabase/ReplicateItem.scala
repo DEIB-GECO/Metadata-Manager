@@ -1,13 +1,14 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import it.polimi.genomics.importer.ModelDatabase.Encode.Table.{ItemEncode, ReplicateEncode}
+
 import scala.collection.mutable.ListBuffer
 
-
-class ReplicateItem(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId){
+trait ReplicateItem extends Table{
 
   var itemId: Int = _
 
-  var replicateId: ListBuffer[Int] = new ListBuffer[Int]
+  var replicateId: Int = _
 
   var repId: Int = _
 
@@ -15,57 +16,30 @@ class ReplicateItem(encodeTableId: EncodeTableId) extends EncodeTable(encodeTabl
 
   _foreignKeysTables = List("ITEMS","REPLICATES")
 
-  var actualPosition: Int = _
-
-  override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = ???
-
   override def insertRow(): Unit ={
-    this.replicateId.map(replicate=>{
-      this.actualPosition = replicateId.indexOf(replicate)
-      if(this.checkInsert()) {
-        this.insert()
-      }})
-  }
-
-  def insRow(): Unit = {
-    if(this.specialCheckInsert())
-      this.specialInsert()
-  }
-
-  def specialInsert(): Int = {
-    dbHandler.insertReplicateItem(itemId,repId)
-  }
-
-  def specialCheckInsert(): Boolean ={
-    dbHandler.checkInsertReplicateItem(itemId,repId)
+    if(this.checkInsert()) {
+      this.insert
+    }
   }
 
   override def insert() : Int ={
-    dbHandler.insertReplicateItem(itemId,replicateId(this.actualPosition))
+    dbHandler.insertReplicateItem(itemId,repId)
   }
 
   override def update() : Int ={
-   -1 //ritorno un valore senza senso in quanto non ci possono essere update per le tabelle di congiunzione, al massimo si inserisce una riga nuova
+    -1 //ritorno un valore senza senso in quanto non ci possono essere update per le tabelle di congiunzione, al massimo si inserisce una riga nuova
   }
 
- /* def insertReplicateItem(replicateId: Int) : Int ={
-    dbHandler.insertReplicateItem(itemId,replicateId)
-  }*/
-
   override def setForeignKeys(table: Table): Unit = {
-    if(table.isInstanceOf[Item])
+    if(table.isInstanceOf[ItemEncode])
       this.itemId = table.primaryKey
-    if(table.isInstanceOf[Replicate])
-      this.replicateId = table.primaryKeys
+    if(table.isInstanceOf[ReplicateEncode])
+      this.replicateId = table.primaryKey
   }
 
   override def checkInsert(): Boolean ={
-     dbHandler.checkInsertReplicateItem(this.itemId,this.replicateId(this.actualPosition))
+    dbHandler.checkInsertReplicateItem(itemId,repId)
   }
-
-  /*def checkInsertReplicateItem(replicateId: Int): Boolean ={
-    dbHandler.checkInsertReplicateItem(this.itemId,replicateId)
-  }*/
 
   override def getId(): Int = {
     -1

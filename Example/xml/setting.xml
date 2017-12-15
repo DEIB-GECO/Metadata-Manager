@@ -35,11 +35,11 @@
             <source_key>replicates__X__library__biosample__biosample_type</source_key>
             <global_key>tissue</global_key>
         </mapping>
-        <mapping>
+        <mapping method="CONCAT">
             <source_key>replicates__X__library__biosample__biosample_term_id</source_key>
             <global_key>cellLine</global_key>
         </mapping>
-        <mapping>
+        <mapping method="CONCAT">
             <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
             <global_key>cellLine</global_key>
         </mapping>
