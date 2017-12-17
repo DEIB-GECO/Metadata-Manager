@@ -27,9 +27,9 @@ trait CaseItem extends Table{
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    if(table.isInstanceOf[ItemEncode])
+    if(table.isInstanceOf[Item])
       this.itemId = table.primaryKey
-    if(table.isInstanceOf[CaseEncode])
+    if(table.isInstanceOf[Case])
       this.caseId = table.primaryKey
   }
 

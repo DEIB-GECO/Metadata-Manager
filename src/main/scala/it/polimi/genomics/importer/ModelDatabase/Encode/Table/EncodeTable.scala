@@ -6,7 +6,7 @@ import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
 abstract class EncodeTable(var encodeTableId: EncodeTableId){
 
   def noMatching(message: String): Unit = {
-    throw new NoGlobalKeyException("No global key for " + message)
+    throw new NoGlobalKeyException("[ENCODE] No global key for " + message)
   }
 
 }

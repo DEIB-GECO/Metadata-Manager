@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <root>
     <table name="DONORS">
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>clinical__shared__bcr_patient_uuid</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping method="CHECK-PREC">
             <source_key>biospecimen__shared__bcr_patient_uuid</source_key>
             <global_key>sourceId</global_key>
         </mapping>
@@ -14,14 +14,14 @@
             <global_key>species</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__donor__age</source_key>
+            <source_key>manually_curated__cases__demographic__year_of_birth</source_key>
             <global_key>age</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>clinical__shared__gender</source_key>
             <global_key>gender</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping method="CHECK-PREC">
             <source_key>biospecimen__shared__gender</source_key>
             <global_key>gender</global_key>
         </mapping>
@@ -51,8 +51,8 @@
             <source_key>null</source_key>
             <global_key>cellLine</global_key>
         </mapping>
-        <mapping>
-            <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
+        <mapping method="MANUALLY">
+            <source_key></source_key>
             <global_key>cellLine</global_key>
         </mapping>
         <mapping>
@@ -84,14 +84,14 @@
             <global_key>technique</global_key>
         </mapping>
         <mapping>
-            <source_key>file__replicate__experiment__target__investigated_as</source_key>
+            <source_key>manually_curated__experimental_strategy</source_key>
             <global_key>feature</global_key>
         </mapping>
-        <mapping method="MANULLY">
+        <mapping method="MANUALLY">
             <source_key>null</source_key>
             <global_key>target</global_key>
         </mapping>
-        <mapping method="MANULLY">
+        <mapping method="MANUALLY">
             <source_key>null</source_key>
             <global_key>antibody</global_key>
         </mapping>
@@ -141,7 +141,7 @@
             <source_key>GRCh38</source_key>
             <global_key>assembly</global_key>
         </mapping>
-        <mapping method="MANUALLY-BOOL">
+        <mapping method="MANUALLY">
             <source_key>false</source_key>
             <global_key>isAnn</global_key>
         </mapping>

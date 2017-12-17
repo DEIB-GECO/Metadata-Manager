@@ -18,6 +18,16 @@ trait Tables extends Enumeration{
 
   protected val tables: mutable.Map[Value, Table] = collection.mutable.Map[this.Value, Table]()
 
-  def selectTableByName(name: String): Table
-  def selectTableByValue(enum: this.Value): Table
+  //def selectTableByName(name: String): Table
+  //def selectTableByValue(enum: this.Value): Table
+  def selectTableByName(name: String): Table = tables(this.withName(name))
+  def selectTableByValue(enum: this.Value): Table = tables(enum)
+
+  def getOrderOfInsertion(): List[Value] ={
+    return List(Donors,BioSamples,Replicates,ExperimentsType,Projects,Containers,Cases,Items,CasesItems,ReplicatesItems)
   }
+
+  def insertTables(): Unit
+
+  def getNewTable(value: Value): Table
+}

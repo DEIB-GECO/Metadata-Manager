@@ -1,24 +1,22 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import java.io.File
 
-import it.polimi.genomics.importer.ModelDatabase.Utils._
-import java.io._
-
+import it.polimi.genomics.importer.GMQLImporter.schemaValidator
+import it.polimi.genomics.importer.ModelDatabase.TCGA.TCGATables
+import it.polimi.genomics.importer.ModelDatabase.Utils.{Statistics, XMLReaderTCGA}
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import it.polimi.genomics.importer.main.program.getTotalTimeFormatted
 import org.apache.log4j._
-import it.polimi.genomics.importer.GMQLImporter.schemaValidator
-import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, ReplicateList}
-import it.polimi.genomics.importer.ModelDatabase.Encode.{EncodeTableId, EncodeTables}
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
 import scala.io.Source
 
+object MainTCGA {
 
-object main{
   val logger: Logger = Logger.getLogger(this.getClass)
-  private val regexBedMeta = ".*.bed.meta".r
+  private val r = ".*.bed.meta".r
   var filePath: String = _
 
   def main(args: Array[String]): Unit = {
@@ -51,7 +49,7 @@ object main{
 
 
      DbHandler.setDatabase()
-     //analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
+     //analizeFile("/home/federico/Scrivania/TCGA/00014f01-24a5-4226-9ed6-4b9cabacd074-cns.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/settingTCGA.xml")
      //analizeFile("/home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF942JEG.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
      if (args.length == 0) {
        logger.warn(s"No arguments specified")
@@ -84,7 +82,7 @@ object main{
 
          val t0: Long = System.nanoTime()
          println(pathGMQL)
-         recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
+         recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
          val t1 = System.nanoTime()
          logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
          logger.info(s"Total file analized ${Statistics.fileNumber}")
@@ -108,26 +106,16 @@ object main{
     var states = collection.mutable.Map[String, String]()
 
     filePath = path
-    val encodesTableId = new EncodeTableId
-    val bioSampleList = new BioSampleList(lines,encodesTableId)
-    val replicateList = new ReplicateList(lines,bioSampleList)
-    encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
-    encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
-    encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
-    var tables = new EncodeTables(encodesTableId)
-    tables.filePath_:(path)
-    tables.setPathOnTables()
+    var tables = new TCGATables
 
 
     for (l <- lines) {
       val first = l.split("\t", 2)
       states += (first(0) -> first(1))
     }
-    val status = states("file__status")
-    if(status.equals("released")) {
       Statistics.released += 1
       logger.info(s"File status released, start populate table")
-      val xml = new XMLReaderEncode(pathXML, replicateList,bioSampleList,states)
+      val xml = new XMLReaderTCGA(pathXML)
       val operationsList = xml.operationsList
       operationsList.map(x =>
         try {
@@ -135,15 +123,8 @@ object main{
 
         } catch {
           case e: Exception => logger.warn(s"SourceKey does't find for $x")
-
-
         })
       tables.insertTables()
-    }
-    else{
-      Statistics.archived += 1
-      logger.info(s"File status $status, go to next file" )
-    }
 
     def populateTable(list: List[String], table: Table): Unit = {
       val insertMethod = selectInsertionMethod(list(1),list(2),list(3))
@@ -171,11 +152,12 @@ object main{
     method.toUpperCase() match {
       case "MANUALLY" => if(sourceKey == "null") null else sourceKey
       case "CONCAT" => if (actualParam == null) newParam else actualParam.concat(" " + newParam)
-      case "CONCAT-NOSPACE" => if (actualParam == null) newParam else actualParam.concat(" " + newParam)
+      case "CONCAT-NOSPACE" => if (actualParam == null) newParam else actualParam.concat(newParam)
+      case "CHECK-PREC" => if(actualParam == null) newParam else actualParam
       case "DEFAULT" => newParam
       //case "PLATFORM" => new PlatformRetriver(filePath).getPlatform(newParam)
       case _ => actualParam
     }
   }
-}
 
+}

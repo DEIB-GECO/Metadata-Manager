@@ -12,6 +12,10 @@ class ReplicateItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(enco
 
   var actualPosition: Int = _
 
+  var repId: Int = _
+
+  override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = ???
+
 
   override def insertRow(): Unit ={
     this.replicateIdList.map(replicate=>{
@@ -42,10 +46,6 @@ class ReplicateItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(enco
     -1 //ritorno un valore senza senso in quanto non ci possono essere update per le tabelle di congiunzione, al massimo si inserisce una riga nuova
   }
 
-  /* def insertReplicateItem(replicateId: Int) : Int ={
-     dbHandler.insertReplicateItem(itemId,replicateId)
-   }*/
-
   override def setForeignKeys(table: Table): Unit = {
     if(table.isInstanceOf[ItemEncode])
       this.itemId = table.primaryKey
@@ -57,14 +57,8 @@ class ReplicateItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(enco
     dbHandler.checkInsertReplicateItem(this.itemId,this.replicateIdList(this.actualPosition))
   }
 
-  /*def checkInsertReplicateItem(replicateId: Int): Boolean ={
-    dbHandler.checkInsertReplicateItem(this.itemId,replicateId)
-  }*/
-
   override def getId(): Int = {
     -1
   }
-
-  override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = ???
 
 }

@@ -16,10 +16,10 @@ object DbHandler {
   val conf = ConfigFactory.load()
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  //val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
+ /* val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
 
-  //val driver = "com.mysql.jdbc.Driver"
- // val database = Database.forURL(connectionUrl, driver, keepAliveConnection = true)
+   val driver = "org.postgresql.Driver"
+   val database = Database.forURL(connectionUrl, driver, keepAliveConnection = true)*/
  val database = Database.forURL(
    conf.getString("database.url"),
    conf.getString("database.username"),
@@ -232,11 +232,11 @@ object DbHandler {
   }
 
   def updateProject(projectName: String, programName: String): Int ={
-    val query = for { project <- projects if project.projectName === programName } yield (project.programName)
+    val query = for { project <- projects if project.projectName === projectName } yield (project.programName)
     val updateAction = query.update(Option(programName))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
-    val idQuery = projects.filter(_.projectName === programName).map(_.projectId)
+    val idQuery = projects.filter(_.projectName === projectName).map(_.projectId)
     val returnAction = idQuery.result
     val execution2 = database.run(returnAction)
     val id = Await.result(execution2,Duration.Inf)
@@ -728,7 +728,7 @@ object DbHandler {
 
     def replicateId = column[Int]("REPLICATE_ID")
 
-    def pk = primaryKey("ITEM_REPLICATE_ID", (itemId, replicateId))
+    def pk = primaryKey("ITEM_REPLICATE_ID_REPLICATESITEM", (itemId, replicateId))
 
     def item = foreignKey("ITEMS_REPLICATEITEM_FK", itemId, items)(
       _.itemId,
@@ -756,7 +756,7 @@ object DbHandler {
 
     def operation = column[Option[String]]("OPERATION", O.Default(None))
 
-    def pk = primaryKey("ITEM_REPLICATE_ID", (initialItemId, finalItemId))
+    def pk = primaryKey("ITEM_REPLICATE_ID_DERIVEDFROM", (initialItemId, finalItemId))
 
     def initialItemIdFK= foreignKey("ITEMS_INITIALITEM_FK", initialItemId, items)(
       _.itemId,

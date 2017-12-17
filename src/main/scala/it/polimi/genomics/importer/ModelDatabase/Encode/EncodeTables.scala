@@ -11,32 +11,17 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
 
   protected var _filePath: String = _
 
-
-
   def filePath: String = _filePath
   def filePath_: (filePath: String): Unit = this._filePath = filePath
 
   val logger: Logger = Logger.getLogger(this.getClass)
-/*  val Donors = Value("DONORS")
-  val BioSamples = Value("BIOSAMPLES")
-  val Replicates = Value("REPLICATES")
-  val ExperimentsType = Value("EXPERIMENTSTYPE")
-  val Projects = Value("PROJECTS")
-  val Containers = Value("CONTAINERS")
-  val Cases = Value("CASES")
-  val Items = Value("ITEMS")
-  val CasesItems = Value("CASESITEMS")
-  val ReplicatesItems = Value ("REPLICATESITEMS")*/
-
-  //private val tables = collection.mutable.Map[String, AbstractTable]()
-  //EncodeTableEnum.values.foreach(v => tables += v ->EncodeTableEnum.getTable(v))
 
   this.values.foreach(v => tables += v -> this.getNewTable(v))
   //override def selectTableByName(name: String): Table = tables(EncodeTableEnum.withName(name))
   //override def selectTableByValue(enum: EncodeTableEnum.Value): Table = tables(enum)
 
-  override def selectTableByName(name: String): Table = tables(this.withName(name))
-  override def selectTableByValue(enum: this.Value): Table = tables(enum)
+  /*override def selectTableByName(name: String): Table = tables(this.withName(name))
+  override def selectTableByValue(enum: this.Value): Table = tables(enum)*/
 
   def setPathOnTables(): Unit ={
     getOrderOfInsertion().map(t => this.selectTableByValue(t).filePath_:(this._filePath))
@@ -74,9 +59,5 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
       }
     }
     )
-  }
-
-  def getOrderOfInsertion(): List[Value] ={
-    return List(Donors,BioSamples,Replicates,ExperimentsType,Projects,Containers,Cases,Items,CasesItems,ReplicatesItems)
   }
 }

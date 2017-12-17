@@ -10,8 +10,6 @@ trait ReplicateItem extends Table{
 
   var replicateId: Int = _
 
-  var repId: Int = _
-
   _hasForeignKeys = true
 
   _foreignKeysTables = List("ITEMS","REPLICATES")
@@ -23,7 +21,7 @@ trait ReplicateItem extends Table{
   }
 
   override def insert() : Int ={
-    dbHandler.insertReplicateItem(itemId,repId)
+    dbHandler.insertReplicateItem(itemId,replicateId)
   }
 
   override def update() : Int ={
@@ -31,14 +29,14 @@ trait ReplicateItem extends Table{
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    if(table.isInstanceOf[ItemEncode])
+    if(table.isInstanceOf[Item])
       this.itemId = table.primaryKey
-    if(table.isInstanceOf[ReplicateEncode])
+    if(table.isInstanceOf[Replicate])
       this.replicateId = table.primaryKey
   }
 
   override def checkInsert(): Boolean ={
-    dbHandler.checkInsertReplicateItem(itemId,repId)
+    dbHandler.checkInsertReplicateItem(itemId,replicateId)
   }
 
   override def getId(): Int = {
