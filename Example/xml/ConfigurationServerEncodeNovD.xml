@@ -4,9 +4,9 @@
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
-        <base_working_directory>/home/nacho/GMQL-Importer/testingDirectory</base_working_directory>
-        <download_enabled>true</download_enabled>
-        <transform_enabled>false</transform_enabled>
+        <base_working_directory>/home/nacho/GMQL-Importer/workingDirectory</base_working_directory>
+        <download_enabled>false</download_enabled>
+        <transform_enabled>true</transform_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
     </settings>
@@ -399,199 +399,6 @@
                 </dataset>
             </dataset_list>
         </source>
-        <source name="GRCh38_GDC_TEST">
-            <!--url is the host in the FTPDownloader-->
-            <url>bioinformatics.iasi.cnr.it</url>
-            <source_working_directory>GRCh38_GDC_TEST</source_working_directory>
-            <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
-            <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
-            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
-            <download_enabled>true</download_enabled>
-            <transform_enabled>false</transform_enabled>
-            <load_enabled>false</load_enabled>
-            <parameter_list>
-                <parameter>
-                    <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>
-                    <key>metadata_replacement</key>
-                    <value>xml/metadataReplacementTcga.xml</value>
-                </parameter>
-                <parameter>
-                    <description>It is to know which user in GMQL is going to run the import</description>
-                    <key>gmql_user</key>
-                    <value>public</value>
-                </parameter>
-                <parameter>
-                    <description>For logging in ftp on tcga2bed we need this anonymous user</description>
-                    <key>username</key>
-                    <value>anonymous</value>
-                </parameter>
-                <parameter>
-                    <description>And also the corresponding null password</description>
-                    <key>password</key>
-                    <value/>
-                </parameter>
-                <parameter>
-                    <description>decides the separator char for metadata names.</description>
-                    <key>metadata_name_separation_char</key>
-                    <value>__</value>
-                </parameter>
-            </parameter_list>
-            <dataset_list>
-                <!--THE SCHEMA URL HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
-                <dataset name="copy_number_segment">
-                    <dataset_working_directory>copy_number_segment</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/copy_number_segment/header.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
-                    <parameter_list>
-                        <parameter>
-                            <description>The dataset description on the server, when clicking Show Info</description>
-                            <key>loading_description</key>
-                            <value>This dataset bla bla bla</value>
-                        </parameter>  
-                        <parameter>
-                            <description>We look for all the copy_number_segment folders inside the bed directory</description>
-                            <key>folder_regex</key>
-                            <value>^/opengdc/bed/tcga/.*/copy_number_segment</value>
-                        </parameter>
-                        <parameter>
-                            <description>We look for all the .bed and .meta files to download</description>
-                            <key>files_regex</key>
-                            <!--<value>.*\.bed(\.meta)?$</value>-->
-                            <value>.*(\.meta)$</value>
-                        <!--<value>dd83e500-4ae8-4132-82b9-a5510e48dd6f-cns.*[(\.bed)(\.meta)]$</value>-->
-                    </parameter>
-                    </parameter_list>
-                </dataset>
-                <dataset name="gene_expression_quantification">
-                    <dataset_working_directory>gene_expression_quantification</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/gene_expression_quantification/header.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
-                    <parameter_list>
-                        <parameter>
-                            <description>We look for all the gene_expression_quantification folders inside the bed directory</description>
-                            <key>folder_regex</key>
-                            <value>^/opengdc/bed/tcga/.*/gene_expression_quantification</value>
-                        </parameter>
-                        <parameter>
-                            <description>We look for all the .bed and .meta files to download</description>
-                            <key>files_regex</key>
-                            <!--<value>.*\.bed(\.meta)?$</value>-->
-                            <value>.*(\.meta)$</value>
-                            <!--<value>dd83e500-4ae8-4132-82b9-a5510e48dd6f-cns.*[(\.bed)(\.meta)]$</value>-->
-                        </parameter>
-                    </parameter_list>
-                </dataset>
-                <dataset name="isoform_expression_quantification">
-                    <dataset_working_directory>isoform_expression_quantification</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/isoform_expression_quantification/header.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
-                    <parameter_list>
-                        <parameter>
-                            <description>We look for all the isoform_expression_quantification folders inside the bed directory</description>
-                            <key>folder_regex</key>
-                            <value>^/opengdc/bed/tcga/.*/isoform_expression_quantification</value>
-                        </parameter>
-                        <parameter>
-                            <description>We look for all the .bed and .meta files to download</description>
-                            <key>files_regex</key>
-                            <!--<value>.*\.bed(\.meta)?$</value>-->
-                            <value>.*(\.meta)$</value>
-                            <!--<value>dd83e500-4ae8-4132-82b9-a5510e48dd6f-cns.*[(\.bed)(\.meta)]$</value>-->
-                        </parameter>
-                    </parameter_list>
-                </dataset>
-                <dataset name="masked_copy_number_segment">
-                    <dataset_working_directory>masked_copy_number_segment</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/masked_copy_number_segment/header.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
-                    <parameter_list>
-                        <parameter>
-                            <description>We look for all the masked_copy_number_segment folders inside the bed directory</description>
-                            <key>folder_regex</key>
-                            <value>^/opengdc/bed/tcga/.*/masked_copy_number_segment</value>
-                        </parameter>
-                        <parameter>
-                            <description>We look for all the .bed and .meta files to download</description>
-                            <key>files_regex</key>
-                            <!--<value>.*\.bed(\.meta)?$</value>-->
-                            <value>.*(\.meta)$</value>
-                            <!--<value>dd83e500-4ae8-4132-82b9-a5510e48dd6f-cns.*[(\.bed)(\.meta)]$</value>-->
-                        </parameter>
-                    </parameter_list>
-                </dataset>
-                <dataset name="masked_somatic_mutation">
-                    <dataset_working_directory>masked_somatic_mutation</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/masked_somatic_mutation/header.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
-                    <parameter_list>
-                        <parameter>
-                            <description>We look for all the masked_somatic_mutation folders inside the bed directory</description>
-                            <key>folder_regex</key>
-                            <value>^/opengdc/bed/tcga/.*/masked_somatic_mutation</value>
-                        </parameter>
-                        <parameter>
-                            <description>We look for all the .bed and .meta files to download</description>
-                            <key>files_regex</key>
-                            <!--<value>.*\.bed(\.meta)?$</value>-->
-                            <value>.*(\.meta)$</value>
-                            <!--<value>dd83e500-4ae8-4132-82b9-a5510e48dd6f-cns.*[(\.bed)(\.meta)]$</value>-->
-                        </parameter>
-                    </parameter_list>
-                </dataset>
-                <dataset name="methylation_beta_value">
-                    <dataset_working_directory>methylation_beta_value</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/methylation_beta_value/header.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
-                    <parameter_list>
-                        <parameter>
-                            <description>We look for all the methylation_beta_value folders inside the bed directory</description>
-                            <key>folder_regex</key>
-                            <value>^/opengdc/bed/tcga/.*/methylation_beta_value</value>
-                        </parameter>
-                        <parameter>
-                            <description>We look for all the .bed and .meta files to download</description>
-                            <key>files_regex</key>
-                            <!--<value>.*\.bed(\.meta)?$</value>-->
-                            <value>.*(\.meta)$</value>
-                            <!--<value>dd83e500-4ae8-4132-82b9-a5510e48dd6f-cns.*[(\.bed)(\.meta)]$</value>-->
-                        </parameter>
-                    </parameter_list>
-                </dataset>
-                <dataset name="mirna_expression_quantification">
-                    <dataset_working_directory>mirna_expression_quantification</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/mirna_expression_quantification/header.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
-                    <parameter_list>
-                        <parameter>
-                            <description>We look for all the mirna_expression_quantification folders inside the bed directory</description>
-                            <key>folder_regex</key>
-                            <value>^/opengdc/bed/tcga/.*/mirna_expression_quantification</value>
-                        </parameter>
-                        <parameter>
-                            <description>We look for all the .bed and .meta files to download</description>
-                            <key>files_regex</key>
-                            <!--<value>.*\.bed(\.meta)?$</value>-->
-                            <value>.*(\.meta)$</value>
-                            <!--<value>dd83e500-4ae8-4132-82b9-a5510e48dd6f-cns.*[(\.bed)(\.meta)]$</value>-->
-                        </parameter>
-                    </parameter_list>
-                </dataset>
-            </dataset_list>
-        </source>
         <source name="HG19_ENCODE">
             <url>https://www.encodeproject.org/</url>
             <source_working_directory>HG19_ENCODE</source_working_directory>
@@ -599,7 +406,7 @@
             <transformer>it.polimi.genomics.importer.ENCODEImporter.ENCODETransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
             <download_enabled>false</download_enabled>
-            <transform_enabled>false</transform_enabled>
+            <transform_enabled>true</transform_enabled>
             <load_enabled>false</load_enabled>
             <parameter_list>
                 <parameter>
@@ -651,7 +458,7 @@
                     <description>Not useful metadata</description>
                     <key>encode_metadata_exclusion</key>
                     <value>^.*derived_from.*$</value>
-                </parameter>
+                </parameter>  
                 <parameter>
                     <description>Not useful metadata</description>
                     <key>encode_metadata_exclusion</key>
@@ -671,6 +478,24 @@
                     <description>metadata extraction method tsv or json.</description>
                     <key>metadata_extraction</key>
                     <value>tsv</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude archived files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>archived</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>revoked</value>
+                </parameter>
+				<parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>in progress</value>
                 </parameter>
                 <parameter>
                     <description>to exclude GRCh38 references</description>
@@ -700,14 +525,19 @@
                 <dataset name="broadPeak">
                     <dataset_working_directory>broadPeak</dataset_working_directory>
                     <schema_url location="local">schemas/broadPeak.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
                             <value>HG19_ENCODE_BROAD_NOV_2017</value>
+                        </parameter>
+						<parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>HG19_ENCODE_BROAD_NOV_2017 contains ENCODE data mapped to HG19 human genome. In this case Broad (or Regions) Peaks format is selected and archived/revoked data are avoided. The release date of this dataset is November 2017 https://www.encodeproject.org/.</value>
                         </parameter>
                         <parameter>
                             <description>Always should be experiment, but could be another type</description>
@@ -738,14 +568,19 @@
                 <dataset name="narrowPeak">
                     <dataset_working_directory>narrowPeak</dataset_working_directory>
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
                             <value>HG19_ENCODE_NARROW_NOV_2017</value>
+                        </parameter>
+						<parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>HG19_ENCODE_NARROW_NOV_2017 contains ENCODE data mapped to HG19 human genome. In this case Narrow (or Point-Source) Peaks format is selected and archived/revoked data are avoided. The release date of this dataset is November 2017 https://www.encodeproject.org/.</value>
                         </parameter>
                         <parameter>
                             <description>Always should be experiment, but could be another type</description>
@@ -783,7 +618,7 @@
             <transformer>it.polimi.genomics.importer.ENCODEImporter.ENCODETransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
             <download_enabled>false</download_enabled>
-            <transform_enabled>false</transform_enabled>
+            <transform_enabled>true</transform_enabled>
             <load_enabled>false</load_enabled>
             <parameter_list>
                 <parameter>
@@ -851,6 +686,24 @@
                     <key>metadata_extraction</key>
                     <value>tsv</value>
                 </parameter>
+				<parameter>
+                    <description>to exclude archived files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>archived</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>revoked</value>
+                </parameter>
+				<parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>in progress</value>
+                </parameter>
                 <parameter>
                     <description>to exclude h19 references</description>
                     <type>exclusion</type>
@@ -879,14 +732,19 @@
                 <dataset name="broadPeak">
                     <dataset_working_directory>broadPeak</dataset_working_directory>
                     <schema_url location="local">schemas/broadPeak.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
                             <value>GRCh38_ENCODE_BROAD_NOV_2017</value>
+                        </parameter>
+						<parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>GRCh38_ENCODE_BROAD_NOV_2017 contains ENCODE data mapped to GRCh38 human genome. In this case Broad (or Regions) Peaks format is selected and archived/revoked data are avoided. The release date of this dataset is November 2017 https://www.encodeproject.org/.</value>
                         </parameter>
                         <parameter>
                             <description>Always should be experiment, but could be another type</description>
@@ -917,14 +775,19 @@
                 <dataset name="narrowPeak">
                     <dataset_working_directory>narrowPeak</dataset_working_directory>
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
                             <value>GRCh38_ENCODE_NARROW_NOV_2017</value>
+                        </parameter>
+						<parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>GRCh38_ENCODE_NARROW_NOV_2017 contains ENCODE data mapped to GRCh38 human genome. In this case Narrow (or Point-Source) Peaks format is selected and archived/revoked data are avoided. The release date of this dataset is November 2017 https://www.encodeproject.org/.</value>
                         </parameter>
                         <parameter>
                             <description>Always should be experiment, but could be another type</description>
