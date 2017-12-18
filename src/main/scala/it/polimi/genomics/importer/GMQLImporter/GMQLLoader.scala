@@ -80,11 +80,11 @@ class GMQLLoader {
               GDMSUserClass.PUBLIC,
               listAdd,
               path + File.separator + dataset.name + ".schema")
-            ProfilerLauncher.profileDS(gmqlUser, dataset.name)
+            ProfilerLauncher.profileDS(gmqlUser, datasetName)
             logger.info("import for dataset " + dataset.name + " completed")
           }
           catch {
-            case e: Throwable => logger.error("import failed: " + e.getMessage)
+            case e: Throwable => logger.error("import failed: ", e)
           }
         }
         else
