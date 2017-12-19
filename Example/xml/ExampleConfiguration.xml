@@ -5,8 +5,8 @@
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example</base_working_directory>
-        <download_enabled>true</download_enabled>
-        <transform_enabled>true</transform_enabled>
+        <download_enabled>false</download_enabled>
+        <transform_enabled>false</transform_enabled>
         <load_enabled>true</load_enabled>
         <parallel_execution>false</parallel_execution>
     </settings>
@@ -504,7 +504,7 @@
                     <schema_url location="local">schemas/broadPeak.schema</schema_url>
                     <download_enabled>false</download_enabled>
                     <transform_enabled>false</transform_enabled>
-                    <load_enabled>true</load_enabled>
+                    <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <description>The dataset name on the server</description>
@@ -544,6 +544,27 @@
                     <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_ENCODE_BROAD_NOV_2017</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>HG19_ENCODE_BROAD_NOV_2017 contains ENCODE data mapped to HG19 human genome.&lt;br&gt;
+                                In this case Broad (or Regions) Peaks format is selected and archived/revoked data are avoided.&lt;br&gt;
+                                &lt;b&gt;bold&lt;/b&gt;  &lt;br&gt;
+                                The release date of this dataset is November 2017 https://www.encodeproject.org/.&lt;br&gt;
+
+                                &lt;ol&gt;
+                                &lt;li&gt;first element&lt;/li&gt;
+                                &lt;li&gt;second element&lt;/li&gt;
+                                &lt;/ol&gt;
+
+
+                            </value>
+                        </parameter>
                         <parameter>
                             <description>always should be experiment, but could be another type</description>
                             <type>url_generation</type>
@@ -585,8 +606,8 @@
                 <dataset name="exampleBroadPeak">
                     <dataset_working_directory>ExampleBROADPEAK</dataset_working_directory>
                     <schema_url location="local">schemas/broadPeak.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -618,8 +639,8 @@
                 <dataset name="exampleBroadPeak2">
                     <dataset_working_directory>ExampleBROADPEAK2</dataset_working_directory>
                     <schema_url location="local">schemas/broadPeak.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>

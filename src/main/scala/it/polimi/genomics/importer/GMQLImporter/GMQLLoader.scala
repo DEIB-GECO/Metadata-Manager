@@ -80,8 +80,17 @@ class GMQLLoader {
               GDMSUserClass.PUBLIC,
               listAdd,
               path + File.separator + dataset.name + ".schema")
-            ProfilerLauncher.profileDS(gmqlUser, datasetName)
             logger.info("import for dataset " + dataset.name + " completed")
+            ProfilerLauncher.profileDS(gmqlUser, datasetName)
+            logger.info("profiler for dataset " + dataset.name + " completed")
+            val description =
+              if (dataset.parameters.exists(_._1 == "loading_description"))
+                Some(dataset.parameters.filter(_._1 == "loading_description").head._2)
+              else
+                None
+            if(description.nonEmpty)
+              repo.setDatasetMeta(datasetName, gmqlUser, Map(" Description" -> description.get))
+
           }
           catch {
             case e: Throwable => logger.error("import failed: ", e)
