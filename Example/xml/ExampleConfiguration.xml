@@ -6,8 +6,8 @@
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example</base_working_directory>
         <download_enabled>false</download_enabled>
-        <transform_enabled>false</transform_enabled>
-        <load_enabled>true</load_enabled>
+        <transform_enabled>true</transform_enabled>
+        <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
@@ -467,7 +467,7 @@
                 <parameter>
                     <description>metadata extraction method tsv or json.</description>
                     <key>metadata_extraction</key>
-                    <value>tsv</value>
+                    <value>json_tsv</value>
                 </parameter>
                 <parameter>
                     <key>multiple_comma_separated</key>
@@ -544,6 +544,7 @@
                     <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
+
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
