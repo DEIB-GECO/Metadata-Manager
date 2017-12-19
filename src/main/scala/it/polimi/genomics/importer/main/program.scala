@@ -221,7 +221,7 @@ object program {
           downloadEnabled.toString, transformEnabled.toString, loadEnabled.toString, outputFolder)
 
         //creation of the file log
-        val logName = "run "+runId+" "+DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
+        val logName = "run_"+runId+"_"+DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd_HH_mm_ss_SSS"))+".log"
 
 
         val fa2 = new FileAppender()
