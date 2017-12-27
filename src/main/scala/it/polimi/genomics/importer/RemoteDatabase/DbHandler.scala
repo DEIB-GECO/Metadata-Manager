@@ -533,17 +533,17 @@ object DbHandler {
 
   class Donors(tag: Tag) extends
     Table[(Option[Int], String, Option[String], Option[Int], Option[String], Option[String])](tag, "donors") {
-    def donorId = column[Int]("DONOR_ID", O.PrimaryKey, O.AutoInc)
+    def donorId = column[Int]("donor_id", O.PrimaryKey, O.AutoInc)
 
-    def sourceId = column[String]("SOURCE_ID")
+    def sourceId = column[String]("source_id")
 
-    def species = column[Option[String]]("SPECIES", O.Default(None))
+    def species = column[Option[String]]("species", O.Default(None))
 
-    def age = column[Option[Int]]("AGE", O.Default(None))
+    def age = column[Option[Int]]("age", O.Default(None))
 
-    def gender = column[Option[String]]("GENDER", O.Default(None))
+    def gender = column[Option[String]]("gender", O.Default(None))
 
-    def ethnicity = column[Option[String]]("ETHNICITY", O.Default(None))
+    def ethnicity = column[Option[String]]("ethnicity", O.Default(None))
 
     def * = (donorId.?, sourceId, species, age, gender, ethnicity)
   }
@@ -552,23 +552,23 @@ object DbHandler {
 
   class BioSamples(tag: Tag) extends
     Table[(Option[Int], Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])](tag, "biosamples") {
-    def bioSampleId = column[Int]("BIO_SAMPLE_ID", O.PrimaryKey, O.AutoInc)
+    def bioSampleId = column[Int]("bio_sample_id", O.PrimaryKey, O.AutoInc)
 
-    def donorId = column[Int]("DONOR_ID")
+    def donorId = column[Int]("donor_id")
 
-    def sourceId = column[String]("SOURCE_ID")
+    def sourceId = column[String]("source_id")
 
-    def types = column[Option[String]]("TYPE", O.Default(None))
+    def types = column[Option[String]]("type", O.Default(None))
 
-    def tIssue = column[Option[String]]("TISSUE", O.Default(None))
+    def tIssue = column[Option[String]]("t_issue", O.Default(None))
 
-    def cellLine = column[Option[String]]("CELLLINE", O.Default(None))
+    def cellLine = column[Option[String]]("cell_line", O.Default(None))
 
-    def isHealty = column[Boolean]("IS_HEALTY")
+    def isHealty = column[Boolean]("is_healty")
 
-    def disease = column[Option[String]]("DISEASE", O.Default(None))
+    def disease = column[Option[String]]("disease", O.Default(None))
 
-    def donor = foreignKey("BIOSAMPLES_DONOR_FK", donorId, donors)(
+    def donor = foreignKey("biosamples_donor_fk", donorId, donors)(
       _.donorId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -582,17 +582,17 @@ object DbHandler {
 
   class Replicates(tag: Tag) extends
     Table[(Option[Int], Int, String, Option[Int], Option[Int])](tag, "replicates") {
-    def replicateId = column[Int]("REPLICATE_ID", O.PrimaryKey, O.AutoInc)
+    def replicateId = column[Int]("replicate_id", O.PrimaryKey, O.AutoInc)
 
-    def bioSampleId = column[Int]("BIO_SAMPLE_ID")
+    def bioSampleId = column[Int]("bio_sample_id")
 
-    def sourceId = column[String]("SOURCE_ID")
+    def sourceId = column[String]("source_id")
 
-    def bioReplicateNum = column[Option[Int]]("BIO_REPLICATE_NUM", O.Default(None))
+    def bioReplicateNum = column[Option[Int]]("bio_replicate_num", O.Default(None))
 
-    def techReplicateNum = column[Option[Int]]("TECH_REPLICATE_NUM", O.Default(None))
+    def techReplicateNum = column[Option[Int]]("tech_replicate_num", O.Default(None))
 
-    def bioSample = foreignKey("REPLICATES_DONOR_FK", bioSampleId, bioSamples)(
+    def bioSample = foreignKey("replicates_donor_fk", bioSampleId, bioSamples)(
       _.bioSampleId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -605,15 +605,15 @@ object DbHandler {
 
   class ExperimentsType(tag: Tag) extends
     Table[(Option[Int], String, Option[String], Option[String], Option[String])](tag, "experimentstype") {
-    def experimentTypeId = column[Int]("EXPERIMENT_TYPE_ID", O.PrimaryKey, O.AutoInc)
+    def experimentTypeId = column[Int]("experiment_type_id", O.PrimaryKey, O.AutoInc)
 
-    def technique = column[String]("TECHNIQUE")
+    def technique = column[String]("technique")
 
-    def feature = column[Option[String]]("FEATURE", O.Default(None))
+    def feature = column[Option[String]]("feature", O.Default(None))
 
-    def target = column[Option[String]]("TARGET", O.Default(None))
+    def target = column[Option[String]]("target", O.Default(None))
 
-    def antibody = column[Option[String]]("ANTIBODY", O.Default(None))
+    def antibody = column[Option[String]]("antibody", O.Default(None))
 
     def * = (experimentTypeId.?, technique, feature, target, antibody)
   }
@@ -622,11 +622,11 @@ object DbHandler {
 
   class Projects(tag: Tag) extends
     Table[(Option[Int], String, Option[String])](tag, "projects") {
-    def projectId = column[Int]("PROJECT_ID", O.PrimaryKey, O.AutoInc)
+    def projectId = column[Int]("project_id", O.PrimaryKey, O.AutoInc)
 
-    def projectName =  column[String]("PROJECT_NAME")
+    def projectName =  column[String]("project_name")
 
-    def programName =  column[Option[String]]("PROGRAM_NAME", O.Default(None))
+    def programName =  column[Option[String]]("program_name", O.Default(None))
 
     def * = (projectId.?, projectName, programName)
   }
@@ -635,17 +635,17 @@ object DbHandler {
 
   class Cases(tag: Tag) extends
     Table[(Option[Int], Int, String, Option[String], Option[String])](tag, "cases") {
-    def caseId = column[Int]("CASE_ID", O.PrimaryKey, O.AutoInc)
+    def caseId = column[Int]("case_id", O.PrimaryKey, O.AutoInc)
 
-    def projectId = column[Int]("PROJECT_ID")
+    def projectId = column[Int]("project_id")
 
-    def sourceId = column[String]("SOURCE_ID")
+    def sourceId = column[String]("source_id")
 
-    def sourceSite = column[Option[String]]("SOURCE_SITE", O.Default(None))
+    def sourceSite = column[Option[String]]("sourcec_site", O.Default(None))
 
-    def externalRef = column[Option[String]]("EXTERNAL_REF", O.Default(None))
+    def externalRef = column[Option[String]]("external_ref", O.Default(None))
 
-    def project = foreignKey("CASES_PROJECT_FK", projectId, projects)(
+    def project = foreignKey("cases_project_fk", projectId, projects)(
       _.projectId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -658,19 +658,19 @@ object DbHandler {
 
   class Containers(tag: Tag) extends
     Table[(Option[Int], Int, Option[String], Option[String], Boolean, Option[String])](tag, "containers") {
-    def containerId = column[Int]("CONTAINER_ID", O.PrimaryKey, O.AutoInc)
+    def containerId = column[Int]("container_id", O.PrimaryKey, O.AutoInc)
 
-    def experimentTypeId = column[Int]("EXPERIMENT_TYPE_ID")
+    def experimentTypeId = column[Int]("experiment_type_id")
 
-    def name = column[Option[String]]("NAME", O.Default(None))
+    def name = column[Option[String]]("name", O.Default(None))
 
-    def assembly = column[Option[String]]("ASSEMBLY", O.Default(None))
+    def assembly = column[Option[String]]("assembly", O.Default(None))
 
-    def isAnn = column[Boolean]("IS_ANN")
+    def isAnn = column[Boolean]("is_ann")
 
-    def annotation = column[Option[String]]("ANNOTATION", O.Default(None))
+    def annotation = column[Option[String]]("annotation", O.Default(None))
 
-    def experimentType = foreignKey("CONTAINERS_EXPERIMENT_TYPE_FK", containerId, experimentsType)(
+    def experimentType = foreignKey("containers_experiment_type_fk", containerId, experimentsType)(
       _.experimentTypeId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -683,28 +683,28 @@ object DbHandler {
 
   class Items(tag: Tag) extends
     Table[(Option[Int], Int, String, Option[String], Option[String], Option[Long], Option[String], Option[String], Option[String], Option[String])](tag, "items") {
-    def itemId = column[Int]("ITEM_ID", O.PrimaryKey, O.AutoInc)
+    def itemId = column[Int]("item_id", O.PrimaryKey, O.AutoInc)
 
-    def containerId = column[Int]("CONTAINER_ID")
+    def containerId = column[Int]("container_id")
 
-    def sourceId = column[String]("SOURCE_ID")
+    def sourceId = column[String]("source_id")
 
-    def dataType = column[Option[String]]("DATA_TYPE", O.Default(None))
+    def dataType = column[Option[String]]("data_type", O.Default(None))
 
-    def format = column[Option[String]]("FORMAT", O.Default(None))
+    def format = column[Option[String]]("format", O.Default(None))
 
-    def size = column[Option[Long]]("SIZE", O.Default(None))
+    def size = column[Option[Long]]("size", O.Default(None))
 
-    def platform = column[Option[String]]("PLATFORM", O.Default(None))
+    def platform = column[Option[String]]("platform", O.Default(None))
 
-    def pipeline = column[Option[String]]("PIPELINE", O.Default(None))
+    def pipeline = column[Option[String]]("pipeline", O.Default(None))
 
-    def sourceUrl = column[Option[String]]("SOURCE_URL", O.Default(None))
+    def sourceUrl = column[Option[String]]("source_url", O.Default(None))
 
-    def localUrl = column[Option[String]]("LOCAL_URL", O.Default(None))
+    def localUrl = column[Option[String]]("local_url", O.Default(None))
 
 
-    def container = foreignKey("ITEMS_CONTAINER_FK", containerId, containers)(
+    def container = foreignKey("items_container_fk", containerId, containers)(
       _.containerId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -717,19 +717,19 @@ object DbHandler {
 
   class CasesItems(tag: Tag) extends
     Table[(Int, Int)](tag, "casesitems") {
-    def itemId = column[Int]("ITEM_ID")
+    def itemId = column[Int]("item_id")
 
-    def caseId = column[Int]("CASE_ID")
+    def caseId = column[Int]("case_id")
 
-    def pk = primaryKey("ITEM_CASE_ID", (itemId, caseId))
+    def pk = primaryKey("item_case_id", (itemId, caseId))
 
-    def item = foreignKey("ITEMS_CASEITEM_FK", itemId, items)(
+    def item = foreignKey("items_casesitem_fk", itemId, items)(
       _.itemId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def caseFK = foreignKey("CASES_CASEITEM_FK", caseId, cases)(
+    def caseFK = foreignKey("cases_caseitem_fk", caseId, cases)(
       _.caseId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -742,19 +742,19 @@ object DbHandler {
 
   class ReplicatesItems(tag: Tag) extends
     Table[(Int, Int)](tag, "replicatesitems") {
-    def itemId = column[Int]("ITEM_ID")
+    def itemId = column[Int]("item_id")
 
-    def replicateId = column[Int]("REPLICATE_ID")
+    def replicateId = column[Int]("replicate_id")
 
-    def pk = primaryKey("ITEM_REPLICATE_ID_REPLICATESITEM", (itemId, replicateId))
+    def pk = primaryKey("item_replicate_id_replicatesitem", (itemId, replicateId))
 
-    def item = foreignKey("ITEMS_REPLICATEITEM_FK", itemId, items)(
+    def item = foreignKey("items_replicateitem_fk", itemId, items)(
       _.itemId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def caseFK = foreignKey("REPLICATES_REPLICATEITEM_FK", replicateId, replicates)(
+    def caseFK = foreignKey("replicates_replicateitem_fk", replicateId, replicates)(
       _.replicateId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -768,21 +768,21 @@ object DbHandler {
   class DerivedFrom(tag: Tag) extends
     Table[(Int, Int, Option[String])](tag, "derivedfrom") {
 
-    def initialItemId = column[Int]("INITIAL_ITEM_ID")
+    def initialItemId = column[Int]("initial_item_id")
 
-    def finalItemId = column[Int]("FINAL_ITEM_ID")
+    def finalItemId = column[Int]("final_item_id")
 
-    def operation = column[Option[String]]("OPERATION", O.Default(None))
+    def operation = column[Option[String]]("operation", O.Default(None))
 
-    def pk = primaryKey("ITEM_REPLICATE_ID_DERIVEDFROM", (initialItemId, finalItemId))
+    def pk = primaryKey("item_replicate_id_derivedfrom", (initialItemId, finalItemId))
 
-    def initialItemIdFK= foreignKey("ITEMS_INITIALITEM_FK", initialItemId, items)(
+    def initialItemIdFK= foreignKey("items_initialitem_fk", initialItemId, items)(
       _.itemId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def finalItemIdFK = foreignKey("ITEMS_FINALITEM_FK", finalItemId, items)(
+    def finalItemIdFK = foreignKey("items_finalitem_fk", finalItemId, items)(
       _.itemId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -796,9 +796,9 @@ object DbHandler {
   class CaseTCGAMapping(tag: Tag) extends
     Table[(String, String)](tag, "case_tcga_mapping") {
 
-    def code = column[String]("TSS_CODE", O.PrimaryKey)
+    def code = column[String]("tss_code", O.PrimaryKey)
 
-    def sourceSite = column[String]("SOURCE_SITE")
+    def sourceSite = column[String]("source_site")
 
     def * = (code, sourceSite)
   }
