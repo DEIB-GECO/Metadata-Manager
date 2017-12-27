@@ -138,6 +138,15 @@ object DbHandler {
       Await.result(setup, Duration.Inf)
       logger.info("Table DERIVEDFROM created")
     }
+
+    if (!tables.exists(_.name.name == "case_tcga_mapping")) {
+      val queries = DBIO.seq(
+        caseTcgaMapping.schema.create
+      )
+      val setup = database.run(queries)
+      Await.result(setup, Duration.Inf)
+      logger.info("Table CASE TCGA MAPPING created")
+    }
   }
 
   def closeDatabase(): Unit = {
@@ -494,6 +503,15 @@ object DbHandler {
     checkId(result)
   }
 
+
+  def getSourceSiteByCode(code : String): String ={
+    val idQuery = caseTcgaMapping.filter(_.code === code).map(_.sourceSite)
+    val returnAction = idQuery.result
+    val execution2 = database.run(returnAction)
+    val sourceSite = Await.result(execution2,Duration.Inf)
+    sourceSite.head
+  }
+
   /*def derivedFromId(initialItemId: Int, finalItemId: Int): Int = {
     val query = derivedFrom.filter(_.initialItemId === initialItemId).filter(_.finalItemId === finalItemId)
     val action = query.result
@@ -775,4 +793,15 @@ object DbHandler {
 
   val derivedFrom = TableQuery[DerivedFrom]
 
+  class CaseTCGAMapping(tag: Tag) extends
+    Table[(String, String)](tag, "case_tcga_mapping") {
+
+    def code = column[String]("TSS_CODE", O.PrimaryKey)
+
+    def sourceSite = column[String]("SOURCE_SITE")
+
+    def * = (code, sourceSite)
+  }
+
+  val caseTcgaMapping = TableQuery[CaseTCGAMapping]
 }

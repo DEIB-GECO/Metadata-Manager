@@ -10,7 +10,13 @@ class BioSampleTCGA extends TCGATable with BioSample {
       case "TYPES" => this.types = insertMethod(this.types,param)
       case "TISSUE" => this.tIssue = insertMethod(this.tIssue, param)
       case "CELLLINE" => this.cellLine = insertMethod(this.cellLine, param)
-      case "ISHEALTY" => this.isHealty = false
+      case "ISHEALTY" => { param match {
+        case "Additional - New Primary" => this.isHealty = false
+        case "Primary Tumor" => this.isHealty = false
+        case "Solid Tiusse Normal" => this.isHealty = true
+        case "Metastatic" => this.isHealty = false
+        case "Blood Derived Normal" => this.isHealty = true
+      }}
       case "DISEASE" => this.disease = insertMethod(this.disease,param)
       case _ => noMatching(dest)
     }
