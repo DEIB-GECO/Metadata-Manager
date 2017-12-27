@@ -4,11 +4,11 @@
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
-        <base_working_directory>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example</base_working_directory>
+        <base_working_directory>/home/federico/_Encode_Realeased</base_working_directory>
         <download_enabled>true</download_enabled>
-        <transform_enabled>false</transform_enabled>
+        <transform_enabled>true</transform_enabled>
         <load_enabled>false</load_enabled>
-        <parallel_execution>false</parallel_execution>
+        <parallel_execution>true</parallel_execution>
     </settings>
     <source_list>
         <source name="HG19_TCGA">
@@ -19,7 +19,7 @@
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
             <download_enabled>false</download_enabled>
             <transform_enabled>false</transform_enabled>
-            <load_enabled>false</load_enabled>
+            <load_enabled>true</load_enabled>
             <parameter_list>
                 <parameter>
                     <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>
@@ -410,9 +410,9 @@
             <downloader>it.polimi.genomics.importer.ENCODEImporter.ENCODEDownloader</downloader>
             <transformer>it.polimi.genomics.importer.ENCODEImporter.ENCODETransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
-            <download_enabled>true</download_enabled>
+            <download_enabled>false</download_enabled>
             <transform_enabled>true</transform_enabled>
-            <load_enabled>true</load_enabled>
+            <load_enabled>false</load_enabled>
             <parameter_list>
                 <parameter>
                     <description>It is to know which user in GMQL is going to run the import</description>
@@ -482,7 +482,7 @@
                 <parameter>
                     <description>metadata extraction method tsv or json.</description>
                     <key>metadata_extraction</key>
-                    <value>tsv</value>
+                    <value>json</value>
                 </parameter>
                 <parameter>
                     <description>to exclude GRCh38 references</description>
@@ -514,7 +514,7 @@
                     <schema_url location="local">schemas/broadPeak.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
+                    <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <description>The dataset name on the server</description>
@@ -551,8 +551,8 @@
                     <dataset_working_directory>narrowPeak</dataset_working_directory>
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url>
                     <download_enabled>false</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
+                    <transform_enabled>false</transform_enabled>
+                    <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <description>The dataset name on the server</description>
@@ -600,8 +600,8 @@
             <transformer>it.polimi.genomics.importer.ENCODEImporter.ENCODETransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
             <download_enabled>false</download_enabled>
-            <transform_enabled>true</transform_enabled>
-            <load_enabled>true</load_enabled>
+            <transform_enabled>false</transform_enabled>
+            <load_enabled>false</load_enabled>
             <parameter_list>
                 <parameter>
                     <description>It is to know which user in GMQL is going to run the import</description>
@@ -666,7 +666,7 @@
                 <parameter>
                     <description>metadata extraction method tsv or json.</description>
                     <key>metadata_extraction</key>
-                    <value>tsv</value>
+                    <value>json</value>
                 </parameter>
                 <parameter>
                     <description>to exclude h19 references</description>
