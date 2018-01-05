@@ -3,6 +3,7 @@ package it.polimi.genomics.importer.RoadmapImporter
 import java.io._
 import java.util.zip.GZIPInputStream
 
+import com.github.tototoshi.csv.{CSVReader, CSVWriter}
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource, GMQLTransformer}
 import org.slf4j.LoggerFactory
 
@@ -22,17 +23,80 @@ class RoadmapTransformer  extends GMQLTransformer {
   override def transform(source: GMQLSource, originPath: String, destinationPath: String, originalFilename: String, filename: String): Boolean = {
     val fileDownloadPath = originPath + File.separator + originalFilename
     val fileTransformationPath = destinationPath + File.separator + filename
-    logger.debug("Start unGzipping: " + originalFilename)
-    if (unGzipIt(fileDownloadPath, fileTransformationPath)) {
-      logger.info("UnGzipping: " + originalFilename + " DONE")
+    if (originalFilename.endsWith(".gz")) {
+      logger.debug("Start unGzipping: " + originalFilename)
+      if (unGzipIt(fileDownloadPath, fileTransformationPath)) {
+        logger.info("UnGzipping: " + originalFilename + " DONE")
+        metaGen(filename, originPath, destinationPath)
+        true
+      }
+      else
+      {
+        logger.warn("UnGzipping: " + originalFilename + " FAIL")
+        false
+      }
+    }
+    else if(originalFilename.endsWith(".csv")) {
       true
     }
-    else {
-      logger.warn("UnGzipping: " + originalFilename + " FAIL")
-      false
-    }
+    else false
   }
 
+  def metaGen(fileName: String, inPath: String, outPath: String) = {
+    val sheet1: File = new File(inPath + File.separator + "jul2013.roadmapData.qc_Consolidated_EpigenomeIDs_summary_Table.csv")
+    val sheet2: File = new File(inPath + File.separator + "jul2013.roadmapData.qc_Consolidated_EpigenomeIDs_QC.csv")
+    val tempSheet: File = new File(inPath + File.separator + "tempSheet.csv")
+    val reader1: CSVReader = CSVReader.open(sheet1)
+    val firstSheet: List[List[String]] = reader1.all()
+    val newHeader: List[String] = (firstSheet(0) zip firstSheet(1)).map(tuple => {
+      if(firstSheet(0).count(_ == tuple._1)>1 && tuple._2.nonEmpty)
+        tuple._1+ ":" + tuple._2
+      else
+        tuple._1})
+    val writer: CSVWriter = CSVWriter.open(tempSheet)
+    writer.writeRow(newHeader)
+    writer.writeAll(firstSheet)
+    writer.close()
+    reader1.close()
+    val reader3 = CSVReader.open(tempSheet)
+    val reader2: CSVReader = CSVReader.open(sheet2)
+    val listMaps1: List[Map[String,  String]] = reader3.allWithHeaders()
+    val listMaps2: List[Map[String,  String]] = reader2.allWithHeaders()
+    val mark: String = extractMark(fileName)
+    val eid: String = fileName.split("-")(0)
+    val eid_index: Int = listMaps1.indexWhere(_.get("Epigenome ID (EID)").get == eid)
+    using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outPath + File.separator + fileName + ".meta"))))) {
+      writer => {
+        mapToFile(listMaps1(eid_index), writer)
+        for (m <- listMaps2)
+          if(m.get("EID").get == listMaps1(eid_index).get("Epigenome ID (EID)").get && m.get("MARK").get == mark)
+            mapToFile(m, writer)
+      }
+    }
+    reader2.close()
+    reader3.close()
+    tempSheet.delete
+  }
+
+  def extractMark(fileName: String): String = {
+    val core: String = fileName.split("-")(1).split("\\.").dropRight(1).mkString(".")
+    if(core == "DNase")
+      core.split("\\.")(0)
+    else
+      core
+  }
+
+  def using[T <: Closeable, R](resource: T)(block: T => R): R = {
+    try { block(resource) }
+    finally { resource.close() }
+  }
+
+  def mapToFile(map: Map[String, String], writer: Writer): Unit = {
+    for ((k, v) <- map.toSeq.sortBy(_._1))
+      if(!(k.isEmpty || v.isEmpty)) writer.write(s"${k.filterNot("\n".toSet)
+        .replaceAll("\\s+$", "")
+        .replace(" ","_")}\t$v\n")
+  }
   /**
     * by receiving an original filename returns the new GDM candidate name(s).
     *
@@ -41,7 +105,9 @@ class RoadmapTransformer  extends GMQLTransformer {
     * @param source   source where the files belong to.
     * @return candidate names for the files derived from the original filename.
     */
-  override def getCandidateNames(filename: String, dataset: GMQLDataset, source: GMQLSource): List[String] = ???
+  override def getCandidateNames(filename: String, dataset: GMQLDataset, source: GMQLSource): List[String] = {
+    List[String](filename.substring(0, filename.lastIndexOf(".")))
+  }
 
   /**
     * extracts the gzipFile into the outputPath.
@@ -77,6 +143,5 @@ class RoadmapTransformer  extends GMQLTransformer {
       logger.error("Couldnt UnGzip the file: " + outputPath)
     unGzipped
   }
-
 }
 

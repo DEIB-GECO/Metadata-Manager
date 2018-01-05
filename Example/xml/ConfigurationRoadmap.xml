@@ -12,13 +12,13 @@
     </settings>
     <source_list>
         <source name="Roadmap_Epigenomics">
-            <url>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/</url>
+            <url>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/</url>
             <source_working_directory>RoadmapEpigenomics</source_working_directory>
             <downloader>it.polimi.genomics.importer.RoadmapImporter.RoadmapDownloader</downloader>
             <transformer>it.polimi.genomics.importer.RoadmapImporter.RoadmapTransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
-            <transform_enabled>false</transform_enabled>
+            <transform_enabled>true</transform_enabled>
             <load_enabled>false</load_enabled>
             <parameter_list>     
                 <parameter>
@@ -32,7 +32,7 @@
                     <dataset_working_directory>narrowPeak</dataset_working_directory>
                     <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/cnv/header.schema</schema_url>
                     <download_enabled>true</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                     <parameter>
@@ -45,7 +45,49 @@
                         </parameter>
                         <parameter>
                             <key>files_regex</key>
-                            <value>.*\H2A.Z.narrowPeak.gz</value>
+                            <value>.*\.narrowPeak.gz</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="broadPeak">
+                    <dataset_working_directory>broadPeak</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/cnv/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>false</load_enabled>
+                    <parameter_list>
+                    <parameter>
+                            <key>spreadsheet_url</key>
+                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
+                        </parameter>
+                        <parameter>
+                            <key>folder_regex</key>
+                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/broadPeak/</value>
+                        </parameter>
+                        <parameter>
+                            <key>files_regex</key>
+                            <value>.*\.broadPeak.gz</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="gappedPeakPeak">
+                    <dataset_working_directory>gappedPeak</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/cnv/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>false</load_enabled>
+                    <parameter_list>
+                    <parameter>
+                            <key>spreadsheet_url</key>
+                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
+                        </parameter>
+                        <parameter>
+                            <key>folder_regex</key>
+                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/gappedPeak/</value>
+                        </parameter>
+                        <parameter>
+                            <key>files_regex</key>
+                            <value>.*\.gappedPeak.gz</value>
                         </parameter>
                     </parameter_list>
                 </dataset>

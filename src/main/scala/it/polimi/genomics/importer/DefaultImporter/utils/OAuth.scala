@@ -23,7 +23,7 @@ class OAuth {
   private val APPLICATION_NAME: String = "GMQL-importer"
 
   /** Directory to store user credentials for this application. */
-  private val DATA_STORE_DIR: File = new File(/*System.getProperty("user.home")*/ new File(".").getAbsolutePath, ".credentials/sheets.googleapis.com-GMQL-importer")
+  private val DATA_STORE_DIR: File = new File(/*System.getProperty("user.home")*/ new File(".").getCanonicalPath, ".credentials/sheets.googleapis.com-GMQL-importer")
 
   /** Global instance of the {@link FileDataStoreFactory}. */
   private var DATA_STORE_FACTORY: FileDataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR)
