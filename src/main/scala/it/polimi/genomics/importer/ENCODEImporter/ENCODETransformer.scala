@@ -89,7 +89,7 @@ class ENCODETransformer extends GMQLTransformer {
         val url = header.lastIndexOf("File download URL")
 
         //here I have to check if the .gz file is UPDATED or OUTDATED.
-        Source.fromFile(metadataPath).getLines().drop(1).filter(line => {
+        Source.fromFile(metadataPath, "UTF-8").getLines().drop(1).filter(line => {
           val fields = line.split("\t")
           val bedFileStatus = FileDatabase.fileStatus(datasetId, fields(url), STAGE.DOWNLOAD).getOrElse(FILE_STATUS.OUTDATED)
           if (bedFileStatus == FILE_STATUS.UPDATED) {
