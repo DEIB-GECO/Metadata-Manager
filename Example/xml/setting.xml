@@ -84,7 +84,7 @@
             <global_key>target</global_key>
         </mapping>
         <mapping method="CONCAT">
-            <source_key>replicates__X__antibody__title </source_key>
+            <source_key>replicates__X__antibody__title</source_key>
             <global_key>antibody</global_key>
         </mapping>
         <mapping method="CONCAT">
@@ -123,6 +123,10 @@
             </mapping>
             <mapping method="CONCAT">
                 <source_key>file__assembly</source_key>
+                <global_key>name</global_key>
+            </mapping>
+            <mapping method="CONCAT-MANUALLY">
+                <source_key>ENCODE</source_key>
                 <global_key>name</global_key>
             </mapping>
             <mapping method="CONCAT">

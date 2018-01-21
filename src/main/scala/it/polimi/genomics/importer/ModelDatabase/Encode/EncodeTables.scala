@@ -1,5 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode
 
+import java.io.{File, FileOutputStream, PrintWriter}
+
 import exceptions.NoTableNameException
 import it.polimi.genomics.importer.ModelDatabase.Encode.Table._
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
@@ -59,5 +61,13 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
       }
     }
     )
+
+    def fromDbToTsv(path: String): Unit = {
+      val sourceIdItem = path.split('/').last.split('.')(0)
+      val write = new PrintWriter(new FileOutputStream(new File(path),true))
+
+
+
+    }
   }
 }

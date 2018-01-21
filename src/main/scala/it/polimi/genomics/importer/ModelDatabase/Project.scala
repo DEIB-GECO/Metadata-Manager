@@ -1,5 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import java.io.{File, FileOutputStream, PrintWriter}
+
 trait Project extends Table{
 
   var projectName: String = _
@@ -27,5 +29,23 @@ trait Project extends Table{
 
   override def checkConsistency(): Boolean = {
     if(this.projectName != null) true else false
+  }
+
+  def convertTo(values: Seq[(String, Option[String])]): Unit = {
+    if(values.length > 1)
+      logger.error(s"Too many value: ${values.length}")
+    else {
+      var value = values.head
+      this.projectName = value._1
+      if(value._2.isDefined) this.programName = value._2.get
+    }
+  }
+
+  def writeInFile(path: String): Unit = {
+    val write = getWriter(path)
+    val tableName = "project"
+    write.append(getMessage(tableName + "projectName", this.projectName))
+    if(this.programName != null) write.append(getMessage(tableName + "_programName", this.programName))
+    flushAndClose(write)
   }
 }

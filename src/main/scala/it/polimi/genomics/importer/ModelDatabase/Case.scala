@@ -1,5 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import java.io.{File, FileOutputStream, PrintWriter}
+
 trait Case extends Table{
 
   var projectId : Int = _
@@ -37,6 +39,27 @@ trait Case extends Table{
 
   override def checkConsistency(): Boolean = {
     if(this.sourceId != null) true else false
+  }
+
+  def convertTo(values: Seq[(Int, String, Option[String], Option[String])]): Unit = {
+    if (values.length > 1)
+      logger.error(s"Too many value: ${values.length}")
+    else {
+      var value = values.head
+      this.projectId = value._1
+      this.sourceId = value._2
+      if (value._3.isDefined) this.sourceSite = value._3.get
+      if (value._4.isDefined) this.externalRef = value._4.get
+    }
+  }
+
+  def writeInFile(path: String): Unit = {
+    val write = getWriter(path)
+    val tableName = "case"
+    write.append(getMessage(tableName + "_sourceId", this.sourceId))
+    if(this.sourceSite != null) write.append(getMessage(tableName + "_sourceSite", this.sourceSite))
+    if(this.externalRef != null) write.append(getMessage(tableName + "_externalRef", this.externalRef))
+    flushAndClose(write)
   }
 
 }

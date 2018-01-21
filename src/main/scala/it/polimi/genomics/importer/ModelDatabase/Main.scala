@@ -18,7 +18,9 @@ import scala.io.Source
 
 object main{
   val logger: Logger = Logger.getLogger(this.getClass)
-  private val regexBedMeta = ".*.bed.meta".r
+  private val regexBedMetaJson = ".*.bed.meta.json".r
+  private val regexBedMeta = ".*.bed.meta\\z".r
+
   var filePath: String = _
 
   def main(args: Array[String]): Unit = {
@@ -46,9 +48,6 @@ object main{
     console3.activateOptions()
     Logger.getLogger("slick").addAppender(console3)
     //BasicConfigurator.configure()
-
-
-
 
      DbHandler.setDatabase()
      //analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
@@ -84,16 +83,27 @@ object main{
 
          val t0: Long = System.nanoTime()
          println(pathGMQL)
-         recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
+         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
          val t1 = System.nanoTime()
-         logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
+         logger.info(s"Total time for insert data in DB ${getTotalTimeFormatted(t0, t1)}")
          logger.info(s"Total file analized ${Statistics.fileNumber}")
          logger.info(s"Total file released ${Statistics.released}")
          logger.info(s"Total file archived ${Statistics.archived}")
          logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
          logger.info(s"Total Item inserted or Updated ${Statistics.itemInserted}")
 
+
          //logger_file.close()
+         val t2: Long = System.nanoTime()
+
+         logger.info(s"Start to write TSV file")
+         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => new FromDbToTsv(path.getAbsolutePath))
+
+         val t3: Long = System.nanoTime()
+
+         logger.info(s"Total time for the write info in TSV file ${getTotalTimeFormatted(t2, t3)}")
+         logger.info(s"Total file analized ${Statistics.tsvFile}")
+
          DbHandler.closeDatabase()
        }
        else
@@ -135,8 +145,6 @@ object main{
 
         } catch {
           case e: Exception => logger.warn(s"SourceKey does't find for $x")
-
-
         })
       tables.insertTables()
     }
@@ -146,7 +154,7 @@ object main{
     }
 
     def populateTable(list: List[String], table: Table): Unit = {
-      val insertMethod = selectInsertionMethod(list(1),list(2),list(3))
+      val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3))
       if(list(3).equals("MANUALLY"))
         table.setParameter(list(1), list(2), insertMethod)
       else
@@ -154,28 +162,25 @@ object main{
     }
   }
 
+  def verifyStatus(path: String): Boolean ={
+    val lines = Source.fromFile(path).getLines.toArray
 
-  def getListOfSubDirectories(directoryName: String): Array[String] = {
+    for (l <- lines) {
+      val first = l.split("\t", 2)
+      if (first(0).equals("file__status"))
+        if(first(1).equals("released"))
+          return true
+        else
+          return false
+    }
+    false
+  }
+
+  /*def getListOfSubDirectories(directoryName: String): Array[String] = {
     (new File(directoryName))
       .listFiles
       .filter(_.isDirectory)
       .map(_.getName)
-  }
-
-  def recursiveListFiles(f: File): Array[File] = {
-    val these = f.listFiles
-    these ++ these.filter(_.isDirectory).flatMap(recursiveListFiles)
-  }
-
-  def selectInsertionMethod(sourceKey: String, globalKey: String, method: String) = (actualParam: String, newParam: String) => {
-    method.toUpperCase() match {
-      case "MANUALLY" => if(sourceKey == "null") null else sourceKey
-      case "CONCAT" => if (actualParam == null) newParam else actualParam.concat(" " + newParam)
-      case "CONCAT-NOSPACE" => if (actualParam == null) newParam else actualParam.concat(" " + newParam)
-      case "DEFAULT" => newParam
-      //case "PLATFORM" => new PlatformRetriver(filePath).getPlatform(newParam)
-      case _ => actualParam
-    }
-  }
+  }*/
 }
 

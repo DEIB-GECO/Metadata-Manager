@@ -4,7 +4,7 @@ import java.io.File
 
 import it.polimi.genomics.importer.GMQLImporter.schemaValidator
 import it.polimi.genomics.importer.ModelDatabase.TCGA.TCGATables
-import it.polimi.genomics.importer.ModelDatabase.Utils.{Statistics, XMLReaderTCGA}
+import it.polimi.genomics.importer.ModelDatabase.Utils.{InsertMethod, ListFiles, Statistics, XMLReaderTCGA}
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import it.polimi.genomics.importer.main.program.getTotalTimeFormatted
 import org.apache.log4j._
@@ -82,7 +82,7 @@ object MainTCGA {
 
          val t0: Long = System.nanoTime()
          println(pathGMQL)
-         recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
+         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
          val t1 = System.nanoTime()
          logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
          logger.info(s"Total file analized ${Statistics.fileNumber}")
@@ -127,7 +127,7 @@ object MainTCGA {
       tables.insertTables()
 
     def populateTable(list: List[String], table: Table): Unit = {
-      val insertMethod = selectInsertionMethod(list(1),list(2),list(3))
+      val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3))
       if(list(3).equals("MANUALLY"))
         table.setParameter(list(1), list(2), insertMethod)
       else
@@ -135,29 +135,10 @@ object MainTCGA {
     }
   }
 
-
-  def getListOfSubDirectories(directoryName: String): Array[String] = {
+  /*def getListOfSubDirectories(directoryName: String): Array[String] = {
     (new File(directoryName))
       .listFiles
       .filter(_.isDirectory)
       .map(_.getName)
-  }
-
-  def recursiveListFiles(f: File): Array[File] = {
-    val these = f.listFiles
-    these ++ these.filter(_.isDirectory).flatMap(recursiveListFiles)
-  }
-
-  def selectInsertionMethod(sourceKey: String, globalKey: String, method: String) = (actualParam: String, newParam: String) => {
-    method.toUpperCase() match {
-      case "MANUALLY" => if(sourceKey == "null") null else sourceKey
-      case "CONCAT" => if (actualParam == null) newParam else actualParam.concat(" " + newParam)
-      case "CONCAT-NOSPACE" => if (actualParam == null) newParam else actualParam.concat(newParam)
-      case "CHECK-PREC" => if(actualParam == null) newParam else actualParam
-      case "DEFAULT" => newParam
-      //case "PLATFORM" => new PlatformRetriver(filePath).getPlatform(newParam)
-      case _ => actualParam
-    }
-  }
-
+  }*/
 }

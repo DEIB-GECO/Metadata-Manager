@@ -36,7 +36,6 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
   override def insertRow(): Unit ={
     var id: Int = 0
     this.sourceIdList.map(source=>{
-      println(source)
       this.actualPosition = sourceIdList.indexOf(source)
       if(this.checkInsert()) {
         id = this.insert
@@ -76,5 +75,28 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
     //if(this.sourceId != null) true else false
     this.sourceIdList.foreach(source => if(source == null) false)
     true
+  }
+
+  override def convertTo(values: Seq[(Int, String, Option[Int], Option[Int])]): Unit = {
+    println(values)
+      values.foreach(value => {
+        this.bioSampleIdList += value._1
+        this.sourceIdList += value._2
+        if(value._3.isDefined) this.bioReplicateNumList += value._3.get
+        if(value._4.isDefined) this.techReplicateNumList += value._4.get
+      })
+  }
+
+  override def writeInFile(path: String): Unit = {
+    val write = getWriter(path)
+    val tableName = "replicate"
+
+    this.sourceIdList.map(source=>{
+      this.actualPosition = sourceIdList.indexOf(source)
+      write.append(getMessage(tableName + "sourceId", this.sourceIdList(this.actualPosition)))
+      if(this.bioReplicateNumList(this.actualPosition) != 0) write.append(getMessage(tableName + "_bioReplicateNum", this.bioReplicateNumList(this.actualPosition)))
+      if(this.techReplicateNumList(this.actualPosition) != 0) write.append(getMessage(tableName + "_techReplicateNum", this.techReplicateNumList(this.actualPosition)))
+    })
+    flushAndClose(write)
   }
 }

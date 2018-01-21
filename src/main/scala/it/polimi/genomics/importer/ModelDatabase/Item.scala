@@ -1,6 +1,8 @@
 package it.polimi.genomics.importer.ModelDatabase
 
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
+import java.io.{File, FileOutputStream, PrintWriter}
+
 
 trait Item extends Table{
 
@@ -52,5 +54,38 @@ trait Item extends Table{
 
   override def checkConsistency(): Boolean = {
     if(this.sourceId != null) true else false
+  }
+
+  def convertTo(values: Seq[(Int, Int, String, Option[String], Option[String], Option[Long], Option[String], Option[String], Option[String], Option[String])]): Unit = {
+    if(values.length > 1)
+      logger.error(s"Too many value: ${values.length}")
+    else {
+      var value = values.head
+      this.primaryKey_(value._1)
+      this.containerId = value._2
+      this.sourceId = value._3
+      if(value._4.isDefined) this.dataType = value._4.get
+      if(value._5.isDefined) this.format = value._5.get
+      if(value._6.isDefined) this.size = value._6.get
+      if(value._7.isDefined) this.pipeline = value._7.get
+      if(value._8.isDefined) this.platform = value._8.get
+      if(value._9.isDefined) this.sourceUrl = value._9.get
+      if(value._10.isDefined) this.localUrl = value._10.get
+    }
+  }
+
+  def writeInFile(path: String): Unit = {
+    val write = getWriter(path)
+    val tableName = "item"
+    write.append(getMessage(tableName + "_source_id", this.sourceId))
+
+    if(this.dataType != null) write.append(getMessage(tableName + "_dataType", this.dataType))
+    if(this.format != null) write.append(getMessage(tableName + "_format", this.format))
+    if(this.size != 0) write.append(getMessage(tableName + "_size", this.size))
+    if(this.pipeline != null) write.append(getMessage(tableName + "_pipeline", this.pipeline))
+    if(this.platform != null) write.append(getMessage(tableName + "_platform", this.platform))
+    if(this.sourceUrl != null) write.append(getMessage(tableName + "_sourceUrl", this.sourceUrl))
+    if(this.localUrl != null) write.append(getMessage(tableName + "_localUrl", this.localUrl))
+    flushAndClose(write)
   }
 }

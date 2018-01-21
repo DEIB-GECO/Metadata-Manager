@@ -13,7 +13,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
   val logger: Logger = Logger.getLogger(this.getClass)
 
   private val replaceTransformation = "Transformations".r
-  private val replaceExtensions = ".bed.meta".r
+  private val replaceExtensions = ".bed.meta.json".r
   val jsonFile = new File(replaceExtensions.replaceAllIn(replaceTransformation.replaceAllIn(path,"Downloads"),".bed.gz.json"))
   val f = new MappingJsonFactory()
   val jp: JsonParser = f.createJsonParser(jsonFile)

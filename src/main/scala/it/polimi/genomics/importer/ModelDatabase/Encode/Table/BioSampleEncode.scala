@@ -107,4 +107,17 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
     true
   }
 
+  /*override def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])]): Unit = {
+    values.foreach(value =>{
+      this.donorIdArray(insertPosition) = value._1
+      this.sourceIdArray(insertPosition) = value._2
+      if(value._3.isDefined) this.typesArray(insertPosition) = value._3.get
+      if(value._4.isDefined) this.tIssueArray(insertPosition) = value._4.get
+      if(value._5.isDefined) this.cellLineArray(insertPosition) = value._5.get
+      this.isHealtyArray(insertPosition) = value._6
+      if(value._7.isDefined) this.diseaseArray(insertPosition) = value._7.get
+    })
+
+  }*/
+
 }

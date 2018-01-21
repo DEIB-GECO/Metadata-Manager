@@ -1,10 +1,12 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import java.io.{File, FileOutputStream, PrintWriter}
+
 trait Container extends Table{
 
   var experimentTypeId : Int = _
 
-  var name : String = "ENCODE"
+  var name : String = _
 
   var assembly: String = _
 
@@ -38,5 +40,29 @@ trait Container extends Table{
 
   override def checkConsistency(): Boolean = {
     if(this.name != null) true else false
+  }
+
+  def convertTo(values: Seq[(Int, Int, String, Option[String], Boolean, Option[String])]): Unit = {
+    if(values.length > 1)
+      logger.error(s"Too many value: ${values.length}")
+    else {
+      var value = values.head
+      this.primaryKey_(value._1)
+      this.experimentTypeId = value._2
+      this.name = value._3
+      if(value._4.isDefined) this.assembly = value._4.get
+      this.isAnn = value._5
+      if(value._6.isDefined) this.annotation = value._6.get
+    }
+  }
+
+  def writeInFile(path: String): Unit = {
+    val write = getWriter(path)
+    val tableName = "container"
+    write.append(getMessage(tableName + "_name", this.name))
+    if(this.assembly != null) write.append(getMessage(tableName + "_types", this.assembly))
+    write.append(getMessage(tableName + "_isAnn", this.isAnn))
+    if(this.annotation != null) write.append(getMessage(tableName + "_annotation", this.annotation))
+    flushAndClose(write)
   }
 }

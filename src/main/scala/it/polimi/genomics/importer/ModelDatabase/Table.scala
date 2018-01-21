@@ -1,6 +1,9 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import java.io.{File, FileOutputStream, PrintWriter}
+
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
+import org.apache.log4j.Logger
 
 import scala.collection.mutable.ListBuffer
 
@@ -10,8 +13,9 @@ trait Table {
  /* protected var _primaryKey: Set[Int] = _
   def primaryKey = _primaryKey
   def primaryKey_= (value:Set[Int]):Unit = _primaryKey = value*/
-  protected val dbHandler = DbHandler
+ val logger: Logger = Logger.getLogger(this.getClass)
 
+  protected val dbHandler = DbHandler
 
   protected var _hasForeignKeys: Boolean = false
   protected var _foreignKeysTables: List[String] = _
@@ -54,4 +58,10 @@ trait Table {
 
   def filePath: String = _filePath
   def filePath_: (filePath: String): Unit = this._filePath = filePath
+  def getWriter(path: String): PrintWriter = return new PrintWriter(new FileOutputStream(new File(path),true))
+  def getMessage(attribute: String, value: Any): String = return attribute + "\t" + value + "\n"
+  def flushAndClose(write: PrintWriter): Unit ={
+    write.flush()
+    write.close()
+  }
 }

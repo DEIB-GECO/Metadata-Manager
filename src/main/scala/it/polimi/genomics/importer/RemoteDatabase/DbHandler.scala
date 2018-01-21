@@ -2,6 +2,8 @@ package it.polimi.genomics.importer.RemoteDatabase
 
 import com.typesafe.config.ConfigFactory
 import org.slf4j.{Logger, LoggerFactory}
+
+import scala.io.Source
 //import slick.driver.PostgresDriver.api._
 import slick.driver.MySQLDriver.api._
 
@@ -143,6 +145,10 @@ object DbHandler {
       val queries = DBIO.seq(
         caseTcgaMapping.schema.create
       )
+      for (line <- Source.fromFile((getClass.getResource("/mapping.csv").getFile)).getLines) {
+        val cols = line.split(",").map(_.trim)
+        insertCaseTcgaMapping(cols(0),cols(1))
+      }
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
       logger.info("Table CASE TCGA MAPPING created")
@@ -272,15 +278,15 @@ object DbHandler {
   }
 
   def insertContainer(experimentTypeId: Int, name: String, assembly: String, isAnn: Boolean, annotation: String): Int ={
-    val idQuery = (containers returning containers.map(_.containerId))+= (None, experimentTypeId, Option(name), Option(assembly), isAnn, Option(annotation))
+    val idQuery = (containers returning containers.map(_.containerId))+= (None, experimentTypeId, name, Option(assembly), isAnn, Option(annotation))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
   def updateContainer(experimentTypeId: Int, name: String, assembly: String, isAnn: Boolean, annotation: String): Int ={
-    val query = for { container <- containers if container.name === name } yield (container.experimentTypeId, container.assembly, container.isAnn, container.annotation)
-    val updateAction = query.update(experimentTypeId,  Option(assembly), isAnn, Option(annotation))
+    val query = for { container <- containers if container.name === name } yield (container.experimentTypeId, container.name, container.assembly, container.isAnn, container.annotation)
+    val updateAction = query.update(experimentTypeId, name, Option(assembly), isAnn, Option(annotation))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     val idQuery = containers.filter(_.name === name).map(_.containerId)
@@ -339,6 +345,14 @@ object DbHandler {
     val execution = database.run(updateAction)
     val id = Await.result(execution, Duration.Inf)
     id
+  }
+
+  def insertCaseTcgaMapping(code: String, sourceSite: String): Int = {
+    val insertActions = DBIO.seq(
+      caseTcgaMapping += (code, sourceSite)
+    )
+    Await.result(database.run(insertActions), Duration.Inf)
+    1
   }
 
   /**
@@ -526,6 +540,76 @@ object DbHandler {
     checkId(result)
   }*/
 
+  def getDonorById(id: Int): Seq[(String, Option[String], Option[Int], Option[String], Option[String])] = {
+    val query = for { donor <- donors if donor.donorId === id } yield (donor.sourceId, donor.species, donor.age, donor.gender, donor.ethnicity)
+    val action = query.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
+  def getBiosampleById(id: Int): Seq[(Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])] = {
+    val query = for { bioSample <- bioSamples if bioSample.bioSampleId === id } yield (bioSample.donorId, bioSample.sourceId, bioSample.types, bioSample.tIssue, bioSample.cellLine, bioSample.isHealty, bioSample.disease)
+    val action = query.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
+  def getItemBySourceId(sourceId: String): Seq[(Int, Int, String, Option[String], Option[String], Option[Long], Option[String], Option[String], Option[String], Option[String])] = {
+    val query = for { item <- items if item.sourceId === sourceId } yield (item.itemId, item.containerId, item.sourceId, item.dataType, item.format, item.size, item.platform, item.pipeline, item.sourceUrl, item.localUrl)
+    val action = query.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
+
+  def getContainerById(id: Int): Seq[(Int, Int, String, Option[String], Boolean, Option[String])] = {
+    val query = for { container <- containers if container.containerId === id } yield (container.containerId, container.experimentTypeId, container.name, container.assembly, container.isAnn, container.annotation)
+    val action = query.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
+  def getExperimentTypeById(id: Int): Seq[(Int, String, Option[String], Option[String], Option[String])] = {
+    val query = for { experimentType <- experimentsType if experimentType.experimentTypeId === id } yield (experimentType.experimentTypeId, experimentType.technique, experimentType.feature, experimentType.target, experimentType.antibody)
+    val action = query.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
+  def getProjectById(id: Int): Seq[(String, Option[String])] = {
+    val query = for { project <- projects if project.projectId === id } yield (project.projectName, project.programName)
+    val action = query.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
+  def getCaseByItemId(itemId: Int): Seq[(Int, String, Option[String], Option[String])] ={
+    val crossJoin = for {
+      (caseItem, cases) <- casesItems.filter(_.itemId === itemId).join(cases).on(_.caseId === _.caseId)
+    } yield (cases.projectId, cases.sourceId, cases.sourceSite, cases.externalRef)
+    val action = crossJoin.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
+  def getReplicateByItemId (itemId: Int): Seq[(Int, String, Option[Int], Option[Int])] ={
+    val crossJoin = for {
+      (replicateItem, replicates) <- replicatesItems.filter(_.itemId === itemId).join(replicates).on(_.replicateId === _.replicateId)
+    } yield (replicates.bioSampleId, replicates.sourceId, replicates.bioReplicateNum, replicates.techReplicateNum)
+    val action = crossJoin.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
+
 
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------
 
@@ -657,12 +741,12 @@ object DbHandler {
   val cases = TableQuery[Cases]
 
   class Containers(tag: Tag) extends
-    Table[(Option[Int], Int, Option[String], Option[String], Boolean, Option[String])](tag, "containers") {
+    Table[(Option[Int], Int, String, Option[String], Boolean, Option[String])](tag, "containers") {
     def containerId = column[Int]("container_id", O.PrimaryKey, O.AutoInc)
 
     def experimentTypeId = column[Int]("experiment_type_id")
 
-    def name = column[Option[String]]("name", O.Default(None))
+    def name = column[String]("name")
 
     def assembly = column[Option[String]]("assembly", O.Default(None))
 

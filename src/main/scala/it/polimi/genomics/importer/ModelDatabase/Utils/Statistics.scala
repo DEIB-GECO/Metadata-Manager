@@ -8,4 +8,5 @@ object Statistics {
   var released: Int = _
   var releasedItemNotInserted: Int =_
   var itemInserted: Int = _
+  var tsvFile: Int = _
 }
