@@ -51,10 +51,6 @@
             <source_key>null</source_key>
             <global_key>cellLine</global_key>
         </mapping>
-        <mapping method="MANUALLY">
-            <source_key></source_key>
-            <global_key>cellLine</global_key>
-        </mapping>
         <mapping>
             <source_key>biospecimen__bio__sample_type</source_key>
             <global_key>isHealty</global_key>

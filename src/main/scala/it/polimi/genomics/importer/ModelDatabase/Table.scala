@@ -59,7 +59,7 @@ trait Table {
   def filePath: String = _filePath
   def filePath_: (filePath: String): Unit = this._filePath = filePath
   def getWriter(path: String): PrintWriter = return new PrintWriter(new FileOutputStream(new File(path),true))
-  def getMessage(attribute: String, value: Any): String = return attribute + "\t" + value + "\n"
+  def getMessage(attribute: String, value: Any): String = return "integrated__" + attribute + "\t" + value + "\n"
   def flushAndClose(write: PrintWriter): Unit ={
     write.flush()
     write.close()

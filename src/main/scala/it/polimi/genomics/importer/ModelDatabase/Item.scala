@@ -88,4 +88,12 @@ trait Item extends Table{
     if(this.localUrl != null) write.append(getMessage(tableName + "_localUrl", this.localUrl))
     flushAndClose(write)
   }
+
+  def writeDerivedFrom(path: String, derived: String): Unit = {
+    val write = getWriter(path)
+    val tableName = "item"
+    write.append(getMessage(tableName + "_derivedFrom_", derived))
+    flushAndClose(write)
+
+  }
 }

@@ -609,6 +609,15 @@ object DbHandler {
     res
   }
 
+  def getItemsByDerivedFromId (finalId: Int): Seq[(Int, Int, String, Option[String], Option[String], Option[Long], Option[String], Option[String], Option[String], Option[String])] ={
+    val crossJoin = for {
+      (derivedFrom, item) <- derivedFrom.filter(_.finalItemId === finalId).join(items).on(_.initialItemId === _.itemId)
+    } yield (item.itemId, item.containerId, item.sourceId, item.dataType, item.format, item.size, item.platform, item.pipeline, item.sourceUrl, item.localUrl)
+    val action = crossJoin.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
 
 
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------

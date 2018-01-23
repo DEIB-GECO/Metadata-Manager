@@ -92,6 +92,16 @@ object MainTCGA {
          logger.info(s"Total Item inserted or Updated ${Statistics.itemInserted}")
 
          //logger_file.close()
+
+         val t2: Long = System.nanoTime()
+
+         logger.info(s"Start to write TSV file")
+         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => new FromDbToTsv(path.getAbsolutePath))
+
+         val t3: Long = System.nanoTime()
+
+         logger.info(s"Total time for the write info in TSV file ${getTotalTimeFormatted(t2, t3)}")
+         logger.info(s"Total file analized ${Statistics.tsvFile}")
          DbHandler.closeDatabase()
        }
        else

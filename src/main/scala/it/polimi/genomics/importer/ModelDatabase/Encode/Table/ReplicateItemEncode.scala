@@ -1,6 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
 import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
+import it.polimi.genomics.importer.ModelDatabase.Exception.IllegalOperationException
 import it.polimi.genomics.importer.ModelDatabase.{ReplicateItem, Table}
 
 import scala.collection.mutable.ListBuffer
@@ -14,7 +15,10 @@ class ReplicateItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(enco
 
   var repId: Int = _
 
-  override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = ???
+  override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = {
+    throw new IllegalOperationException("Set parameter non deve essere richiamato in ReplicateItem")
+
+  }
 
 
   override def insertRow(): Unit ={

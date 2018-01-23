@@ -17,7 +17,7 @@ class BioSampleTCGA extends TCGATable with BioSample {
         case "Metastatic" => this.isHealty = false
         case "Blood Derived Normal" => this.isHealty = true
       }}
-      case "DISEASE" => this.disease = insertMethod(this.disease,param)
+      case "DISEASE" => if(this.isHealty) this.disease = insertMethod(this.disease,param)
       case _ => noMatching(dest)
     }
   }

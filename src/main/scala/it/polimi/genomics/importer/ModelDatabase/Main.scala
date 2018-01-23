@@ -49,7 +49,9 @@ object main{
     Logger.getLogger("slick").addAppender(console3)
     //BasicConfigurator.configure()
 
-     DbHandler.setDatabase()
+    println(DbHandler.getItemsByDerivedFromId(11))
+
+    /* DbHandler.setDatabase()
      //analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
      //analizeFile("/home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF942JEG.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
      if (args.length == 0) {
@@ -108,7 +110,7 @@ object main{
        }
        else
          logger.warn("Xml file is not valid according the specified schema, check: " + schemaUrl)
-     }
+     }*/
   }
 
   def analizeFile(path: String, pathXML: String) {
