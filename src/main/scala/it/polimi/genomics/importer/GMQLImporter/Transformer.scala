@@ -7,6 +7,7 @@ import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
 import scala.xml.XML
 
@@ -220,9 +221,9 @@ object Transformer {
     * @param schemaFilePath path of the schema file.
     * @return if the file was correctly modified and if it fits the schema.
     */
-  def checkRegionData(dataFilePath: String, schemaFilePath: String): (Boolean,Boolean) ={
+  def checkRegionData(dataFilePath: String, schemaFilePath: String): (Boolean, Boolean) = {
     //first I read the schema.
-    if(new File(schemaFilePath).exists()) {
+    if (new File(schemaFilePath).exists()) {
       val continue = {
         try {
           (XML.loadFile(schemaFilePath) \\ "field").nonEmpty
@@ -233,39 +234,88 @@ object Transformer {
         }
       }
       if (continue) {
+        //load the schema in memory
         val fields = (XML.loadFile(schemaFilePath) \\ "field").map(field => (field.text, (field \ "@type").text))
 
+        //generate a temp file
         val tempFile = dataFilePath + ".temp"
         val writer = new PrintWriter(tempFile)
+
+        //event register
+        val missingValueCount = Array.fill(fields.size)(0)
+        val typeMismatchCount = Array.fill(fields.size)(0)
+        var wrongAttNumCount = 0
+        var strandBadValCount = 0
+
         //only replaces if everything goes right, if there is an error, we do not replace.
         var correctSchema = true
-        var replace = false
+        var modified = false
+
+        //scanning the file to check the consistency of each row to schema and manage missing value
         Source.fromFile(dataFilePath).getLines().foreach(line => {
           val splitLine = line.split("\t")
           var writeLine = ""
-          //here I have to check the schema
-          if (splitLine.size == fields.size) {
+
+          if (splitLine.size == fields.size) { //check if number of region attributes is consistent to schema
             for (i <- 0 until splitLine.size) {
 
-              //try to parse for the type fields(i)._2
+              //managing missing value
+              if (splitLine(i) == "" || splitLine(i).toUpperCase == "NULL" || splitLine(i).toUpperCase == "N/A" ||
+                (splitLine(i) == "." && fields(i)._1 == "score")) {
+                missingValueCount(i) += 1
+                val oldValue = splitLine(i)
+                //some attribute must be treated in different way if missing
+                if (fields(i)._1.toLowerCase == "score")
+                  splitLine(i) = "."
+                else
+                  splitLine(i) = "NULL"
 
-              //if its a particular column, do particular action fields(i)._1
+                //check if the missing value has been modified
+                if (oldValue != splitLine(i))
+                  modified = true
+              }
+              else {
+                //type consistency check
+                val typeMatch = fields(i)._2.toUpperCase match {
+                  case "LONG" => Try{splitLine(i).toLong}
+                  case "DOUBLE" => Try{splitLine(i).toDouble}
+                  case "INT" => Try{splitLine(i).toInt}
+                  case "CHAR" => if(splitLine(i).length == 1) new Success(splitLine(i)) else new Failure(new Exception("Not a char"))
+                  case "STRING" => Success(splitLine(i))
+                  case _ => new Failure(new Exception("Region attribute invalid type in schema"))
+                }
+
+                typeMatch match {
+                  case Success(v) => //specific attribute value check
+                    if (fields(i)._1.toLowerCase == "strand")
+                      splitLine(i) match {
+                        case "+" | "-" | "*" | "." =>
+                        case _ => strandBadValCount += 1
+                      }
+                  case Failure(e) => //action to perform in case of type mismatch
+                    typeMismatchCount(i) += 1
+                    correctSchema = false
+                }
+              }
+
+              //write region on temp file
               writeLine = writeLine + (if (i == 0) splitLine(i) else "\t" + splitLine(i))
             }
             writeLine = writeLine + "\n"
             writer.write(writeLine)
-            //if there are changes to the lines, should replace the file.
-            replace = true
           }
           else {
-            if (correctSchema)
+            /*if (correctSchema)
               logger.warn("file: " + dataFilePath + " should have " + fields.length +
                 " columns. Instead has " + line.split("\t").length)
-            correctSchema = false
+            correctSchema = false*/
+            wrongAttNumCount += 1
+            modified = true
           }
         })
         writer.close()
-        if (replace) {
+        //if there are changes to the lines, should replace the file.
+        if (modified) {
           //replace the file, and remove the temporary one.
           try {
             import java.io.{File, FileInputStream, FileOutputStream}
@@ -282,13 +332,24 @@ object Transformer {
         else {
           new File(tempFile).delete()
         }
-        (replace, correctSchema)
+        //log events summary
+        if (wrongAttNumCount > 0)
+          logger.warn(s"In $dataFilePath: $wrongAttNumCount lines with wrong numbers of attribute removed.")
+        for (i <- 0 until fields.size)
+          if (missingValueCount(i) > 0)
+            logger.warn(s"In $dataFilePath, attribute ${fields(i)._1}: ${missingValueCount(i)} missing value.")
+        for (i <- 0 until fields.size)
+          if (typeMismatchCount(i) > 0)
+            logger.warn(s"In $dataFilePath, attribute ${fields(i)._1}: ${typeMismatchCount(i)} type mismatch.")
+        if (strandBadValCount > 0)
+          logger.warn(s"In $dataFilePath: $strandBadValCount lines with invalid strand value.")
+        (modified, correctSchema)
       }
       else
-        (false,false)
+        (false, false)
     }
     else
-      (false,false)
+      (false, false)
   }
   /**
     * changes the name of key attribute in metadata.

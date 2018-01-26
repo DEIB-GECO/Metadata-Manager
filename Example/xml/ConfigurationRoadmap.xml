@@ -30,7 +30,7 @@
             <dataset_list>
                 <dataset name="narrowPeak">
                     <dataset_working_directory>narrowPeak</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/cnv/header.schema</schema_url>
+                    <schema_url location="local">schemas/narrowPeak.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
@@ -51,9 +51,9 @@
                 </dataset>
                 <dataset name="broadPeak">
                     <dataset_working_directory>broadPeak</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/cnv/header.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
+                    <schema_url location="local">schemas/broadPeak.schema</schema_url>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                     <parameter>
@@ -70,11 +70,11 @@
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="gappedPeakPeak">
+                <dataset name="gappedPeak">
                     <dataset_working_directory>gappedPeak</dataset_working_directory>
-                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/cnv/header.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
+                    <schema_url location="local">schemas/gappedPeak.schema</schema_url>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                     <parameter>
