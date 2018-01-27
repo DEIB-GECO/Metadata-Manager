@@ -1,31 +1,31 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode
 
-import java.io.{File, FileOutputStream, PrintWriter}
-
 import exceptions.NoTableNameException
 import it.polimi.genomics.importer.ModelDatabase.Encode.Table._
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
-import it.polimi.genomics.importer.ModelDatabase.{Table, Tables}
+import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Container, Donor, ExperimentType, Item, Project, Replicate, Table, Tables}
 import org.apache.log4j.Logger
 
 
 class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
 
-  protected var _filePath: String = _
+  /*protected var _filePath: String = _
 
   def filePath: String = _filePath
-  def filePath_: (filePath: String): Unit = this._filePath = filePath
+  def filePath_: (filePath: String): Unit = this._filePath = filePath*/
 
-  val logger: Logger = Logger.getLogger(this.getClass)
+  //val logger: Logger = Logger.getLogger(this.getClass)
 
-  this.values.foreach(v => tables += v -> this.getNewTable(v))
+  this.logger = Logger.getLogger(this.getClass)
+
+  //this.values.foreach(v => tables += v -> this.getNewTable(v))
   //override def selectTableByName(name: String): Table = tables(EncodeTableEnum.withName(name))
   //override def selectTableByValue(enum: EncodeTableEnum.Value): Table = tables(enum)
 
   /*override def selectTableByName(name: String): Table = tables(this.withName(name))
   override def selectTableByValue(enum: this.Value): Table = tables(enum)*/
 
-  def setPathOnTables(): Unit ={
+  def setPathOnTables(): Unit = {
     getOrderOfInsertion().map(t => this.selectTableByValue(t).filePath_:(this._filePath))
   }
 
@@ -45,7 +45,7 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
     }
   }
 
-  def insertTables(): Unit ={
+  override def insertTables(): Unit ={
     var insert = true
     getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table =>{
       if(table.hasForeignKeys){
@@ -59,15 +59,12 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
       if(insert) {
         table.insertRow()
       }
-    }
-    )
+    })
+  }
 
-    def fromDbToTsv(path: String): Unit = {
-      val sourceIdItem = path.split('/').last.split('.')(0)
-      val write = new PrintWriter(new FileOutputStream(new File(path),true))
-
-
-
-    }
+  override def getListOfTables(): (Donor, BioSample, Replicate, Case, Container, ExperimentType, Project, Item) = {
+    val encodeTableId: EncodeTableId = new EncodeTableId
+    return (new DonorEncode(encodeTableId,1), new BioSampleEncode(encodeTableId, 1), new ReplicateEncode(encodeTableId), new CaseEncode(encodeTableId),
+    new ContainerEncode(encodeTableId), new ExperimentTypeEncode(encodeTableId), new ProjectEncode(encodeTableId), new ItemEncode(encodeTableId))
   }
 }

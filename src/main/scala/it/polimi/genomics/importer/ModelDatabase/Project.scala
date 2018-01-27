@@ -1,6 +1,5 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-import java.io.{File, FileOutputStream, PrintWriter}
 
 trait Project extends Table{
 
@@ -44,8 +43,8 @@ trait Project extends Table{
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "project"
-    write.append(getMessage(tableName + "projectName", this.projectName))
-    if(this.programName != null) write.append(getMessage(tableName + "_programName", this.programName))
+    write.append(getMessage(tableName + "__project_name", this.projectName))
+    if(this.programName != null) write.append(getMessage(tableName + "__program_name", this.programName))
     flushAndClose(write)
   }
 }

@@ -8,7 +8,7 @@ class BioSampleTCGA extends TCGATable with BioSample {
     dest.toUpperCase match{
       case "SOURCEID" => this.sourceId = insertMethod(this.sourceId,param)
       case "TYPES" => this.types = insertMethod(this.types,param)
-      case "TISSUE" => this.tIssue = insertMethod(this.tIssue, param)
+      case "TISSUE" => this.tissue = insertMethod(this.tissue, param)
       case "CELLLINE" => this.cellLine = insertMethod(this.cellLine, param)
       case "ISHEALTY" => { param match {
         case "Additional - New Primary" => this.isHealty = false
@@ -17,7 +17,7 @@ class BioSampleTCGA extends TCGATable with BioSample {
         case "Metastatic" => this.isHealty = false
         case "Blood Derived Normal" => this.isHealty = true
       }}
-      case "DISEASE" => if(this.isHealty) this.disease = insertMethod(this.disease,param)
+      case "DISEASE" => if(!this.isHealty) this.disease = insertMethod(this.disease,param)
       case _ => noMatching(dest)
     }
   }

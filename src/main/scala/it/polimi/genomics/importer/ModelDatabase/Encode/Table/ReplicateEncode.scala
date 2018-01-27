@@ -99,4 +99,7 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
     })
     flushAndClose(write)
   }
+
+  override def getReplicateIdList(): List[Int] = { bioSampleIdList.toList }
+
 }

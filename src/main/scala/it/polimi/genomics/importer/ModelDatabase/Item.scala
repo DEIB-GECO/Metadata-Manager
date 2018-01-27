@@ -28,6 +28,10 @@ trait Item extends Table{
 
   _foreignKeysTables = List("CONTAINERS")
 
+  _hasDependencies = true
+
+  _dependenciesTables = List("ITEMS")
+
   override def insert(): Int = {
     val id = dbHandler.insertItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemInserted += 1
@@ -77,15 +81,15 @@ trait Item extends Table{
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "item"
-    write.append(getMessage(tableName + "_source_id", this.sourceId))
+    write.append(getMessage(tableName + "__source_id", this.sourceId))
 
-    if(this.dataType != null) write.append(getMessage(tableName + "_dataType", this.dataType))
-    if(this.format != null) write.append(getMessage(tableName + "_format", this.format))
-    if(this.size != 0) write.append(getMessage(tableName + "_size", this.size))
-    if(this.pipeline != null) write.append(getMessage(tableName + "_pipeline", this.pipeline))
-    if(this.platform != null) write.append(getMessage(tableName + "_platform", this.platform))
-    if(this.sourceUrl != null) write.append(getMessage(tableName + "_sourceUrl", this.sourceUrl))
-    if(this.localUrl != null) write.append(getMessage(tableName + "_localUrl", this.localUrl))
+    if(this.dataType != null) write.append(getMessage(tableName + "__data_type", this.dataType))
+    if(this.format != null) write.append(getMessage(tableName + "__format", this.format))
+    if(this.size != 0) write.append(getMessage(tableName + "__size", this.size))
+    if(this.pipeline != null) write.append(getMessage(tableName + "__pipeline", this.pipeline))
+    if(this.platform != null) write.append(getMessage(tableName + "__platform", this.platform))
+    if(this.sourceUrl != null) write.append(getMessage(tableName + "__source_url", this.sourceUrl))
+    if(this.localUrl != null) write.append(getMessage(tableName + "__local_url", this.localUrl))
     flushAndClose(write)
   }
 

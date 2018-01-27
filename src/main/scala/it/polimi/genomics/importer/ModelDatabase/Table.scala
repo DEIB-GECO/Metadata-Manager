@@ -19,8 +19,16 @@ trait Table {
 
   protected var _hasForeignKeys: Boolean = false
   protected var _foreignKeysTables: List[String] = _
+
+  protected var _hasDependencies: Boolean = false
+  protected var _dependenciesTables: List[String] = _
+
   def hasForeignKeys: Boolean = _hasForeignKeys
   def foreignKeysTables: List[String] = _foreignKeysTables
+
+  def dependenciesTables: List[String] = _dependenciesTables
+  def hasdependencies: Boolean = false
+
 
   protected var _primaryKey: Int = _
   def primaryKey: Int = _primaryKey

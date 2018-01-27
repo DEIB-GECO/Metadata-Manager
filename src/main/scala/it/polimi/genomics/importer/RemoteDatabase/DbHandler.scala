@@ -4,8 +4,8 @@ import com.typesafe.config.ConfigFactory
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.io.Source
-//import slick.driver.PostgresDriver.api._
-import slick.driver.MySQLDriver.api._
+import slick.driver.PostgresDriver.api._
+//import slick.driver.MySQLDriver.api._
 
 import slick.jdbc.meta.MTable
 import slick.lifted.Tag
@@ -190,7 +190,7 @@ object DbHandler {
   }
 
   def updateBioSample(donorId: Int, sourceId: String, types : String, tIussue: String, cellLine: String, isHealty: Boolean, disease: String): Int ={
-    val query = for { bioSample <- bioSamples if bioSample.sourceId === sourceId } yield (bioSample.donorId,bioSample.types, bioSample.tIssue, bioSample.cellLine, bioSample.isHealty, bioSample.disease)
+    val query = for { bioSample <- bioSamples if bioSample.sourceId === sourceId } yield (bioSample.donorId,bioSample.types, bioSample.tissue, bioSample.cellLine, bioSample.isHealty, bioSample.disease)
     val updateAction = query.update(donorId,Option(types),Option(tIussue),Option(cellLine),isHealty,Option(disease))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
@@ -549,7 +549,7 @@ object DbHandler {
   }
 
   def getBiosampleById(id: Int): Seq[(Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])] = {
-    val query = for { bioSample <- bioSamples if bioSample.bioSampleId === id } yield (bioSample.donorId, bioSample.sourceId, bioSample.types, bioSample.tIssue, bioSample.cellLine, bioSample.isHealty, bioSample.disease)
+    val query = for { bioSample <- bioSamples if bioSample.bioSampleId === id } yield (bioSample.donorId, bioSample.sourceId, bioSample.types, bioSample.tissue, bioSample.cellLine, bioSample.isHealty, bioSample.disease)
     val action = query.result
     val result = database.run(action)
     val res = Await.result(result, Duration.Inf)
@@ -653,7 +653,7 @@ object DbHandler {
 
     def types = column[Option[String]]("type", O.Default(None))
 
-    def tIssue = column[Option[String]]("t_issue", O.Default(None))
+    def tissue = column[Option[String]]("t_issue", O.Default(None))
 
     def cellLine = column[Option[String]]("cell_line", O.Default(None))
 
@@ -667,7 +667,7 @@ object DbHandler {
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def * = (bioSampleId.?, donorId, sourceId, types, tIssue, cellLine, isHealty, disease)
+    def * = (bioSampleId.?, donorId, sourceId, types, tissue, cellLine, isHealty, disease)
   }
 
 

@@ -12,6 +12,10 @@ trait ExperimentType extends Table{
 
   var antibody : String = _
 
+  _hasForeignKeys = true
+
+  _foreignKeysTables = List("EXPERIMENTSTYPE")
+
   override def checkInsert(): Boolean = {
     dbHandler.checkInsertExperimentType(this.technique)
   }
@@ -53,10 +57,10 @@ trait ExperimentType extends Table{
     val write = getWriter(path)
     val tableName = "experimenttype"
 
-    write.append(getMessage(tableName + "_technique", this.technique))
-    if(this.feature != null) write.append(getMessage(tableName + "_feature", this.feature))
-    if(this.target != null) write.append(getMessage(tableName + "_age", this.target))
-    if(this.antibody != null) write.append(getMessage(tableName + "_antibody", this.antibody))
+    write.append(getMessage(tableName + "__technique", this.technique))
+    if(this.feature != null) write.append(getMessage(tableName + "__feature", this.feature))
+    if(this.target != null) write.append(getMessage(tableName + "__age", this.target))
+    if(this.antibody != null) write.append(getMessage(tableName + "__antibody", this.antibody))
     flushAndClose(write)
   }
 

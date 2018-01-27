@@ -9,4 +9,11 @@ object ListFiles {
     these ++ these.filter(_.isDirectory).flatMap(recursiveListFiles)
   }
 
+  /*def getListOfSubDirectories(directoryName: String): Array[String] = {
+    (new File(directoryName))
+      .listFiles
+      .filter(_.isDirectory)
+      .map(_.getName)
+  }*/
+
 }

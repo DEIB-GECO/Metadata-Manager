@@ -1,21 +1,26 @@
 package it.polimi.genomics.importer.ModelDatabase.TCGA
 
 import exceptions.NoTableNameException
+import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
+import it.polimi.genomics.importer.ModelDatabase.Encode.Table._
 import it.polimi.genomics.importer.ModelDatabase.TCGA.Table._
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
-import it.polimi.genomics.importer.ModelDatabase.{Table, Tables}
+import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Container, Donor, ExperimentType, Item, Project, Replicate, Table, Tables}
 import org.apache.log4j.Logger
 
 class TCGATables extends Tables{
 
-  protected var _filePath: String = _
+  /*protected var _filePath: String = _
 
   def filePath: String = _filePath
-  def filePath_: (filePath: String): Unit = this._filePath = filePath
+  def filePath_: (filePath: String): Unit = this._filePath = filePath*/
 
-  val logger: Logger = Logger.getLogger(this.getClass)
+  //val logger: Logger = Logger.getLogger(this.getClass)
 
-  this.values.foreach(v => tables += v -> this.getNewTable(v))
+  this.logger = Logger.getLogger(this.getClass)
+
+
+  //this.values.foreach(v => tables += v -> this.getNewTable(v))
 
   def getNewTable(value: Value): Table = {
     value match {
@@ -33,7 +38,7 @@ class TCGATables extends Tables{
     }
   }
 
-  override def insertTables(): Unit = {
+  /*override def insertTables(): Unit = {
     var insert = true
     getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table =>{
       if(table.hasForeignKeys){
@@ -49,5 +54,11 @@ class TCGATables extends Tables{
       }
     }
     )
+  }*/
+
+  override def getListOfTables(): (Donor, BioSample, Replicate, Case, Container, ExperimentType, Project, Item) = {
+    val encodeTableId: EncodeTableId = new EncodeTableId
+    return (new DonorTCGA(), new BioSampleTCGA(), new ReplicateTCGA(), new CaseTCGA(),
+      new ContainerTCGA(), new ExperimentTypeTCGA(), new ProjectTCGA(), new ItemTCGA())
   }
 }

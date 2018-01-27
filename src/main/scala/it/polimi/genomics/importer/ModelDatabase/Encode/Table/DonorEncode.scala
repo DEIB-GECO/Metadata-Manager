@@ -26,7 +26,12 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
     dest.toUpperCase() match {
       case "SOURCEID" =>{this.insertPosition += 1 ; this.sourceIdArray(this.insertPosition) = insertMethod(this.sourceIdArray(this.insertPosition), param) }
       case "SPECIES" => this.speciesArray(this.insertPosition) = insertMethod(this.speciesArray(this.insertPosition), param)
-      case "AGE" => ageArray(this.insertPosition) = param.toInt
+      case "AGE" => param.split(" ")(1).toUpperCase() match {
+        case "YEAR" => this.ageArray(this.insertPosition) = param.split(" ")(0).toInt * 365
+        case "MONTH" => this.ageArray(this.insertPosition) = param.split(" ")(0).toInt * 30
+        case "DAY" => this.ageArray(this.insertPosition) = param.split(" ")(0).toInt
+        case _ => this.ageArray(this.insertPosition) = 0
+      }
       case "GENDER" => this.genderArray(this.insertPosition) = insertMethod(this.genderArray(this.insertPosition), param)
       case "ETHNICITY" => this.ethnicityArray(this.insertPosition) = insertMethod(this.ethnicityArray(this.insertPosition), param)
       case _ => noMatching(dest)

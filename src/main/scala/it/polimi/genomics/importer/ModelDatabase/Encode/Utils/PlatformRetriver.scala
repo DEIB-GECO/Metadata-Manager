@@ -14,9 +14,20 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
 
   private val replaceTransformation = "Transformations".r
   private val replaceExtensions = ".bed.meta.json".r
+  private val replaceSourceId = (originalSourceId+"_O").r
   val jsonFile = new File(replaceExtensions.replaceAllIn(replaceTransformation.replaceAllIn(path,"Downloads"),".bed.gz.json"))
+  val jsonFile_O = new File(replaceSourceId.replaceAllIn(replaceExtensions.replaceAllIn(replaceTransformation.replaceAllIn(path,"Downloads"),".bed.gz.json"), originalSourceId))
+
   val f = new MappingJsonFactory()
-  val jp: JsonParser = f.createJsonParser(jsonFile)
+  var jp: JsonParser = _
+
+  if(jsonFile.exists()) {
+     jp = f.createJsonParser(jsonFile)
+  }
+  else {
+    jp = f.createJsonParser(jsonFile_O)
+  }
+
   val rootNode: JsonNode = jp.readValueAsTree()
   var description: String = _
   var containerId: Int = _

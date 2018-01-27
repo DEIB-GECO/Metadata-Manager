@@ -54,15 +54,16 @@ object MainTCGA {
      if (args.length == 0) {
        logger.warn(s"No arguments specified")
      }
-     else if( args.length != 2){
+     else if( args.length != 3){
        logger.warn(s"Incorrect number of arguments")
        logger.info("GMQLImporter help:\n"
-         + "\t Run with configuration_xml_path and gmql_conf_folder as arguments\n"
+         + "\t Run with configuration_xml_path, file_folder and repository_ref as arguments\n"
        )
      }
      else {
        val pathXML = args.head
        val pathGMQL = args.drop(1).head
+       val repositoryRef = args.drop(1).head
        val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico/Example/xml/setting.xsd"
        if (schemaValidator.validate(pathXML, schemaUrl)){
          logger.info("Xml file is valid for the schema")
@@ -81,8 +82,9 @@ object MainTCGA {
          Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
 
          val t0: Long = System.nanoTime()
-         println(pathGMQL)
-         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFile(path.toString,pathXML))
+
+         if(repositoryRef.equals("encode"))
+           ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => analizeFileEncode(path.toString,pathXML))
          val t1 = System.nanoTime()
          logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
          logger.info(s"Total file analized ${Statistics.fileNumber}")
@@ -96,7 +98,7 @@ object MainTCGA {
          val t2: Long = System.nanoTime()
 
          logger.info(s"Start to write TSV file")
-         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => new FromDbToTsv(path.getAbsolutePath))
+         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => r.findFirstIn(f.getName).isDefined).map(path => new FromDbToTsvEncode(path.getAbsolutePath))
 
          val t3: Long = System.nanoTime()
 
@@ -109,7 +111,7 @@ object MainTCGA {
      }
   }
 
-  def analizeFile(path: String, pathXML: String) {
+  def analizeFileEncode(path: String, pathXML: String) {
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
     val lines = Source.fromFile(path).getLines.toArray

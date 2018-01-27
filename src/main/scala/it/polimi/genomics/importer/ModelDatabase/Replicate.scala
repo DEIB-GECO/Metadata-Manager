@@ -56,11 +56,13 @@ trait Replicate extends Table{
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "replicate"
-    write.append(getMessage(tableName + "sourceId", this.sourceId))
-    if(this.bioReplicateNum != 0) write.append(getMessage(tableName + "_bioReplicateNum", this.bioReplicateNum))
-    if(this.techReplicateNum != 0) write.append(getMessage(tableName + "_techReplicateNum", this.techReplicateNum))
+    write.append(getMessage(tableName + "__source_id", this.sourceId))
+    if(this.bioReplicateNum != 0) write.append(getMessage(tableName + "__bioReplicate_num", this.bioReplicateNum))
+    if(this.techReplicateNum != 0) write.append(getMessage(tableName + "_techReplicate_num", this.techReplicateNum))
 
     flushAndClose(write)
   }
+
+  def getReplicateIdList(): List[Int] = { List (bioSampleId) }
 
 }

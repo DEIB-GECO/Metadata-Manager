@@ -1,7 +1,5 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-import java.io.{File, FileOutputStream, PrintWriter}
-
 trait Donor extends Table{
 
   var sourceId: String = _
@@ -13,6 +11,10 @@ trait Donor extends Table{
   var gender : String= _
 
   var ethnicity : String = _
+
+  _hasDependencies = true
+
+  _dependenciesTables = List("BIOSAMPLE")
 
 
   override def insert(): Int ={
@@ -55,11 +57,11 @@ trait Donor extends Table{
     val write = getWriter(path)
     val tableName = "donor"
 
-    write.append(getMessage(tableName + "_sourceId", this.sourceId))
-    if(this.species != null) write.append(getMessage(tableName + "_species", this.species))
-    if(this.age != 0) write.append(getMessage(tableName + "_age", this.age))
-    if(this.gender != null) write.append(getMessage(tableName + "_gender", this.gender))
-    if(this.ethnicity != null) write.append(getMessage(tableName + "_ethnicity", this.ethnicity))
+    write.append(getMessage(tableName + "__source_id", this.sourceId))
+    if(this.species != null) write.append(getMessage(tableName + "__species", this.species))
+    if(this.age != 0) write.append(getMessage(tableName + "__age", this.age))
+    if(this.gender != null) write.append(getMessage(tableName + "__gender", this.gender))
+    if(this.ethnicity != null) write.append(getMessage(tableName + "__ethnicity", this.ethnicity))
 
     flushAndClose(write)
   }

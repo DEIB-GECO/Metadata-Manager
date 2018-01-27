@@ -10,7 +10,7 @@ trait BioSample extends Table{
 
   var types: String = _
 
-  var tIssue: String = _
+  var tissue: String = _
 
   var cellLine: String = _
 
@@ -22,12 +22,16 @@ trait BioSample extends Table{
 
   _foreignKeysTables = List("DONORS")
 
+  _hasDependencies = true
+
+  _dependenciesTables = List("BIOSAMPLE")
+
   override def insert(): Int ={
-    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tIssue,this.cellLine,this.isHealty,this.disease)
+    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealty,this.disease)
   }
 
   override def update(): Int = {
-    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tIssue,this.cellLine,this.isHealty,this.disease)
+    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealty,this.disease)
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -54,7 +58,7 @@ trait BioSample extends Table{
       this.donorId = value._1
       this.sourceId = value._2
       if(value._3.isDefined) this.types = value._3.get
-      if(value._4.isDefined) this.tIssue = value._4.get
+      if(value._4.isDefined) this.tissue = value._4.get
       if(value._5.isDefined) this.cellLine = value._5.get
       this.isHealty = value._6
       if(value._7.isDefined) this.disease = value._7.get
@@ -64,12 +68,12 @@ trait BioSample extends Table{
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "biosample"
-    write.append(getMessage(tableName + "_sourceId", this.sourceId))
-    if(this.types != null) write.append(getMessage(tableName + "_types", this.types))
-    if(this.tIssue != null) write.append(getMessage(tableName + "_tissue", this.tIssue))
-    if(this.cellLine != null) write.append(getMessage(tableName + "_cellLine", this.cellLine))
-    write.append(getMessage(tableName + "_isHealty", this.isHealty))
-    if(this.disease != null) write.append(getMessage(tableName + "_disease", this.disease))
+    write.append(getMessage(tableName + "__source_id", this.sourceId))
+    if(this.types != null) write.append(getMessage(tableName + "__types", this.types))
+    if(this.tissue != null) write.append(getMessage(tableName + "__tissue", this.tissue))
+    if(this.cellLine != null) write.append(getMessage(tableName + "__cell_line", this.cellLine))
+    write.append(getMessage(tableName + "__is_healty", this.isHealty))
+    if(this.disease != null) write.append(getMessage(tableName + "__disease", this.disease))
     flushAndClose(write)
   }
 

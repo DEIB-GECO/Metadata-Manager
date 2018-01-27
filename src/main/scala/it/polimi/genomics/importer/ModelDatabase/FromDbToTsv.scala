@@ -1,69 +1,77 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
-import it.polimi.genomics.importer.ModelDatabase.Encode.Table._
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
-import org.slf4j.{Logger, LoggerFactory}
 
-class FromDbToTsv(path: String) {
+class FromDbToTsv() {
 
-  val encodeTableId: EncodeTableId = new EncodeTableId
-  Statistics.tsvFile += 1
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
-  logger.info(s"Start to read ${sourceIdItem}")
-  val sourceIdItem = path.split('/').last.split('.')(0)
-
-  println(sourceIdItem)
-
-  var itemEncode: ItemEncode = new ItemEncode(encodeTableId)
-
-  itemEncode.convertTo(DbHandler.getItemBySourceId(sourceIdItem))
-
-  itemEncode.writeInFile(path)
-
-  val containerEncode: ContainerEncode = new ContainerEncode(encodeTableId)
-  containerEncode.convertTo(DbHandler.getContainerById(itemEncode.containerId))
-  containerEncode.writeInFile(path)
-
-  val experimentTypeEncode: ExperimentTypeEncode = new ExperimentTypeEncode(encodeTableId)
-  experimentTypeEncode.convertTo(DbHandler.getExperimentTypeById(containerEncode.experimentTypeId))
-  experimentTypeEncode.writeInFile(path)
-
-  val caseEncode: CaseEncode = new CaseEncode(encodeTableId)
-  caseEncode.convertTo(DbHandler.getCaseByItemId(itemEncode.primaryKey))
-  caseEncode.writeInFile(path)
-
-  val projectEncode: ProjectEncode = new ProjectEncode(encodeTableId)
-  projectEncode.convertTo(DbHandler.getProjectById(caseEncode.projectId))
-  projectEncode.writeInFile(path)
-
-  val replicateEncode: ReplicateEncode = new ReplicateEncode(encodeTableId)
-  replicateEncode.convertTo(DbHandler.getReplicateByItemId(itemEncode.primaryKey))
-  replicateEncode.writeInFile(path)
+  var donor: Donor = _
+  var bioSample: BioSample = _
+  var replicate: Replicate =  _
+  var cases: Case = _
+  var experimentType: ExperimentType = _
+  var container: Container =_
+  var project: Project = _
+  var item: Item = _
 
 
-  replicateEncode.bioSampleIdList.foreach(bioSampleId => {
-    val bioSampleEncode: BioSampleEncode = new BioSampleEncode(encodeTableId, 1)
-    bioSampleEncode.convertTo(DbHandler.getBiosampleById(bioSampleId))
-    bioSampleEncode.writeInFile(path)
+  def setTable(donor: Donor, bioSample: BioSample, replicate: Replicate, cases: Case, container: Container, experimentType: ExperimentType, project: Project, item: Item): Unit ={
+    this.donor = donor
+    this.bioSample = bioSample
+    this.replicate =  replicate
+    this.cases = cases
+    this.experimentType = experimentType
+    this.container = container
+    this.project = project
+    this.item = item
+  }
 
-    val donorEncode: DonorEncode = new DonorEncode(encodeTableId,1)
-    donorEncode.convertTo(DbHandler.getDonorById(bioSampleEncode.donorId))
-    donorEncode.writeInFile(path)
-  })
+
+  def run(path: String): Unit ={
+
+    val sourceIdItem = path.split('/').last.split('.')(0)
+
+    Statistics.tsvFile += 1
+
+    item.convertTo(DbHandler.getItemBySourceId(sourceIdItem))
+    item.writeInFile(path)
+
+    container.convertTo(DbHandler.getContainerById(item.containerId))
+    container.writeInFile(path)
+
+    experimentType.convertTo(DbHandler.getExperimentTypeById(container.experimentTypeId))
+    experimentType.writeInFile(path)
+
+    cases.convertTo(DbHandler.getCaseByItemId(item.primaryKey))
+    cases.writeInFile(path)
+
+    project.convertTo(DbHandler.getProjectById(cases.projectId))
+    project.writeInFile(path)
+
+    replicate.convertTo(DbHandler.getReplicateByItemId(item.primaryKey))
+    replicate.writeInFile(path)
+
+    replicate.getReplicateIdList().foreach(bioSampleId => {
+      bioSample.convertTo(DbHandler.getBiosampleById(bioSampleId))
+      bioSample.writeInFile(path)
+
+      donor.convertTo(DbHandler.getDonorById(bioSample.donorId))
+      donor.writeInFile(path)
+    })
+
+
+    this.recursiveGetItemsByDerivedFromId(this.item.primaryKey)
+    if(!this.sourceIdDerivedFrom.equals(""))
+      item.writeDerivedFrom(path, this.sourceIdDerivedFrom)
+
+  }
 
   val sourceIdDerivedFrom: String = ""
-  this.recursiveGetItemsByDerivedFromId(this.itemEncode.primaryKey)
   def recursiveGetItemsByDerivedFromId(id: Int): Unit ={
     DbHandler.getItemsByDerivedFromId(id).foreach(item => {
       sourceIdDerivedFrom.concat(" " + item._3)
       this.recursiveGetItemsByDerivedFromId(item._1)
     })
   }
-
-
-
 
 }
