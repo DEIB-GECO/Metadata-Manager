@@ -279,7 +279,7 @@ object Transformer {
                 val typeMatch = fields(i)._2.toUpperCase match {
                   case "LONG" => Try{splitLine(i).toLong}
                   case "DOUBLE" => Try{splitLine(i).toDouble}
-                  case "INT" => Try{splitLine(i).toInt}
+                  case "INTEGER" => Try{splitLine(i).toInt}
                   case "CHAR" => if(splitLine(i).length == 1) new Success(splitLine(i)) else new Failure(new Exception("Not a char"))
                   case "STRING" => Success(splitLine(i))
                   case _ => new Failure(new Exception("Region attribute invalid type in schema"))

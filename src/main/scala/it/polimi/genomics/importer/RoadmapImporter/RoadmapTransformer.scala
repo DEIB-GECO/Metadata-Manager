@@ -4,6 +4,7 @@ import java.io._
 import java.util.zip.GZIPInputStream
 
 import com.github.tototoshi.csv.{CSVReader, CSVWriter}
+import it.polimi.genomics.importer.DefaultImporter.utils.unzipper
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource, GMQLTransformer}
 import org.slf4j.LoggerFactory
 
@@ -25,7 +26,7 @@ class RoadmapTransformer  extends GMQLTransformer {
     val fileTransformationPath = destinationPath + File.separator + filename
     if (originalFilename.endsWith(".gz")) {
       logger.debug("Start unGzipping: " + originalFilename)
-      if (unGzipIt(fileDownloadPath, fileTransformationPath)) {
+      if (unzipper.unGzipIt(fileDownloadPath, fileTransformationPath)) {
         logger.info("UnGzipping: " + originalFilename + " DONE")
         metaGen(filename, originPath, destinationPath)
         true
