@@ -1,7 +1,6 @@
 package it.polimi.genomics.importer.RoadmapImporter
 
 import java.io._
-import java.util.zip.GZIPInputStream
 
 import com.github.tototoshi.csv.{CSVReader, CSVWriter}
 import it.polimi.genomics.importer.DefaultImporter.utils.unzipper
@@ -28,57 +27,97 @@ class RoadmapTransformer  extends GMQLTransformer {
       logger.debug("Start unGzipping: " + originalFilename)
       if (unzipper.unGzipIt(fileDownloadPath, fileTransformationPath)) {
         logger.info("UnGzipping: " + originalFilename + " DONE")
-        metaGen(filename, originPath, destinationPath)
-        true
+        if (metaGen(filename, originPath, destinationPath)) {
+          logger.info(("metaGen: " + originalFilename + " DONE"))
+          true
+        }
+        else {
+          logger.warn("metaGen: " + originalFilename + " FAIL")
+          false
+        }
       }
-      else
-      {
+      else {
         logger.warn("UnGzipping: " + originalFilename + " FAIL")
         false
       }
     }
-    else if(originalFilename.endsWith(".csv")) {
-      true
-    }
     else false
   }
 
-  def metaGen(fileName: String, inPath: String, outPath: String) = {
-    val sheet1: File = new File(inPath + File.separator + "jul2013.roadmapData.qc_Consolidated_EpigenomeIDs_summary_Table.csv")
-    val sheet2: File = new File(inPath + File.separator + "jul2013.roadmapData.qc_Consolidated_EpigenomeIDs_QC.csv")
-    val tempSheet: File = new File(inPath + File.separator + "tempSheet.csv")
-    val reader1: CSVReader = CSVReader.open(sheet1)
-    val firstSheet: List[List[String]] = reader1.all()
-    val newHeader: List[String] = (firstSheet(0) zip firstSheet(1)).map(tuple => {
-      if(firstSheet(0).count(_ == tuple._1)>1 && tuple._2.nonEmpty)
-        tuple._1+ ":" + tuple._2
-      else
-        tuple._1})
-    val writer: CSVWriter = CSVWriter.open(tempSheet)
-    writer.writeRow(newHeader)
-    writer.writeAll(firstSheet)
-    writer.close()
-    reader1.close()
-    val reader3 = CSVReader.open(tempSheet)
-    val reader2: CSVReader = CSVReader.open(sheet2)
-    val listMaps1: List[Map[String,  String]] = reader3.allWithHeaders()
-    val listMaps2: List[Map[String,  String]] = reader2.allWithHeaders()
-    val mark: String = extractMark(fileName)
-    val eid: String = fileName.split("-")(0)
-    val eid_index: Int = listMaps1.indexWhere(_.get("Epigenome ID (EID)").get == eid)
-    using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outPath + File.separator + fileName + ".meta"))))) {
-      writer => {
-        mapToFile(listMaps1(eid_index), writer)
-        for (m <- listMaps2)
-          if(m.get("EID").get == listMaps1(eid_index).get("Epigenome ID (EID)").get && m.get("MARK").get == mark)
-            mapToFile(m, writer)
+  /**
+    * generate a .meta file in tsv format containing metadata attributes name and value associated to an input file
+    *
+    * @param inPath   path for the  "Downloads" folder
+    * @param outPath  path for the "Transformations" folder
+    * @param fileName name of the input file for which the .meta file must be generated
+    * @return boolean asserting if the meta file is correctly generated
+    */
+  def metaGen(fileName: String, inPath: String, outPath: String): Boolean = {
+    try {
+      val sheet1: File = new File(inPath + File.separator + "jul2013.roadmapData.qc_Consolidated_EpigenomeIDs_summary_Table.csv")
+      val sheet2: File = new File(inPath + File.separator + "jul2013.roadmapData.qc_Consolidated_EpigenomeIDs_QC.csv")
+      val tempSheet: File = new File(inPath + File.separator + "tempSheet.csv")
+      val reader1: CSVReader = CSVReader.open(sheet1)
+
+      //load first sheet in memory
+      val firstSheet: List[List[String]] = reader1.all()
+
+      //merge first line (header) with the second one (sub-header) of the first sheet
+      val newHeader: List[String] = (firstSheet(0) zip firstSheet(1)).map(tuple => {
+        if (firstSheet(0).count(_ == tuple._1) > 1 && tuple._2.nonEmpty)
+          tuple._1 + ":" + tuple._2
+        else
+          tuple._1
+      })
+
+      //write in a temporary file the new header and the first sheet
+      val writer: CSVWriter = CSVWriter.open(tempSheet)
+      writer.writeRow(newHeader)
+      writer.writeAll(firstSheet)
+      writer.close()
+      reader1.close()
+
+      //load in memory temp sheet and second sheet
+      val reader3: CSVReader = CSVReader.open(tempSheet)
+      val reader2: CSVReader = CSVReader.open(sheet2)
+
+      //load the headers
+      val listMaps1: List[Map[String, String]] = reader3.allWithHeaders()
+      val listMaps2: List[Map[String, String]] = reader2.allWithHeaders()
+
+      //extract map and header from the file name
+      val mark: String = extractMark(fileName)
+      val eid: String = fileName.split("-")(0)
+
+      //select line in first sheet corresponding to the input file
+      val eid_index: Int = listMaps1.indexWhere(_ ("Epigenome ID (EID)") == eid)
+
+      //write attribute name and value on .meta file
+      using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outPath + File.separator + fileName + ".meta"))))) {
+        writer => {
+          mapToFile(listMaps1(eid_index), writer)
+          for (m <- listMaps2)
+            if (m("EID") == listMaps1(eid_index)("Epigenome ID (EID)") && m("MARK") == mark)
+              mapToFile(m, writer)
+        }
       }
+      reader2.close()
+      reader3.close()
+      tempSheet.delete
+      true
+    } catch {
+      case e: Exception =>
+        logger.debug(s"exeption occurred during $fileName metadata generation", e)
+        false
     }
-    reader2.close()
-    reader3.close()
-    tempSheet.delete
   }
 
+  /**
+    * extract the mark from a Roadmap consolidated peak file
+    *
+    * @param fileName         name of the new file
+    * @return String containing the mark in the file name
+    */
   def extractMark(fileName: String): String = {
     val core: String = fileName.split("-")(1).split("\\.").dropRight(1).mkString(".")
     if(core == "DNase")
@@ -87,11 +126,25 @@ class RoadmapTransformer  extends GMQLTransformer {
       core
   }
 
+  /**
+    * perform an operation over a resources and close it
+    *
+    * @param resource        a closeable resources to handle
+    * @param block           an operation to perform over the resource
+    * @return closed resources
+    */
   def using[T <: Closeable, R](resource: T)(block: T => R): R = {
     try { block(resource) }
     finally { resource.close() }
   }
 
+  /**
+    * write a map over a writable resources in tsv; each line contains a key-value pair
+    *
+    * @param map              map to write
+    * @param writer           resources where the map is write
+    * @return String containing the mark in the file name
+    */
   def mapToFile(map: Map[String, String], writer: Writer): Unit = {
     for ((k, v) <- map.toSeq.sortBy(_._1))
       if(!(k.isEmpty || v.isEmpty)) writer.write(s"${k.filterNot("\n".toSet)
@@ -108,41 +161,6 @@ class RoadmapTransformer  extends GMQLTransformer {
     */
   override def getCandidateNames(filename: String, dataset: GMQLDataset, source: GMQLSource): List[String] = {
     List[String](filename.substring(0, filename.lastIndexOf(".")))
-  }
-
-  /**
-    * extracts the gzipFile into the outputPath.
-    *
-    * @param gzipFile   full location of the gzip
-    * @param outputPath full path of destination, filename included.
-    */
-  def unGzipIt(gzipFile: String, outputPath: String): Boolean = {
-    val bufferSize = 1024
-    val buffer = new Array[Byte](bufferSize)
-    var unGzipped = false
-    var timesTried = 0
-    while (timesTried < 4 && !unGzipped) {
-      try {
-        val zis = new GZIPInputStream(new BufferedInputStream(new FileInputStream(gzipFile)))
-        val newFile = new File(outputPath)
-        val fos = new FileOutputStream(newFile)
-
-        var ze: Int = zis.read(buffer)
-        while (ze >= 0) {
-
-          fos.write(buffer, 0, ze)
-          ze = zis.read(buffer)
-        }
-        fos.close()
-        zis.close()
-        unGzipped = true
-      } catch {
-        case e: IOException => timesTried += 1
-      }
-    }
-    if (!unGzipped)
-      logger.error("Couldnt UnGzip the file: " + outputPath)
-    unGzipped
   }
 }
 
