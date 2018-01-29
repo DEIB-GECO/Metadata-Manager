@@ -2,6 +2,8 @@ package it.polimi.genomics.importer.ModelDatabase
 
 import java.io.{File, FileOutputStream, PrintWriter}
 
+import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
+
 trait Container extends Table{
 
   var experimentTypeId : Int = _
@@ -20,7 +22,7 @@ trait Container extends Table{
 
   _hasDependencies = true
 
-  _dependenciesTables = List("CONTAINERS")
+  _dependenciesTables = List("CONTAINERS", "DONOR")
 
   override def insert() : Int ={
     dbHandler.insertContainer(experimentTypeId,this.name,this.assembly,this.isAnn,this.annotation)
@@ -44,6 +46,28 @@ trait Container extends Table{
 
   override def checkConsistency(): Boolean = {
     if(this.name != null) true else false
+  }
+
+  override def checkDependenciesSatisfaction(table: Table): Boolean = {
+    table match {
+      case container: Container => {
+        if (container.isAnn && container.annotation == null){
+          Statistics.constraintsViolated += 1
+          this.logger.warn("Container annotation constrains violated")
+          return false
+        }
+        true
+      }
+      case donor: Donor =>{
+        if(donor.species.toUpperCase().equals("HOMO SAPIENS") && !(this.assembly.equals("hg19") || this.assembly.equals("GRh38"))) {
+          Statistics.constraintsViolated += 1
+          this.logger.warn("Container species constrains violated")
+          return false
+        }
+        true
+      }
+      case _ => true
+    }
   }
 
   def convertTo(values: Seq[(Int, Int, String, Option[String], Boolean, Option[String])]): Unit = {

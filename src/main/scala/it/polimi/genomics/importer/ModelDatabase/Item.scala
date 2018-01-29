@@ -40,7 +40,7 @@ trait Item extends Table{
 
   override def update(): Int = {
     val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    Statistics.itemInserted += 1
+    Statistics.itemUpdated += 1
     id
   }
 
@@ -58,6 +58,29 @@ trait Item extends Table{
 
   override def checkConsistency(): Boolean = {
     if(this.sourceId != null) true else false
+  }
+
+  override def checkDependenciesSatisfaction(table: Table): Boolean = {
+    table match {
+      case item: Item => {
+        if (item.format.equals("fastq") && this.platform == null) {
+          Statistics.constraintsViolated += 1
+          this.logger.warn("Item format platform constrains violated")
+          false
+        } else if (item.format.equals("bam") && this.pipeline == null) {
+          Statistics.constraintsViolated += 1
+          this.logger.warn("Item format pipeline constrains violated")
+          false
+        } else if (item.dataType.equals("reads") && this.platform == null) {
+          Statistics.constraintsViolated += 1
+          this.logger.warn("Item dataType platform constrains violated")
+          false
+        }
+        else
+          true
+      }
+      case _ => true
+    }
   }
 
   def convertTo(values: Seq[(Int, Int, String, Option[String], Option[String], Option[Long], Option[String], Option[String], Option[String], Option[String])]): Unit = {

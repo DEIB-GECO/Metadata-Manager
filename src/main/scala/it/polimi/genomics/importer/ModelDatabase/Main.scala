@@ -69,8 +69,8 @@ object main{
      else if(args(2).toUpperCase != encodeString && args(2).toUpperCase != tcgaString ){
        logger.error(s"Incorrect repository argument")
      }
-     else if(args(3).toUpperCase != "IMPORT" && args(3)!= "EXPORT")
-       logger.error(s"Incorrect m argument")
+     else if(args(3).toUpperCase != "IMPORT" && args(3).toUpperCase != "EXPORT")
+       logger.error(s"Incorrect mode argument")
      else if (args(3).equals("import")){
        val pathXML = args.head
        val pathGMQL = args.drop(1).head
@@ -105,7 +105,9 @@ object main{
          logger.info(s"Total file released ${Statistics.released}")
          logger.info(s"Total file archived ${Statistics.archived}")
          logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
-         logger.info(s"Total Item inserted or Updated ${Statistics.itemInserted}")
+         logger.info(s"Total Item inserted ${Statistics.itemInserted}")
+         logger.info(s"Total Item updated ${Statistics.itemUpdated}")
+         logger.info(s"Constrains violated ${Statistics.constraintsViolated}")
 
        }
        else

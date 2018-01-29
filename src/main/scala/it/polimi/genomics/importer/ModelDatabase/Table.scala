@@ -28,6 +28,8 @@ trait Table {
 
   def dependenciesTables: List[String] = _dependenciesTables
   def hasdependencies: Boolean = false
+  def checkDependenciesSatisfaction(table: Table): Boolean = true
+  def getDependencies(): Set[Any] = null
 
 
   protected var _primaryKey: Int = _

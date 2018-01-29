@@ -1,5 +1,6 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 import org.apache.log4j.Logger
 
@@ -33,22 +34,35 @@ trait Tables extends Enumeration{
   }
 
   def insertTables(): Unit = {
-    var insert = true
-    getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table =>{
-      if(table.hasForeignKeys){
-        table.foreignKeysTables.map(t => this.selectTableByName(t)).map(t => table.setForeignKeys(t))
+
+    val conf = ConfigFactory.load()
+    val constrainsSatisfacted = false
+    if(!conf.getBoolean("constraints.activated") || constrainsSatisfacted) {
+      var insert = true
+      getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table => {
+        if (table.hasForeignKeys) {
+          table.foreignKeysTables.map(t => this.selectTableByName(t)).map(t => table.setForeignKeys(t))
+        }
+        if (table.checkConsistency() == false && insert) {
+          insert = false
+          logger.warn(s"Primary key of $table doesn't find")
+          Statistics.releasedItemNotInserted += 1
+        }
+        if (insert) {
+          table.insertRow()
+        }
       }
-      if(table.checkConsistency() == false && insert) {
-        insert = false
-        logger.warn(s"Primary key of $table doesn't find")
-        Statistics.releasedItemNotInserted += 1
-      }
-      if(insert) {
-        table.insertRow()
-      }
+      )
     }
-    )
   }
+
+  def checkTablesConstrainsSatisfaction(): Boolean = {
+    getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table =>{
+      if(table.hasdependencies)
+        table.dependenciesTables.map(t => this.selectTableByName(t)).map(t => if(!table.checkDependenciesSatisfaction(t)) return false)
+    })
+    true
+    }
 
   this.values.foreach(v => tables += v -> this.getNewTable(v))
 

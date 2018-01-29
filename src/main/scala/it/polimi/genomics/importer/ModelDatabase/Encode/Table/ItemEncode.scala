@@ -39,13 +39,13 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId,this.encodeTableId)
     platformRetriver.getItems(id,this.containerId,this.encodeTableId.caseId)
-    Statistics.itemInserted += 1
+    Statistics.itemUpdated += 1
     id
   }
 
   def specialUpdate(): Int ={
     val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    Statistics.itemInserted += 1
+    Statistics.itemUpdated += 1
     id
   }
 }

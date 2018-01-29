@@ -1,7 +1,5 @@
 package it.polimi.genomics.importer.ModelDatabase.TCGA.Table
 
-import java.time.Year
-
 import it.polimi.genomics.importer.ModelDatabase.Donor
 
 class DonorTCGA extends TCGATable with Donor{

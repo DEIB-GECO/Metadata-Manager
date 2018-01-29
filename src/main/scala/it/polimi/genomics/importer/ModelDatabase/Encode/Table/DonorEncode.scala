@@ -38,6 +38,8 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
     }
   }
 
+  override def noMatching(message: String): Unit = super.noMatching(message)
+
   override def insertRow(): Unit ={
     var id: Int = 0
     for(sourcePosition <- 0 to sourceIdArray.length-1){
@@ -52,7 +54,11 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
     }
   }
 
-  override def insert(): Int ={
+  override def checkDependenciesSatisfaction(table: Table): Boolean = {
+    true
+  }
+
+    override def insert(): Int ={
     dbHandler.insertDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
   }
 

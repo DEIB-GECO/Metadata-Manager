@@ -4,8 +4,8 @@ import com.typesafe.config.ConfigFactory
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.io.Source
-import slick.driver.PostgresDriver.api._
-//import slick.driver.MySQLDriver.api._
+//import slick.driver.PostgresDriver.api._
+import slick.driver.MySQLDriver.api._
 
 import slick.jdbc.meta.MTable
 import slick.lifted.Tag
@@ -18,7 +18,7 @@ object DbHandler {
   val conf = ConfigFactory.load()
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
- /* val connectionUrl = "jdbc:postgresql://131.175.120.18/geco-test?user=geco&password=geco78"
+ /* val connectionUrl = "jdbc:postgresql://localhost/geco-test?user=geco&password=geco78"
 
    val driver = "org.postgresql.Driver"
    val database = Database.forURL(connectionUrl, driver, keepAliveConnection = true)*/

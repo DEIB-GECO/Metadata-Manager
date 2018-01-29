@@ -1,6 +1,6 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-import java.io.{File, FileOutputStream, PrintWriter}
+import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 
 trait BioSample extends Table{
 
@@ -48,6 +48,33 @@ trait BioSample extends Table{
 
   override def checkConsistency(): Boolean = {
     if(this.sourceId != null) true else false
+  }
+
+  override def checkDependenciesSatisfaction(table: Table): Boolean = {
+    table match {
+      case bioSample: BioSample => {
+        if (bioSample.types.equals("tissue") && bioSample.tissue == null) {
+          Statistics.constraintsViolated += 1
+          this.logger.warn("Biosample tissue constrains violated")
+          false
+        }
+        else if (bioSample.types.equals("cellLine") && bioSample.tissue == null)
+        {
+          Statistics.constraintsViolated += 1
+          this.logger.warn("Biosample cellLine constrains violated")
+          false
+        }
+        else if (bioSample.isHealty && bioSample.disease != null)
+        {
+          Statistics.constraintsViolated += 1
+          this.logger.warn("Biosample isHealty constrains violated")
+          false
+        }
+        else
+          true
+      }
+      case _ => true
+    }
   }
 
   def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])]): Unit = {

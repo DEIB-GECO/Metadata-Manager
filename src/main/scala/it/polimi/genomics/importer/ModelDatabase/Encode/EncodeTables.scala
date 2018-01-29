@@ -45,7 +45,7 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
     }
   }
 
-  override def insertTables(): Unit ={
+  /*override def insertTables(): Unit ={
     var insert = true
     getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table =>{
       if(table.hasForeignKeys){
@@ -60,7 +60,7 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
         table.insertRow()
       }
     })
-  }
+  }*/
 
   override def getListOfTables(): (Donor, BioSample, Replicate, Case, Container, ExperimentType, Project, Item) = {
     val encodeTableId: EncodeTableId = new EncodeTableId

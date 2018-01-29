@@ -1,6 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
 import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
+import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 import it.polimi.genomics.importer.ModelDatabase.{BioSample, Table}
 
 import scala.util.control.Breaks._
@@ -75,6 +76,37 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
       /*def setPrimaryKey(position:Unit)={
         if()*/
 
+    }
+  }
+
+  override def checkDependenciesSatisfaction(table: Table): Boolean = {
+    var res = true
+    table match {
+      case bioSamples: BioSampleEncode => {
+        bioSamples.sourceIdArray.foreach(bioSample =>{
+          val position = bioSamples.sourceIdArray.indexOf(bioSample)
+          if (bioSamples.typesArray(position).equals("tissue") && this.tissue == null)
+          {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Biosample tissue constrains violated")
+            res = false
+          }
+          else if (bioSamples.typesArray(position).equals("cellLine") && this.tissue == null)
+          {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Biosample cellLine constrains violated")
+            res = false
+          }
+          else if (bioSamples.isHealtyArray(position) && bioSamples.diseaseArray(position) != null)
+          {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Biosample tissue constrains violated")
+            res = false
+          }
+        })
+        res
+      }
+      case _ => true
     }
   }
 

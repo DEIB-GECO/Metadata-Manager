@@ -1,0 +1,48 @@
+2018-01-29 00:53:40,247 INFO  [main$] Start to read /home/federico/Scrivania/_Encode_Download_tsv/HG19_ENCODE/broadPeak/Transformations/ENCFF001SMJ.bed.meta.json
+2018-01-29 00:53:40,328 INFO  [main$] File status released, start populate table
+2018-01-29 00:53:40,445 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2018-01-29 00:53:40,446 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2018-01-29 00:53:40,447 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title, antibody, CONCAT)
+2018-01-29 00:53:40,448 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2018-01-29 00:53:40,453 WARN  [main$] SourceKey does't find for List(CONTAINERS, ENCODE, name, CONCAT-MANUALLY)
+2018-01-29 00:53:42,472 INFO  [main$] Start to read /home/federico/Scrivania/_Encode_Download_tsv/HG19_ENCODE/broadPeak/Transformations/ENCFF001SMK.bed.meta.json
+2018-01-29 00:53:42,477 INFO  [main$] File status released, start populate table
+2018-01-29 00:53:42,508 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2018-01-29 00:53:42,509 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2018-01-29 00:53:42,510 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title, antibody, CONCAT)
+2018-01-29 00:53:42,510 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2018-01-29 00:53:42,515 WARN  [main$] SourceKey does't find for List(CONTAINERS, ENCODE, name, CONCAT-MANUALLY)
+2018-01-29 00:53:43,297 INFO  [main$] Start to read /home/federico/Scrivania/_Encode_Download_tsv/HG19_ENCODE/broadPeak/Transformations/ENCFF001SMH_O.bed.meta.json
+2018-01-29 00:53:43,302 INFO  [main$] File status released, start populate table
+2018-01-29 00:53:43,329 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2018-01-29 00:53:43,329 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2018-01-29 00:53:43,330 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title, antibody, CONCAT)
+2018-01-29 00:53:43,330 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2018-01-29 00:53:43,332 WARN  [main$] SourceKey does't find for List(CONTAINERS, ENCODE, name, CONCAT-MANUALLY)
+2018-01-29 00:53:43,918 INFO  [main$] Start to read /home/federico/Scrivania/_Encode_Download_tsv/HG19_ENCODE/broadPeak/Transformations/ENCFF001SMG.bed.meta.json
+2018-01-29 00:53:43,921 INFO  [main$] File status released, start populate table
+2018-01-29 00:53:43,936 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2018-01-29 00:53:43,936 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2018-01-29 00:53:43,937 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title, antibody, CONCAT)
+2018-01-29 00:53:43,937 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2018-01-29 00:53:43,939 WARN  [main$] SourceKey does't find for List(CONTAINERS, ENCODE, name, CONCAT-MANUALLY)
+2018-01-29 00:53:44,396 INFO  [main$] Start to read /home/federico/Scrivania/_Encode_Download_tsv/HG19_ENCODE/broadPeak/Transformations/ENCFF001SMI.bed.meta.json
+2018-01-29 00:53:44,400 INFO  [main$] File status released, start populate table
+2018-01-29 00:53:44,412 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2018-01-29 00:53:44,412 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2018-01-29 00:53:44,413 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title, antibody, CONCAT)
+2018-01-29 00:53:44,414 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2018-01-29 00:53:44,415 WARN  [main$] SourceKey does't find for List(CONTAINERS, ENCODE, name, CONCAT-MANUALLY)
+2018-01-29 00:53:44,862 INFO  [main$] Start to read /home/federico/Scrivania/_Encode_Download_tsv/HG19_ENCODE/broadPeak/Transformations/ENCFF001SML.bed.meta.json
+2018-01-29 00:53:44,864 INFO  [main$] File status released, start populate table
+2018-01-29 00:53:44,875 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, file__replicate__experiment__target__investigated_as, feature, DEFAULT)
+2018-01-29 00:53:44,876 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, target__name, target, DEFAULT)
+2018-01-29 00:53:44,877 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__title, antibody, CONCAT)
+2018-01-29 00:53:44,877 WARN  [main$] SourceKey does't find for List(EXPERIMENTSTYPE, replicates__1__antibody__url, antibody, CONCAT)
+2018-01-29 00:53:44,879 WARN  [main$] SourceKey does't find for List(CONTAINERS, ENCODE, name, CONCAT-MANUALLY)
+2018-01-29 00:53:45,266 INFO  [main$] Total time for insert data in DB 0:0:5
+2018-01-29 00:53:45,266 INFO  [main$] Total file analized 6
+2018-01-29 00:53:45,266 INFO  [main$] Total file released 6
+2018-01-29 00:53:45,267 INFO  [main$] Total file archived 0
+2018-01-29 00:53:45,267 INFO  [main$] Total file released but not inserted 0
+2018-01-29 00:53:45,267 INFO  [main$] Total Item inserted or Updated 6

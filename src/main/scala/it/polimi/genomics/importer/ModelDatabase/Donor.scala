@@ -1,5 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
+
 trait Donor extends Table{
 
   var sourceId: String = _
@@ -38,6 +40,21 @@ trait Donor extends Table{
 
   override def getId(): Int = {
     dbHandler.getDonorId(this.sourceId)
+  }
+
+  override def checkDependenciesSatisfaction(table: Table): Boolean = {
+    table match {
+      case bioSample: BioSample => {
+        if (bioSample.types.equals("tissue") && this.sourceId == null) {
+          Statistics.constraintsViolated += 1
+          this.logger.warn("Donor constrains violated")
+          false
+        }
+        else
+          true
+      }
+      case _ => true
+    }
   }
 
   def convertTo(values: Seq[(String, Option[String], Option[Int], Option[String], Option[String])]): Unit = {
