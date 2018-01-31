@@ -1,14 +1,16 @@
 package it.polimi.genomics.importer.RoadmapImporter
 
 import java.io._
+import java.util.regex.Pattern
 
 import com.github.tototoshi.csv.{CSVReader, CSVWriter}
 import it.polimi.genomics.importer.DefaultImporter.utils.unzipper
+import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource, GMQLTransformer}
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 class RoadmapTransformer  extends GMQLTransformer {
-  val logger = LoggerFactory.getLogger(this.getClass)
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   /**
     * recieves .json and .bed.gz files and transform them to get metadata in .meta files and region in .bed files.
@@ -23,12 +25,18 @@ class RoadmapTransformer  extends GMQLTransformer {
   override def transform(source: GMQLSource, originPath: String, destinationPath: String, originalFilename: String, filename: String): Boolean = {
     val fileDownloadPath = originPath + File.separator + originalFilename
     val fileTransformationPath = destinationPath + File.separator + filename
+    val splitPath = destinationPath.split(Pattern.quote(File.separator))
+    val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(source.name), splitPath(splitPath.length-2))
+
+    val stage = STAGE.DOWNLOAD
     if (originalFilename.endsWith(".gz")) {
       logger.debug("Start unGzipping: " + originalFilename)
       if (unzipper.unGzipIt(fileDownloadPath, fileTransformationPath)) {
         logger.info("UnGzipping: " + originalFilename + " DONE")
         if (metaGen(filename, originPath, destinationPath)) {
-          logger.info(("metaGen: " + originalFilename + " DONE"))
+          logger.info("metaGen: " + originalFilename + " DONE")
+          val fileId = FileDatabase.fileId(datasetId, "", stage, filename+".meta")
+          FileDatabase.markAsUpdated(fileId, new File(destinationPath + File.separator + filename+".meta").length.toString)
           true
         }
         else {
@@ -63,9 +71,9 @@ class RoadmapTransformer  extends GMQLTransformer {
       val firstSheet: List[List[String]] = reader1.all()
 
       //merge first line (header) with the second one (sub-header) of the first sheet
-      val newHeader: List[String] = (firstSheet(0) zip firstSheet(1)).map(tuple => {
-        if (firstSheet(0).count(_ == tuple._1) > 1 && tuple._2.nonEmpty)
-          tuple._1 + ":" + tuple._2
+      val newHeader: List[String] = (firstSheet.head zip firstSheet(1)).map(tuple => {
+        if (firstSheet.head.count(_ == tuple._1) > 1 && tuple._2.nonEmpty)
+          tuple._1 + "__" + tuple._2
         else
           tuple._1
       })
@@ -85,9 +93,11 @@ class RoadmapTransformer  extends GMQLTransformer {
       val listMaps1: List[Map[String, String]] = reader3.allWithHeaders()
       val listMaps2: List[Map[String, String]] = reader2.allWithHeaders()
 
-      //extract map and header from the file name
+      //extract mark, eid and format from the file name
       val mark: String = extractMark(fileName)
       val eid: String = fileName.split("-")(0)
+      val nameComp = fileName.split("-")(1).split("\\.")
+      val format: String = nameComp(nameComp.length-1)
 
       //select line in first sheet corresponding to the input file
       val eid_index: Int = listMaps1.indexWhere(_ ("Epigenome ID (EID)") == eid)
@@ -99,6 +109,7 @@ class RoadmapTransformer  extends GMQLTransformer {
           for (m <- listMaps2)
             if (m("EID") == listMaps1(eid_index)("Epigenome ID (EID)") && m("MARK") == mark)
               mapToFile(m, writer)
+          writer.write(s"manually_curated__format\t$format")
         }
       }
       reader2.close()

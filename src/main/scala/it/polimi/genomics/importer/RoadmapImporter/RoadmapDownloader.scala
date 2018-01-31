@@ -8,7 +8,7 @@ import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDownloader, GMQLSource}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
@@ -20,7 +20,7 @@ import scala.util.Try
   */
 class RoadmapDownloader extends GMQLDownloader {
 
-  val logger = LoggerFactory.getLogger(this.getClass)
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   /**
     * checks if the given URL exists
