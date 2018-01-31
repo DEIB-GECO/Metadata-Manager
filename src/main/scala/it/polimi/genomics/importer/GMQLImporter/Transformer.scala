@@ -307,7 +307,7 @@ object Transformer {
           else {
             /*if (correctSchema)
               logger.warn("file: " + dataFilePath + " should have " + fields.length +
-                " columns. Instead has " + line.split("\t").length)
+                " columns. Instead has " + splitLine.length)
             correctSchema = false*/
             wrongAttNumCount += 1
             modified = true
@@ -362,9 +362,10 @@ object Transformer {
     if(new File(metadataFilePath).exists()){
       var metadataList: Seq[(String, String)] = Seq[(String,String)]()
       Source.fromFile(metadataFilePath).getLines().foreach(line=>{
-        if(line.split('\t').length==2) {
-          var metadataKey = line.split('\t')(0)
-          val metadataValue = line.split('\t')(1)
+        val split = line.split("\t", -1)
+        if(split.length==2) {
+          var metadataKey = split(0)
+          val metadataValue = split(1)
           changeKeys.filter(change => change._1.findFirstIn(metadataKey).isDefined).foreach(change =>{
             replaced = true
             metadataKey = change._1.replaceFirstIn(metadataKey, change._2)

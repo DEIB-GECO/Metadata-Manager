@@ -5,6 +5,7 @@ import java.util
 
 import it.polimi.genomics.core.DataStructures.IRDataSet
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
+import it.polimi.genomics.manager.ProfilerLauncher
 import it.polimi.genomics.repository.{GMQLRepository, GMQLSample, Utilities}
 import org.slf4j.LoggerFactory
 
@@ -79,9 +80,19 @@ class GMQLLoader {
               listAdd,
               path + File.separator + dataset.name + ".schema")
             logger.info("import for dataset " + dataset.name + " completed")
+            ProfilerLauncher.profileDS(gmqlUser, datasetName)
+            logger.info("profiler for dataset " + dataset.name + " completed")
+            val description =
+              if (dataset.parameters.exists(_._1 == "loading_description"))
+                Some(dataset.parameters.filter(_._1 == "loading_description").head._2)
+              else
+                None
+            if(description.nonEmpty)
+              repo.setDatasetMeta(datasetName, gmqlUser, Map(" Description" -> description.get))
+
           }
           catch {
-            case e: Throwable => logger.error("import failed: " + e.getMessage)
+            case e: Throwable => logger.error("import failed: ", e)
           }
         }
         else

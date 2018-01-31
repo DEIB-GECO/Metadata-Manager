@@ -36,40 +36,48 @@ class ENCODETransformer extends GMQLTransformer {
     val sourceId = FileDatabase.sourceId(source.name)
     val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
     if (filename.endsWith(".gz")) {
-//      if (source.parameters.exists(_._1 == "assembly_exclude")) {
-        val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
-        val file = Source.fromFile(path + File.separator + "metadata" + ".tsv")
-        val header = file.getLines().next().split("\t")
-//        val assembly = header.lastIndexOf("Assembly")
-        val url = header.lastIndexOf("File download URL")
-//  NOW ALL OF THIS ASSEMBLY HANDLING IS DONE IN DOWNLOADING PHASE.
-//        if (Source.fromFile(path + File.separator + "metadata.tsv").getLines().exists(line => {
-//          line.split("\t")(url).contains(filename) &&
-//            line.split("\t")(assembly).toLowerCase == source.parameters.filter(_._1.toLowerCase ==
-//              "assembly_exclude").head._2.toLowerCase
-//        })
-//        )
-//          List[String]()
-//        else
-          List[String](filename.substring(0, filename.lastIndexOf(".")))
-//      }
-//      else
-//        List[String](filename.substring(0, filename.lastIndexOf(".")))
+      //      if (source.parameters.exists(_._1 == "assembly_exclude")) {
+      val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
+      val file = Source.fromFile(path + File.separator + "metadata" + ".tsv")
+      val header = file.getLines().next().split("\t")
+      //        val assembly = header.lastIndexOf("Assembly")
+      val url = header.lastIndexOf("File download URL")
+      //  NOW ALL OF THIS ASSEMBLY HANDLING IS DONE IN DOWNLOADING PHASE.
+      //        if (Source.fromFile(path + File.separator + "metadata.tsv").getLines().exists(line => {
+      //          line.split("\t")(url).contains(filename) &&
+      //            line.split("\t")(assembly).toLowerCase == source.parameters.filter(_._1.toLowerCase ==
+      //              "assembly_exclude").head._2.toLowerCase
+      //        })
+      //        )
+      //          List[String]()
+      //        else
+      List[String](filename.substring(0, filename.lastIndexOf(".")))
+      //      }
+      //      else
+      //        List[String](filename.substring(0, filename.lastIndexOf(".")))
     }
     else {
-      if (source.parameters.exists(_._1 == "metadata_extraction") &&
-        source.parameters.filter(_._1 == "metadata_extraction").head._2 == "json") {
+      val both = source.parameters.exists(_._1 == "metadata_extraction") &&
+        source.parameters.filter(_._1 == "metadata_extraction").head._2.contains("json") &&
+        source.parameters.filter(_._1 == "metadata_extraction").head._2.contains("tsv")
+
+      val res1 = if (source.parameters.exists(_._1 == "metadata_extraction") &&
+        source.parameters.filter(_._1 == "metadata_extraction").head._2.contains("json")) {
         if (filename.endsWith(".gz.json")) {
-          val bedFilePath = source.outputFolder + File.separator + dataset.outputFolder +File.separator+ "Downloads" +
-            File.separator + filename.replace(".json","")
-          if(new File(bedFilePath).exists())
+          val bedFilePath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads" +
+            File.separator + filename.replace(".json", "")
+          //          if (new File(bedFilePath).exists())
+          if (both)
+            List[String](filename.replace(".gz.json", ".meta.json"))
+          else
             List[String](filename.replace(".gz.json", ".meta"))
-          else List[String]()
+          //          else List[String]()
         }
         else List[String]()
       }
-      else if (source.parameters.exists(_._1 == "metadata_extraction") &&
-        source.parameters.filter(_._1 == "metadata_extraction").head._2 != "json" &&
+      else List[String]()
+      val res2 = if (source.parameters.exists(_._1 == "metadata_extraction") &&
+        source.parameters.filter(_._1 == "metadata_extraction").head._2.contains("tsv") &&
         source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(filename)) {
         import scala.io.Source
         val metadataPath = source.outputFolder + File.separator +
@@ -81,10 +89,10 @@ class ENCODETransformer extends GMQLTransformer {
         val url = header.lastIndexOf("File download URL")
 
         //here I have to check if the .gz file is UPDATED or OUTDATED.
-        Source.fromFile(metadataPath).getLines().drop(1).filter(line =>{
+        Source.fromFile(metadataPath).getLines().drop(1).filter(line => {
           val fields = line.split("\t")
-          val bedFileStatus = FileDatabase.fileStatus(datasetId,fields(url),STAGE.DOWNLOAD).getOrElse(FILE_STATUS.OUTDATED)
-          if(bedFileStatus == FILE_STATUS.UPDATED){
+          val bedFileStatus = FileDatabase.fileStatus(datasetId, fields(url), STAGE.DOWNLOAD).getOrElse(FILE_STATUS.OUTDATED)
+          if (bedFileStatus == FILE_STATUS.UPDATED) {
             true
           }
           else {
@@ -96,16 +104,17 @@ class ENCODETransformer extends GMQLTransformer {
           val aux1 = fields(url).split("/").last
           val aux2 = aux1.substring(0, aux1.lastIndexOf(".")) + ".meta" //this is the meta name
           aux2
-        }).filter(file =>{
-          val bedFilePath = source.outputFolder + File.separator + dataset.outputFolder +File.separator+ "Downloads" +
-            File.separator + file.replace(".meta",".gz")
-          if(new File(bedFilePath).exists())
+        }).filter(file => {
+          val bedFilePath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads" +
+            File.separator + file.replace(".meta", ".gz")
+          if (new File(bedFilePath).exists())
             true
           else
             false
         }).toList
       }
       else List[String]()
+      res1 ++ res2
     }
   }
 
@@ -130,6 +139,19 @@ class ENCODETransformer extends GMQLTransformer {
         fileDownloadPath,
         fileTransformationPath)) {
         logger.info("UnGzipping: " + originalFilename + " DONE")
+
+        //to copy original json to transform
+        //        if(source.parameters.exists(_._1 == "metadata_extraction") &&
+        //          source.parameters.filter(_._1 == "metadata_extraction").head._2 == "tsv_json"){
+        //          import java.io.{File, FileInputStream, FileOutputStream}
+        //          val src = new File(fileDownloadPath + ".json")
+        //          val dest = new File(fileTransformationPath + ".json")
+        //          new FileOutputStream(dest) getChannel() transferFrom(
+        //            new FileInputStream(src) getChannel(), 0, Long.MaxValue)
+        //          //here have to add the metadata of copy number and total copies
+        //          logger.info("File: " + fileDownloadPath + " copied into " + fileTransformationPath)
+        //        }
+
         true
       }
       else {
@@ -137,49 +159,58 @@ class ENCODETransformer extends GMQLTransformer {
         false
       }
     }
-    else if (source.parameters.exists(_._1 == "metadata_extraction") &&
-      source.parameters.filter(_._1 == "metadata_extraction").head._2 == "json") {
-      if (originalFilename.endsWith(".gz.json")) {
-        logger.debug("Start metadata transformation: " + originalFilename)
-        val jsonFileName = filename.split('.').head
-
-        val separator =
-          if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
-            source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
-          else
-            "__"
-        if(transformMetaFromJson(fileDownloadPath, fileTransformationPath, jsonFileName, separator)) {
-          logger.info("Metadata transformation: " + originalFilename + " DONE")
-          true
-        }
-        else false
-      }
-      else {
-        false
-        //this is no data nor metadata file, must be the metadata.tsv and is not used due to json selection.
-      }
-    }
-    //if not json is defined, metadata.tsv will be used.
     else {
-      if (source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(originalFilename)) {
-        val accession = filename.split('.').head
-        transformMetaFromTsv(fileDownloadPath, destinationPath, accession,source)
-        true
-      }
-      else {
-        false
-        //is not metadata file
-      }
+      val result1 =
+        if (source.parameters.exists(_._1 == "metadata_extraction") &&
+          source.parameters.filter(_._1 == "metadata_extraction").head._2.contains("json")) {
+          if (originalFilename.endsWith(".gz.json")) {
+            logger.debug("Start metadata transformation: " + originalFilename)
+            val jsonFileName = filename.split('.').head
+
+            val separator =
+              if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
+                source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+              else
+                "__"
+            if (transformMetaFromJson(fileDownloadPath, fileTransformationPath, jsonFileName, separator)) {
+              logger.info("Metadata transformation: " + originalFilename + " DONE")
+              true
+            }
+            else false
+          }
+          else {
+            false
+            //this is no data nor metadata file, must be the metadata.tsv and is not used due to json selection.
+          }
+        } else
+          false
+      //if not json is defined, metadata.tsv will be used.
+      val result2 =
+        if (source.parameters.exists(_._1 == "metadata_extraction") &&
+          source.parameters.filter(_._1 == "metadata_extraction").head._2.contains("tsv")) {
+          if (source.parameters.filter(_._1 == "metadata_suffix").head._2.contains(originalFilename)) {
+            val accession = filename.split('.').head
+            transformMetaFromTsv(fileDownloadPath, destinationPath, accession, source)
+            true
+          }
+          else {
+            false
+            //is not metadata file
+          }
+        }
+        else
+          false
+      result1 || result2
     }
   }
 
   /**
     * by giving a metadata.tsv file creates all the metadata for the files.
     *
-    * @param originPath full path to metadata.tsv file
+    * @param originPath        full path to metadata.tsv file
     * @param destinationFolder transformations folder of the dataset.
-    * @param accession experiment accession number for the file.
-    * @param gmqlSource source being transformed
+    * @param accession         experiment accession number for the file.
+    * @param gmqlSource        source being transformed
     */
   def transformMetaFromTsv(originPath: String, destinationFolder: String, accession: String, gmqlSource: GMQLSource): Unit = {
     import scala.io.Source
@@ -219,7 +250,7 @@ class ENCODETransformer extends GMQLTransformer {
     * @param metadataJsonFileName     origin json file
     * @param metadataFileName         destination .meta file
     * @param fileNameWithoutExtension id of the file being converted.
-    * @param separator separator string used to mark nested metadata
+    * @param separator                separator string used to mark nested metadata
     */
   def transformMetaFromJson(metadataJsonFileName: String, metadataFileName: String, fileNameWithoutExtension: String
                             , separator: String): Boolean = {
@@ -324,7 +355,7 @@ class ENCODETransformer extends GMQLTransformer {
     * @param writer       output for metadata.
     * @param replicateIds list with the biological_replicate_number used by the file.
     * @param metaList     list with already inserted meta to avoid duplication.
-    * @param separator                separator string to use for separating the nested metadata
+    * @param separator    separator string to use for separating the nested metadata
     */
   def writeReplicates(rootNode: JsonNode, writer: PrintWriter, replicateIds: List[String],
                       metaList: java.util.ArrayList[(String, String)], separator: String): Unit = {
@@ -362,10 +393,10 @@ class ENCODETransformer extends GMQLTransformer {
     * by giving an initial node, prints into the .meta file its metadata and its children's metadata also.
     * I use java arraylist as scala list cannot be put as var in the parameters.
     *
-    * @param node     current node
-    * @param parents  path separated by dots for each level
-    * @param writer   file writer with the open .meta file
-    * @param metaList list with already inserted meta to avoid duplication.
+    * @param node      current node
+    * @param parents   path separated by dots for each level
+    * @param writer    file writer with the open .meta file
+    * @param metaList  list with already inserted meta to avoid duplication.
     * @param separator separator string to use for separating the nested metadata
     * @param exclusion list with all metadata names to be excluded
     */

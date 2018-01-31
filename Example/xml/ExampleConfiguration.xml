@@ -4,8 +4,8 @@
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
-        <base_working_directory>C:\Users\ricca\Desktop\tesi\data</base_working_directory>
-        <download_enabled>true</download_enabled>
+        <base_working_directory>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example</base_working_directory>
+        <download_enabled>false</download_enabled>
         <transform_enabled>true</transform_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
@@ -17,8 +17,8 @@
             <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
             <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
-            <download_enabled>true</download_enabled>
-            <transform_enabled>true</transform_enabled>
+            <download_enabled>false</download_enabled>
+            <transform_enabled>false</transform_enabled>
             <load_enabled>false</load_enabled>
             <parameter_list>
                 <parameter>
@@ -100,8 +100,8 @@
                 <dataset name="dnaseq">
                     <dataset_working_directory>dnaseq</dataset_working_directory>
                     <schema_url location="local">schemas/dnaseq.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -129,8 +129,8 @@
                 <dataset name="mirnaseq_isoform">
                     <dataset_working_directory>mirnaseq_isoform</dataset_working_directory>
                     <schema_url location="local">schemas/mirnaseq_isoform.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -187,8 +187,8 @@
                 <dataset name="rnaseq_exon">
                     <dataset_working_directory>rnaseq_exon</dataset_working_directory>
                     <schema_url location="local">schemas/rnaseq_exon.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -216,8 +216,8 @@
                 <dataset name="rnaseq_gene">
                     <dataset_working_directory>rnaseq_gene</dataset_working_directory>
                     <schema_url location="local">schemas/rnaseq_gene.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -245,8 +245,8 @@
                 <dataset name="rnaseq_spljxn">
                     <dataset_working_directory>rnaseq_spljxn</dataset_working_directory>
                     <schema_url location="local">schemas/rnaseq_spljxn.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -274,8 +274,8 @@
                 <dataset name="rnaseqv2_exon">
                     <dataset_working_directory>rnaseqv2_exon</dataset_working_directory>
                     <schema_url location="local">schemas/rnaseqv2_exon.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -303,8 +303,8 @@
                 <dataset name="rnaseqv2_gene">
                     <dataset_working_directory>rnaseqv2_gene</dataset_working_directory>
                     <schema_url location="local">schemas/rnaseqv2_gene.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -332,8 +332,8 @@
                 <dataset name="rnaseqv2_isoform">
                     <dataset_working_directory>rnaseqv2_isoform</dataset_working_directory>
                     <schema_url location="local">schemas/rnaseqv2_isoform.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -361,8 +361,8 @@
                 <dataset name="rnaseqv2_spljxn">
                     <dataset_working_directory>rnaseqv2_spljxn</dataset_working_directory>
                     <schema_url location="local">schemas/rnaseqv2_spljxn.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -397,7 +397,7 @@
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
             <transform_enabled>true</transform_enabled>
-            <load_enabled>false</load_enabled>
+            <load_enabled>true</load_enabled>
             <parameter_list>
                 <parameter>
                     <description>to know which user in gmql is going to be imported</description>
@@ -459,15 +459,15 @@
                     <key>encode_metadata_exclusion</key>
                     <value>^assembly$</value>
                 </parameter>
-                <parameter>
-                    <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>
-                    <key>metadata_replacement</key>
-                    <value>xml/metadataReplacement.xml</value>
-                </parameter>
+                <!--<parameter>-->
+                    <!--<description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>-->
+                    <!--<key>metadata_replacement</key>-->
+                    <!--<value>xml/metadataReplacement.xml</value>-->
+                <!--</parameter>-->
                 <parameter>
                     <description>metadata extraction method tsv or json.</description>
                     <key>metadata_extraction</key>
-                    <value>tsv</value>
+                    <value>json_tsv</value>
                 </parameter>
                 <parameter>
                     <key>multiple_comma_separated</key>
@@ -502,9 +502,9 @@
                 <dataset name="broadPeak">
                     <dataset_working_directory>broadPeak</dataset_working_directory>
                     <schema_url location="local">schemas/broadPeak.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <load_enabled>true</load_enabled>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
+                    <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <description>The dataset name on the server</description>
@@ -544,6 +544,28 @@
                     <transform_enabled>true</transform_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
+
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_ENCODE_BROAD_NOV_2017</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>HG19_ENCODE_BROAD_NOV_2017 contains ENCODE data mapped to HG19 human genome.&lt;br&gt;
+                                In this case Broad (or Regions) Peaks format is selected and archived/revoked data are avoided.&lt;br&gt;
+                                &lt;b&gt;bold&lt;/b&gt;  &lt;br&gt;
+                                The release date of this dataset is November 2017 https://www.encodeproject.org/.&lt;br&gt;
+
+                                &lt;ol&gt;
+                                &lt;li&gt;first element&lt;/li&gt;
+                                &lt;li&gt;second element&lt;/li&gt;
+                                &lt;/ol&gt;
+
+
+                            </value>
+                        </parameter>
                         <parameter>
                             <description>always should be experiment, but could be another type</description>
                             <type>url_generation</type>
