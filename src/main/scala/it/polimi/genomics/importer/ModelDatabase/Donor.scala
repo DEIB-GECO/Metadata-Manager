@@ -16,7 +16,7 @@ trait Donor extends Table{
 
   _hasDependencies = true
 
-  _dependenciesTables = List("BIOSAMPLE")
+  _dependenciesTables = List("BIOSAMPLES")
 
 
   override def insert(): Int ={
@@ -43,17 +43,24 @@ trait Donor extends Table{
   }
 
   override def checkDependenciesSatisfaction(table: Table): Boolean = {
-    table match {
-      case bioSample: BioSample => {
-        if (bioSample.types.equals("tissue") && this.sourceId == null) {
-          Statistics.constraintsViolated += 1
-          this.logger.warn("Donor constrains violated")
-          false
+    try {
+      table match {
+        case bioSample: BioSample => {
+          if (bioSample.types.equals("tissue") && this.sourceId == null) {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Donor constrains violated")
+            false
+          }
+          else
+            true
         }
-        else
-          true
+        case _ => true
       }
-      case _ => true
+    } catch {
+      case e: Exception => {
+        logger.warn("java.lang.NullPointerException")
+        true
+      };
     }
   }
 

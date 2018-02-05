@@ -67,4 +67,9 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
     return (new DonorEncode(encodeTableId,1), new BioSampleEncode(encodeTableId, 1), new ReplicateEncode(encodeTableId), new CaseEncode(encodeTableId),
     new ContainerEncode(encodeTableId), new ExperimentTypeEncode(encodeTableId), new ProjectEncode(encodeTableId), new ItemEncode(encodeTableId))
   }
+
+  def nextPosition(tableName: String, globalKey: String, method: String): Unit = {
+    val encodeTable: EncodeTable =  this.selectTableByName(tableName).asInstanceOf[EncodeTable]
+    encodeTable.nextPosition(globalKey, method)
+  }
 }

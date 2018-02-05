@@ -14,7 +14,7 @@ trait BioSample extends Table{
 
   var cellLine: String = _
 
-  var isHealty: Boolean = _
+  var isHealthy: Boolean = _
 
   var disease: String = _
 
@@ -24,14 +24,14 @@ trait BioSample extends Table{
 
   _hasDependencies = true
 
-  _dependenciesTables = List("BIOSAMPLE")
+  _dependenciesTables = List("BIOSAMPLES")
 
   override def insert(): Int ={
-    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealty,this.disease)
+    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealthy,this.disease)
   }
 
   override def update(): Int = {
-    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealty,this.disease)
+    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealthy,this.disease)
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -51,29 +51,34 @@ trait BioSample extends Table{
   }
 
   override def checkDependenciesSatisfaction(table: Table): Boolean = {
-    table match {
-      case bioSample: BioSample => {
-        if (bioSample.types.equals("tissue") && bioSample.tissue == null) {
-          Statistics.constraintsViolated += 1
-          this.logger.warn("Biosample tissue constrains violated")
-          false
+    try {
+      table match {
+        case bioSample: BioSample => {
+          if (bioSample.types.equals("tissue") && bioSample.tissue == null) {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Biosample tissue constrains violated")
+            false
+          }
+          else if (bioSample.types.equals("cellLine") && bioSample.tissue == null) {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Biosample cellLine constrains violated")
+            false
+          }
+          else if (bioSample.isHealthy && bioSample.disease != null) {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Biosample isHealty constrains violated")
+            false
+          }
+          else
+            true
         }
-        else if (bioSample.types.equals("cellLine") && bioSample.tissue == null)
-        {
-          Statistics.constraintsViolated += 1
-          this.logger.warn("Biosample cellLine constrains violated")
-          false
-        }
-        else if (bioSample.isHealty && bioSample.disease != null)
-        {
-          Statistics.constraintsViolated += 1
-          this.logger.warn("Biosample isHealty constrains violated")
-          false
-        }
-        else
-          true
+        case _ => true
       }
-      case _ => true
+    } catch {
+      case e: Exception => {
+        logger.warn("java.lang.NullPointerException")
+        true
+      };
     }
   }
 
@@ -87,7 +92,7 @@ trait BioSample extends Table{
       if(value._3.isDefined) this.types = value._3.get
       if(value._4.isDefined) this.tissue = value._4.get
       if(value._5.isDefined) this.cellLine = value._5.get
-      this.isHealty = value._6
+      this.isHealthy = value._6
       if(value._7.isDefined) this.disease = value._7.get
     }
   }
@@ -99,7 +104,7 @@ trait BioSample extends Table{
     if(this.types != null) write.append(getMessage(tableName + "__types", this.types))
     if(this.tissue != null) write.append(getMessage(tableName + "__tissue", this.tissue))
     if(this.cellLine != null) write.append(getMessage(tableName + "__cell_line", this.cellLine))
-    write.append(getMessage(tableName + "__is_healty", this.isHealty))
+    write.append(getMessage(tableName + "__is_healthy", this.isHealthy))
     if(this.disease != null) write.append(getMessage(tableName + "__disease", this.disease))
     flushAndClose(write)
   }

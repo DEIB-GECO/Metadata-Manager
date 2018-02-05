@@ -1,7 +1,5 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-import java.io.{File, FileOutputStream, PrintWriter}
-
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 
 trait Container extends Table{
@@ -14,7 +12,7 @@ trait Container extends Table{
 
   var isAnn: Boolean = _
 
-  var annotation: String = null
+  var annotation: String = _
 
   _hasForeignKeys = true
 
@@ -22,7 +20,7 @@ trait Container extends Table{
 
   _hasDependencies = true
 
-  _dependenciesTables = List("CONTAINERS", "DONOR")
+  _dependenciesTables = List("CONTAINERS", "DONORS")
 
   override def insert() : Int ={
     dbHandler.insertContainer(experimentTypeId,this.name,this.assembly,this.isAnn,this.annotation)
@@ -49,24 +47,31 @@ trait Container extends Table{
   }
 
   override def checkDependenciesSatisfaction(table: Table): Boolean = {
-    table match {
-      case container: Container => {
-        if (container.isAnn && container.annotation == null){
-          Statistics.constraintsViolated += 1
-          this.logger.warn("Container annotation constrains violated")
-          return false
+    try {
+      table match {
+        case container: Container => {
+          if (container.isAnn && container.annotation == null) {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Container annotation constrains violated")
+            return false
+          }
+          true
         }
-        true
-      }
-      case donor: Donor =>{
-        if(donor.species.toUpperCase().equals("HOMO SAPIENS") && !(this.assembly.equals("hg19") || this.assembly.equals("GRh38"))) {
-          Statistics.constraintsViolated += 1
-          this.logger.warn("Container species constrains violated")
-          return false
+        case donor: Donor => {
+          if (donor.species.toUpperCase().equals("HOMO SAPIENS") && !(this.assembly.equals("hg19") || this.assembly.equals("GRCh38"))) {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Container species constrains violated")
+            return false
+          }
+          true
         }
-        true
+        case _ => true
       }
-      case _ => true
+    } catch {
+      case e: Exception => {
+        logger.warn("java.lang.NullPointerException")
+        true
+      };
     }
   }
 

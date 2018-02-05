@@ -18,26 +18,75 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   var cellLineArray: Array[String] = new Array[String](quantity)
 
-  var isHealtyArray: Array[Boolean] = new Array[Boolean](quantity)
+  var isHealthyArray: Array[Boolean] = new Array[Boolean](quantity)
 
   var diseaseArray: Array[String] = new Array[String](quantity)
 
   var actualPosition: Int = _
 
-  var insertPosition: Int = -1
+  var insertPosition: Int = 0
 
+  var typesInsertPosition: Int = 0
+
+  var tissueInsertPosition: Int = 0
+
+  var cellLineInsertPosition: Int = 0
+
+  var isHealthyInsertPosition: Int = 0
+
+  var diseaseInsertPosition: Int = 0
 
 
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = {
     dest.toUpperCase match{
-      case "SOURCEID" => {this.insertPosition += 1;this.sourceIdArray(insertPosition) = insertMethod(this.sourceIdArray(insertPosition),param);}
-      case "TYPES" => this.typesArray(insertPosition) = insertMethod(this.typesArray(insertPosition),param)
-      case "TISSUE" => this.tissueArray(insertPosition) = if(typesArray(insertPosition) .equals("tissue")) insertMethod(this.tissueArray(insertPosition), param) else null
-      case "CELLLINE" => this.cellLineArray(insertPosition) = if(typesArray(insertPosition) .contains("cell")) insertMethod(this.cellLineArray(insertPosition), param) else null
-      case "ISHEALTY" => this.isHealtyArray(insertPosition) = if(param.contains("healthy")) true else false
-      case "DISEASE" => this.diseaseArray(insertPosition) = if(!this.isHealtyArray(insertPosition)) insertMethod(this.diseaseArray(insertPosition),param) else null
+      case "SOURCEID" => {
+        this.sourceIdArray(insertPosition) = insertMethod(this.sourceIdArray(insertPosition),param);
+        this.insertPosition = resetPosition(this.insertPosition, quantity)
+      }
+      case "TYPES" => {
+        this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition),param);
+        this.typesInsertPosition = resetPosition(this.typesInsertPosition, quantity);
+      }
+      case "TISSUE" => {
+        this.tissueArray(tissueInsertPosition) = if(typesArray(tissueInsertPosition).equals("tissue")) insertMethod(this.tissueArray(tissueInsertPosition), param) else null
+        this.tissueInsertPosition = resetPosition(this.tissueInsertPosition, quantity)
+      }
+      case "CELLLINE" => {
+        this.cellLineArray(cellLineInsertPosition) = if(typesArray(cellLineInsertPosition).contains("cell")) insertMethod(this.cellLineArray(cellLineInsertPosition), param) else null;
+        this.cellLineInsertPosition = resetPosition(this.cellLineInsertPosition, quantity)
+      }
+      case "ISHEALTHY" => {
+        if(param.contains("healthy")) this.isHealthyArray(isHealthyInsertPosition) = true else this.isHealthyArray(isHealthyInsertPosition) = false
+        this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
+      }
+      case "DISEASE" => {
+        this.diseaseArray(diseaseInsertPosition) = if(!this.isHealthyArray(diseaseInsertPosition)) insertMethod(this.diseaseArray(diseaseInsertPosition),param) else null
+        this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
+      }
       case _ => noMatching(dest)
     }
+  }
+
+
+
+  override def nextPosition(globalKey: String, method: String): Unit = {
+      globalKey.toUpperCase match {
+        case "TYPES" => {
+          this.typesInsertPosition = resetPosition(typesInsertPosition, quantity)
+        }
+        case "TISSUE" => {
+          this.tissueInsertPosition = resetPosition(tissueInsertPosition, quantity)
+        }
+        case "CELLLINE" => {
+          this.cellLineInsertPosition = resetPosition(cellLineInsertPosition, quantity)
+        }
+        case "ISHEALTHY" => {
+          this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
+        }
+        case "DISEASE" => {
+          this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
+        }
+      }
   }
 
  /* def setQuantity(quantity: Int): Unit ={
@@ -52,6 +101,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
   override def insertRow(): Unit ={
     var id: Int = 0
     var position = 0
+
     val array = this.encodeTableId.techReplicateArray
     for(sourcePosition <- 0 to sourceIdArray.length-1){
       this.actualPosition = sourcePosition
@@ -73,50 +123,52 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
           position += 1
           if (position >= array.length) break
         } }
-      /*def setPrimaryKey(position:Unit)={
-        if()*/
 
     }
   }
 
   override def checkDependenciesSatisfaction(table: Table): Boolean = {
     var res = true
-    table match {
-      case bioSamples: BioSampleEncode => {
-        bioSamples.sourceIdArray.foreach(bioSample =>{
-          val position = bioSamples.sourceIdArray.indexOf(bioSample)
-          if (bioSamples.typesArray(position).equals("tissue") && this.tissue == null)
-          {
-            Statistics.constraintsViolated += 1
-            this.logger.warn("Biosample tissue constrains violated")
-            res = false
-          }
-          else if (bioSamples.typesArray(position).equals("cellLine") && this.tissue == null)
-          {
-            Statistics.constraintsViolated += 1
-            this.logger.warn("Biosample cellLine constrains violated")
-            res = false
-          }
-          else if (bioSamples.isHealtyArray(position) && bioSamples.diseaseArray(position) != null)
-          {
-            Statistics.constraintsViolated += 1
-            this.logger.warn("Biosample tissue constrains violated")
-            res = false
-          }
-        })
-        res
+    try {
+      table match {
+        case bioSamples: BioSampleEncode => {
+          bioSamples.sourceIdArray.foreach(bioSample => {
+            val position = bioSamples.sourceIdArray.indexOf(bioSample)
+            if (bioSamples.typesArray(position).equals("tissue") && this.tissueArray(position) == null) {
+              Statistics.constraintsViolated += 1
+              this.logger.warn(s"Biosample tissue constrains violated ${_filePath}")
+              res = false
+            }
+            else if (bioSamples.typesArray(position).contains("cell") && this.cellLineArray(position) == null) {
+              Statistics.constraintsViolated += 1
+              this.logger.warn("Biosample cellLine constrains violated")
+              res = false
+            }
+            else if (bioSamples.isHealthyArray(position) && bioSamples.diseaseArray(position) != null) {
+              Statistics.constraintsViolated += 1
+              this.logger.warn("Biosample tissue constrains violated")
+              res = false
+            }
+          })
+          res
+        }
+        case _ => true
       }
-      case _ => true
+    } catch {
+      case e: Exception => {
+        logger.warn("java.lang.NullPointerException")
+        true
+      };
     }
   }
 
 
   override def insert(): Int ={
-    dbHandler.insertBioSample(donorIdArray(actualPosition),this.sourceIdArray(actualPosition),this.typesArray(actualPosition),this.tissueArray(actualPosition),this.cellLineArray(actualPosition),this.isHealtyArray(actualPosition),this.diseaseArray(actualPosition))
+    dbHandler.insertBioSample(donorIdArray(actualPosition),this.sourceIdArray(actualPosition),this.typesArray(actualPosition),this.tissueArray(actualPosition),this.cellLineArray(actualPosition),this.isHealthyArray(actualPosition),this.diseaseArray(actualPosition))
   }
 
   override def update(): Int = {
-    dbHandler.updateBioSample(donorIdArray(actualPosition),this.sourceIdArray(actualPosition),this.typesArray(actualPosition),this.tissueArray(actualPosition),this.cellLineArray(actualPosition),this.isHealtyArray(actualPosition),this.diseaseArray(actualPosition))
+    dbHandler.updateBioSample(donorIdArray(actualPosition),this.sourceIdArray(actualPosition),this.typesArray(actualPosition),this.tissueArray(actualPosition),this.cellLineArray(actualPosition),this.isHealthyArray(actualPosition),this.diseaseArray(actualPosition))
   }
 
   override def setForeignKeys(table: Table): Unit = {

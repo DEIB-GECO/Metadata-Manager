@@ -35,7 +35,7 @@
             <source_key>replicates__X__library__biosample__biosample_type</source_key>
             <global_key>tissue</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>replicates__X__library__biosample__biosample_term_id</source_key>
             <global_key>cellLine</global_key>
         </mapping>
@@ -45,7 +45,7 @@
         </mapping>
         <mapping>
             <source_key>replicates__X__library__biosample__health_status</source_key>
-            <global_key>isHealty</global_key>
+            <global_key>isHealthy</global_key>
         </mapping>
         <mapping>
             <source_key>replicates__X__library__biosample__health_status</source_key>

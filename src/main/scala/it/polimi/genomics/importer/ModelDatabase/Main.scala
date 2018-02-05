@@ -108,7 +108,7 @@ object main{
          logger.info(s"Total Item inserted ${Statistics.itemInserted}")
          logger.info(s"Total Item updated ${Statistics.itemUpdated}")
          logger.info(s"Constrains violated ${Statistics.constraintsViolated}")
-
+         logger.info(s"Malformed file input  ${Statistics.indexOutOfBoundsException}")
        }
        else
          logger.warn("Xml file is not valid according the specified schema, check: " + schemaUrl)
@@ -167,30 +167,43 @@ object main{
     tables.filePath_:(path)
     tables.setPathOnTables()
 
+    try {
+      for (l <- lines) {
+        val first = l.split("\t", 2)
+        states += (first(0) -> first(1))
+      }
 
-    for (l <- lines) {
-      val first = l.split("\t", 2)
-      states += (first(0) -> first(1))
-    }
+      var status: String = "archived"
+      var analizeFileBool: Boolean = false
+      if (states.contains("file__status")) {
+        if (states("file__status").equals("released")) {
+          status = "released"
+          analizeFileBool = true
+        }
+      }
+      if (analizeFileBool) {
+        Statistics.released += 1
+        logger.info(s"File status released, start populate table")
+        val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
+        val operationsList = xml.operationsList
+        operationsList.map(x =>
+          try {
+            populateTable(x, tables.selectTableByName(x.head), states.toMap)
 
-    val status = states("file__status")
-    if(status.equals("released")) {
-      Statistics.released += 1
-      logger.info(s"File status released, start populate table")
-      val xml = new XMLReaderEncode(pathXML, replicateList,bioSampleList,states)
-      val operationsList = xml.operationsList
-      operationsList.map(x =>
-        try {
-          populateTable(x, tables.selectTableByName(x.head), states.toMap)
-
-        } catch {
-          case e: Exception => logger.warn(s"SourceKey does't find for $x")
-        })
-      tables.insertTables()
-    }
-    else{
-      Statistics.archived += 1
-      logger.info(s"File status $status, go to next file" )
+          } catch {
+            case e: Exception => {tables.nextPosition(x.head, x(2), x(3)); logger.warn(s"SourceKey does't find for $x")}
+          })
+        tables.insertTables()
+      }
+      else {
+        Statistics.archived += 1
+        logger.info(s"File status $status, go to next file")
+      }
+    } catch {
+      case aioobe: ArrayIndexOutOfBoundsException => {
+        logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
+        Statistics.indexOutOfBoundsException += 1
+      }
     }
 
   }
@@ -205,6 +218,7 @@ object main{
     var tables = new TCGATables
 
 
+    try{
     for (l <- lines) {
       val first = l.split("\t", 2)
       states += (first(0) -> first(1))
@@ -221,11 +235,18 @@ object main{
         case e: Exception => logger.warn(s"SourceKey does't find for $x")
       })
     tables.insertTables()
+  } catch {
+      case aioobe: ArrayIndexOutOfBoundsException => {
+        logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
+        Statistics.indexOutOfBoundsException += 1
+      }
+    }
+
   }
 
   def populateTable(list: List[String], table: Table, states: Map[String,String]): Unit = {
     val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3))
-    if(list(3).equals("MANUALLY"))
+    if(list(3).contains("MANUALLY"))
       table.setParameter(list(1), list(2), insertMethod)
     else
       table.setParameter(states(list(1)), list(2), insertMethod)

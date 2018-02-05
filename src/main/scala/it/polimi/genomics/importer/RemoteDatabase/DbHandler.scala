@@ -4,8 +4,8 @@ import com.typesafe.config.ConfigFactory
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.io.Source
-//import slick.driver.PostgresDriver.api._
-import slick.driver.MySQLDriver.api._
+import slick.driver.PostgresDriver.api._
+//import slick.driver.MySQLDriver.api._
 
 import slick.jdbc.meta.MTable
 import slick.lifted.Tag
@@ -32,7 +32,6 @@ object DbHandler {
 
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList
 
-    //for (table <- EncodeTableEnum.values) print(table +" ")
     //donors
     logger.info("Start to create the database")
 
@@ -145,10 +144,10 @@ object DbHandler {
       val queries = DBIO.seq(
         caseTcgaMapping.schema.create
       )
-      for (line <- Source.fromFile((getClass.getResource("/mapping.csv").getFile)).getLines) {
+      /*for (line <- Source.fromFile((getClass.getResource("/mapping.csv").getFile)).getLines) {
         val cols = line.split(",").map(_.trim)
         insertCaseTcgaMapping(cols(0),cols(1))
-      }
+      }*/
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
       logger.info("Table CASE TCGA MAPPING created")

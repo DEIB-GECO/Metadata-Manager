@@ -17,6 +17,7 @@ trait Case extends Table{
   _foreignKeysTables = List("PROJECTS")
 
 
+
   override def insert() = {
     dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
   }

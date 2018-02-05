@@ -79,7 +79,7 @@
             <source_key>manually_curated__experimental_strategy</source_key>
             <global_key>technique</global_key>
         </mapping>
-        <mapping>
+        <mapping method="SELECT-FEATURE-TCGA">
             <source_key>manually_curated__experimental_strategy</source_key>
             <global_key>feature</global_key>
         </mapping>
@@ -111,7 +111,7 @@
             <source_key>manually_curated__cases__case_id</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping>
+        <mapping method="SELECT-CASE-TCGA">
             <source_key>clinical__shared__tissue_source_site</source_key>
             <global_key>sourceSite</global_key>
         </mapping>
@@ -120,7 +120,11 @@
             <global_key>sourceSite</global_key>
         </mapping>
         <mapping method="MANUALLY">
-            <source_key>null</source_key>
+            <source_key>https://portal.gdc.cancer.gov/cases/</source_key>
+            <global_key>externalRef</global_key>
+        </mapping>
+        <mapping method="CONCAT-NOSPACE">
+            <source_key>manually_curated__cases__case_id</source_key>
             <global_key>externalRef</global_key>
         </mapping>
     </table>

@@ -11,4 +11,5 @@ object Statistics {
   var itemUpdated: Int = _
   var tsvFile: Int = _
   var constraintsViolated: Int = _
+  var indexOutOfBoundsException: Int = _
 }

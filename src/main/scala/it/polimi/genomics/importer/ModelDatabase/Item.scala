@@ -32,6 +32,7 @@ trait Item extends Table{
 
   _dependenciesTables = List("ITEMS")
 
+
   override def insert(): Int = {
     val id = dbHandler.insertItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemInserted += 1
@@ -61,25 +62,32 @@ trait Item extends Table{
   }
 
   override def checkDependenciesSatisfaction(table: Table): Boolean = {
-    table match {
-      case item: Item => {
-        if (item.format.equals("fastq") && this.platform == null) {
-          Statistics.constraintsViolated += 1
-          this.logger.warn("Item format platform constrains violated")
-          false
-        } else if (item.format.equals("bam") && this.pipeline == null) {
-          Statistics.constraintsViolated += 1
-          this.logger.warn("Item format pipeline constrains violated")
-          false
-        } else if (item.dataType.equals("reads") && this.platform == null) {
-          Statistics.constraintsViolated += 1
-          this.logger.warn("Item dataType platform constrains violated")
-          false
+    try {
+      table match {
+        case item: Item => {
+          if (item.format.equals("fastq") && this.platform == null) {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Item format platform constrains violated")
+            false
+          } else if (item.format.equals("bam") && this.pipeline == null) {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Item format pipeline constrains violated")
+            false
+          } else if (item.dataType.equals("reads") && this.platform == null) {
+            Statistics.constraintsViolated += 1
+            this.logger.warn("Item dataType platform constrains violated")
+            false
+          }
+          else
+            true
         }
-        else
-          true
+        case _ => true
       }
-      case _ => true
+    }catch{
+      case e: Exception => {
+        logger.warn("java.lang.NullPointerException")
+        true
+      };
     }
   }
 

@@ -58,9 +58,9 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    println("Set Foreign Keys")
+    //println("Set Foreign Keys")
     this.bioSampleIdList = table.primaryKeys
-    println(this.bioSampleId)
+   // println(this.bioSampleIdList)
   }
 
   override def checkInsert(): Boolean ={

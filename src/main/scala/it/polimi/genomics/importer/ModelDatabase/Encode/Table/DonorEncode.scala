@@ -20,21 +20,71 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
 
   var actualPosition: Int = _
 
-  var insertPosition: Int = -1
+  var insertPosition: Int = 0
+
+  var speciesInsertPosition: Int = 0
+
+  var ageInsertPosition: Int = 0
+
+  var genderInsertPosition: Int = 0
+
+  var ethnicityInsertPosition: Int = 0
 
   override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit ={
     dest.toUpperCase() match {
-      case "SOURCEID" =>{this.insertPosition += 1 ; this.sourceIdArray(this.insertPosition) = insertMethod(this.sourceIdArray(this.insertPosition), param) }
-      case "SPECIES" => this.speciesArray(this.insertPosition) = insertMethod(this.speciesArray(this.insertPosition), param)
-      case "AGE" => param.split(" ")(1).toUpperCase() match {
-        case "YEAR" => this.ageArray(this.insertPosition) = param.split(" ")(0).toInt * 365
-        case "MONTH" => this.ageArray(this.insertPosition) = param.split(" ")(0).toInt * 30
-        case "DAY" => this.ageArray(this.insertPosition) = param.split(" ")(0).toInt
-        case _ => this.ageArray(this.insertPosition) = 0
+      case "SOURCEID" =>{
+        this.sourceIdArray(this.insertPosition) = insertMethod(this.sourceIdArray(this.insertPosition), param)
+        this.insertPosition = resetPosition(insertPosition, quantity)
       }
-      case "GENDER" => this.genderArray(this.insertPosition) = insertMethod(this.genderArray(this.insertPosition), param)
-      case "ETHNICITY" => this.ethnicityArray(this.insertPosition) = insertMethod(this.ethnicityArray(this.insertPosition), param)
+      case "SPECIES" => {
+        this.speciesArray(this.insertPosition) = insertMethod(this.speciesArray(this.insertPosition), param)
+        this.speciesInsertPosition = resetPosition(speciesInsertPosition, quantity)
+      }
+      case "AGE" => param.split(" ")(1).toUpperCase() match {
+        case "YEAR" => {
+          this.ageArray(this.insertPosition) = param.split(" ")(0).toInt * 365
+          this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+        }
+        case "MONTH" => {
+          this.ageArray(this.insertPosition) = param.split(" ")(0).toInt * 30
+          this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+        }
+        case "DAY" => {
+          this.ageArray(this.insertPosition) = param.split(" ")(0).toInt
+          this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+
+        }
+        case _ => {
+          this.ageArray(this.insertPosition) = 0
+          this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+        }
+      }
+      case "GENDER" => {
+        this.genderArray(this.insertPosition) = insertMethod(this.genderArray(this.insertPosition), param)
+        this.genderInsertPosition = resetPosition(genderInsertPosition, quantity)
+      }
+      case "ETHNICITY" => {
+        this.ethnicityArray(this.insertPosition) = insertMethod(this.ethnicityArray(this.insertPosition), param)
+        this.ethnicityInsertPosition = resetPosition(ethnicityInsertPosition, quantity)
+      }
       case _ => noMatching(dest)
+    }
+  }
+
+  override def nextPosition(globalKey: String, method: String): Unit = {
+    globalKey.toUpperCase match {
+      case "SPECIES" => {
+        this.speciesInsertPosition = resetPosition(speciesInsertPosition, quantity)
+      }
+      case "AGE" => {
+        this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+      }
+      case "GENDER" => {
+        this.genderInsertPosition = resetPosition(genderInsertPosition, quantity)
+      }
+      case "ETHNICITY" => {
+        this.ethnicityInsertPosition = resetPosition(ethnicityInsertPosition, quantity)
+      }
     }
   }
 

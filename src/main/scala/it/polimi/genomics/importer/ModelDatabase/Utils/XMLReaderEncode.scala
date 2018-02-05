@@ -29,6 +29,8 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
             app += default
           operations += app.toList
         }else if((x \ "@name").toString() == "BIOSAMPLES" || (x \ "@name").toString() == "DONORS"){
+          //var position: Int = 0
+          //var arrayList = new Array[ListBuffer[List[String]]](biosamples.bioSampleQuantity)
           biosamples.BiosampleList.map(number =>{
             var app = new ListBuffer[String]()
             app += ((x \ "@name").toString())
@@ -38,6 +40,8 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
               app += ((xi \ "@method").toString())
             else
               app += default
+            //arrayList(position) += app.toList
+            //position += 1
             operations += app.toList
           })
         }

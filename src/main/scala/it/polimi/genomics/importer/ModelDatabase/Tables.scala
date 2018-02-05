@@ -36,7 +36,7 @@ trait Tables extends Enumeration{
   def insertTables(): Unit = {
 
     val conf = ConfigFactory.load()
-    val constrainsSatisfacted = false
+    val constrainsSatisfacted = this.checkTablesConstrainsSatisfaction()
     if(!conf.getBoolean("constraints.activated") || constrainsSatisfacted) {
       var insert = true
       getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table => {
@@ -57,11 +57,13 @@ trait Tables extends Enumeration{
   }
 
   def checkTablesConstrainsSatisfaction(): Boolean = {
-    getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table =>{
-      if(table.hasdependencies)
-        table.dependenciesTables.map(t => this.selectTableByName(t)).map(t => if(!table.checkDependenciesSatisfaction(t)) return false)
+    var res = true
+    getOrderOfInsertion().map(tableValue => this.selectTableByValue(tableValue)).foreach(table =>{
+      if(table.hasDependencies) {
+        table.dependenciesTables.map(t => this.selectTableByName(t)).map(t => if (!table.checkDependenciesSatisfaction(t)) res = false) //non lo torno subito perchè devo controllare le contrains di tutte le tabelle, non solo la prima che non matcha
+      }
     })
-    true
+    res
     }
 
   this.values.foreach(v => tables += v -> this.getNewTable(v))
