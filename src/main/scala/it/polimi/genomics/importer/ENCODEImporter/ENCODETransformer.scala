@@ -3,7 +3,7 @@ package it.polimi.genomics.importer.ENCODEImporter
 import java.io.{File, _}
 import java.util
 
-import it.polimi.genomics.importer.DefaultImporter.utils.unzipper
+import it.polimi.genomics.importer.DefaultImporter.utils.Unzipper
 import it.polimi.genomics.importer.FileDatabase.{FILE_STATUS, FileDatabase, STAGE}
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource, GMQLTransformer}
 import org.codehaus.jackson.map.MappingJsonFactory
@@ -135,7 +135,7 @@ class ENCODETransformer extends GMQLTransformer {
     val fileTransformationPath = destinationPath + File.separator + filename
     if (originalFilename.endsWith(".gz")) {
       logger.debug("Start unGzipping: " + originalFilename)
-      if (unzipper.unGzipIt(
+      if (Unzipper.unGzipIt(
         fileDownloadPath,
         fileTransformationPath)) {
         logger.info("UnGzipping: " + originalFilename + " DONE")

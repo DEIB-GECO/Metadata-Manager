@@ -4,7 +4,7 @@ import java.io._
 import java.util.regex.Pattern
 
 import com.github.tototoshi.csv.{CSVReader, CSVWriter}
-import it.polimi.genomics.importer.DefaultImporter.utils.unzipper
+import it.polimi.genomics.importer.DefaultImporter.utils.Unzipper
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource, GMQLTransformer}
 import org.slf4j.{Logger, LoggerFactory}
@@ -13,13 +13,13 @@ class RoadmapTransformer  extends GMQLTransformer {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   /**
-    * recieves .json and .bed.gz files and transform them to get metadata in .meta files and region in .bed files.
+    * recieves .gz files and transform them invalid regions files and generate the corresponding .meta files
     *
     * @param source           source where the files belong to.
     * @param originPath       path for the  "Downloads" folder
     * @param destinationPath  path for the "Transformations" folder
-    * @param originalFilename name of the original file .json/.gz
-    * @param filename         name of the new file .meta/.bed
+    * @param originalFilename name of the original file
+    * @param filename         name of the new file
     * @return List(fileId, filename) for the transformed files.
     */
   override def transform(source: GMQLSource, originPath: String, destinationPath: String, originalFilename: String, filename: String): Boolean = {
@@ -31,7 +31,7 @@ class RoadmapTransformer  extends GMQLTransformer {
     val stage = STAGE.DOWNLOAD
     if (originalFilename.endsWith(".gz")) {
       logger.debug("Start unGzipping: " + originalFilename)
-      if (unzipper.unGzipIt(fileDownloadPath, fileTransformationPath)) {
+      if (Unzipper.unGzipIt(fileDownloadPath, fileTransformationPath)) {
         logger.info("UnGzipping: " + originalFilename + " DONE")
         if (metaGen(filename, originPath, destinationPath)) {
           logger.info("metaGen: " + originalFilename + " DONE")
@@ -96,19 +96,17 @@ class RoadmapTransformer  extends GMQLTransformer {
       //extract mark, eid and format from the file name
       val mark: String = extractMark(fileName)
       val eid: String = fileName.split("-")(0)
-      val nameComp = fileName.split("-")(1).split("\\.")
-      val format: String = nameComp(nameComp.length-1)
-
+      val format: String = extractFormat(fileName)
       //select line in first sheet corresponding to the input file
       val eid_index: Int = listMaps1.indexWhere(_ ("Epigenome ID (EID)") == eid)
 
       //write attribute name and value on .meta file
       using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(outPath + File.separator + fileName + ".meta"))))) {
         writer => {
-          mapToFile(listMaps1(eid_index), writer)
+          mapToFile(listMaps1(eid_index).filterKeys(key => !(key.split("__").length > 1 && key.split("__")(1) != mark)), writer, keyPrefix =  "epi")
           for (m <- listMaps2)
             if (m("EID") == listMaps1(eid_index)("Epigenome ID (EID)") && m("MARK") == mark)
-              mapToFile(m, writer)
+              mapToFile(m, writer, keyPrefix =  "exp")
           writer.write(s"manually_curated__format\t$format")
         }
       }
@@ -130,11 +128,32 @@ class RoadmapTransformer  extends GMQLTransformer {
     * @return String containing the mark in the file name
     */
   def extractMark(fileName: String): String = {
-    val core: String = fileName.split("-")(1).split("\\.").dropRight(1).mkString(".")
-    if(core == "DNase")
-      core.split("\\.")(0)
+    //val core: String = fileName.split("-")(1).split("\\.").dropRight(1).mkString(".")
+    val core = fileName.split("-")(1).split("\\.")
+    if(core(0) == "H2A")
+      core(0) + "0" + core(1)
     else
-      core
+      core(0)
+  }
+
+  /**
+    * extract the format from a Roadmap consolidated peak file
+    *
+    * @param fileName         name of the new file
+    * @return String containing the format in the file name
+    */
+  def extractFormat(fileName: String): String = {
+    val nameComp = fileName.split("-")(1).split("\\.")
+    var format: String = nameComp(nameComp.length-1)
+    if (nameComp.length > 1 && format == "bed")
+      format += "_" + nameComp(nameComp.length-2)
+    if (format == "bed_peaks" || format == "bed_broad") {
+      if(nameComp.length > 2 && nameComp(nameComp.length-3) == "all")
+        format += "_all"
+      else
+        format += "_fdr"
+    }
+    format
   }
 
   /**
@@ -154,13 +173,25 @@ class RoadmapTransformer  extends GMQLTransformer {
     *
     * @param map              map to write
     * @param writer           resources where the map is write
+    * @param keyPrefix        prefix to add to the keys, can be omitted
+    * @param keyPostfix       postfix to add to the keys, can be omitted
     * @return String containing the mark in the file name
     */
-  def mapToFile(map: Map[String, String], writer: Writer): Unit = {
+  def mapToFile(map: Map[String, String], writer: Writer, keyPrefix: String = "", keyPostfix: String = ""): Unit = {
     for ((k, v) <- map.toSeq.sortBy(_._1))
-      if(!(k.isEmpty || v.isEmpty)) writer.write(s"${k.filterNot("\n".toSet)
-        .replaceAll("\\s+$", "")
-        .replace(" ","_")}\t$v\n")
+      if (!(k.isEmpty || v.isEmpty))  {
+        var k_enriched = k.filterNot("\n".toSet).replaceAll("\\s+$", "")
+          .replace(" ", "_")
+          .replace("%", "perc")
+          .replace("+", "plus")
+          .replace("/", "or")
+          .replaceAll("[^A-Za-z0-9_]", "")
+        if (keyPrefix != "")
+          k_enriched = keyPrefix + "__" + k_enriched
+        if (keyPostfix != "")
+          k_enriched = k_enriched + "__" + keyPostfix
+        writer.write(s"$k_enriched\t$v\n")
+      }
   }
   /**
     * by receiving an original filename returns the new GDM candidate name(s).

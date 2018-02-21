@@ -4,7 +4,7 @@ import java.io._
 import java.util.zip.GZIPInputStream
 
 
-object unzipper {
+object Unzipper {
 
   /**
     * extracts the gzipFile into the outputPath.

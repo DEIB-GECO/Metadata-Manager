@@ -1,14 +1,15 @@
 package it.polimi.genomics.importer.GMQLImporter
 
-import java.io.{File, FileWriter, IOException, PrintWriter}
+import java.io._
 
 import it.polimi.genomics.importer.DefaultImporter.schemaFinder
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import org.slf4j.LoggerFactory
 
+import scala.collection.immutable.TreeMap
 import scala.io.Source
-import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
+import scala.util.{Failure, Success, Try}
 import scala.xml.XML
 
 /**
@@ -151,7 +152,10 @@ object Transformer {
                           if (!modifiedAndSchema._2)
                             wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
                           totalTransformedFiles = totalTransformedFiles + 1
-
+                          if (Try(regionFileSort(fileTransformationPath)).isFailure)
+                            logger.warn(s"fail to sort $fileTransformationPath")
+                          else
+                            logger.debug(s"$fileTransformationPath successfully sorted")
                         }
                         //standardization of the region data should be here.
                         FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
@@ -253,7 +257,7 @@ object Transformer {
 
         //scanning the file to check the consistency of each row to schema and manage missing value
         Source.fromFile(dataFilePath).getLines().foreach(line => {
-          val splitLine = line.split("\t")
+          val splitLine = line.split("\t", -1)
           var writeLine = ""
 
           if (splitLine.size == fields.size) { //check if number of region attributes is consistent to schema
@@ -310,7 +314,7 @@ object Transformer {
                 " columns. Instead has " + splitLine.length)
             correctSchema = false*/
             wrongAttNumCount += 1
-            modified = true
+            modified = true //schema still correct because the wrong line is removed.
           }
         })
         writer.close()
@@ -494,6 +498,29 @@ object Transformer {
     }
     catch {
       case ex: SecurityException => logger.warn(s"Couldn't delete folder $path: ${ex.getMessage}")
+    }
+  }
+
+  def regionFileSort(filePath: String) = {
+    {
+      var tempMap: TreeMap[(String, Long, Long), String] = new TreeMap[(String, Long, Long), String]
+      val tempFile = filePath + ".temp"
+      val reader = Source.fromFile(filePath)
+      for (line <- reader.getLines) {
+        val lineSplit = line.split("\t")
+        val regionID = (lineSplit(0), lineSplit(1).toLong, lineSplit(2).toLong)
+        tempMap = tempMap + ((regionID, line))
+      }
+      reader.close()
+      using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(filePath))))) {
+        writer => { tempMap.foreach( pair => writer.write(pair._2 + "\n"))
+        }
+      }
+    }
+
+    def using[T <: Closeable, R](resource: T)(block: T => R): R = {
+      try { block(resource) }
+      finally { resource.close() }
     }
   }
 }

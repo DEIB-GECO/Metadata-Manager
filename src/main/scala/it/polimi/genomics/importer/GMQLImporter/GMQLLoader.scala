@@ -4,6 +4,7 @@ import java.io.File
 import java.util
 
 import it.polimi.genomics.core.DataStructures.IRDataSet
+import it.polimi.genomics.core.GDMSUserClass
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
 import it.polimi.genomics.manager.ProfilerLauncher
 import it.polimi.genomics.repository.{GMQLRepository, GMQLSample, Utilities}
@@ -76,7 +77,7 @@ class GMQLLoader {
             repo.importDs(
               datasetName,
               gmqlUser,
-              //GDMSUserClass.PUBLIC,
+              GDMSUserClass.PUBLIC,
               listAdd,
               path + File.separator + dataset.name + ".schema")
             logger.info("import for dataset " + dataset.name + " completed")

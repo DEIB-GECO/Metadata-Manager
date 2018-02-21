@@ -26,19 +26,15 @@ class OAuth {
   private val DATA_STORE_DIR: File = new File(/*System.getProperty("user.home")*/ new File(".").getCanonicalPath, ".credentials/sheets.googleapis.com-GMQL-importer")
 
   /** Global instance of the {@link FileDataStoreFactory}. */
-  private var DATA_STORE_FACTORY: FileDataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR)
+  private val DATA_STORE_FACTORY: FileDataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR)
 
   /** Global instance of the JSON factory. */
   private val JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance
 
   /** Global instance of the HTTP transport. */
-  private var HTTP_TRANSPORT: HttpTransport = GoogleNetHttpTransport.newTrustedTransport()
+  private val HTTP_TRANSPORT: HttpTransport = GoogleNetHttpTransport.newTrustedTransport()
 
-  /** Global instance of the scopes required by this quickstart.
-    *
-    * If modifying these scopes, delete your previously saved credentials
-    * at ~/.credentials/sheets.googleapis.com-java-quickstart
-    */
+  /** Global instance of the scopes. */
   private val SCOPES: util.List[String] = util.Arrays.asList(SheetsScopes.SPREADSHEETS_READONLY)
 
   /**

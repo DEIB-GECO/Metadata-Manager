@@ -11,7 +11,7 @@
         <field type="LONG">thickend</field>
         <field type="STRING">itemrgb</field>
         <field type="STRING">blockcount</field>
-        <field type="LONG">blocksizes</field>
+        <field type="STRING">blocksizes</field>
         <field type="STRING">blockstarts</field>
         <field type="DOUBLE">signal</field>
         <field type="DOUBLE">pvalue</field>

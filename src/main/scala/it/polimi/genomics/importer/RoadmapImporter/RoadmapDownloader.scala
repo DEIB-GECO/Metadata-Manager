@@ -13,7 +13,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
 import scala.sys.process._
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /**
   * download file available through HTTP Roadmap Epigenomics repository
@@ -45,6 +45,11 @@ class RoadmapDownloader extends GMQLDownloader {
     */
   def downloadFileFromURL(url: String, path: String): Try[Unit] = Try(new URL(url) #> new File(path) !!)
 
+  /**
+    * Download metadata in a Google spreadsheet as csv files
+    *
+    * @param source configuration for the downloader, folders for input and output by regex and also for files.
+    */
   def downloadMetadata(source: GMQLSource): Unit = {
     //authentication to gain access to Google Spreadsheet API
     val authentication: OAuth = new OAuth
@@ -74,17 +79,17 @@ class RoadmapDownloader extends GMQLDownloader {
               case ex: Exception => logger.warn(s"could not create the folder $outputPath")
             }
           }
-          if (!new java.io.File(outputPath).exists) {
-            new java.io.File(outputPath).mkdirs()
-          }
 
           //download all the sheet (not hidden) as csv
           val spreadsheetDownloader = new csvDownload(spreadsheetId, spreadsheet.getProperties.getTitle)
           val sheetsList = spreadsheet.getSheets
           sheetsList.asScala.toList.foreach(sh =>
             if (sh.getProperties.getHidden == null) {
-              spreadsheetDownloader.get(sh.getProperties.getSheetId.toString, outputPath, sh.getProperties.getTitle)
-              logger.info(s"${sh.getProperties.getTitle} downloaded from ${spreadsheet.getProperties.getTitle}")
+              val csvDwnldOutcome = Try(spreadsheetDownloader.get(sh.getProperties.getSheetId.toString, outputPath, sh.getProperties.getTitle))
+              csvDwnldOutcome match {
+                case Success(_) => logger.info(s"${sh.getProperties.getTitle} downloaded from ${spreadsheet.getProperties.getTitle} with success")
+                case Failure(_) => logger.warn(s"failed to download ${sh.getProperties.getTitle} from ${spreadsheet.getProperties.getTitle}")
+              }
             })
         }
       })
