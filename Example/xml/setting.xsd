@@ -12,7 +12,9 @@
                                         <xs:element type="xs:string" name="global_key"/>
                                     </xs:sequence>
                                     <xs:attribute type="xs:string" name="method" use="optional"/>
-                                    <xs:attribute type="xs:string" name="space_character" use="optional"/>
+                                    <xs:attribute type="xs:string" name="concat_character" use="optional"/>
+                                    <xs:attribute type="xs:string" name="sub_character" use="optional"/>
+                                    <xs:attribute type="xs:string" name="new_character" use="optional"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
