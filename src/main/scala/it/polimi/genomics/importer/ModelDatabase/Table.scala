@@ -10,9 +10,6 @@ import scala.collection.mutable.ListBuffer
 
 trait Table {
 
- /* protected var _primaryKey: Set[Int] = _
-  def primaryKey = _primaryKey
-  def primaryKey_= (value:Set[Int]):Unit = _primaryKey = value*/
  val logger: Logger = Logger.getLogger(this.getClass)
 
   protected val dbHandler = DbHandler
@@ -46,9 +43,11 @@ trait Table {
   def checkInsert():Boolean
   def insert(): Int
   def update(): Int
+  def updateById(): Unit = {}
+
   def setForeignKeys(table: Table): Unit
 
-  def insertRow(): Unit ={
+  /*def insertRow(): Unit ={
     if(this.checkInsert()) {
       val id = this.insert
       this.primaryKey_(id)
@@ -58,6 +57,18 @@ trait Table {
       val id = this.update
       this.primaryKey_(id)
     }
+  }*/
+
+  def insertRow(): Unit = {
+    val id = this.getId
+    if(id == -1) {
+      val newId = this.insert
+      this.primaryKey_(newId)
+    } else {
+      this.primaryKey_(id)
+      this.updateById()
+    }
+
   }
 
   def checkConsistency(): Boolean = {

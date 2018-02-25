@@ -12,4 +12,6 @@ object Statistics {
   var tsvFile: Int = _
   var constraintsViolated: Int = _
   var indexOutOfBoundsException: Int = _
+  var malformedInput: Int = _
+  var anotherInputException: Int = _
 }

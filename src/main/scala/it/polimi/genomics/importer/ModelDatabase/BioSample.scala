@@ -34,6 +34,10 @@ trait BioSample extends Table{
     dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealthy,this.disease)
   }
 
+  override def updateById(): Unit = {
+    dbHandler.updateBioSampleById(this.primaryKey, donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealthy,this.disease)
+  }
+
   override def setForeignKeys(table: Table): Unit = {
     this.donorId = table.primaryKey
   }

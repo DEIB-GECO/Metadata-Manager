@@ -24,4 +24,9 @@ class CaseEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     this.encodeTableId.caseId_(id)
     id
   }
+
+  override def updateById() = {
+    val id = dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    this.encodeTableId.caseId_(id)
+  }
 }

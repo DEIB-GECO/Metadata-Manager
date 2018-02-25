@@ -17,7 +17,7 @@ trait ExperimentType extends Table{
   _foreignKeysTables = List("EXPERIMENTSTYPE")
 
   override def checkInsert(): Boolean = {
-    dbHandler.checkInsertExperimentType(this.technique)
+    dbHandler.checkInsertExperimentType(this.technique, this.feature, this.target)
   }
 
   override def insert(): Int = {
@@ -28,8 +28,12 @@ trait ExperimentType extends Table{
     dbHandler.updateExperimentType(this.technique,this.feature,this.target,this.antibody)
   }
 
+  override def updateById(): Unit = {
+    dbHandler.updateExperimentTypeById(this.primaryKey, this.technique,this.feature,this.target,this.antibody)
+  }
+
   override def checkConsistency(): Boolean = {
-    if(this.technique != null) true else false
+    if(this.technique != null || this.target != null || this.feature != null) true else false
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -37,16 +41,16 @@ trait ExperimentType extends Table{
   }
 
   override def getId(): Int = {
-    dbHandler.getExperimentTypeId(this.technique)
+    dbHandler.getExperimentTypeId(this.technique, this.feature, this.target)
   }
 
-  def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String])]): Unit = {
+  def convertTo(values: Seq[(Int, Option[String], Option[String], Option[String], Option[String])]): Unit = {
     if(values.length > 1)
       logger.error(s"Too many value: ${values.length}")
     else {
       var value = values.head
       this.primaryKey_(value._1)
-      this.technique = value._2
+      if(value._2.isDefined) this.technique = value._2.get
       if(value._3.isDefined) this.feature = value._3.get
       if(value._4.isDefined) this.target = value._4.get
       if(value._5.isDefined) this.antibody = value._5.get

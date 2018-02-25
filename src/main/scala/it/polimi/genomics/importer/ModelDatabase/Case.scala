@@ -16,14 +16,16 @@ trait Case extends Table{
 
   _foreignKeysTables = List("PROJECTS")
 
-
-
-  override def insert() = {
+  override def insert(): Int = {
     dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
   }
 
-  override def update() = {
+  override def update(): Int = {
     dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+  }
+
+  override def updateById(): Unit = {
+    dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef)
   }
 
   override def setForeignKeys(table: Table): Unit = {

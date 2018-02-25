@@ -1,7 +1,5 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-import it.polimi.genomics.importer.ModelDatabase.Encode.Table.{CaseEncode, ItemEncode}
-
 trait CaseItem extends Table{
 
   var itemId: Int = _
@@ -29,8 +27,9 @@ trait CaseItem extends Table{
   override def setForeignKeys(table: Table): Unit = {
     if(table.isInstanceOf[Item])
       this.itemId = table.primaryKey
-    if(table.isInstanceOf[Case])
+    if(table.isInstanceOf[Case]) {
       this.caseId = table.primaryKey
+    }
   }
 
   override def checkInsert(): Boolean ={

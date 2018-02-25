@@ -4,6 +4,7 @@ package it.polimi.genomics.importer.ModelDatabase
 import it.polimi.genomics.importer.ModelDatabase.Utils._
 import java.io._
 
+import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import it.polimi.genomics.importer.main.program.getTotalTimeFormatted
 import org.apache.log4j._
@@ -11,6 +12,7 @@ import it.polimi.genomics.importer.GMQLImporter.schemaValidator
 import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, PlatformRetriver, ReplicateList}
 import it.polimi.genomics.importer.ModelDatabase.Encode.{EncodeTableId, EncodeTables}
 import it.polimi.genomics.importer.ModelDatabase.TCGA.TCGATables
+import it.polimi.genomics.importer.RemoteDatabase.DbHandler.conf
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
@@ -27,6 +29,8 @@ object main{
   private val tcgaString = "TCGA"
 
   var filePath: String = _
+
+  val conf = ConfigFactory.load()
 
   def main(args: Array[String]): Unit = {
     val console = new ConsoleAppender() //create appender
@@ -45,14 +49,18 @@ object main{
     console2.activateOptions()
     Logger.getLogger("it.polimi.genomics.importer").addAppender(console2)
 
-
     //configure the appender
     val console3 = new ConsoleAppender()
     console3.setLayout(new PatternLayout(PATTERN))
     console3.setThreshold(Level.WARN)
     console3.activateOptions()
     Logger.getLogger("slick").addAppender(console3)
+
     //BasicConfigurator.configure()
+
+    /*println(InsertMethod.substituteWordWith("narrowPeak", "Peak", ""))
+
+    println(InsertMethod.replaceAndConcat("GRCh38_ENCODE","narrow"," ","_","_"))*/
 
      DbHandler.setDatabase()
      //analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
@@ -61,26 +69,29 @@ object main{
        logger.warn(s"No arguments specified")
      }
      else if( args.length != 4){
-       logger.warn(s"Incorrect number of arguments")
+       logger.error(s"Incorrect number of arguments")
        logger.info("GMQLImporter help:\n"
-         + "\t Run with configuration_xml_path, file_folder, repository_ref and mode as arguments\n"
+         + "\t Run with configuration_xml_path, file_folder, repository_ref and execution_mode as arguments\n"
        )
      }
      else if(args(2).toUpperCase != encodeString && args(2).toUpperCase != tcgaString ){
        logger.error(s"Incorrect repository argument")
+       logger.info("Please select 'encode' or 'tcga'")
      }
-     else if(args(3).toUpperCase != "IMPORT" && args(3).toUpperCase != "EXPORT")
-       logger.error(s"Incorrect mode argument")
+     else if(args(3).toUpperCase != "IMPORT" && args(3).toUpperCase != "EXPORT") {
+       logger.error(s"Incorrect execution_mode argument")
+       logger.info("Please select 'import' or 'export'")
+     }
      else if (args(3).equals("import")){
        val pathXML = args.head
        val pathGMQL = args.drop(1).head
        val repositoryRef = args.drop(2).head
-       val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico/Example/xml/setting.xsd"
+       val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico_merged/Example/xml/setting.xsd"
        if (schemaValidator.validate(pathXML, schemaUrl)){
          logger.info("Xml file is valid for the schema")
          DbHandler.setDatabase()
 
-         val logName = "run " + " "+DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
+         val logName = DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
 
 
          val fa2 = new FileAppender()
@@ -101,17 +112,20 @@ object main{
          }
          val t1 = System.nanoTime()
          logger.info(s"Total time for insert data in DB ${getTotalTimeFormatted(t0, t1)}")
-         logger.info(s"Total file analized ${Statistics.fileNumber}")
+         logger.info(s"Total file analyzed ${Statistics.fileNumber}")
          logger.info(s"Total file released ${Statistics.released}")
-         logger.info(s"Total file archived ${Statistics.archived}")
+         logger.info(s"File status (and other metadata) are missing ${Statistics.archived}")
          logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
          logger.info(s"Total Item inserted ${Statistics.itemInserted}")
          logger.info(s"Total Item updated ${Statistics.itemUpdated}")
-         logger.info(s"Constrains violated ${Statistics.constraintsViolated}")
-         logger.info(s"Malformed file input  ${Statistics.indexOutOfBoundsException}")
+         logger.info(s"Constraints violated ${Statistics.constraintsViolated}")
+         logger.info(s"Total malformation found  ${Statistics.malformedInput}")
+         logger.info(s"ArrayIndexOutOfBoundsException file input  ${Statistics.indexOutOfBoundsException}")
+         logger.info(s"OtherInputException file input  ${Statistics.anotherInputException}")
+
        }
        else
-         logger.warn("Xml file is not valid according the specified schema, check: " + schemaUrl)
+         logger.error("Xml file is not valid according the specified schema, check: " + schemaUrl)
      } else {
        val pathXML = args.head
        val pathGMQL = args.drop(1).head
@@ -153,9 +167,10 @@ object main{
   def analizeFileEncode(path: String, pathXML: String) {
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
+    try {
     val lines = Source.fromFile(path).getLines.toArray
+    println("Lines reads")
     var states = collection.mutable.Map[String, String]()
-
     filePath = path
     val encodesTableId = new EncodeTableId
     val bioSampleList = new BioSampleList(lines,encodesTableId)
@@ -167,10 +182,16 @@ object main{
     tables.filePath_:(path)
     tables.setPathOnTables()
 
-    try {
+    println("Start read lines")
+
       for (l <- lines) {
         val first = l.split("\t", 2)
-        states += (first(0) -> first(1))
+        if(first.size == 2)
+          states += (first(0) -> first(1))
+        else {
+          logger.warn(s"Malformation in line ${first(0)}")
+          Statistics.malformedInput += 1
+        }
       }
 
       var status: String = "archived"
@@ -201,16 +222,20 @@ object main{
       }
     } catch {
       case aioobe: ArrayIndexOutOfBoundsException => {
-        logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
+          logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
         Statistics.indexOutOfBoundsException += 1
       }
+      /*case e: Exception => {
+        logger.error(s"Another File input Exception file with path ${path}")
+        Statistics.anotherInputException += 1
+      }*/
     }
-
   }
 
   def analizeFileTCGA(path: String, pathXML: String) {
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
+    try{
     val lines = Source.fromFile(path).getLines.toArray
     var states = collection.mutable.Map[String, String]()
 
@@ -218,11 +243,16 @@ object main{
     var tables = new TCGATables
 
 
-    try{
-    for (l <- lines) {
-      val first = l.split("\t", 2)
-      states += (first(0) -> first(1))
-    }
+
+      for (l <- lines) {
+        val first = l.split("\t", 2)
+        if(first.size == 2)
+          states += (first(0) -> first(1))
+        else {
+          logger.warn(s"Malformation in line ${first(0)}")
+          Statistics.malformedInput += 1
+        }
+      }
     Statistics.released += 1
     logger.info(s"File status released, start populate table")
     val xml = new XMLReaderTCGA(pathXML)
@@ -240,12 +270,17 @@ object main{
         logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
         Statistics.indexOutOfBoundsException += 1
       }
+      case e: Exception => {
+        logger.error(s"Another File input Exception file with path ${path}")
+        Statistics.anotherInputException += 1
+      }
     }
+
 
   }
 
   def populateTable(list: List[String], table: Table, states: Map[String,String]): Unit = {
-    val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3))
+    val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3), list(4), list(5), list(6), list(7))
     if(list(3).contains("MANUALLY"))
       table.setParameter(list(1), list(2), insertMethod)
     else

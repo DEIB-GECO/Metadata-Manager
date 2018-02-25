@@ -21,8 +21,11 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
   }
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId,this.encodeTableId)
+    val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
+    this.pipeline = temp(0)
+    this.platform = temp(1)
+    val id = dbHandler.insertItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     platformRetriver.getItems(id,this.containerId,this.encodeTableId.caseId)
     Statistics.itemInserted += 1
     id
@@ -36,11 +39,26 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
 
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId,this.encodeTableId)
+    val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
+    this.pipeline = temp(0)
+    this.platform = temp(1)
+    val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     platformRetriver.getItems(id,this.containerId,this.encodeTableId.caseId)
     Statistics.itemUpdated += 1
     id
+  }
+
+  override def updateById(): Unit = {
+    val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId,this.encodeTableId)
+    val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
+    println(temp)
+    this.pipeline = temp(0)
+    this.platform = temp(1)
+    val id = dbHandler.updateItemById(this.primaryKey, containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    platformRetriver.getItems(id,this.containerId,this.encodeTableId.caseId)
+    Statistics.itemUpdated += 1
+    return id
   }
 
   def specialUpdate(): Int ={

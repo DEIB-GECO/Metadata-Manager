@@ -12,8 +12,6 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
 
   var sourceIdList : ListBuffer[String] = new ListBuffer[String]
 
-  //var platform : ListBuffer[String] = new ListBuffer[String]
-
   var bioReplicateNumList : ListBuffer[Int] = new ListBuffer[Int]
 
   var techReplicateNumList : ListBuffer[Int] = new ListBuffer[Int]
@@ -33,7 +31,7 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
     }
   }
 
-  override def insertRow(): Unit ={
+  /*override def insertRow(): Unit ={
     var id: Int = 0
     this.sourceIdList.map(source=>{
       this.actualPosition = sourceIdList.indexOf(source)
@@ -44,6 +42,22 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
         id = this.update
       }
       this.primaryKeys_(id)
+      val replicateKey: String = bioReplicateNumList(this.actualPosition).toString() + "_" + techReplicateNumList(this.actualPosition).toString()
+      encodeTableId.replicateMap_(replicateKey,id)
+    })
+  }*/
+
+  override def insertRow(): Unit ={
+    this.sourceIdList.map(source=>{
+      this.actualPosition = sourceIdList.indexOf(source)
+      var id = getId
+      if (id == -1) {
+        id = this.insert
+        this.primaryKeys_(id)
+      } else {
+        this.primaryKeys_(id)
+        this.updateById()
+      }
       val replicateKey: String = bioReplicateNumList(this.actualPosition).toString() + "_" + techReplicateNumList(this.actualPosition).toString()
       encodeTableId.replicateMap_(replicateKey,id)
     })

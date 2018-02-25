@@ -18,13 +18,16 @@ trait Donor extends Table{
 
   _dependenciesTables = List("BIOSAMPLES")
 
-
   override def insert(): Int ={
     dbHandler.insertDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity)
   }
 
   override def update(): Int ={
     dbHandler.updateDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity)
+  }
+
+  override def updateById(): Unit = {
+    dbHandler.updateDonorById(this.primaryKey, this.sourceId,this.species,this.age,this.gender,this.ethnicity)
   }
 
   override def setForeignKeys(table: Table): Unit = {

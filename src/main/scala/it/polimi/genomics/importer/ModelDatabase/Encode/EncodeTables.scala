@@ -72,4 +72,6 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
     val encodeTable: EncodeTable =  this.selectTableByName(tableName).asInstanceOf[EncodeTable]
     encodeTable.nextPosition(globalKey, method)
   }
+
+
 }

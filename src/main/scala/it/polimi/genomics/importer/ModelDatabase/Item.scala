@@ -1,7 +1,6 @@
 package it.polimi.genomics.importer.ModelDatabase
 
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
-import java.io.{File, FileOutputStream, PrintWriter}
 
 
 trait Item extends Table{
@@ -43,6 +42,12 @@ trait Item extends Table{
     val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemUpdated += 1
     id
+  }
+
+  override def updateById(): Unit = {
+    val id = dbHandler.updateItemById(this.primaryKey, containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    Statistics.itemUpdated += 1
+    return id
   }
 
   override def setForeignKeys(table: Table): Unit = {

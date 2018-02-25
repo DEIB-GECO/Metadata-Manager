@@ -25,6 +25,10 @@ trait Replicate extends Table{
     this.dbHandler.updateReplicate(this.bioSampleId,this.sourceId,this.bioReplicateNum,this.techReplicateNum)
   }
 
+  override def updateById(): Unit = {
+    this.dbHandler.updateReplicateById(this.primaryKey, this.bioSampleId,this.sourceId,this.bioReplicateNum,this.techReplicateNum)
+  }
+
   override def setForeignKeys(table: Table): Unit = {
     this.bioSampleId = table.primaryKey
   }

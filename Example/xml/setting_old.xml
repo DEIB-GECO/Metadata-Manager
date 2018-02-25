@@ -117,16 +117,16 @@
             </mapping>
         </table>
         <table name="CONTAINERS">
-            <mapping method="SUB-CONCAT" sub_character=" " new_character="_" concat_character="_">
+            <mapping>
+                <source_key>file__file_type</source_key>
+                <global_key>name</global_key>
+            </mapping>
+            <mapping method="CONCAT">
                 <source_key>file__assembly</source_key>
                 <global_key>name</global_key>
             </mapping>
-            <mapping method="SUB-CONCAT" sub_character=" " new_character="_" concat_character="_">
-                <source_key>award__project</source_key>
-                <global_key>name</global_key>
-            </mapping>
-            <mapping method="SUB-REMOVE-CONCAT" rem_character="Peak" sub_character=" " new_character="_" concat_character="_">
-                <source_key>file__file_format_type</source_key>
+            <mapping method="CONCAT-MANUALLY">
+                <source_key>ENCODE</source_key>
                 <global_key>name</global_key>
             </mapping>
             <mapping method="CONCAT">

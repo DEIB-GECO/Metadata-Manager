@@ -8,6 +8,8 @@ import org.apache.log4j.Logger
 import org.codehaus.jackson.map.MappingJsonFactory
 import org.codehaus.jackson.{JsonNode, JsonParser}
 
+import scala.collection.mutable.ListBuffer
+
 
 class PlatformRetriver (val path: String, val originalSourceId: String,var encodesTableId: EncodeTableId){
   val logger: Logger = Logger.getLogger(this.getClass)
@@ -104,6 +106,30 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
     }
   }
 
+  def getPipelineAndPlatformHelper(sourceId: String): List[String] = {
+    var result: ListBuffer[String] = new ListBuffer[String]()
+    if (rootNode.has("files")) {
+      val files = rootNode.get("files").getElements
+      while (files.hasNext) {
+        val file = files.next()
+        if (file.has("@id") && file.get("@id").asText().contains(sourceId)) {
+          if(file.has("analysis_step_version")){
+            result += this.getPipeline(file)
+          }
+          else
+            result += null
+          if(file.has("platform")) {
+            println(file.findValue("platform").get("term_name").asText())
+            result += file.findValue("platform").get("term_name").asText()
+          }
+          else
+            result += null
+        }
+      }
+    }
+    result.toList
+  }
+
   def defineItem(file: JsonNode): ItemEncode = {
     val item = new ItemEncode(encodesTableId)
     item.containerId = containerId
@@ -113,15 +139,6 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
     item.size = file.get("file_size").asLong()
     item.sourceUrl = file.get("href").asText()
     if(file.has("analysis_step_version")){
-      /*val pipelines = file.findValue("pipelines").getElements
-      while(pipelines.hasNext){
-        val pipeline = pipelines.next()
-        if(item.pipeline == null) {
-          item.pipeline = pipeline.get("title").asText()
-        }
-        else
-          item.pipeline = item.pipeline.concat(", " + pipeline.get("title").asText())
-      }*/
       item.pipeline = getPipeline(file)
     }
     if(file.has("platform"))

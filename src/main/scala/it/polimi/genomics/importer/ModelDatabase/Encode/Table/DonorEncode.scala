@@ -37,34 +37,34 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
         this.insertPosition = resetPosition(insertPosition, quantity)
       }
       case "SPECIES" => {
-        this.speciesArray(this.insertPosition) = insertMethod(this.speciesArray(this.insertPosition), param)
+        this.speciesArray(this.speciesInsertPosition) = insertMethod(this.speciesArray(this.speciesInsertPosition), param)
         this.speciesInsertPosition = resetPosition(speciesInsertPosition, quantity)
       }
       case "AGE" => param.split(" ")(1).toUpperCase() match {
         case "YEAR" => {
-          this.ageArray(this.insertPosition) = param.split(" ")(0).toInt * 365
+          this.ageArray(this.ageInsertPosition) = param.split(" ")(0).toInt * 365
           this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
         }
         case "MONTH" => {
-          this.ageArray(this.insertPosition) = param.split(" ")(0).toInt * 30
+          this.ageArray(this.ageInsertPosition) = param.split(" ")(0).toInt * 30
           this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
         }
         case "DAY" => {
-          this.ageArray(this.insertPosition) = param.split(" ")(0).toInt
+          this.ageArray(this.ageInsertPosition) = param.split(" ")(0).toInt
           this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
 
         }
         case _ => {
-          this.ageArray(this.insertPosition) = 0
+          this.ageArray(this.ageInsertPosition) = 0
           this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
         }
       }
       case "GENDER" => {
-        this.genderArray(this.insertPosition) = insertMethod(this.genderArray(this.insertPosition), param)
+        this.genderArray(this.genderInsertPosition) = insertMethod(this.genderArray(this.genderInsertPosition), param)
         this.genderInsertPosition = resetPosition(genderInsertPosition, quantity)
       }
       case "ETHNICITY" => {
-        this.ethnicityArray(this.insertPosition) = insertMethod(this.ethnicityArray(this.insertPosition), param)
+        this.ethnicityArray(this.ethnicityInsertPosition) = insertMethod(this.ethnicityArray(this.ethnicityInsertPosition), param)
         this.ethnicityInsertPosition = resetPosition(ethnicityInsertPosition, quantity)
       }
       case _ => noMatching(dest)
@@ -90,7 +90,7 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
 
   override def noMatching(message: String): Unit = super.noMatching(message)
 
-  override def insertRow(): Unit ={
+  /*override def insertRow(): Unit ={
     var id: Int = 0
     for(sourcePosition <- 0 to sourceIdArray.length-1){
       this.actualPosition = sourcePosition
@@ -101,6 +101,20 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
         id = this.update
       }
       this.primaryKeys_(id)
+    }
+  }*/
+
+  override def insertRow(): Unit ={
+    for(sourcePosition <- 0 to sourceIdArray.length-1) {
+      this.actualPosition = sourcePosition
+      val id = this.getId
+      if (id == -1) {
+        val newId = this.insert
+        this.primaryKeys_(newId)
+      } else {
+        this.primaryKeys_(id)
+        this.updateById()
+      }
     }
   }
 
@@ -114,6 +128,10 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
 
   override def update(): Int ={
     dbHandler.updateDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
+  }
+
+  override def updateById(): Unit ={
+    dbHandler.updateDonorById(this.primaryKeys(actualPosition), this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
   }
 
   override def setForeignKeys(table: Table): Unit = {

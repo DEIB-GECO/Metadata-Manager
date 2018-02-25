@@ -89,15 +89,6 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
       }
   }
 
- /* def setQuantity(quantity: Int): Unit ={
-    sourceId = new Array[String](quantity)
-    types = new Array[String](quantity)
-    tIssue = new Array[String](quantity)
-    cellLine = new Array[String](quantity)
-    isHealty = new Array[Boolean](quantity)
-    disease = new Array[String](quantity)
-  }*/
-
   override def insertRow(): Unit ={
     var id: Int = 0
     var position = 0
@@ -112,11 +103,6 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
         id = this.update
       }
       val actualVal = array(position)
-      /*breakable f{
-        println("Biosample Id " + id)
-        this.primaryKeys_(id)
-        position += 1
-      }while(array(position) == actualVal && position < array.length)*/
 
       breakable { while(array(position) == actualVal && position < array.length) {
           this.primaryKeys_(id)
@@ -187,18 +173,5 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
     this.sourceIdArray.foreach(source => if(source == null) false)
     true
   }
-
-  /*override def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])]): Unit = {
-    values.foreach(value =>{
-      this.donorIdArray(insertPosition) = value._1
-      this.sourceIdArray(insertPosition) = value._2
-      if(value._3.isDefined) this.typesArray(insertPosition) = value._3.get
-      if(value._4.isDefined) this.tIssueArray(insertPosition) = value._4.get
-      if(value._5.isDefined) this.cellLineArray(insertPosition) = value._5.get
-      this.isHealtyArray(insertPosition) = value._6
-      if(value._7.isDefined) this.diseaseArray(insertPosition) = value._7.get
-    })
-
-  }*/
 
 }

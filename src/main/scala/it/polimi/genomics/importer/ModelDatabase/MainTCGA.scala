@@ -139,7 +139,7 @@ object MainTCGA {
       tables.insertTables()
 
     def populateTable(list: List[String], table: Table): Unit = {
-      val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3))
+      val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3),list(4), list(5), list(6), list(7))
       if(list(3).equals("MANUALLY"))
         table.setParameter(list(1), list(2), insertMethod)
       else

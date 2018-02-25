@@ -7,12 +7,16 @@ trait Project extends Table{
 
   var programName: String = _
 
-  override def insert() = {
+  override def insert(): Int =  {
     dbHandler.insertProject(this.projectName.toUpperCase(),this.programName)
   }
 
-  override def update() = {
+  override def update(): Int =  {
     dbHandler.updateProject(this.projectName.toUpperCase(),this.programName)
+  }
+
+  override def updateById(): Unit =  {
+    dbHandler.updateProjectById(this.primaryKey, this.projectName.toUpperCase(),this.programName)
   }
 
   override def setForeignKeys(table: Table): Unit = {

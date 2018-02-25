@@ -4,7 +4,7 @@ import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, Re
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable.ListBuffer
-import scala.xml.XML
+import scala.xml.{Node, XML}
 
 class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosamples: BioSampleList, var states: collection.mutable.Map[String, String]) {
   private val xml = XML.loadFile(path)
@@ -23,10 +23,16 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
           app += ((x \ "@name").toString())
           app += ((xi \ "source_key").text).replaceAll("X",biosamples.BiosampleList.head)
           app += ((xi \ "global_key").text)
-          if((xi \ "@method").toString()!="")
+          /*if((xi \ "@method").toString()!="")
             app += ((xi \ "@method").toString())
           else
-            app += default
+            app += default */
+          app += this.getMethod(xi)
+          app += this.getConcatCharacter(xi)
+          app += this.getSubCharacter(xi)
+          app += this.getNewCharacter(xi)
+          app += this.getRemCharacter(xi)
+
           operations += app.toList
         }else if((x \ "@name").toString() == "BIOSAMPLES" || (x \ "@name").toString() == "DONORS"){
           //var position: Int = 0
@@ -36,10 +42,12 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
             app += ((x \ "@name").toString())
             app += ((xi \ "source_key").text).replaceAll("X",number)
             app += ((xi \ "global_key").text)
-            if((xi \ "@method").toString()!="")
-              app += ((xi \ "@method").toString())
-            else
-              app += default
+            app += this.getMethod(xi)
+            app += this.getConcatCharacter(xi)
+            app += this.getSubCharacter(xi)
+            app += this.getNewCharacter(xi)
+            app += this.getRemCharacter(xi)
+
             //arrayList(position) += app.toList
             //position += 1
             operations += app.toList
@@ -52,10 +60,12 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
             app += ((x \ "@name").toString())
             app += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position))
             app += ((xi \ "global_key").text)
-            if ((xi \ "@method").toString() != "")
-              app += ((xi \ "@method").toString())
-            else
-              app += default
+            app += this.getMethod(xi)
+            app += this.getConcatCharacter(xi)
+            app += this.getSubCharacter(xi)
+            app += this.getNewCharacter(xi)
+            app += this.getRemCharacter(xi)
+
             if((xi \ "source_key").text == "replicates__X__uuid")
               states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.UuidList(position)
             if((xi \ "source_key").text == "replicates__X__biological_replicate_number")
@@ -75,4 +85,39 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
 
   def operationsList = _operationsList
 
+
+  private def getMethod(xi: Node) : String = {
+    if((xi \ "@method").toString()!="")
+      (xi \ "@method").toString()
+    else
+      default
+  }
+
+  private def getConcatCharacter(xi: Node) : String = {
+    if((xi \ "@concat_character").toString()!="")
+      (xi \ "@concat_character").toString()
+    else
+      " "
+  }
+
+  private def getSubCharacter(xi: Node): String = {
+    if((xi \ "@sub_character").toString()!="")
+      (xi \ "@sub_character").toString()
+    else
+      ""
+  }
+
+  private def getNewCharacter(xi: Node): String = {
+    if((xi \ "@new_character").toString()!="")
+      (xi \ "@new_character").toString()
+    else
+      ""
+  }
+
+  private def getRemCharacter(xi: Node): String = {
+    if((xi \ "@rem_character").toString()!="")
+      (xi \ "@rem_character").toString()
+    else
+      ""
+  }
 }

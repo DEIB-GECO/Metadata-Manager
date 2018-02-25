@@ -30,6 +30,10 @@ trait Container extends Table{
     dbHandler.updateContainer(experimentTypeId,this.name,this.assembly,this.isAnn,this.annotation)
   }
 
+  override def updateById() : Unit ={
+    dbHandler.updateContainerById(primaryKey, experimentTypeId,this.name,this.assembly,this.isAnn,this.annotation)
+  }
+
   override def setForeignKeys(table: Table): Unit = {
     this.experimentTypeId = table.primaryKey
   }
