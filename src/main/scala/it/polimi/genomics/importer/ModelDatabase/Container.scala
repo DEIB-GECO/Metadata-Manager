@@ -4,7 +4,7 @@ import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 
 trait Container extends Table{
 
-  var experimentTypeId : Int = _
+  var projectId : Int = _
 
   var name : String = _
 
@@ -16,26 +16,26 @@ trait Container extends Table{
 
   _hasForeignKeys = true
 
-  _foreignKeysTables = List("EXPERIMENTSTYPE")
+  _foreignKeysTables = List("PROJECTS")
 
   _hasDependencies = true
 
   _dependenciesTables = List("CONTAINERS", "DONORS")
 
   override def insert() : Int ={
-    dbHandler.insertContainer(experimentTypeId,this.name,this.assembly,this.isAnn,this.annotation)
+    dbHandler.insertContainer(projectId,this.name,this.assembly,this.isAnn,this.annotation)
   }
 
   override def update() : Int ={
-    dbHandler.updateContainer(experimentTypeId,this.name,this.assembly,this.isAnn,this.annotation)
+    dbHandler.updateContainer(projectId,this.name,this.assembly,this.isAnn,this.annotation)
   }
 
   override def updateById() : Unit ={
-    dbHandler.updateContainerById(primaryKey, experimentTypeId,this.name,this.assembly,this.isAnn,this.annotation)
+    dbHandler.updateContainerById(primaryKey, projectId,this.name,this.assembly,this.isAnn,this.annotation)
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    this.experimentTypeId = table.primaryKey
+    this.projectId = table.primaryKey
   }
 
   override def checkInsert(): Boolean ={
@@ -85,7 +85,7 @@ trait Container extends Table{
     else {
       var value = values.head
       this.primaryKey_(value._1)
-      this.experimentTypeId = value._2
+      this.projectId = value._2
       this.name = value._3
       if(value._4.isDefined) this.assembly = value._4.get
       this.isAnn = value._5

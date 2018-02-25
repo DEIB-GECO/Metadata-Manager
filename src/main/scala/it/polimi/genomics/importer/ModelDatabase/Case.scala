@@ -1,10 +1,9 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-import java.io.{File, FileOutputStream, PrintWriter}
 
 trait Case extends Table{
 
-  var projectId : Int = _
+  var containerId : Int = _
 
   var sourceId : String = _
 
@@ -14,22 +13,22 @@ trait Case extends Table{
 
   _hasForeignKeys = true
 
-  _foreignKeysTables = List("PROJECTS")
+  _foreignKeysTables = List("CONTAINERS")
 
   override def insert(): Int = {
-    dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    dbHandler.insertCase(this.containerId,this.sourceId,this.sourceSite,this.externalRef)
   }
 
   override def update(): Int = {
-    dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    dbHandler.updateCase(this.containerId,this.sourceId,this.sourceSite,this.externalRef)
   }
 
   override def updateById(): Unit = {
-    dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    dbHandler.updateCaseById(this.primaryKey, this.containerId,this.sourceId,this.sourceSite,this.externalRef)
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    this.projectId = table.primaryKey
+    this.containerId = table.primaryKey
   }
 
   override def checkInsert(): Boolean ={
@@ -49,7 +48,7 @@ trait Case extends Table{
       logger.error(s"Too many value: ${values.length}")
     else {
       var value = values.head
-      this.projectId = value._1
+      this.containerId = value._1
       this.sourceId = value._2
       if (value._3.isDefined) this.sourceSite = value._3.get
       if (value._4.isDefined) this.externalRef = value._4.get

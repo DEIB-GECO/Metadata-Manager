@@ -14,19 +14,19 @@ class CaseEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
 
 
   override def insert() = {
-    val id = dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.insertCase(this.containerId,this.sourceId,this.sourceSite,this.externalRef)
     this.encodeTableId.caseId_(id)
     id
   }
 
   override def update() = {
-    val id = dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.updateCase(this.containerId,this.sourceId,this.sourceSite,this.externalRef)
     this.encodeTableId.caseId_(id)
     id
   }
 
   override def updateById() = {
-    val id = dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.updateCaseById(this.primaryKey, this.containerId,this.sourceId,this.sourceSite,this.externalRef)
     this.encodeTableId.caseId_(id)
   }
 }

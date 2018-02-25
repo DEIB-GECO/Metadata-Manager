@@ -25,14 +25,14 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
     this.pipeline = temp(0)
     this.platform = temp(1)
-    val id = dbHandler.insertItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    platformRetriver.getItems(id,this.containerId,this.encodeTableId.caseId)
+    val id = dbHandler.insertItem(experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    platformRetriver.getItems(id,this.experimentTypeId,this.encodeTableId.caseId)
     Statistics.itemInserted += 1
     id
   }
 
   def specialInsert(): Int ={
-    val id = dbHandler.insertItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.insertItem(experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemInserted += 1
     id
   }
@@ -43,8 +43,8 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
     this.pipeline = temp(0)
     this.platform = temp(1)
-    val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    platformRetriver.getItems(id,this.containerId,this.encodeTableId.caseId)
+    val id = dbHandler.updateItem(experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    platformRetriver.getItems(id,this.experimentTypeId,this.encodeTableId.caseId)
     Statistics.itemUpdated += 1
     id
   }
@@ -55,14 +55,14 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     println(temp)
     this.pipeline = temp(0)
     this.platform = temp(1)
-    val id = dbHandler.updateItemById(this.primaryKey, containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    platformRetriver.getItems(id,this.containerId,this.encodeTableId.caseId)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    platformRetriver.getItems(id,this.experimentTypeId,this.encodeTableId.caseId)
     Statistics.itemUpdated += 1
     return id
   }
 
   def specialUpdate(): Int ={
-    val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.updateItem(experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemUpdated += 1
     id
   }

@@ -5,7 +5,7 @@ import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 
 trait Item extends Table{
 
-  var containerId : Int = _
+  var experimentTypeId : Int = _
 
   var sourceId : String = _
 
@@ -25,7 +25,7 @@ trait Item extends Table{
 
   _hasForeignKeys = true
 
-  _foreignKeysTables = List("CONTAINERS")
+  _foreignKeysTables = List("EXPERIMENTSTYPE")
 
   _hasDependencies = true
 
@@ -33,25 +33,25 @@ trait Item extends Table{
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.insertItem(experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.updateItem(experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val id = dbHandler.updateItemById(this.primaryKey, containerId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemUpdated += 1
     return id
   }
 
   override def setForeignKeys(table: Table): Unit = {
-    this.containerId = table.primaryKey
+    this.experimentTypeId = table.primaryKey
   }
 
   override def checkInsert(): Boolean ={
@@ -102,7 +102,7 @@ trait Item extends Table{
     else {
       var value = values.head
       this.primaryKey_(value._1)
-      this.containerId = value._2
+      this.experimentTypeId = value._2
       this.sourceId = value._3
       if(value._4.isDefined) this.dataType = value._4.get
       if(value._5.isDefined) this.format = value._5.get

@@ -12,7 +12,6 @@ import it.polimi.genomics.importer.GMQLImporter.schemaValidator
 import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, PlatformRetriver, ReplicateList}
 import it.polimi.genomics.importer.ModelDatabase.Encode.{EncodeTableId, EncodeTables}
 import it.polimi.genomics.importer.ModelDatabase.TCGA.TCGATables
-import it.polimi.genomics.importer.RemoteDatabase.DbHandler.conf
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
@@ -225,10 +224,10 @@ object main{
           logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
         Statistics.indexOutOfBoundsException += 1
       }
-      /*case e: Exception => {
+      case e: Exception => {
         logger.error(s"Another File input Exception file with path ${path}")
         Statistics.anotherInputException += 1
-      }*/
+      }
     }
   }
 

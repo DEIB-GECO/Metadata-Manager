@@ -1,7 +1,5 @@
 package it.polimi.genomics.importer.ModelDatabase
 
-import java.io.{File, FileOutputStream, PrintWriter}
-
 trait ExperimentType extends Table{
 
   var technique : String = _
@@ -11,10 +9,6 @@ trait ExperimentType extends Table{
   var target : String = _
 
   var antibody : String = _
-
-  _hasForeignKeys = true
-
-  _foreignKeysTables = List("EXPERIMENTSTYPE")
 
   override def checkInsert(): Boolean = {
     dbHandler.checkInsertExperimentType(this.technique, this.feature, this.target)

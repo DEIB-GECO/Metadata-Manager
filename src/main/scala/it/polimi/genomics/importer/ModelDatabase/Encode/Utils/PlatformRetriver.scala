@@ -32,11 +32,11 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
 
   val rootNode: JsonNode = jp.readValueAsTree()
   var description: String = _
-  var containerId: Int = _
+  var experimentTypeId: Int = _
   var caseId: Int = _
 
-  def getItems(finalItemId:Int, containerId: Int, caseId: Int): Unit = {
-    this.containerId = containerId
+  def getItems(finalItemId:Int, experimentTypeId: Int, caseId: Int): Unit = {
+    this.experimentTypeId = experimentTypeId
     this.caseId = caseId
     recursiveItems(path.split('/').last.split('.')(0), finalItemId, "")
   }
@@ -132,7 +132,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
 
   def defineItem(file: JsonNode): ItemEncode = {
     val item = new ItemEncode(encodesTableId)
-    item.containerId = containerId
+    item.experimentTypeId = experimentTypeId
     item.sourceId = file.get("accession").asText()
     item.dataType = file.get("output_type").asText()
     item.format = file.get("file_type").asText()

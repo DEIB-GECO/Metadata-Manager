@@ -36,16 +36,16 @@ class FromDbToTsv() {
     item.convertTo(DbHandler.getItemBySourceId(sourceIdItem))
     item.writeInFile(path)
 
-    container.convertTo(DbHandler.getContainerById(item.containerId))
-    container.writeInFile(path)
-
-    experimentType.convertTo(DbHandler.getExperimentTypeById(container.experimentTypeId))
+    experimentType.convertTo(DbHandler.getExperimentTypeById(item.experimentTypeId))
     experimentType.writeInFile(path)
 
     cases.convertTo(DbHandler.getCaseByItemId(item.primaryKey))
     cases.writeInFile(path)
 
-    project.convertTo(DbHandler.getProjectById(cases.projectId))
+    container.convertTo(DbHandler.getContainerById(cases.containerId))
+    container.writeInFile(path)
+
+    project.convertTo(DbHandler.getProjectById(container.projectId))
     project.writeInFile(path)
 
     replicate.convertTo(DbHandler.getReplicateByItemId(item.primaryKey))
