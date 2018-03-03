@@ -60,7 +60,8 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
         this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
       }
       case "DISEASE" => {
-        this.diseaseArray(diseaseInsertPosition) = if(!this.isHealthyArray(diseaseInsertPosition)) insertMethod(this.diseaseArray(diseaseInsertPosition),param) else null
+        //this.diseaseArray(diseaseInsertPosition) = if(!this.isHealthyArray(diseaseInsertPosition)) insertMethod(this.diseaseArray(diseaseInsertPosition),param) else null
+        this.diseaseArray(diseaseInsertPosition) = insertMethod(this.diseaseArray(diseaseInsertPosition), param)
         this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
       }
       case _ => noMatching(dest)

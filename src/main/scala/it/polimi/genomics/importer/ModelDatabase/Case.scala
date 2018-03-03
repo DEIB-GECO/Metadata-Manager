@@ -57,10 +57,10 @@ trait Case extends Table{
 
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
-    val tableName = "case"
-    write.append(getMessage(tableName + "__source_id", this.sourceId))
-    if(this.sourceSite != null) write.append(getMessage(tableName + "__source_site", this.sourceSite))
-    if(this.externalRef != null) write.append(getMessage(tableName + "__external_ref", this.externalRef))
+    val tableName = "case_study"
+    write.append(getMessage(tableName, "source_id", this.sourceId))
+    if(this.sourceSite != null) write.append(getMessage(tableName, "source_site", this.sourceSite))
+    if(this.externalRef != null) write.append(getMessage(tableName, "external_ref", this.externalRef))
     flushAndClose(write)
   }
 

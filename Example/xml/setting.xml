@@ -129,7 +129,7 @@
                 <source_key>file__file_format_type</source_key>
                 <global_key>name</global_key>
             </mapping>
-            <mapping method="CONCAT">
+            <mapping>
                 <source_key>file__assembly</source_key>
                 <global_key>assembly</global_key>
             </mapping>
@@ -140,6 +140,10 @@
             <mapping method="MANUALLY">
                 <source_key>null</source_key>
                 <global_key>annotation</global_key>
+            </mapping>
+            <mapping>
+                <source_key> </source_key>
+                <global_key> </global_key>
             </mapping>
     </table>
     <table name="ITEMS">

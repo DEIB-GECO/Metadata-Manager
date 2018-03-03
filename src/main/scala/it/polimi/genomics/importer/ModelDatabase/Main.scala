@@ -24,6 +24,9 @@ object main{
   private val regexBedMeta = ".*.bed.meta\\z".r
   private val regexBedMetaTCGA = ".*.bed.meta".r
 
+  private val exportRegexENCODE = "bed.meta.json".r
+  private val exportRegexTCGA = "bed.meta".r
+
   private val encodeString = "ENCODE"
   private val tcgaString = "TCGA"
 
@@ -35,11 +38,11 @@ object main{
     val console = new ConsoleAppender() //create appender
     //configure the appender
     val PATTERN = "%d [%p|%c|%C{1}] %m%n"
-    console.setLayout(new PatternLayout(PATTERN))
+    /*console.setLayout(new PatternLayout(PATTERN))
     console.setThreshold(Level.ERROR)
     console.activateOptions()
     //add appender to any Logger (here is root)
-    Logger.getRootLogger.addAppender(console)
+    Logger.getRootLogger.addAppender(console)*/
     val console2 = new ConsoleAppender()
 
     //configure the appender
@@ -57,108 +60,132 @@ object main{
 
     //BasicConfigurator.configure()
 
-    /*println(InsertMethod.substituteWordWith("narrowPeak", "Peak", ""))
+    val path = if(true) exportRegexENCODE.replaceAllIn("path/to/file.bed.meta.json", "txt") else "path/to/file.bed.meta.json"
 
-    println(InsertMethod.replaceAndConcat("GRCh38_ENCODE","narrow"," ","_","_"))*/
+    DbHandler.setDatabase()
 
-     DbHandler.setDatabase()
-     //analizeFile("/home/federico/_Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF018OHI.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
-     //analizeFile("/home/federico/Scrivania/Encode_Download/HG19_ENCODE/broadPeak/Transformations/ENCFF942JEG.bed.meta", "/home/federico/IdeaProjects/GMQL-Importer/Example/xml/setting.xml")
-     if (args.length == 0) {
-       logger.warn(s"No arguments specified")
-     }
-     else if( args.length != 4){
-       logger.error(s"Incorrect number of arguments")
-       logger.info("GMQLImporter help:\n"
-         + "\t Run with configuration_xml_path, file_folder, repository_ref and execution_mode as arguments\n"
-       )
-     }
-     else if(args(2).toUpperCase != encodeString && args(2).toUpperCase != tcgaString ){
-       logger.error(s"Incorrect repository argument")
-       logger.info("Please select 'encode' or 'tcga'")
-     }
-     else if(args(3).toUpperCase != "IMPORT" && args(3).toUpperCase != "EXPORT") {
-       logger.error(s"Incorrect execution_mode argument")
-       logger.info("Please select 'import' or 'export'")
-     }
-     else if (args(3).equals("import")){
-       val pathXML = args.head
-       val pathGMQL = args.drop(1).head
-       val repositoryRef = args.drop(2).head
-       val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico_merged/Example/xml/setting.xsd"
-       if (schemaValidator.validate(pathXML, schemaUrl)){
-         logger.info("Xml file is valid for the schema")
-         DbHandler.setDatabase()
-
-         val logName = DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
-
-
-         val fa2 = new FileAppender()
-         fa2.setName("FileLogger")
-         fa2.setFile(logName)
-         fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
-         fa2.setThreshold(Level.DEBUG)
-         fa2.setAppend(true)
-         fa2.activateOptions()
-         Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
-
-         val t0: Long = System.nanoTime()
-         println(pathGMQL)
-         repositoryRef.toUpperCase() match {
-           case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => analizeFileEncode(path.toString,pathXML))
-           case "TCGA" =>  ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => analizeFileTCGA(path.toString,pathXML))
-           case _ => logger.error(s"Incorrect repository")
-         }
-         val t1 = System.nanoTime()
-         logger.info(s"Total time for insert data in DB ${getTotalTimeFormatted(t0, t1)}")
-         logger.info(s"Total file analyzed ${Statistics.fileNumber}")
-         logger.info(s"Total file released ${Statistics.released}")
-         logger.info(s"File status (and other metadata) are missing ${Statistics.archived}")
-         logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
-         logger.info(s"Total Item inserted ${Statistics.itemInserted}")
-         logger.info(s"Total Item updated ${Statistics.itemUpdated}")
-         logger.info(s"Constraints violated ${Statistics.constraintsViolated}")
-         logger.info(s"Total malformation found  ${Statistics.malformedInput}")
-         logger.info(s"ArrayIndexOutOfBoundsException file input  ${Statistics.indexOutOfBoundsException}")
-         logger.info(s"OtherInputException file input  ${Statistics.anotherInputException}")
-
-       }
-       else
-         logger.error("Xml file is not valid according the specified schema, check: " + schemaUrl)
-     } else {
-       val pathXML = args.head
-       val pathGMQL = args.drop(1).head
-       val repositoryRef = args.drop(2).head
-       //logger_file.close()
-       val t2: Long = System.nanoTime()
-
-       logger.info(s"Start to write TSV file")
-       //ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => new FromDbToTsvEncode(path.getAbsolutePath))
+    if (args.length == 0) {
+      logger.warn(s"No arguments specified")
+      return
+    }
+    if( args.length < 3 || args.length > 4){
+      logger.error(s"Incorrect number of arguments:")
+      logger.info("GMQLImporter help; in order to import Data from File:\n"
+        + "\t Run with configuration_xml_path, file_folder, repository_ref and IMPORT as arguments\n"
+      )
+      logger.info("GMQLImporter help; in order to export Data from Database to file:\n"
+        + "\t Run with file_folder, repository_ref and EXPORT as arguments\n"
+      )
+      return
+    }
+    if(args(0).toUpperCase != "IMPORT" && args(0).toUpperCase != "EXPORT") {
+      logger.error(s"Incorrect execution_mode argument")
+      logger.info("Please select 'import' or 'export'")
+      return
+    }
+    if (args(0).toUpperCase.equals("IMPORT")) {
+      if (args.length != 4) {
+        logger.error(s"Incorrect number of arguments for IMPORT execution mode")
+        logger.info("GMQLImporter help; in order to import Data from File:\n"
+          + "\t Run with configuration_xml_path, file_folder, repository_ref and IMPORT as arguments\n"
+        )
+        return
+      }
+      if(args(1).toUpperCase != encodeString && args(1).toUpperCase != tcgaString ){
+        logger.error(s"Incorrect repository argument")
+        logger.info("Please select 'encode' or 'tcga'")
+        return
+      }
+      val repositoryRef = args(1)
+      val pathGMQL = args(2)
+      val pathXML = args(3)
 
 
+      val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico_merged/Example/xml/setting.xsd"
+      if (schemaValidator.validate(pathXML, schemaUrl)){
+        logger.info("Xml file is valid for the schema")
+        DbHandler.setDatabase()
 
-       val fromDbToTsv = new FromDbToTsv()
-       repositoryRef.toUpperCase() match {
-         case "ENCODE" => {
-           val tables = new EncodeTables(new EncodeTableId).getListOfTables()
-           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
-           ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => fromDbToTsv.run(path.getAbsolutePath))
-         }
-         case "TCGA" =>  {
-           val tables = new TCGATables().getListOfTables()
-           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
-           ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => fromDbToTsv.run(path.getAbsolutePath))
+        val logName = args(0) + "_" + repositoryRef.toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
 
-         }
-         case _ => logger.error(s"Incorrect repository")
-       }
+        val fa2 = new FileAppender()
+        fa2.setName("FileLogger")
+        fa2.setFile(logName)
+        fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
+        fa2.setThreshold(Level.DEBUG)
+        fa2.setAppend(true)
+        fa2.activateOptions()
+        Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
 
-       //ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => new FromDbToTsvEncode(path.getAbsolutePath))
-       val t3: Long = System.nanoTime()
+        val t0: Long = System.nanoTime()
+        repositoryRef.toUpperCase() match {
+          case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => analizeFileEncode(path.toString,pathXML))
+          case "TCGA" =>  ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => analizeFileTCGA(path.toString,pathXML))
+          case _ => logger.error(s"Incorrect repository")
+        }
+        val t1 = System.nanoTime()
+        logger.info(s"Total time to insert data in DB ${getTotalTimeFormatted(t0, t1)}")
+        logger.info(s"Total analyzed files ${Statistics.fileNumber}")
+        logger.info(s"Total file released ${Statistics.released}")
+        logger.info(s"File status (and other metadata) are missing ${Statistics.archived}")
+        logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
+        logger.info(s"Total Item inserted ${Statistics.itemInserted}")
+        logger.info(s"Total Item updated ${Statistics.itemUpdated}")
+        logger.info(s"Constraints violated ${Statistics.constraintsViolated}")
+        logger.info(s"Total malformation found  ${Statistics.malformedInput}")
+        logger.info(s"ArrayIndexOutOfBoundsException file input  ${Statistics.indexOutOfBoundsException}")
+        logger.info(s"UnknownInputException file input  ${Statistics.anotherInputException}")
 
-       logger.info(s"Total time for the write info in TSV file ${getTotalTimeFormatted(t2, t3)}")
-       logger.info(s"Total file analized ${Statistics.tsvFile}")
-     }
+      }
+      else
+        logger.error("Xml file is not valid according the specified schema, check: " + schemaUrl)
+        return
+    } else {
+      if (args.length != 3) {
+        logger.error(s"Incorrect number of arguments")
+        logger.info("GMQLImporter help; in order to export Data from Database to file:\n"
+          + "\t Run with file_folder, repository_ref and EXPORT as arguments\n"
+        )
+        return
+      }
+      val repositoryRef = args(1)
+      val pathGMQL = args(2)
+
+      val t2: Long = System.nanoTime()
+
+      val logName = args(0) + "_" + repositoryRef.toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
+
+      val fa2 = new FileAppender()
+      fa2.setName("FileLogger")
+      fa2.setFile(logName)
+      fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
+      fa2.setThreshold(Level.DEBUG)
+      fa2.setAppend(true)
+      fa2.activateOptions()
+      Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
+
+      logger.info(s"Start to write TSV file")
+
+      val fromDbToTsv = new FromDbToTsv()
+      repositoryRef.toUpperCase() match {
+        case "ENCODE" => {
+          val tables = new EncodeTables(new EncodeTableId).getListOfTables()
+          fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
+          ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => fromDbToTsv.run(path.getAbsolutePath, exportRegexENCODE))
+        }
+        case "TCGA" =>  {
+          val tables = new TCGATables().getListOfTables()
+          fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
+          ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => fromDbToTsv.run(path.getAbsolutePath, exportRegexTCGA))
+        }
+        case _ => logger.error(s"Incorrect repository")
+      }
+
+      val t3: Long = System.nanoTime()
+
+      logger.info(s"Total time for the write info in TSV file ${getTotalTimeFormatted(t2, t3)}")
+      logger.info(s"Total file analized ${Statistics.tsvFile}")
+    }
     DbHandler.closeDatabase()
 
   }
@@ -167,25 +194,23 @@ object main{
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
     try {
-    val lines = Source.fromFile(path).getLines.toArray
-    println("Lines reads")
-    var states = collection.mutable.Map[String, String]()
-    filePath = path
-    val encodesTableId = new EncodeTableId
-    val bioSampleList = new BioSampleList(lines,encodesTableId)
-    val replicateList = new ReplicateList(lines,bioSampleList)
-    encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
-    encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
-    encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
-    var tables = new EncodeTables(encodesTableId)
-    tables.filePath_:(path)
-    tables.setPathOnTables()
-
-    println("Start read lines")
+      val lines = Source.fromFile(path).getLines.toArray
+      var states = collection.mutable.Map[String, String]()
+      filePath = path
+      val encodesTableId = new EncodeTableId
+      val bioSampleList = new BioSampleList(lines,encodesTableId)
+      val replicateList = new ReplicateList(lines,bioSampleList)
+      encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
+      encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
+      encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
+      var tables = new EncodeTables(encodesTableId)
+      tables.filePath_:(path)
+      tables.setPathOnTables()
 
       for (l <- lines) {
         val first = l.split("\t", 2)
         if(first.size == 2)
+          //if states(first(0)) == null qurs
           states += (first(0) -> first(1))
         else {
           logger.warn(s"Malformation in line ${first(0)}")
@@ -221,13 +246,13 @@ object main{
       }
     } catch {
       case aioobe: ArrayIndexOutOfBoundsException => {
-          logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
+        logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
         Statistics.indexOutOfBoundsException += 1
       }
-      case e: Exception => {
-        logger.error(s"Another File input Exception file with path ${path}")
+     /* case e: Exception => {
+        logger.error(s"Unknown File input Exception file with path ${path}")
         Statistics.anotherInputException += 1
-      }
+      }*/
     }
   }
 
@@ -235,13 +260,11 @@ object main{
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
     try{
-    val lines = Source.fromFile(path).getLines.toArray
-    var states = collection.mutable.Map[String, String]()
+      val lines = Source.fromFile(path).getLines.toArray
+      var states = collection.mutable.Map[String, String]()
 
-    filePath = path
-    var tables = new TCGATables
-
-
+      filePath = path
+      var tables = new TCGATables
 
       for (l <- lines) {
         val first = l.split("\t", 2)
@@ -252,25 +275,25 @@ object main{
           Statistics.malformedInput += 1
         }
       }
-    Statistics.released += 1
-    logger.info(s"File status released, start populate table")
-    val xml = new XMLReaderTCGA(pathXML)
-    val operationsList = xml.operationsList
-    operationsList.map(x =>
-      try {
-        populateTable(x, tables.selectTableByName(x.head), states.toMap)
+      Statistics.released += 1
+      logger.info(s"File status released, start populate table")
+      val xml = new XMLReaderTCGA(pathXML)
+      val operationsList = xml.operationsList
+      operationsList.map(x =>
+        try {
+          populateTable(x, tables.selectTableByName(x.head), states.toMap)
 
-      } catch {
-        case e: Exception => logger.warn(s"SourceKey does't find for $x")
-      })
-    tables.insertTables()
-  } catch {
+        } catch {
+          case e: Exception => logger.warn(s"SourceKey does't find for $x")
+        })
+      tables.insertTables()
+    } catch {
       case aioobe: ArrayIndexOutOfBoundsException => {
         logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
         Statistics.indexOutOfBoundsException += 1
       }
       case e: Exception => {
-        logger.error(s"Another File input Exception file with path ${path}")
+        logger.error(s"Unknown File input Exception file with path ${path}")
         Statistics.anotherInputException += 1
       }
     }
@@ -285,21 +308,6 @@ object main{
     else
       table.setParameter(states(list(1)), list(2), insertMethod)
   }
-
-  def verifyStatus(path: String): Boolean ={
-    val lines = Source.fromFile(path).getLines.toArray
-
-    for (l <- lines) {
-      val first = l.split("\t", 2)
-      if (first(0).equals("file__status"))
-        if(first(1).equals("released"))
-          return true
-        else
-          return false
-    }
-    false
-  }
-
 
 }
 

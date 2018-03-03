@@ -1,9 +1,15 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
+import org.apache.log4j.Logger
+
+import scala.util.matching.Regex
 
 class FromDbToTsv() {
+  private val conf = ConfigFactory.load()
+
 
   var donor: Donor = _
   var bioSample: BioSample = _
@@ -13,6 +19,13 @@ class FromDbToTsv() {
   var container: Container =_
   var project: Project = _
   var item: Item = _
+  private val isNewFile = conf.getBoolean("export.newfile")
+  private val extension = conf.getString("export.extension")
+
+
+  val logger: Logger = Logger.getLogger(this.getClass)
+
+
 
 
   def setTable(donor: Donor, bioSample: BioSample, replicate: Replicate, cases: Case, container: Container, experimentType: ExperimentType, project: Project, item: Item): Unit ={
@@ -27,42 +40,47 @@ class FromDbToTsv() {
   }
 
 
-  def run(path: String): Unit ={
+  def run(oldPath: String, regex: Regex): Unit = {
+    val path = if(isNewFile) regex.replaceAllIn(oldPath, extension) else oldPath
+    logger.info(s"Start to read ${path} file")
+    try {
+      val sourceIdItem = path.split('/').last.split('.')(0)
 
-    val sourceIdItem = path.split('/').last.split('.')(0)
+      Statistics.tsvFile += 1
 
-    Statistics.tsvFile += 1
+      item.convertTo(DbHandler.getItemBySourceId(sourceIdItem))
+      item.writeInFile(path)
 
-    item.convertTo(DbHandler.getItemBySourceId(sourceIdItem))
-    item.writeInFile(path)
+      experimentType.convertTo(DbHandler.getExperimentTypeById(item.experimentTypeId))
+      experimentType.writeInFile(path)
 
-    experimentType.convertTo(DbHandler.getExperimentTypeById(item.experimentTypeId))
-    experimentType.writeInFile(path)
+      cases.convertTo(DbHandler.getCaseByItemId(item.primaryKey))
+      cases.writeInFile(path)
 
-    cases.convertTo(DbHandler.getCaseByItemId(item.primaryKey))
-    cases.writeInFile(path)
+      container.convertTo(DbHandler.getContainerById(cases.containerId))
+      container.writeInFile(path)
 
-    container.convertTo(DbHandler.getContainerById(cases.containerId))
-    container.writeInFile(path)
+      project.convertTo(DbHandler.getProjectById(container.projectId))
+      project.writeInFile(path)
 
-    project.convertTo(DbHandler.getProjectById(container.projectId))
-    project.writeInFile(path)
+      replicate.convertTo(DbHandler.getReplicateByItemId(item.primaryKey))
+      replicate.writeInFile(path)
 
-    replicate.convertTo(DbHandler.getReplicateByItemId(item.primaryKey))
-    replicate.writeInFile(path)
+      replicate.getReplicateIdList().foreach(bioSampleId => {
+        bioSample.convertTo(DbHandler.getBiosampleById(bioSampleId))
+        bioSample.writeInFile(path)
 
-    replicate.getReplicateIdList().foreach(bioSampleId => {
-      bioSample.convertTo(DbHandler.getBiosampleById(bioSampleId))
-      bioSample.writeInFile(path)
-
-      donor.convertTo(DbHandler.getDonorById(bioSample.donorId))
-      donor.writeInFile(path)
-    })
+        donor.convertTo(DbHandler.getDonorById(bioSample.donorId))
+        donor.writeInFile(path)
+      })
 
 
-    this.recursiveGetItemsByDerivedFromId(this.item.primaryKey)
-    if(!this.sourceIdDerivedFrom.equals(""))
-      item.writeDerivedFrom(path, this.sourceIdDerivedFrom)
+      this.recursiveGetItemsByDerivedFromId(this.item.primaryKey)
+      if (!this.sourceIdDerivedFrom.equals(""))
+        item.writeDerivedFrom(path, this.sourceIdDerivedFrom)
+    } catch {
+      case e: Exception => logger.error(s"Some error in FromDbToTsv process, go to next file")
+    }
 
   }
 

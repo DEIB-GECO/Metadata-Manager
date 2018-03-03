@@ -2,6 +2,8 @@ package it.polimi.genomics.importer.ModelDatabase
 
 import java.io.{File, FileOutputStream, PrintWriter}
 
+import com.typesafe.config.ConfigFactory
+import it.polimi.genomics.importer.ModelDatabase.Exception.NoTupleInDatabaseException
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import org.apache.log4j.Logger
 
@@ -11,6 +13,10 @@ import scala.collection.mutable.ListBuffer
 trait Table {
 
  val logger: Logger = Logger.getLogger(this.getClass)
+  private val conf = ConfigFactory.load()
+
+  private val prefix = conf.getString("export.prefix")
+  private val separation = conf.getString("export.separation")
 
   protected val dbHandler = DbHandler
 
@@ -79,10 +85,16 @@ trait Table {
 
   def filePath: String = _filePath
   def filePath_: (filePath: String): Unit = this._filePath = filePath
-  def getWriter(path: String): PrintWriter = return new PrintWriter(new FileOutputStream(new File(path),true))
-  def getMessage(attribute: String, value: Any): String = return "integrated__" + attribute + "\t" + value + "\n"
+  def getWriter(path: String): PrintWriter = new PrintWriter(new FileOutputStream(new File(path),true))
+  def getMessage(tableName: String, attribute: String, value: Any): String = this.prefix + this.separation + tableName + this.separation + attribute + "\t" + value + "\n"
   def flushAndClose(write: PrintWriter): Unit ={
     write.flush()
     write.close()
+  }
+
+  def checkValueLength(values: Seq[Any]): Unit = {
+    if(values.length == 0){
+      throw new NoTupleInDatabaseException("Not tuple found Exception")
+    }
   }
 }

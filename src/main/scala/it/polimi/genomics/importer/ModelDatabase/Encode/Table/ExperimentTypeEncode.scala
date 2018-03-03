@@ -5,6 +5,7 @@ import it.polimi.genomics.importer.ModelDatabase.ExperimentType
 
 class ExperimentTypeEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId) with ExperimentType {
 
+  //var id
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = dest.toUpperCase()  match{
     case "TECHNIQUE" => this.technique = insertMethod(this.technique,param)
     case "FEATURE" => this.feature = insertMethod(this.feature,param)
@@ -13,5 +14,10 @@ class ExperimentTypeEncode(encodeTableId: EncodeTableId) extends EncodeTable(enc
     case _ => noMatching(dest)
 
   }
+
+ /* override def insert(): Int = {
+    val id = super.insert()
+    dbHandler.specialTable(this.technique,this.feature,this.target,this.antibody)
+  }*/
 
 }

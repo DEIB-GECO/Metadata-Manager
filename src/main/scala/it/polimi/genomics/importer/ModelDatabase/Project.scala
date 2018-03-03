@@ -47,8 +47,8 @@ trait Project extends Table{
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "project"
-    write.append(getMessage(tableName + "__project_name", this.projectName))
-    if(this.programName != null) write.append(getMessage(tableName + "__program_name", this.programName))
+    write.append(getMessage(tableName, "project_name", this.projectName))
+    if(this.programName != null) write.append(getMessage(tableName, "program_name", this.programName))
     flushAndClose(write)
   }
 }

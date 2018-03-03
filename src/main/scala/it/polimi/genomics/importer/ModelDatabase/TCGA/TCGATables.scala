@@ -10,17 +10,7 @@ import org.apache.log4j.Logger
 
 class TCGATables extends Tables{
 
-  /*protected var _filePath: String = _
-
-  def filePath: String = _filePath
-  def filePath_: (filePath: String): Unit = this._filePath = filePath*/
-
-  //val logger: Logger = Logger.getLogger(this.getClass)
-
   this.logger = Logger.getLogger(this.getClass)
-
-
-  //this.values.foreach(v => tables += v -> this.getNewTable(v))
 
   def getNewTable(value: Value): Table = {
     value match {
@@ -37,24 +27,6 @@ class TCGATables extends Tables{
       case _ => throw new NoTableNameException(value.toString)
     }
   }
-
-  /*override def insertTables(): Unit = {
-    var insert = true
-    getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table =>{
-      if(table.hasForeignKeys){
-        table.foreignKeysTables.map(t => this.selectTableByName(t)).map(t => table.setForeignKeys(t))
-      }
-      if(table.checkConsistency() == false && insert) {
-        insert = false
-        logger.warn(s"Primary key of $table doesn't find")
-        Statistics.releasedItemNotInserted += 1
-      }
-      if(insert) {
-        table.insertRow()
-      }
-    }
-    )
-  }*/
 
   override def getListOfTables(): (Donor, BioSample, Replicate, Case, Container, ExperimentType, Project, Item) = {
     val encodeTableId: EncodeTableId = new EncodeTableId

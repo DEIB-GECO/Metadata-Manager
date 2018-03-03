@@ -15,8 +15,8 @@ object InsertMethod {
       case "DEFAULT" => newParam
       case "SUB-CONCAT" => this.replaceAndConcat(actualParam, newParam, subCharacter, newCharacter, concatCharacter)
       case "SUB-REMOVE-CONCAT" => this.replaceAndConcat(actualParam, this.substituteWordWith(newParam, remCharacter, ""), subCharacter, newCharacter, concatCharacter)
-
-      case "SELECT-FEATURE-TCGA" => {
+      case "REMOVE-CONCAT" => if (actualParam == null) this.substituteWordWith(newParam, remCharacter, "") else actualParam.concat(concatCharacter + this.substituteWordWith(newParam, remCharacter, ""))
+      /*case "SELECT-FEATURE-TCGA" => {
         if(actualParam == null)
         newParam match{
           case "RNA-seq" => "gene expression"
@@ -33,7 +33,7 @@ object InsertMethod {
             case "Methylation Array" => "DNA-methylation"
             case "Genotyping Array" => "Copy Number Variation"
           })
-      }
+      }*/
       case _ => actualParam
     }
   }

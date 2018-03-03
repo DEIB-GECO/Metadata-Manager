@@ -96,10 +96,10 @@ trait Container extends Table{
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "container"
-    write.append(getMessage(tableName + "__name", this.name))
-    if(this.assembly != null) write.append(getMessage(tableName + "__types", this.assembly))
-    write.append(getMessage(tableName + "__is_ann", this.isAnn))
-    if(this.annotation != null) write.append(getMessage(tableName + "__annotation", this.annotation))
+    write.append(getMessage(tableName, "name", this.name))
+    if(this.assembly != null) write.append(getMessage(tableName, "types", this.assembly))
+    write.append(getMessage(tableName, "is_ann", this.isAnn))
+    if(this.annotation != null) write.append(getMessage(tableName, "annotation", this.annotation))
     flushAndClose(write)
   }
 }

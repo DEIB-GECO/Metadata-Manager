@@ -1,5 +1,6 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import it.polimi.genomics.importer.ModelDatabase.Exception.NoTupleInDatabaseException
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 
 
@@ -97,42 +98,47 @@ trait Item extends Table{
   }
 
   def convertTo(values: Seq[(Int, Int, String, Option[String], Option[String], Option[Long], Option[String], Option[String], Option[String], Option[String])]): Unit = {
-    if(values.length > 1)
-      logger.error(s"Too many value: ${values.length}")
-    else {
-      var value = values.head
-      this.primaryKey_(value._1)
-      this.experimentTypeId = value._2
-      this.sourceId = value._3
-      if(value._4.isDefined) this.dataType = value._4.get
-      if(value._5.isDefined) this.format = value._5.get
-      if(value._6.isDefined) this.size = value._6.get
-      if(value._7.isDefined) this.pipeline = value._7.get
-      if(value._8.isDefined) this.platform = value._8.get
-      if(value._9.isDefined) this.sourceUrl = value._9.get
-      if(value._10.isDefined) this.localUrl = value._10.get
+    try {
+      this.checkValueLength(values)
+      if (values.length > 1)
+        logger.error(s"Too many value: ${values.length}")
+      else {
+        var value = values.head
+        this.primaryKey_(value._1)
+        this.experimentTypeId = value._2
+        this.sourceId = value._3
+        if (value._4.isDefined) this.dataType = value._4.get
+        if (value._5.isDefined) this.format = value._5.get
+        if (value._6.isDefined) this.size = value._6.get
+        if (value._7.isDefined) this.pipeline = value._7.get
+        if (value._8.isDefined) this.platform = value._8.get
+        if (value._9.isDefined) this.sourceUrl = value._9.get
+        if (value._10.isDefined) this.localUrl = value._10.get
+      }
+    } catch {
+      case notTuple: NoTupleInDatabaseException => logger.error(s"Item: ${notTuple.message}")
     }
   }
 
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "item"
-    write.append(getMessage(tableName + "__source_id", this.sourceId))
+    write.append(getMessage(tableName, "source_id", this.sourceId))
 
-    if(this.dataType != null) write.append(getMessage(tableName + "__data_type", this.dataType))
-    if(this.format != null) write.append(getMessage(tableName + "__format", this.format))
-    if(this.size != 0) write.append(getMessage(tableName + "__size", this.size))
-    if(this.pipeline != null) write.append(getMessage(tableName + "__pipeline", this.pipeline))
-    if(this.platform != null) write.append(getMessage(tableName + "__platform", this.platform))
-    if(this.sourceUrl != null) write.append(getMessage(tableName + "__source_url", this.sourceUrl))
-    if(this.localUrl != null) write.append(getMessage(tableName + "__local_url", this.localUrl))
+    if(this.dataType != null) write.append(getMessage(tableName, "data_type", this.dataType))
+    if(this.format != null) write.append(getMessage(tableName, "format", this.format))
+    if(this.size != 0) write.append(getMessage(tableName, "size", this.size))
+    if(this.pipeline != null) write.append(getMessage(tableName, "pipeline", this.pipeline))
+    if(this.platform != null) write.append(getMessage(tableName, "platform", this.platform))
+    if(this.sourceUrl != null) write.append(getMessage(tableName, "source_url", this.sourceUrl))
+    if(this.localUrl != null) write.append(getMessage(tableName, "local_url", this.localUrl))
     flushAndClose(write)
   }
 
   def writeDerivedFrom(path: String, derived: String): Unit = {
     val write = getWriter(path)
     val tableName = "item"
-    write.append(getMessage(tableName + "_derivedFrom_", derived))
+    write.append(getMessage(tableName ,"derived_from", derived))
     flushAndClose(write)
 
   }

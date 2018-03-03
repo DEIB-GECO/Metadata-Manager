@@ -55,10 +55,10 @@ trait ExperimentType extends Table{
     val write = getWriter(path)
     val tableName = "experimenttype"
 
-    write.append(getMessage(tableName + "__technique", this.technique))
-    if(this.feature != null) write.append(getMessage(tableName + "__feature", this.feature))
-    if(this.target != null) write.append(getMessage(tableName + "__age", this.target))
-    if(this.antibody != null) write.append(getMessage(tableName + "__antibody", this.antibody))
+    write.append(getMessage(tableName, "technique", this.technique))
+    if(this.feature != null) write.append(getMessage(tableName, "feature", this.feature))
+    if(this.target != null) write.append(getMessage(tableName, "age", this.target))
+    if(this.antibody != null) write.append(getMessage(tableName, "antibody", this.antibody))
     flushAndClose(write)
   }
 

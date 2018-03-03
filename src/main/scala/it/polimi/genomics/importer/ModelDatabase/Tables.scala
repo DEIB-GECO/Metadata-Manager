@@ -45,7 +45,7 @@ trait Tables extends Enumeration{
         }
         if (table.checkConsistency() == false && insert) {
           insert = false
-          logger.warn(s"Primary key of $table doesn't find")
+          logger.warn(s"Primary key of $table not found")
           Statistics.releasedItemNotInserted += 1
         }
         if (insert) {

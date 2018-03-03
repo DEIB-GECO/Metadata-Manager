@@ -1,5 +1,6 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
+import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
 import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.PlatformRetriver
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
@@ -7,6 +8,9 @@ import it.polimi.genomics.importer.ModelDatabase.Item
 
 
 class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId) with Item {
+  private val conf = ConfigFactory.load()
+
+  private var platformRetriver: PlatformRetriver = _
 
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = dest.toUpperCase() match {
     case "SOURCEID" => this.sourceId = insertMethod(this.sourceId,param)
@@ -21,12 +25,9 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
   }
 
   override def insert(): Int = {
-    val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId,this.encodeTableId)
-    val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
-    this.pipeline = temp(0)
-    this.platform = temp(1)
-    val id = dbHandler.insertItem(experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    platformRetriver.getItems(id,this.experimentTypeId,this.encodeTableId.caseId)
+    this.definePlatformRetriver()
+    val id = dbHandler.insertItem(experimentTypeId, this.sourceId, this.dataType, this.format, this.size, this.platform, this.pipeline, this.sourceUrl, this.localUrl)
+    this.retriveDerivedItems(id)
     Statistics.itemInserted += 1
     id
   }
@@ -39,31 +40,39 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
 
 
   override def update(): Int = {
-    val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId,this.encodeTableId)
-    val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
-    this.pipeline = temp(0)
-    this.platform = temp(1)
+    this.definePlatformRetriver()
     val id = dbHandler.updateItem(experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    platformRetriver.getItems(id,this.experimentTypeId,this.encodeTableId.caseId)
+    this.retriveDerivedItems(id)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val platformRetriver = new PlatformRetriver(this.filePath, this.sourceId,this.encodeTableId)
-    val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
-    println(temp)
-    this.pipeline = temp(0)
-    this.platform = temp(1)
+    this.definePlatformRetriver()
     val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
-    platformRetriver.getItems(id,this.experimentTypeId,this.encodeTableId.caseId)
+    this.retriveDerivedItems(id)
     Statistics.itemUpdated += 1
-    return id
+    id
   }
 
   def specialUpdate(): Int ={
     val id = dbHandler.updateItem(experimentTypeId,this.sourceId,this.dataType,this.format,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemUpdated += 1
     id
+  }
+
+  private def definePlatformRetriver(): Unit = {
+    if (conf.getBoolean("import.derived_item")) {
+      platformRetriver = new PlatformRetriver(this.filePath, this.sourceId, this.encodeTableId)
+      val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
+      this.pipeline = temp(0)
+      this.platform = temp(1)
+    }
+  }
+
+  private def retriveDerivedItems(id: Int): Unit = {
+    if (conf.getBoolean("import.derived_item")) {
+      platformRetriver.getItems(id, this.experimentTypeId, this.encodeTableId.caseId)
+    }
   }
 }

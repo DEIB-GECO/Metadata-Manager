@@ -133,11 +133,11 @@
             <source_key>GRCh38</source_key>
             <global_key>name</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping method="SUB-CONCAT" sub_character=" " new_character="_" concat_character="_">
             <source_key>manually_curated__cases__project__program__name</source_key>
             <global_key>name</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping method="SUB-CONCAT" sub_character=" " new_character="_" concat_character="_">
             <source_key>manually_curated__data_type</source_key>
             <global_key>name</global_key>
         </mapping>

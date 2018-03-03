@@ -6,7 +6,7 @@ import slick.dbio.Effect.Write
 import slick.driver.H2Driver.api._
 import slick.driver.H2Driver.backend.DatabaseDef
 import slick.jdbc.meta.MTable
-import slick.profile.FixedSqlAction
+import slick.sql.FixedSqlAction
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
