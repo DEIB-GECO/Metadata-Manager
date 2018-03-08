@@ -87,6 +87,7 @@ trait Table {
   def filePath_: (filePath: String): Unit = this._filePath = filePath
   def getWriter(path: String): PrintWriter = new PrintWriter(new FileOutputStream(new File(path),true))
   def getMessage(tableName: String, attribute: String, value: Any): String = this.prefix + this.separation + tableName + this.separation + attribute + "\t" + value + "\n"
+  def getMessageMultipleAttribute(value: Any, values: String*): String = values.fold(this.prefix){(acc,i) => acc + this.separation + i} + "\t" + value + "\n"
   def flushAndClose(write: PrintWriter): Unit ={
     write.flush()
     write.close()

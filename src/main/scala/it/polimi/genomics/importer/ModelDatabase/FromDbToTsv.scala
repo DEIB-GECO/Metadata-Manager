@@ -42,8 +42,8 @@ class FromDbToTsv() {
 
   def run(oldPath: String, regex: Regex): Unit = {
     val path = if(isNewFile) regex.replaceAllIn(oldPath, extension) else oldPath
-    logger.info(s"Start to read ${path} file")
-    try {
+    logger.info(s"Start to read ${oldPath} file")
+  //  try {
       val sourceIdItem = path.split('/').last.split('.')(0)
 
       Statistics.tsvFile += 1
@@ -67,20 +67,28 @@ class FromDbToTsv() {
       replicate.writeInFile(path)
 
       replicate.getReplicateIdList().foreach(bioSampleId => {
+        val biosampleReplicateNum = replicate.getBiosampleNum(bioSampleId)
         bioSample.convertTo(DbHandler.getBiosampleById(bioSampleId))
-        bioSample.writeInFile(path)
+        bioSample.writeInFile(path, biosampleReplicateNum)
 
         donor.convertTo(DbHandler.getDonorById(bioSample.donorId))
-        donor.writeInFile(path)
+        donor.writeInFile(path, biosampleReplicateNum)
       })
 
 
       this.recursiveGetItemsByDerivedFromId(this.item.primaryKey)
       if (!this.sourceIdDerivedFrom.equals(""))
         item.writeDerivedFrom(path, this.sourceIdDerivedFrom)
-    } catch {
-      case e: Exception => logger.error(s"Some error in FromDbToTsv process, go to next file")
-    }
+
+      logger.info(s"File ${oldPath} correctly exported")
+      Statistics.correctExportedFile += 1
+
+   /* } catch {
+      case e: Exception => {
+        Statistics.errorExportedFile += 1
+        logger.error(s"Some error in FromDbToTsv process, go to next file")
+      }
+    }*/
 
   }
 

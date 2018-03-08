@@ -14,4 +14,10 @@ object Statistics {
   var indexOutOfBoundsException: Int = _
   var malformedInput: Int = _
   var anotherInputException: Int = _
+  var correctExportedFile: Int = _
+  var errorExportedFile: Int =_
+
+  var extractTimeAcc: Long = _
+  var loadTimeAcc: Long = _
+  var trasformerTimeAcc: Long = _
 }

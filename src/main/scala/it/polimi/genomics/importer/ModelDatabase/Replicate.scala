@@ -67,4 +67,7 @@ trait Replicate extends Table{
 
   def getReplicateIdList(): List[Int] = { List (bioSampleId) }
 
+  def getBiosampleNum(id: Int): String = {
+    this.bioReplicateNum.toString
+  }
 }

@@ -137,7 +137,7 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
     item.dataType = file.get("output_type").asText()
     item.format = file.get("file_type").asText()
     item.size = file.get("file_size").asLong()
-    item.sourceUrl = file.get("href").asText()
+    item.sourceUrl = "https://www.encodeproject.org" + file.get("href").asText()
     if(file.has("analysis_step_version")){
       item.pipeline = getPipeline(file)
     }
@@ -167,15 +167,6 @@ class PlatformRetriver (val path: String, val originalSourceId: String,var encod
     derivedFrom.finalItemId = finalItemId
     derivedFrom.description = precDescription
     if(file.has("analysis_step_version")) {
-      /*val analysis = file.findValue("analysis_step_types").getElements
-      while (analysis.hasNext) {
-        val analys = analysis.next()
-        if(description == null) {
-          description = analys.asText()
-        }
-        else
-          description = description.concat(", " + analys.asText())
-      }*/
       setDescription(file)
     }
     derivedFrom

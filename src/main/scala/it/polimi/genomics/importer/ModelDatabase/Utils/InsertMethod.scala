@@ -9,7 +9,7 @@ object InsertMethod {
       case "MANUALLY" => if(sourceKey == "null") null else sourceKey
       case "CONCAT-MANUALLY" => if(actualParam == null) sourceKey else actualParam.concat(concatCharacter + sourceKey)
       case "CONCAT" => if (actualParam == null) newParam else actualParam.concat(concatCharacter + newParam)
-      case "CONCAT-NOSPACE" => if (actualParam == null) newParam else actualParam.concat(newParam)
+      //case "CONCAT-NOSPACE" => if (actualParam == null) newParam else actualParam.concat(newParam)
       case "CHECK-PREC" => if(actualParam == null) newParam else actualParam
       case "SELECT-CASE-TCGA" => if (actualParam == null) DbHandler.getSourceSiteByCode(newParam)else actualParam.concat(concatCharacter + DbHandler.getSourceSiteByCode(newParam))
       case "DEFAULT" => newParam

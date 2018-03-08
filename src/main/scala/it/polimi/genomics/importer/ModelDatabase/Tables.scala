@@ -24,8 +24,6 @@ trait Tables extends Enumeration{
 
   var logger: Logger = _
 
-  //def selectTableByName(name: String): Table
-  //def selectTableByValue(enum: this.Value): Table
   def selectTableByName(name: String): Table = tables(this.withName(name))
   def selectTableByValue(enum: this.Value): Table = tables(enum)
 
@@ -37,7 +35,7 @@ trait Tables extends Enumeration{
 
     val conf = ConfigFactory.load()
     val constrainsSatisfacted = this.checkTablesConstrainsSatisfaction()
-    if(!conf.getBoolean("constraints.activated") || constrainsSatisfacted) {
+    if(!conf.getBoolean("import.constraints_activated") || constrainsSatisfacted) {
       var insert = true
       getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table => {
         if (table.hasForeignKeys) {

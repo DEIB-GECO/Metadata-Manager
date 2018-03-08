@@ -123,7 +123,7 @@
             <source_key>https://portal.gdc.cancer.gov/cases/</source_key>
             <global_key>externalRef</global_key>
         </mapping>
-        <mapping method="CONCAT-NOSPACE">
+        <mapping method="CONCAT" concat_character="">
             <source_key>manually_curated__cases__case_id</source_key>
             <global_key>externalRef</global_key>
         </mapping>
@@ -175,7 +175,7 @@
             <source_key>https://portal.gdc.cancer.gov/files/</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
-        <mapping method="CONCAT-NOSPACE">
+        <mapping method="CONCAT" concat_character="">
             <source_key>manually_curated__file_id</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
@@ -183,7 +183,7 @@
             <source_key>manually_curated__platform</source_key>
             <global_key>platform</global_key>
         </mapping>
-        <mapping method="CONCAT-NOSPACE">
+        <mapping method="CONCAT" concat_character="">
             <source_key>manually_curated__analysis__workflow_type</source_key>
             <global_key>pipeline</global_key>
         </mapping>

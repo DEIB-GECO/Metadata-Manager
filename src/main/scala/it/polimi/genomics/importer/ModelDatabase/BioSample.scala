@@ -86,7 +86,7 @@ trait BioSample extends Table{
     }
   }
 
-  def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Boolean, Option[String])]): Unit = {
+  def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Option[Boolean], Option[String])]): Unit = {
     if(values.length > 1)
       logger.error(s"Too many value: ${values.length}")
     else {
@@ -96,16 +96,16 @@ trait BioSample extends Table{
       if(value._3.isDefined) this.types = value._3.get
       if(value._4.isDefined) this.tissue = value._4.get
       if(value._5.isDefined) this.cellLine = value._5.get
-      this.isHealthy = value._6
+      if(value._6.isDefined) this.isHealthy = value._6.get
       if(value._7.isDefined) this.disease = value._7.get
     }
   }
 
-  def writeInFile(path: String): Unit = {
+  def writeInFile(path: String, biologicalReplicateNum: String = ""): Unit = {
     val write = getWriter(path)
     val tableName = "biosample"
     write.append(getMessage(tableName, "source_id", this.sourceId))
-    if(this.types != null) write.append(getMessage(tableName, "types", this.types))
+    if(this.types != null) write.append(getMessage(tableName, "type", this.types))
     if(this.tissue != null) write.append(getMessage(tableName, "tissue", this.tissue))
     if(this.cellLine != null) write.append(getMessage(tableName, "cell_line", this.cellLine))
     write.append(getMessage(tableName, "is_healthy", this.isHealthy))

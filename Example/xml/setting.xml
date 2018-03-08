@@ -67,16 +67,16 @@
         </mapping>
     </table>
     <table name="EXPERIMENTSTYPE">
-        <mapping method="CONCAT">
-            <source_key>assay_term_id</source_key>
-            <global_key>technique</global_key>
-        </mapping>
-        <mapping method="CONCAT">
+        <mapping>
             <source_key>assay_term_name</source_key>
             <global_key>technique</global_key>
         </mapping>
         <mapping>
             <source_key>file__replicate__experiment__target__investigated_as</source_key>
+            <global_key>feature</global_key>
+        </mapping>
+        <mapping method="CHECK-PREC">
+            <source_key>target__investigated_as</source_key>
             <global_key>feature</global_key>
         </mapping>
         <mapping>
@@ -90,6 +90,10 @@
         <mapping method="CONCAT">
             <source_key>replicates__X__antibody__url</source_key>
             <global_key>antibody</global_key>
+        </mapping>
+        <mapping>
+            <source_key>assay_term_id</source_key>
+            <global_key>ONTOLOGICALCODE</global_key>
         </mapping>
     </table>
     <table name="PROJECTS">
@@ -156,14 +160,18 @@
             <global_key>dataType</global_key>
         </mapping>
         <mapping>
-            <source_key>file__file_type</source_key>
+            <source_key>file__file_format_type</source_key>
             <global_key>format</global_key>
         </mapping>
         <mapping>
             <source_key>file__file_size</source_key>
             <global_key>size</global_key>
         </mapping>
-        <mapping>
+        <mapping method="MANUALLY">
+            <source_key>https://www.encodeproject.org</source_key>
+            <global_key>sourceUrl</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="">
             <source_key>file__href</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>

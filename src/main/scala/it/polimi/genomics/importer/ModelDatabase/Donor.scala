@@ -80,7 +80,7 @@ trait Donor extends Table{
     }
   }
 
-  def writeInFile(path: String): Unit = {
+  def writeInFile(path: String, biologicalReplicateNum: String = ""): Unit = {
     val write = getWriter(path)
     val tableName = "donor"
 

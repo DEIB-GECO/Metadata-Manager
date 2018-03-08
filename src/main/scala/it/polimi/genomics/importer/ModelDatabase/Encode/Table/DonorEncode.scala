@@ -55,7 +55,6 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
 
         }
         case _ => {
-          this.ageArray(this.ageInsertPosition) = 0
           this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
         }
       }
@@ -150,5 +149,17 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
     dbHandler.getDonorId(this.sourceIdArray(actualPosition))
   }
 
+  override def writeInFile(path: String, biologicalReplicateNum: String = ""): Unit = {
+    val write = getWriter(path)
+    val tableName = "donor"
+
+    write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "source_id"))
+    if(this.species != null) write.append(getMessageMultipleAttribute(this.species, tableName, biologicalReplicateNum, "species"))
+    if(this.age != 0) write.append(getMessageMultipleAttribute(this.age, tableName, biologicalReplicateNum, "age"))
+    if(this.gender != null) write.append(getMessageMultipleAttribute(this.gender, tableName, biologicalReplicateNum, "gender"))
+    if(this.ethnicity != null) write.append(getMessageMultipleAttribute(this.ethnicity, tableName, biologicalReplicateNum, "ethnicity"))
+
+    flushAndClose(write)
+  }
 
 }

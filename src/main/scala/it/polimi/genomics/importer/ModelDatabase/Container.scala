@@ -79,7 +79,7 @@ trait Container extends Table{
     }
   }
 
-  def convertTo(values: Seq[(Int, Int, String, Option[String], Boolean, Option[String])]): Unit = {
+  def convertTo(values: Seq[(Int, Int, String, Option[String], Option[Boolean], Option[String])]): Unit = {
     if(values.length > 1)
       logger.error(s"Too many value: ${values.length}")
     else {
@@ -88,7 +88,7 @@ trait Container extends Table{
       this.projectId = value._2
       this.name = value._3
       if(value._4.isDefined) this.assembly = value._4.get
-      this.isAnn = value._5
+      if(value._5.isDefined) this.isAnn = value._5.get
       if(value._6.isDefined) this.annotation = value._6.get
     }
   }
@@ -97,7 +97,7 @@ trait Container extends Table{
     val write = getWriter(path)
     val tableName = "container"
     write.append(getMessage(tableName, "name", this.name))
-    if(this.assembly != null) write.append(getMessage(tableName, "types", this.assembly))
+    if(this.assembly != null) write.append(getMessage(tableName, "assembly", this.assembly))
     write.append(getMessage(tableName, "is_ann", this.isAnn))
     if(this.annotation != null) write.append(getMessage(tableName, "annotation", this.annotation))
     flushAndClose(write)

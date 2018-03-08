@@ -57,7 +57,7 @@ trait ExperimentType extends Table{
 
     write.append(getMessage(tableName, "technique", this.technique))
     if(this.feature != null) write.append(getMessage(tableName, "feature", this.feature))
-    if(this.target != null) write.append(getMessage(tableName, "age", this.target))
+    if(this.target != null) write.append(getMessage(tableName, "target", this.target))
     if(this.antibody != null) write.append(getMessage(tableName, "antibody", this.antibody))
     flushAndClose(write)
   }
