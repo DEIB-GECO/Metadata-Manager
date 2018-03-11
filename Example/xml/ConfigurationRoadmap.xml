@@ -26,6 +26,10 @@
                     <key>gmql_user</key>
                     <value>public</value>
                 </parameter>
+                <parameter>
+                    <key>metadata_replacement</key>
+                    <value>xml/metadataReplacementRoadmap.xml</value>
+                </parameter>        
             </parameter_list>
             <dataset_list>
                 <dataset name="narrowPeak">
@@ -37,7 +41,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes peak calls in narrowPeak format</value>
+                            <value>Roadmap Epigenomics conolidated epigenomes peak calls in narrowPeak format (ChIP-sec and DNase)</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -62,7 +66,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes peak calls in broadPeak format</value>
+                            <value>Roadmap Epigenomics conolidated epigenomes ChIP-sec peak calls in broadPeak format</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -87,7 +91,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes peak calls in gappedPeak format</value>
+                            <value>Roadmap Epigenomics conolidated epigenomes >ChIP-sec peak calls in gappedPeak format</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -103,16 +107,16 @@
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="DNase_narrow_bed">
-                    <dataset_working_directory>all_narrow_bed</dataset_working_directory>
-                    <schema_url location="local">schemas/narrow_bed.schema</schema_url>
+                <dataset name="DNase_bed">
+                    <dataset_working_directory>DNase_bed</dataset_working_directory>
+                    <schema_url location="local">schemas/HOTSPOT_bed.schema</schema_url>
                     <download_enabled>false</download_enabled>
                     <transform_enabled>false</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes DNase narrow peak calls in bed format (no pvalue threshold)</value>
+                            <value>Roadmap Epigenomics conolidated epigenomes DNase peak calls in BED format</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -120,24 +124,53 @@
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
-                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/</value>
+                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/(broadPeak|narrowPeak)/</value>
                         </parameter>
                         <parameter>
                             <key>files_regex</key>
-                            <value>.*\.all.peaks.bed.gz</value>
+                            <value>.*\.bed.gz</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="narrow_fdr_bed">
-                    <dataset_working_directory>fdr_narrow_bed</dataset_working_directory>
-                    <schema_url location="local">schemas/narrow_bed.schema</schema_url>
-                    <download_enabled>true</download_enabled>
+                <dataset name="RNA_expression">
+                    <dataset_working_directory>RNA_expression</dataset_working_directory>
+                    <schema_url location="local">schemas/RNA_expression.schema</schema_url>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
+                    <load_enabled>false</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <key>loading_description</key>
+                            <value>Roadmap Epigenomics conolidated epigenome genes expression quantification in GDM format</value>
+                        </parameter>
+                        <parameter>
+                            <key>spreadsheet_url</key>
+                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
+                        </parameter>
+                        <parameter>
+                            <key>info_url</key>
+                            <value>http://egg2.wustl.edu/roadmap/data/byDataType/rna/expression/Ensembl_v65.Gencode_v10.ENSG.gene_info</value>
+                        </parameter>
+                        <parameter>
+                            <key>folder_regex</key>
+                            <value>http://egg2.wustl.edu/roadmap/data/byDataType/rna/expression/</value>
+                        </parameter>
+                        <parameter>
+                            <key>files_regex</key>
+                            <value>.*\.gz</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="DMRs">
+                    <dataset_working_directory>DMRs</dataset_working_directory>
+                    <schema_url location="local">schemas/DMR.schema</schema_url>
+                    <download_enabled>false</download_enabled>
                     <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes DNase narrow peak calls in bed format (pvalue threshold set at 0.01)</value>
+                            <value>Roadmap Epigenomics conolidated epigenomes DMRs in BED format</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -145,32 +178,7 @@
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
-                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/</value>
-                        </parameter>
-                        <parameter>
-                            <key>files_regex</key>
-                            <value>.*\.fdr0.01.peaks.bed.gz</value>
-                        </parameter>
-                    </parameter_list>
-                </dataset>
-                <dataset name="DNase_broad_bed">
-                    <dataset_working_directory>DNase_broad_bed</dataset_working_directory>
-                    <schema_url location="local">schemas/broad_bed.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
-                    <load_enabled>false</load_enabled>
-                    <parameter_list>
-                        <parameter>
-                            <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes DNase broad peak calls in bed format</value>
-                        </parameter>
-                        <parameter>
-                            <key>spreadsheet_url</key>
-                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
-                        </parameter>
-                        <parameter>
-                            <key>folder_regex</key>
-                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/broadPeak/</value>
+                            <value>http://egg2.wustl.edu/roadmap/data/byDataType/dnamethylation/DMRs/.*+</value>
                         </parameter>
                         <parameter>
                             <key>files_regex</key>

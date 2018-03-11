@@ -55,8 +55,6 @@ class RoadmapDownloader extends GMQLDownloader {
     val authentication: OAuth = new OAuth
     val service = authentication.getSheetsService()
 
-    val sourceId = FileDatabase.sourceId(source.name)
-
     if (source.downloadEnabled) {
       //for each dataset download the metadata csv
       source.datasets.foreach(dataset => {
@@ -76,7 +74,7 @@ class RoadmapDownloader extends GMQLDownloader {
               logger.debug(s"$outputPath created")
             }
             catch {
-              case ex: Exception => logger.warn(s"could not create the folder $outputPath")
+              case _: Exception => logger.warn(s"could not create the folder $outputPath")
             }
           }
 
@@ -122,6 +120,7 @@ class RoadmapDownloader extends GMQLDownloader {
 
       recursiveDownload(source.url, source)
       downloadMetadata(source)
+      downloadInfo(source)
 
       source.datasets.foreach(dataset => {
         if (dataset.downloadEnabled) {
@@ -180,7 +179,7 @@ class RoadmapDownloader extends GMQLDownloader {
               logger.debug(s"$outputPath created")
             }
             catch {
-              case ex: Exception => logger.warn(s"could not create the folder $outputPath")
+              case _: Exception => logger.warn(s"could not create the folder $outputPath")
             }
           }
           if (!new java.io.File(outputPath).exists) {
@@ -207,12 +206,12 @@ class RoadmapDownloader extends GMQLDownloader {
                 logger.info(s"Starting download for ${path + candidateName}")
                 val downloadOutcome = downloadFileFromURL(path + candidateName, outputPath + File.separator + name)
                 if (downloadOutcome.isSuccess) {
-                  logger.info("Downloading: " + path + candidateName + " from: " + outputPath + File.separator + name + " DONE")
+                  logger.info("Downloading: " + name + " from: " + path + candidateName + " DONE")
                   downloadedFiles += 1
                   FileDatabase.markAsUpdated(fileId, new File(outputPath + File.separator + name).length.toString)
                 }
                 else {
-                  logger.error("Downloading: " + path + candidateName + " from: " + outputPath + File.separator + name + " failed: ")
+                  logger.error("Downloading: " + name + " from: " + path + candidateName + " FAILED ")
                   FileDatabase.markAsFailed(fileId)
                 }
               }
@@ -283,7 +282,6 @@ class RoadmapDownloader extends GMQLDownloader {
           logger.info(s"Downloading failed files for dataset ${dataset.name}")
           val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
           val failedFiles = FileDatabase.getFailedFiles(datasetId, STAGE.DOWNLOAD)
-          val totalFiles = failedFiles.size
           //in file I have (fileId,name,copyNumber,url, hash)
           failedFiles.foreach(file => {
             val url = file._4
@@ -322,4 +320,25 @@ class RoadmapDownloader extends GMQLDownloader {
     }
   }
 
+  /**
+    * Download the addoitional information files specified in the configuration file.
+    * @param source GMQLsource object containig the source data.
+    */
+  def downloadInfo(source: GMQLSource): Unit = {
+    if (source.downloadEnabled) {
+      //for each dataset download the file specified by user through info_url tag in the configuration file
+      source.datasets.foreach(dataset => {
+        val outputPath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
+        if (dataset.downloadEnabled && dataset.parameters.exists(_._1 == "info_url")) {
+          val url = dataset.parameters.filter(_._1.toLowerCase == "info_url").head._2
+          val urlSplit =url.split("/")
+          val fileName = urlSplit(urlSplit.length-1)
+          if (downloadFileFromURL(url, outputPath + File.separator + fileName).isSuccess)
+            logger.info(s"$url downloaded with success")
+          else
+            logger.warn(s"$url download failed")
+        }
+      })
+    }
+  }
 }

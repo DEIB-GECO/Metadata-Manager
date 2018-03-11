@@ -345,6 +345,26 @@ object FileDatabase {
   def fileStatus(datasetId: Int, url: String, stage: STAGE.Value): Option[FILE_STATUS.Value] ={
     db.fileStatus(datasetId,url,stage)
   }
+
+  /**
+    * returns the url of a specified file.
+    * @param fileName name of the file.
+    * @param datasetID dataset from where files are required.
+    * @param stage whether is download or transform.
+    * @return the url of the file.
+    */
+  def getFileUrl(fileName: String, datasetID: Int, stage: STAGE.Value): String = {
+    db.getFileUrl(fileName, datasetID, stage)
+  }
+
+  /**
+    * Returns the last date in which a file of the specified dataset is returned.
+    * @param datasetID identifier of the dataset.
+    * @return the date of the last download.
+    */
+  def getLastDownloadDate(datasetID: Int): String = {
+    db.getLastDownloadDate(datasetID)
+  }
 }
 
 
