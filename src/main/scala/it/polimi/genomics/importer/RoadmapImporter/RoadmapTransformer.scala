@@ -41,7 +41,12 @@ class RoadmapTransformer  extends GMQLTransformer {
     val fileTransformationPath = destinationPath + File.separator + filename
     val splitPath = destinationPath.split(Pattern.quote(File.separator))
     val sourceID = FileDatabase.sourceId(source.name)
-    val datasetID = FileDatabase.datasetId(sourceID, splitPath(splitPath.length-2))
+    var datasetName = ""
+    for (dataset <- source.datasets) {
+      if (dataset.outputFolder == splitPath(splitPath.length-2))
+        datasetName = dataset.name
+    }
+    val datasetID = FileDatabase.datasetId(sourceID, datasetName)
     val addMetadata = new ListBuffer[(String, String)]()
 
     if (originalFilename.endsWith(".gz")) { //all the Roadmap files are provided inside a GZip archive
@@ -52,7 +57,7 @@ class RoadmapTransformer  extends GMQLTransformer {
           //generate some additional common metadata that require information from source or dataset
           var metaUrl: String = ""
           for (dataset <- source.datasets) {
-            if (dataset.name == splitPath(splitPath.length-2) && dataset.parameters.exists(_._1 == "spreadsheet_url"))
+            if (dataset.outputFolder == splitPath(splitPath.length-2) && dataset.parameters.exists(_._1 == "spreadsheet_url"))
               metaUrl = dataset.parameters.filter(_._1 == "spreadsheet_url").head._2
           }
           addMetadata += (("metadata_url", metaUrl))
@@ -559,30 +564,32 @@ class RoadmapTransformer  extends GMQLTransformer {
       case patternRNAexpArch() =>
         if (filename.contains("N")) {
           val newNames = new ListBuffer[String]
-          val outPath = source.outputFolder + File.separator +dataset.name + File.separator + "Transformations"
-          val inputPath = source.outputFolder + File.separator +dataset.name + File.separator + "Downloads"
+          val outPath = source.outputFolder + File.separator +dataset.outputFolder + File.separator + "Transformations"
+          val inputPath = source.outputFolder + File.separator +dataset.outputFolder + File.separator + "Downloads"
           val unzippedTabName = filename.substring(0, filename.lastIndexOf("."))
-          if (Unzipper.unGzipIt(inputPath + File.separator + filename, outPath + File.separator + unzippedTabName))
+          if (Unzipper.unGzipIt(inputPath + File.separator + filename, outPath + File.separator + unzippedTabName)) {
             logger.info("unGzipping: " + filename + " DONE")
+            //get the list of epigenomeIDs from the tabular file
+            val headerReader = Source.fromFile(outPath + File.separator + unzippedTabName)
+            val eidList: Array[String] = headerReader.getLines.take(1).toList.head.split("\t").filter(elem => elem.matches("E[0-9][0-9][0-9]"))
+            headerReader.close()
+            //parse the name of the new file from the old one
+            eidList.foreach(eid => {
+              val dataNewFileName = eid + "_" + unzippedTabName.replaceAll("RPKM.|N.|57epigenomes.", "") + ".bed"
+              //val newFile = new File(outPath + File.separator + newDataFileName)
+              val metadataNewFileName = dataNewFileName + ".meta"
+              newNames += dataNewFileName
+              newNames += metadataNewFileName
+            })
+          }
+
           else
-            logger.warn("unGzipping: " + filename + "FAILED")
+            logger.warn("unGzipping: " + filename + " FAILED")
           if (Unzipper.unGzipIt(inputPath + File.separator + filename, outPath + File.separator + unzippedTabName.replace("N", "RPKM")))
             logger.info("unGzipping: " + filename + " DONE")
           else
             logger.warn("unGzipping: " + filename + "FAILED")
 
-          //get the list of epigenomeISs from the tabular file
-          val headerReader = Source.fromFile(outPath + File.separator + unzippedTabName)
-          val eidList: Array[String] = headerReader.getLines.take(1).toList.head.split("\t").filter(elem => elem.matches("E[0-9][0-9][0-9]"))
-          headerReader.close()
-          //parse the name of the new file from the old one
-          eidList.foreach(eid => {
-            val dataNewFileName = eid + "_" + unzippedTabName.replaceAll("RPKM.|N.|57epigenomes.", "") + ".bed"
-            //val newFile = new File(outPath + File.separator + newDataFileName)
-            val metadataNewFileName = dataNewFileName + ".meta"
-            newNames += dataNewFileName
-            newNames += metadataNewFileName
-          })
           newNames.toList
         }
         else

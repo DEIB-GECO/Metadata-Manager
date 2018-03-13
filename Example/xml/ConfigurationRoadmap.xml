@@ -11,7 +11,7 @@
         <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
-        <source name="Roadmap_Epigenomics">
+        <source name="ROADMAP_EPIGENOMICS">
             <url>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/</url>
             <source_working_directory>RoadmapEpigenomics</source_working_directory>
             <downloader>it.polimi.genomics.importer.RoadmapImporter.RoadmapDownloader</downloader>
@@ -32,7 +32,7 @@
                 </parameter>        
             </parameter_list>
             <dataset_list>
-                <dataset name="narrowPeak">
+                <dataset name="HG19_ROADMAP_EPIGENOMICS_NARROW">
                     <dataset_working_directory>narrowPeak</dataset_working_directory>
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url>
                     <download_enabled>false</download_enabled>
@@ -41,7 +41,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes peak calls in narrowPeak format (ChIP-sec and DNase)</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq and DNase gapped regions called using MACS2 in gappedPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -57,7 +57,7 @@
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="broadPeak">
+                <dataset name="HG19_ROADMAP_EPIGENOMICS_BROAD">
                     <dataset_working_directory>broadPeak</dataset_working_directory>
                     <schema_url location="local">schemas/broadPeak.schema</schema_url>
                     <download_enabled>false</download_enabled>
@@ -66,7 +66,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes ChIP-sec peak calls in broadPeak format</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains broad ChIP-seq regions called using MACS2 in broadPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -82,7 +82,7 @@
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="gappedPeak">
+                <dataset name="HG19_ROADMAP_EPIGENOMICS_GAPPED">
                     <dataset_working_directory>gappedPeak</dataset_working_directory>
                     <schema_url location="local">schemas/gappedPeak.schema</schema_url>
                     <download_enabled>false</download_enabled>
@@ -91,7 +91,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes >ChIP-sec peak calls in gappedPeak format</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq gapped regions called using MACS2 in gappedPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -107,7 +107,7 @@
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="DNase_bed">
+                <dataset name="HG19_ROADMAP_EPIGENOMICS_BED">
                     <dataset_working_directory>DNase_bed</dataset_working_directory>
                     <schema_url location="local">schemas/HOTSPOT_bed.schema</schema_url>
                     <download_enabled>false</download_enabled>
@@ -116,7 +116,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes DNase peak calls in BED format</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains DNase regions (narrow and broad) called using HOTSPOT in BED format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -132,7 +132,7 @@
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="RNA_expression">
+                <dataset name="HG19_ROADMAP_EPIGENOMICS_RNA_EXPRESSION">
                     <dataset_working_directory>RNA_expression</dataset_working_directory>
                     <schema_url location="local">schemas/RNA_expression.schema</schema_url>
                     <download_enabled>false</download_enabled>
@@ -141,7 +141,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenome genes expression quantification in GDM format</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_RNA_EXPRESSION contains Roadmap Epigenomics data mapped to hg19 human genome. It contains the RNA expression quantification of different gene, exon and intron regions in BED format files. The release date of this dataset is July 2014. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -161,7 +161,7 @@
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="DMRs">
+                <dataset name="HG19_ROADMAP_EPIGENOMICS_DMR">
                     <dataset_working_directory>DMRs</dataset_working_directory>
                     <schema_url location="local">schemas/DMR.schema</schema_url>
                     <download_enabled>false</download_enabled>
@@ -170,7 +170,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>Roadmap Epigenomics conolidated epigenomes DMRs in BED format</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains differentially methylated regions in BED format files. The release date of this dataset is March 2015. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
