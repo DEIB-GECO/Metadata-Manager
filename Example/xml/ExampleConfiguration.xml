@@ -5,7 +5,7 @@
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example</base_working_directory>
-        <download_enabled>false</download_enabled>
+        <download_enabled>true</download_enabled>
         <transform_enabled>true</transform_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
@@ -17,9 +17,9 @@
             <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
             <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
-            <download_enabled>false</download_enabled>
-            <transform_enabled>false</transform_enabled>
-            <load_enabled>false</load_enabled>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <load_enabled>true</load_enabled>
             <parameter_list>
                 <parameter>
                     <description>to know which user in gmql is going to be imported</description>
@@ -49,12 +49,12 @@
                         <parameter>
                             <description>We look for all the cnv folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/cnv</value>
+                            <value>^/bed/acc/cnv</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -78,12 +78,12 @@
                         <parameter>
                             <description>We look for all the dnamethylation folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/dnamethylation.*</value>
+                            <value>^/bed/acc/dnamethylation.*</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -107,12 +107,12 @@
                         <parameter>
                             <description>We look for all the dnaseq folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/dnaseq</value>
+                            <value>^/bed/acc/dnaseq</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -136,12 +136,12 @@
                         <parameter>
                             <description>We look for all the mirnaseq/isoform.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/mirnaseq/isoform.quantification</value>
+                            <value>^/bed/acc/mirnaseq/isoform.quantification</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -165,12 +165,12 @@
                         <parameter>
                             <description>We look for all the mirnaseq/mirna.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/mirnaseq/mirna.quantification</value>
+                            <value>^/bed/acc/mirnaseq/mirna.quantification</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -194,12 +194,12 @@
                         <parameter>
                             <description>We look for all the rnaseq/exon.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/rnaseq/exon.quantification</value>
+                            <value>^/bed/acc/rnaseq/exon.quantification</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -223,12 +223,12 @@
                         <parameter>
                             <description>We look for all the rnaseq/gene.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/rnaseq/gene.quantification</value>
+                            <value>^/bed/acc/rnaseq/gene.quantification</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -252,12 +252,12 @@
                         <parameter>
                             <description>We look for all the rnaseq/spljxn.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/rnaseq/spljxn.quantification</value>
+                            <value>^/bed/acc/rnaseq/spljxn.quantification</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -281,12 +281,12 @@
                         <parameter>
                             <description>We look for all the rnaseq2/exon.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/rnaseqv2/exon.quantification</value>
+                            <value>^/bed/acc/rnaseqv2/exon.quantification</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -310,12 +310,12 @@
                         <parameter>
                             <description>We look for all the rnaseqv2/gene.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/rnaseqv2/gene.quantification</value>
+                            <value>^/bed/acc/rnaseqv2/gene.quantification</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -339,12 +339,12 @@
                         <parameter>
                             <description>We look for all the rnaseqv2/isoform.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/rnaseqv2/isoform.quantification</value>
+                            <value>^/bed/acc/rnaseqv2/isoform.quantification</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
@@ -368,12 +368,12 @@
                         <parameter>
                             <description>We look for all the rnaseqv2/spljxn.quantification folders inside the bed directory</description>
                             <key>folder_regex</key>
-                            <value>^/bed/.*/rnaseqv2/spljxn.quantification</value>
+                            <value>^/bed/acc/rnaseqv2/spljxn.quantification</value>
                         </parameter>
                         <parameter>
                             <description>We look for all the .bed and .meta files to download</description>
                             <key>files_regex</key>
-                            <value>.*\.bed(\.meta)?$</value>
+                            <value>TCGA-OR-A5J1.*\.bed(\.meta)?$</value>
                         </parameter>
                         <parameter>
                             <!--used for tcga2bed to check the md5 hash-->
