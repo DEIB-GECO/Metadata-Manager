@@ -3,20 +3,27 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <parent>
-        <artifactId>gmql</artifactId>
-        <groupId>it.polimi.genomics</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <artifactId>GMQL-Importer</artifactId>
+    <groupId>it.polimi.genomics</groupId>
+    <version>1.0-SNAPSHOT</version>
+
+    <repositories>
+        <repository>
+            <id>browserid-snapshots</id>
+            <name>browserid-snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
 
     <dependencies>
 
         <dependency>
             <groupId>it.polimi.genomics</groupId>
             <artifactId>GMQL-Repository</artifactId>
-            <version>1.0</version>
+            <version>1.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -36,7 +43,7 @@
         <dependency>
             <groupId>it.polimi.genomics</groupId>
             <artifactId>GMQL-SManager</artifactId>
-            <version>2.0</version>
+            <version>1.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -77,7 +84,7 @@
             <artifactId>h2</artifactId>
             <version>1.4.193</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.typesafe.play/play_2.10 -->
+        <!-- https://mvnrepository.com/artifact/ com.typesafe.play/play_2.10 -->
         <!--<dependency>-->
         <!--<groupId>com.typesafe.play</groupId>-->
         <!--<artifactId>play_2.11</artifactId>-->

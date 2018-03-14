@@ -18,6 +18,8 @@ import scala.xml.{Elem, XML}
   */
 object program {
   val logger: Logger = Logger.getLogger(this.getClass)
+  val PATTERN = "%d [%p|%c|%C{1}] %m%n"
+
 
   /**
     *
@@ -29,7 +31,6 @@ object program {
 
     val console = new ConsoleAppender() //create appender
     //configure the appender
-    val PATTERN = "%d [%p|%c|%C{1}] %m%n"
     console.setLayout(new PatternLayout(PATTERN))
     console.setThreshold(Level.ERROR)
     console.activateOptions()
@@ -224,7 +225,7 @@ object program {
         val fa2 = new FileAppender()
         fa2.setName("FileLogger")
         fa2.setFile(logName)
-        fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
+        fa2.setLayout(new PatternLayout(PATTERN))
         fa2.setThreshold(Level.DEBUG)
         fa2.setAppend(true)
         fa2.activateOptions()
