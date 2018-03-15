@@ -41,7 +41,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq and DNase gapped regions called using MACS2 in gappedPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_NARROW contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq and DNase narrow regions called using MACS2 in narrowPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -66,7 +66,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains broad ChIP-seq regions called using MACS2 in broadPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_BROAD contains Roadmap Epigenomics data mapped to hg19 human genome. It contains broad ChIP-seq regions called using MACS2 in broadPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -91,7 +91,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq gapped regions called using MACS2 in gappedPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_GAPPED contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq gapped regions called using MACS2 in gappedPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -116,7 +116,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains DNase regions (narrow and broad) called using HOTSPOT in BED format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_BED contains Roadmap Epigenomics data mapped to hg19 human genome. It contains DNase regions (narrow and broad) called using HOTSPOT in BED format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
@@ -132,7 +132,7 @@
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="HG19_ROADMAP_EPIGENOMICS_RNA_EXPRESSION">
+                <dataset name="HG19_ROADMAP_EPIGENOMICS_RNA_expression">
                     <dataset_working_directory>RNA_expression</dataset_working_directory>
                     <schema_url location="local">schemas/RNA_expression.schema</schema_url>
                     <download_enabled>true</download_enabled>
@@ -141,7 +141,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_RNA_EXPRESSION contains Roadmap Epigenomics data mapped to hg19 human genome. It contains the RNA expression quantification of different gene, exon and intron regions in BED format files. The release date of this dataset is July 2014. http://www.roadmapepigenomics.org/</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_RNA_expression contains Roadmap Epigenomics data mapped to hg19 human genome. It contains the RNA expression quantification of different gene, exon and intron regions in BED format files. The release date of this dataset is July 2014. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>

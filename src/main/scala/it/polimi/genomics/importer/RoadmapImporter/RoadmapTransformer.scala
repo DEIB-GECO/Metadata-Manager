@@ -56,16 +56,21 @@ class RoadmapTransformer  extends GMQLTransformer {
         case patternMetadata() =>
           //generate some additional common metadata that require information from source or dataset
           var metaUrl: String = ""
+          var infoUrl: String = ""
           for (dataset <- source.datasets) {
-            if (dataset.outputFolder == splitPath(splitPath.length-2) && dataset.parameters.exists(_._1 == "spreadsheet_url"))
-              metaUrl = dataset.parameters.filter(_._1 == "spreadsheet_url").head._2
+            if (dataset.outputFolder == splitPath(splitPath.length - 2)) {
+              if (dataset.parameters.exists(_._1 == "spreadsheet_url"))
+                metaUrl = dataset.parameters.filter(_._1 == "spreadsheet_url").head._2
+              if (dataset.parameters.exists(_._1 == "info_url"))
+                infoUrl = dataset.parameters.filter(_._1 == "info_url").head._2
+            }
           }
           addMetadata += (("metadata_url", metaUrl))
           addMetadata += (("file_id", filename.substring(0, filename.lastIndexOf("."))))
           addMetadata += (("file_size", new File(fileTransformationPath.substring(0, fileTransformationPath.lastIndexOf("."))).length.toString))
           if (originalFilename.matches(patternRNAexpArch.regex))
             addMetadata += (("data_url", FileDatabase.getFileUrl(originalFilename, datasetID, STAGE.DOWNLOAD) + "; " +
-              FileDatabase.getFileUrl(originalFilename.replace("N", "RPKM"), datasetID, STAGE.DOWNLOAD)))
+              FileDatabase.getFileUrl(originalFilename.replace("N", "RPKM"), datasetID, STAGE.DOWNLOAD) + "; " + infoUrl))
           else
             addMetadata += (("data_url", FileDatabase.getFileUrl(originalFilename, datasetID, STAGE.DOWNLOAD)))
           //generation of the .meta file
