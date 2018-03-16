@@ -12,7 +12,7 @@
     </settings>
     <source_list>
         <source name="ROADMAP_EPIGENOMICS">
-            <url>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/</url>
+            <url>http://egg2.wustl.edu/roadmap/data/</url>
             <source_working_directory>RoadmapEpigenomics</source_working_directory>
             <downloader>it.polimi.genomics.importer.RoadmapImporter.RoadmapDownloader</downloader>
             <transformer>it.polimi.genomics.importer.RoadmapImporter.RoadmapTransformer</transformer>
@@ -29,14 +29,22 @@
                 <parameter>
                     <key>metadata_replacement</key>
                     <value>xml/metadataReplacementRoadmap.xml</value>
-                </parameter>        
+                </parameter>
+                <parameter>
+                    <key>client_secrets_path</key>
+                    <value>C:\Users\ricca\Desktop\tesi\GMQL-importer2\GMQL-Importer2\client_secrets.json</value>
+                </parameter>
+                <parameter>
+                    <key>credential_directory</key>
+                    <value>C:\Users\ricca\Desktop\tesi\GMQL-importer2\GMQL-Importer2\.credentials\sheets.googleapis.com-GMQL-importer\</value>
+                </parameter>   
             </parameter_list>
             <dataset_list>
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_NARROW">
                     <dataset_working_directory>narrowPeak</dataset_working_directory>
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -60,8 +68,8 @@
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_BROAD">
                     <dataset_working_directory>broadPeak</dataset_working_directory>
                     <schema_url location="local">schemas/broadPeak.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -85,8 +93,8 @@
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_GAPPED">
                     <dataset_working_directory>gappedPeak</dataset_working_directory>
                     <schema_url location="local">schemas/gappedPeak.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -110,8 +118,8 @@
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_BED">
                     <dataset_working_directory>DNase_bed</dataset_working_directory>
                     <schema_url location="local">schemas/HOTSPOT_bed.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -124,7 +132,7 @@
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
-                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/(broadPeak|narrowPeak)/</value>
+                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/(broadPeak/DNase|narrowPeak)/</value>
                         </parameter>
                         <parameter>
                             <key>files_regex</key>
@@ -135,8 +143,8 @@
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_RNA_expression">
                     <dataset_working_directory>RNA_expression</dataset_working_directory>
                     <schema_url location="local">schemas/RNA_expression.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
                         <parameter>
@@ -164,7 +172,7 @@
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_DMR">
                     <dataset_working_directory>DMRs</dataset_working_directory>
                     <schema_url location="local">schemas/DMR.schema</schema_url>
-                    <download_enabled>false</download_enabled>
+                    <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
                     <load_enabled>false</load_enabled>
                     <parameter_list>
