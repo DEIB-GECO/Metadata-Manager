@@ -225,7 +225,7 @@ class RoadmapTransformer  extends GMQLTransformer {
                   if (m("EID") == listMaps1(eid_index)("Epigenome ID (EID)") && m("MARK") == mark)
                     mapToFile(m, writer, keyPrefix =  "exp", skipList = duplicates)
               if (mark=="DNase") {
-                manCuratedMeta += (("data_type", "DNase"))
+                manCuratedMeta += (("data_type", "DNase-seq"))
                 manCuratedMeta += (("feature", "open chromatin"))
               }
               else {
@@ -235,7 +235,7 @@ class RoadmapTransformer  extends GMQLTransformer {
               if (format == "bed") {
                 manCuratedMeta += (("peaks_caller", "HOTSPOT"))
                 if (nameComp.length > 1) {
-                  manCuratedMeta += (("regions_type", nameComp(nameComp.length-2)))
+                  manCuratedMeta += (("region_type", nameComp(nameComp.length-2)))
                   if(nameComp.length > 2 && nameComp(nameComp.length-3) == "01")
                     manCuratedMeta += (("fdr_threshold", "0.01"))
                   else
@@ -245,23 +245,23 @@ class RoadmapTransformer  extends GMQLTransformer {
               else
                 manCuratedMeta += (("peaks_caller", "MACS2"))
             case patternRNAgenFile() =>
-              manCuratedMeta += (("data_type", "RNA-sec"))
+              manCuratedMeta += (("data_type", "RNA-seq"))
               manCuratedMeta += (("feature", "gene expression"))
               if (dataFileName.contains("exon") || dataFileName.contains("exn")) {
                 dataFileName match {
-                  case s if s.matches(".*pc.bed") => manCuratedMeta += (("region_type", "protein coding exons"))
-                  case s if s.matches(".*nc.bed") => manCuratedMeta += (("region_type", "protein non-coding exons"))
-                  case s if s.matches(".*rb.bed") => manCuratedMeta += (("region_type", "ribosomal gene exons"))
+                  case s if s.matches(".*pc.bed") => manCuratedMeta += (("RNA_expression_region", "protein coding exons"))
+                  case s if s.matches(".*nc.bed") => manCuratedMeta += (("RNA_expression_region", "protein non-coding exons"))
+                  case s if s.matches(".*rb.bed") => manCuratedMeta += (("RNA_expression_region", "ribosomal gene exons"))
                 }
               }
               else if (dataFileName.contains("intronic")) {
-                manCuratedMeta += (("region_type", "intronic protein-coding RNA elements"))
+                manCuratedMeta += (("RNA_expression_region", "intronic protein-coding RNA elements"))
               }
               else {
                 dataFileName match {
-                  case s if s.matches(".*pc.bed") => manCuratedMeta += (("region_type", "protein coding genes"))
-                  case s if s.matches(".*nc.bed") => manCuratedMeta += (("region_type", "non-coding RNAs"))
-                  case s if s.matches(".*rb.bed") => manCuratedMeta += (("region_type", "ribosomal gene"))
+                  case s if s.matches(".*pc.bed") => manCuratedMeta += (("RNA_expression_region", "protein coding genes"))
+                  case s if s.matches(".*nc.bed") => manCuratedMeta += (("RNA_expression_region", "non-coding RNAs"))
+                  case s if s.matches(".*rb.bed") => manCuratedMeta += (("RNA_expression_region", "ribosomal gene"))
                 }
               }
             case patternDMRFile() =>
@@ -311,7 +311,7 @@ class RoadmapTransformer  extends GMQLTransformer {
           core(0) + "." + core(1)
         else
           core(0)
-      case patternRNAgenFile() => "RNA-sec"
+      case patternRNAgenFile() => "RNA-seq"
       case patternDMRFile() =>
         val fileNameSplit = fileName.split("_")
         fileNameSplit(fileNameSplit.length-3)
@@ -345,23 +345,13 @@ class RoadmapTransformer  extends GMQLTransformer {
       if (!(k.isEmpty || v.isEmpty || v.toLowerCase.matches("na|n/a") || skipList.contains(k)))  {
         //the name of the attribute is transformed in a java valid key (alphanumeric string)
         var k_enriched = k.filterNot("\n".toSet).replaceAll("\\s+$", "")
-          .replace(" % ", " perc ")
-          .replace(" %", " perc ")
-          .replace("% ", " perc ")
-          .replace("%", " perc ")
-          .replace(" + ", " plus ")
-          .replace(" +", " plus ")
-          .replace("+ ", " plus ")
-          .replace("+", " plus ")
-          .replace(" / ", " or ")
-          .replace(" /", " or ")
-          .replace("/ ", " or ")
-          .replace("/", " or ")
-          .replace(" (", " ")
-          .replace("(", " ")
-          .replace(") ", " ")
-          .replace(") ", " ")
+          .replace("%", "_perc_")
+          .replace("+", "_plus_")
+          .replace("/", "_or_")
+          .replace("(", "_")
+          .replace(") ", "_")
           .replace(" ", "_")
+          .replaceAll("_+", "_")
           .replaceAll("[^A-Za-z0-9_]", "")
         k_enriched = if (k_enriched.startsWith("_")) k_enriched.substring(1)
         else k_enriched

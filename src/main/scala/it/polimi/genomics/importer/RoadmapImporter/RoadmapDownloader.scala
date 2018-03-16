@@ -2,6 +2,7 @@ package it.polimi.genomics.importer.RoadmapImporter
 
 import java.io.File
 import java.net.URL
+import java.nio.file.Paths
 
 import it.polimi.genomics.importer.DefaultImporter.utils.{OAuth, csvDownload}
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
@@ -10,10 +11,10 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.collection.JavaConverters._
 import scala.language.postfixOps
 import scala.sys.process._
 import scala.util.{Failure, Success, Try}
+import scala.collection.JavaConverters._
 
 /**
   * download file available through HTTP Roadmap Epigenomics repository
@@ -52,46 +53,64 @@ class RoadmapDownloader extends GMQLDownloader {
     */
   def downloadMetadata(source: GMQLSource): Unit = {
     //authentication to gain access to Google Spreadsheet API
-    val authentication: OAuth = new OAuth
-    val service = authentication.getSheetsService()
+    val clientSecretPah = if (source.parameters.exists(_._1.toLowerCase == "client_secrets_path"))
+      source.parameters.filter(_._1.toLowerCase == "client_secrets_path").head._2
+    else
+      "client_secret.json" //as default assume secret file in the same directory of execution
+    val credentialDir = if (source.parameters.exists(_._1.toLowerCase == "credential_directory"))
+      source.parameters.filter(_._1.toLowerCase == "credential_directory").head._2
+    else
+      Paths.get(".").toAbsolutePath.normalize.toString //as default it is the current directory
+    val authenticationOutcome = Try(new OAuth(credentialDir))
+    if (authenticationOutcome.isSuccess) {
+      val authentication: OAuth = authenticationOutcome.get
+      val getSheetOutcome = Try(authentication.getSheetsService(clientSecretPah))
+      if (getSheetOutcome.isSuccess) {
+        val service = getSheetOutcome.get
+        //if the authentication process and access to API service is obtained, the actual download can start
+        if (source.downloadEnabled) {
+          //for each dataset download the metadata csv
+          source.datasets.foreach(dataset => {
+            if (dataset.downloadEnabled) {
+              //extracting spreadsheetID provided through config file
+              val spreadsheetUrl: String = dataset.parameters.filter(_._1.toLowerCase == "spreadsheet_url").head._2
+              val spreadsheetId: String = "/d/.*/".r.findFirstIn(spreadsheetUrl).get.split("/")(2)
+              //connect to spreadsheet through API
+              val spreadsheet = service.spreadsheets().get(spreadsheetId).execute()
 
-    if (source.downloadEnabled) {
-      //for each dataset download the metadata csv
-      source.datasets.foreach(dataset => {
-        if (dataset.downloadEnabled) {
-          //extracting spreadsheetID provided through config file
-          val spreadsheetUrl: String = dataset.parameters.filter(_._1.toLowerCase == "spreadsheet_url").head._2
-          val spreadsheetId: String = "/d/.*/".r.findFirstIn(spreadsheetUrl).get.split("/")(2)
-          //connect to spreadsheet through API
-          val spreadsheet = service.spreadsheets().get(spreadsheetId).execute()
-
-          logger.info("Starting metadata download for: " + source.name)
-          val outputPath = source.outputFolder  + File.separator + dataset.outputFolder + File.separator + "Downloads"
-          //check existence of the directory
-          if (!new java.io.File(outputPath).exists) {
-            try {
-              new java.io.File(outputPath).mkdirs()
-              logger.debug(s"$outputPath created")
-            }
-            catch {
-              case _: Exception => logger.warn(s"could not create the folder $outputPath")
-            }
-          }
-
-          //download all the sheet (not hidden) as csv
-          val spreadsheetDownloader = new csvDownload(spreadsheetId, spreadsheet.getProperties.getTitle)
-          val sheetsList = spreadsheet.getSheets
-          sheetsList.asScala.toList.foreach(sh =>
-            if (sh.getProperties.getHidden == null) {
-              val csvDwnldOutcome = Try(spreadsheetDownloader.get(sh.getProperties.getSheetId.toString, outputPath, sh.getProperties.getTitle))
-              csvDwnldOutcome match {
-                case Success(_) => logger.info(s"${sh.getProperties.getTitle} downloaded from ${spreadsheet.getProperties.getTitle} with success")
-                case Failure(_) => logger.warn(s"failed to download ${sh.getProperties.getTitle} from ${spreadsheet.getProperties.getTitle}")
+              logger.info("Starting metadata download for: " + source.name)
+              val outputPath = source.outputFolder  + File.separator + dataset.outputFolder + File.separator + "Downloads"
+              //check existence of the directory
+              if (!new java.io.File(outputPath).exists) {
+                try {
+                  new java.io.File(outputPath).mkdirs()
+                  logger.debug(s"$outputPath created")
+                }
+                catch {
+                  case _: Exception => logger.warn(s"could not create the folder $outputPath")
+                }
               }
-            })
+
+              //download all the sheet (not hidden) as csv
+              val spreadsheetDownloader = new csvDownload(spreadsheetId, spreadsheet.getProperties.getTitle)
+              val sheetsList = spreadsheet.getSheets
+              sheetsList.asScala.toList.foreach(sh =>
+                if (sh.getProperties.getHidden == null) {
+                  val csvDwnldOutcome = Try(spreadsheetDownloader.get(sh.getProperties.getSheetId.toString, outputPath, sh.getProperties.getTitle))
+                  csvDwnldOutcome match {
+                    case Success(_) => logger.info(s"${sh.getProperties.getTitle} downloaded from ${spreadsheet.getProperties.getTitle} with success")
+                    case Failure(_) => logger.warn(s"failed to download ${sh.getProperties.getTitle} from ${spreadsheet.getProperties.getTitle}")
+                  }
+                })
+            }
+          })
         }
-      })
+      }
+      else
+        logger.error("Fail to authenticate to Google Spreadsheet API", getSheetOutcome.failed)
     }
+    else
+      logger.error("Fail to authenticate to Google Spreadsheet API", authenticationOutcome.failed)
   }
   /**
     * downloads the files from the source defined in the information

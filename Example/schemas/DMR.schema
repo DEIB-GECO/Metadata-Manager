@@ -4,7 +4,7 @@
 		<field type="STRING">chrom</field>
 		<field type="LONG">start</field>
 		<field type="LONG">end</field>
-        <field type="CHAR">strand</field>
+		<field type="CHAR">strand</field>
 		<field type="DOUBLE">score</field>
 	</gmqlSchema>
 </gmqlSchemaCollection>

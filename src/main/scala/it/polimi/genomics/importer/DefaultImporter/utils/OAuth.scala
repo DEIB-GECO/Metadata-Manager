@@ -13,19 +13,19 @@ import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 
-class OAuth {
-  val logger = LoggerFactory.getLogger(this.getClass)
+class OAuth(dataStoreDir: String) {
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   /** Application name. */
   private val APPLICATION_NAME: String = "GMQL-importer"
 
   /** Directory to store user credentials for this application. */
-  private val DATA_STORE_DIR: File = new File(/*System.getProperty("user.home")*/ new File(".").getCanonicalPath, ".credentials/sheets.googleapis.com-GMQL-importer")
+  private val DATA_STORE_DIR: File = new File(dataStoreDir)//new File(/*System.getProperty("user.home")*/ new File(".").getCanonicalPath, ".credentials/sheets.googleapis.com-GMQL-importer")
 
-  /** Global instance of the {@link FileDataStoreFactory}. */
+  /** Global instance of the FileDataStoreFactory. */
   private val DATA_STORE_FACTORY: FileDataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR)
 
   /** Global instance of the JSON factory. */
@@ -41,10 +41,9 @@ class OAuth {
     * Creates an authorized Credential object.
     *
     * @return an authorized Credential object.
-    * @throws IOException
     */
   @throws[IOException]
-  def authorize(secretPath: String = "client_secrets.json"): Credential = { // Load client secrets.
+  def authorize(secretPath: String): Credential = { // Load client secrets.
     val in = new FileInputStream(secretPath)
     val clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in))
     // Build flow and trigger user authorization request.
@@ -58,11 +57,10 @@ class OAuth {
     * Build and return an authorized Sheets API client service.
     *
     * @return an authorized Sheets API client service
-    * @throws IOException
     */
   @throws[IOException]
-  def getSheetsService(secretPath: String = "client_secrets.json"): Sheets = {
+  def getSheetsService(secretPath: String): Sheets = {
     val credential: Credential = authorize(secretPath)
-    return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build
+    new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build
   }
 }

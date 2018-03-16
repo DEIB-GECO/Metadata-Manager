@@ -29,7 +29,15 @@
                 <parameter>
                     <key>metadata_replacement</key>
                     <value>xml/metadataReplacementRoadmap.xml</value>
-                </parameter>        
+                </parameter>
+                <parameter>
+                    <key>client_secrets_path</key>
+                    <value>C:\Users\ricca\Desktop\tesi\GMQL-importer2\GMQL-Importer2\client_secrets.json</value>
+                </parameter>
+                <parameter>
+                    <key>credential_directory</key>
+                    <value>C:\Users\ricca\Desktop\tesi\GMQL-importer2\GMQL-Importer2\.credentials\sheets.googleapis.com-GMQL-importer\</value>
+                </parameter>
             </parameter_list>
             <dataset_list>
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_NARROW">
