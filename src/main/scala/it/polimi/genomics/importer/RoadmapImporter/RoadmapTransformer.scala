@@ -391,19 +391,13 @@ class RoadmapTransformer  extends GMQLTransformer {
       case _ if value.contains("Y") =>
         val valueSplit = value.split(", |,|\\. |\\.")
         for(i <- valueSplit.indices) {
-          if (valueSplit(i).toLowerCase == "unknown")
-            valueSplit(i) = "unknown"
-          else
-            valueSplit(i) = (valueSplit(i).dropRight(1).toInt * 52).toString
+          valueSplit(i) = Try((valueSplit(i).dropRight(1).toInt * 52).toString).getOrElse("unknown")
         }
         writer.write(s"$key\t${valueSplit.mkString(", ")}\n")
       case _ if value.contains("GW") =>
         val valueSplit = value.split(", |,|\\. |\\.")
         for(i <- valueSplit.indices) {
-          if (valueSplit(i).toLowerCase == "unknown")
-            valueSplit(i) = "unknown"
-          else
-            valueSplit(i) = (valueSplit(i).dropRight(2).toInt * 52).toString
+          valueSplit(i) = Try((valueSplit(i).dropRight(2).toInt * 52).toString).getOrElse("unknown")
         }
         writer.write(s"$key\t${valueSplit.mkString(", ")}\n")
       case _ =>

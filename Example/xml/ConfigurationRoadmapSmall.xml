@@ -61,7 +61,7 @@
                         </parameter>
                         <parameter>
                             <key>files_regex</key>
-                            <value>E003.*\.narrowPeak.gz</value>
+                            <value>E026.*\.narrowPeak.gz</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
@@ -132,7 +132,7 @@
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
-                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/(broadPeak|narrowPeak)/</value>
+                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/(broadPeak/DNase|narrowPeak)/</value>
                         </parameter>
                         <parameter>
                             <key>files_regex</key>
