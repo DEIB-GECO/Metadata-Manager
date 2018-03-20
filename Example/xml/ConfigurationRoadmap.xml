@@ -99,7 +99,7 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_BROAD contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq gapped regions called using MACS2 in gappedPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_GAPPED contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq gapped regions called using MACS2 in gappedPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>

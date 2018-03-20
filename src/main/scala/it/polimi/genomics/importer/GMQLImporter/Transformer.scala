@@ -433,11 +433,11 @@ object Transformer {
         }
 
         if (gtfMandatoryMissing > 0)
-          logger.warn(s"In $dataFilePath: $gtfMandatoryMissing lines with wrong numbers of mandatory attribute removed.")
+          logger.warn(s"In $dataFilePath: $gtfMandatoryMissing lines with wrong numbers of mandatory attributes removed.")
         if (gtfOptionalMissing > 0)
-          logger.warn(s"In $dataFilePath: $gtfOptionalMissing lines with wrong numbers of optional attribute.")
+          logger.warn(s"In $dataFilePath: $gtfOptionalMissing lines with wrong numbers of optional attributes.")
         if (wrongAttNumCount > 0)
-          logger.warn(s"In $dataFilePath: $wrongAttNumCount lines with wrong numbers of attribute removed.")
+          logger.warn(s"In $dataFilePath: $wrongAttNumCount lines with wrong numbers of attributes removed.")
         for (i <- fields.indices)
           if (missingValueCount(i) > 0)
             logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${missingValueCount(i)} missing value.")

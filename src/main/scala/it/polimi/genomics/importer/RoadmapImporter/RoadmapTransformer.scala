@@ -179,7 +179,7 @@ class RoadmapTransformer  extends GMQLTransformer {
     val listMaps1: List[Map[String, String]] = reader3.allWithHeaders()
     val listMaps2: List[Map[String, String]] = reader2.allWithHeaders()
 
-    //extract eid and mark from the file name
+    //extract eid, mark and format from the file name
     val eid: String = dataFileName.split("_")(0)
     val mark: String = extractMark(dataFileName)
     val nameComp = dataFileName.split("\\.")
@@ -224,6 +224,7 @@ class RoadmapTransformer  extends GMQLTransformer {
                   //write the metadata associated with the experiment, excluding that one already written
                   if (m("EID") == listMaps1(eid_index)("Epigenome ID (EID)") && m("MARK") == mark)
                     mapToFile(m, writer, keyPrefix =  "exp", skipList = duplicates)
+              //adding type-specific manually curated files
               if (mark=="DNase") {
                 manCuratedMeta += (("data_type", "DNase-seq"))
                 manCuratedMeta += (("feature", "open chromatin"))
@@ -272,7 +273,7 @@ class RoadmapTransformer  extends GMQLTransformer {
             case _ => logger.warn(s"File $dataFileName format not supported.")
           }
 
-        //add metadata common to all files
+        //add metadata in common to all files
         if(eid_index >= 0 && listMaps1(eid_index).keys.toList.contains("AGE\n(Post Birth in YEARS/ Fetal in GESTATIONAL WEEKS/CELL LINE CL) ")) {
           val age = listMaps1(eid_index)("AGE\n(Post Birth in YEARS/ Fetal in GESTATIONAL WEEKS/CELL LINE CL) ")
           age match {
