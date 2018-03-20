@@ -56,7 +56,7 @@ class RoadmapDownloader extends GMQLDownloader {
     val clientSecretPah = if (source.parameters.exists(_._1.toLowerCase == "client_secrets_path"))
       source.parameters.filter(_._1.toLowerCase == "client_secrets_path").head._2
     else
-      "client_secret.json" //as default assume secret file in the same directory of execution
+      "client_secrets.json" //as default assume secret file in the same directory of execution
     val credentialDir = if (source.parameters.exists(_._1.toLowerCase == "credential_directory"))
       source.parameters.filter(_._1.toLowerCase == "credential_directory").head._2
     else
@@ -107,10 +107,10 @@ class RoadmapDownloader extends GMQLDownloader {
         }
       }
       else
-        logger.error("Fail to authenticate to Google Spreadsheet API", getSheetOutcome.failed)
+        logger.error("Fail to authenticate to Google Spreadsheet API", getSheetOutcome.failed.get)
     }
     else
-      logger.error("Fail to authenticate to Google Spreadsheet API", authenticationOutcome.failed)
+      logger.error("Fail to authenticate to Google Spreadsheet API", authenticationOutcome.failed.get)
   }
   /**
     * downloads the files from the source defined in the information
