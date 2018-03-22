@@ -3,8 +3,8 @@ package it.polimi.genomics.importer.RemoteDatabase
 import com.typesafe.config.ConfigFactory
 import org.slf4j.{Logger, LoggerFactory}
 
-//import slick.driver.PostgresDriver.api._
-import slick.jdbc.PostgresProfile.api._
+import slick.driver.PostgresDriver.api._
+//import slick.jdbc.PostgresProfile.api._
 //import slick.driver.MySQLDriver.api._
 
 import slick.jdbc.meta.MTable
@@ -12,9 +12,6 @@ import slick.lifted.Tag
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
-
-
-
 
 
 object DbHandler {
@@ -32,7 +29,7 @@ object DbHandler {
   private val CASEITEM_TABLE_NAME = "case2item"
   private val REPLICATEITEM_TABLE_NAME = "replicate2item"
   private val CASE_TCGA_MAPPING = "case_tcga_mapping"
-  private val ONTOLOGY_EXPERIMENTTYPE = "ontology_experiment_type"
+  private val ONTOLOGY_TABLE = "ontology_table"
 
 
 
@@ -172,13 +169,13 @@ object DbHandler {
       logger.info("Table CASE TCGA MAPPING created")
     }
 
-    if (!tables.exists(_.name.name == ONTOLOGY_EXPERIMENTTYPE)) {
+    if (!tables.exists(_.name.name == ONTOLOGY_TABLE)) {
       val queries = DBIO.seq(
-        ontologyExperimentType.schema.create
+        ontologyTable.schema.create
       )
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table ONTOLOGICAL EXPERIMENT TYPE created")
+      logger.info("Table ONTOLOGY created")
     }
   }
 
@@ -456,11 +453,18 @@ object DbHandler {
     1
   }
 
-  def insertOntologyExperimentType(experimentTypeId: Int, tableName: String, tableColumn: String, originalKey: String, originalValue: String, ontologicalCode: String): Int = {
-    val idQuery = (ontologyExperimentType returning ontologyExperimentType.map(_.experimentTypeId))+= (None, experimentTypeId, tableName, tableColumn, originalKey, originalValue, ontologicalCode)
+  def insertOntology(tableId: Int, tableName: String, tableColumn: String, originalKey: String, originalValue: String, ontologicalCode: String): Unit = {
+    val idQuery = (ontologyTable returning ontologyTable) += (tableId, tableName, tableColumn, originalKey, originalValue, Option(ontologicalCode))
     val executionId = database.run(idQuery)
-    val id = Await.result(executionId, Duration.Inf)
-    id
+    Await.result(executionId, Duration.Inf)
+  }
+
+  def updateOntology(tableId: Int, tableName: String, tableColumn: String, originalKey: String, originalValue: String, ontologicalCode: String): Unit = {
+    val query = for { ontology <- ontologyTable if ontology.tableId === tableId && ontology.tableNames === tableName && ontology.tableColumn === tableColumn }
+      yield (ontology.originalKey, ontology.originalValue, ontology.ontologicalCode)
+    val updateAction = query.update(originalKey, originalValue, Option(ontologicalCode))
+    val execution = database.run(updateAction)
+    Await.result(execution, Duration.Inf)
   }
 
   /**
@@ -512,10 +516,6 @@ object DbHandler {
   }
 
   def checkInsertExperimentType(technique: String, feature: String, target: String): Boolean = {
-    /*val query = experimentsType.filter(_.technique === technique)
-    val action = query.result
-    val result = database.run(action)
-    checkResult(result)*/
     val query = experimentsType.filter( value => { value.technique === technique && value.feature === feature && value.target === target})
     val action = query.result
     val result = database.run(action)
@@ -566,6 +566,13 @@ object DbHandler {
 
   def checkInsertDerivedFrom(initialItemId: Int, finalItemId: Int): Boolean = {
     val query = derivedFrom.filter(_.initialItemId === initialItemId).filter(_.finalItemId === finalItemId)
+    val action = query.result
+    val result = database.run(action)
+    checkResult(result)
+  }
+
+  def checkInsertOntology(tableId: Int, tableName: String, tableColumn: String): Boolean = {
+    val query = ontologyTable.filter( value => { value.tableId === tableId && value.tableNames === tableName && value.tableColumn === tableColumn})
     val action = query.result
     val result = database.run(action)
     checkResult(result)
@@ -1031,24 +1038,24 @@ object DbHandler {
   val caseTcgaMapping = TableQuery[CaseTCGAMapping]
 
 
-  class OntologyExperimentType(tag: Tag) extends
-    Table[(Option[Int], Int, String, String, String, String, String)](tag, ONTOLOGY_EXPERIMENTTYPE) {
-    def ontologyId = column[Int]("id", O.PrimaryKey, O.AutoInc)
-
-    def experimentTypeId = column[Int]("experiment_type_id")
+  class OntologyTable(tag: Tag) extends
+    Table[(Int, String, String, String, String, Option[String])](tag, ONTOLOGY_TABLE) {
+    def tableId = column[Int]("table_id")
 
     def tableNames =  column[String]("table_name")
 
     def tableColumn =  column[String]("table_column")
 
-    def originalKey = column[String]("original_key")
+      def originalKey = column[String]("original_key")
 
     def originalValue = column[String]("original_value")
 
-    def ontologicalCode = column[String]("ontological_code")
+    def ontologicalCode = column[Option[String]]("ontological_code", O.Default(None))
 
-    def * = (ontologyId.?, experimentTypeId, tableNames, tableColumn, originalKey, originalValue, ontologicalCode)
+    def pk = ("table_id_table_name_table_column",(tableId,tableNames,tableColumn))
+
+    def * = (tableId, tableNames, tableColumn, originalKey, originalValue, ontologicalCode)
   }
 
-  val ontologyExperimentType = TableQuery[OntologyExperimentType]
+  val ontologyTable = TableQuery[OntologyTable]
 }

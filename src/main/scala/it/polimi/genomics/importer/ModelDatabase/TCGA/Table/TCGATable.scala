@@ -1,11 +1,14 @@
 package it.polimi.genomics.importer.ModelDatabase.TCGA.Table
 
-import exceptions.NoGlobalKeyException
+import org.apache.log4j.Logger
+
 
 class TCGATable {
 
+  private val logger: Logger = Logger.getLogger(this.getClass)
+
   def noMatching(message: String): Unit = {
-    throw new NoGlobalKeyException("[TCGA] No global key for" + message)
+    this.logger.warn("No Global key for " + message)
   }
 
 }

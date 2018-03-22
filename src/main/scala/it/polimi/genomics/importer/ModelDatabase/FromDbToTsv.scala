@@ -1,8 +1,11 @@
 package it.polimi.genomics.importer.ModelDatabase
 
+import java.io.File
+
 import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
+import org.apache.commons.io.FileUtils
 import org.apache.log4j.Logger
 
 import scala.util.matching.Regex
@@ -42,8 +45,9 @@ class FromDbToTsv() {
 
   def run(oldPath: String, regex: Regex): Unit = {
     val path = if(isNewFile) regex.replaceAllIn(oldPath, extension) else oldPath
+    if(isNewFile) FileUtils.deleteQuietly(new File(path))
     logger.info(s"Start to read ${oldPath} file")
-  //  try {
+    try {
       val sourceIdItem = path.split('/').last.split('.')(0)
 
       Statistics.tsvFile += 1
@@ -83,20 +87,22 @@ class FromDbToTsv() {
       logger.info(s"File ${oldPath} correctly exported")
       Statistics.correctExportedFile += 1
 
-   /* } catch {
+    } catch {
       case e: Exception => {
         Statistics.errorExportedFile += 1
         logger.error(s"Some error in FromDbToTsv process, go to next file")
       }
-    }*/
+    }
 
   }
 
-  val sourceIdDerivedFrom: String = ""
-  def recursiveGetItemsByDerivedFromId(id: Int): Unit ={
+  var sourceIdDerivedFrom: String = ""
+  def recursiveGetItemsByDerivedFromId(id: Int): Unit = {
     DbHandler.getItemsByDerivedFromId(id).foreach(item => {
-      sourceIdDerivedFrom.concat(" " + item._3)
-      this.recursiveGetItemsByDerivedFromId(item._1)
+      if(item._3 != null) {
+        sourceIdDerivedFrom = sourceIdDerivedFrom.concat(item._3 + " ")
+        this.recursiveGetItemsByDerivedFromId(item._1)
+      }
     })
   }
 

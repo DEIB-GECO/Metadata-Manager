@@ -19,5 +19,24 @@ object Statistics {
 
   var extractTimeAcc: Long = _
   var loadTimeAcc: Long = _
-  var trasformerTimeAcc: Long = _
+  var transformTimeAcc: Long = _
+
+  def incrementExtractTime(time: Long) = {
+    extractTimeAcc += time
+  }
+
+  def incrementLoadTime(time: Long) = {
+    loadTimeAcc += time
+  }
+
+  def incrementTrasformTime(time: Long) = {
+    transformTimeAcc += time
+  }
+
+  def getTimeFormatted(time:Long): String = {
+    val hours = Integer.parseInt(""+(time/1000000000/60/60))
+    val minutes = Integer.parseInt(""+(time/1000000000/60-hours*60))
+    val seconds = Integer.parseInt(""+(time/1000000000-hours*60*60-minutes*60))
+    s"$hours:$minutes:$seconds"
+  }
 }

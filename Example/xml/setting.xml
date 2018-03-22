@@ -36,10 +36,6 @@
             <global_key>tissue</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__biosample_term_id</source_key>
-            <global_key>cellLine</global_key>
-        </mapping>
-        <mapping method="CONCAT">
             <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
             <global_key>cellLine</global_key>
         </mapping>
@@ -50,6 +46,10 @@
         <mapping>
             <source_key>replicates__X__library__biosample__health_status</source_key>
             <global_key>disease</global_key>
+        </mapping>
+        <mapping method="ONTOLOGY">
+            <source_key>replicates__X__library__biosample__biosample_term_id</source_key>
+            <global_key>ontologicalcode</global_key>
         </mapping>
     </table>
     <table name="REPLICATES">
@@ -80,7 +80,7 @@
             <global_key>feature</global_key>
         </mapping>
         <mapping>
-            <source_key>target__name</source_key>
+            <source_key>target__label</source_key>
             <global_key>target</global_key>
         </mapping>
         <mapping method="CONCAT">
@@ -91,9 +91,9 @@
             <source_key>replicates__X__antibody__url</source_key>
             <global_key>antibody</global_key>
         </mapping>
-        <mapping>
+        <mapping method="ONTOLOGY">
             <source_key>assay_term_id</source_key>
-            <global_key>ONTOLOGICALCODE</global_key>
+            <global_key>ontologicalcode</global_key>
         </mapping>
     </table>
     <table name="PROJECTS">
@@ -111,7 +111,7 @@
                 <source_key>accession</source_key>
                 <global_key>sourceId</global_key>
             </mapping>
-            <mapping>
+            <mapping method="REMOVE-SUB" sub_character="-" new_character=" " rem_character="/*labs">
                 <source_key>submitted_by__lab</source_key>
                 <global_key>sourceSite</global_key>
             </mapping>
@@ -144,10 +144,6 @@
             <mapping method="MANUALLY">
                 <source_key>null</source_key>
                 <global_key>annotation</global_key>
-            </mapping>
-            <mapping>
-                <source_key> </source_key>
-                <global_key> </global_key>
             </mapping>
     </table>
     <table name="ITEMS">

@@ -140,6 +140,10 @@ object main{
       logger.info(s"Total malformation found  ${Statistics.malformedInput}")
       logger.info(s"ArrayIndexOutOfBoundsException file input  ${Statistics.indexOutOfBoundsException}")
       logger.info(s"UnknownInputException file input  ${Statistics.anotherInputException}")
+      logger.info(s"Extracted Time  ${Statistics.getTimeFormatted(Statistics.extractTimeAcc)}")
+      logger.info(s"Transform Time  ${Statistics.getTimeFormatted(Statistics.transformTimeAcc)}")
+      logger.info(s"Load Time  ${Statistics.getTimeFormatted(Statistics.loadTimeAcc)}")
+
 
     }
   }
@@ -182,6 +186,7 @@ object main{
   }
 
   def analizeFileEncode(path: String, pathXML: String): Unit = {
+    val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
     try {
@@ -213,14 +218,22 @@ object main{
         logger.info(s"File status released, start populate table")
         val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
         val operationsList = xml.operationsList
-        operationsList.map(x =>
+        val t1: Long = System.nanoTime()
+        Statistics.incrementExtractTime(t1-t0)
+        operationsList.map(x => {
           try {
             populateTable(x, tables.selectTableByName(x.head), states.toMap)
 
           } catch {
-            case e: Exception => {tables.nextPosition(x.head, x(2), x(3)); logger.warn(s"SourceKey does't find for $x")}
-          })
+            case e: NoSuchElementException => {
+              tables.nextPosition(x.head, x(2), x(3)); logger.warn(s"SourceKey doesn't find for $x")
+            }
+          }})
+        val t2: Long = System.nanoTime()
+        Statistics.incrementTrasformTime((t2-t1))
         tables.insertTables()
+        val t3: Long = System.nanoTime()
+        Statistics.incrementLoadTime((t3-t2))
       }
       else {
         Statistics.archived += 1
@@ -239,6 +252,7 @@ object main{
   }
 
   def analizeFileTCGA(path: String, pathXML: String): Unit = {
+    val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
     try{
@@ -261,14 +275,20 @@ object main{
       logger.info(s"File status released, start populate table")
       val xml = new XMLReaderTCGA(pathXML)
       val operationsList = xml.operationsList
+      val t1: Long = System.nanoTime()
+      Statistics.incrementExtractTime(t1-t0)
       operationsList.map(x =>
         try {
           populateTable(x, tables.selectTableByName(x.head), states.toMap)
 
         } catch {
-          case e: Exception => logger.warn(s"SourceKey does't find for $x")
+          case e: NoSuchElementException => logger.warn(s"SourceKey does't find for $x")
         })
+      val t2: Long = System.nanoTime()
+      Statistics.incrementTrasformTime((t2-t1))
       tables.insertTables()
+      val t3: Long = System.nanoTime()
+      Statistics.incrementLoadTime((t3-t2))
     } catch {
       case aioobe: ArrayIndexOutOfBoundsException => {
         logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
@@ -282,7 +302,9 @@ object main{
   }
 
   def populateTable(list: List[String], table: Table, states: Map[String,String]): Unit = {
-    val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3), list(4), list(5), list(6), list(7))
+    //val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3), list(4), list(5), list(6), list(7))
+    val insertMethod = InsertMethodNew.selectInsertionMethod(list(1),list(2),list(3), list(4), list(5), list(6), list(7))
+
     if(list(3).contains("MANUALLY"))
       table.setParameter(list(1), list(2), insertMethod)
     else
@@ -317,5 +339,6 @@ object main{
     }
     states
   }
+
 }
 

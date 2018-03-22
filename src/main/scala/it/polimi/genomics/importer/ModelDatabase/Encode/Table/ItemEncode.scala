@@ -1,6 +1,5 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
-import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
 import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.PlatformRetriver
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
@@ -8,7 +7,6 @@ import it.polimi.genomics.importer.ModelDatabase.Item
 
 
 class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId) with Item {
-  private val conf = ConfigFactory.load()
 
   private var platformRetriver: PlatformRetriver = _
 
@@ -62,12 +60,10 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
   }
 
   private def definePlatformRetriver(): Unit = {
-    if (conf.getBoolean("import.derived_item")) {
       platformRetriver = new PlatformRetriver(this.filePath, this.sourceId, this.encodeTableId)
       val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
       this.pipeline = temp(0)
       this.platform = temp(1)
-    }
   }
 
   private def retriveDerivedItems(id: Int): Unit = {

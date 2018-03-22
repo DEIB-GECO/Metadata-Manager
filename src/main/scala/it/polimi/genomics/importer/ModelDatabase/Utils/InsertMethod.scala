@@ -1,8 +1,13 @@
 package it.polimi.genomics.importer.ModelDatabase.Utils
 
+import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
+import org.apache.log4j.Logger
 
 object InsertMethod {
+
+  val logger: Logger = Logger.getLogger(this.getClass)
+  protected val conf = ConfigFactory.load()
 
   def selectInsertionMethod(sourceKey: String, globalKey: String, method: String, concatCharacter: String, subCharacter: String, newCharacter: String, remCharacter: String) = (actualParam: String, newParam: String) => {
     method.toUpperCase() match {
@@ -13,9 +18,15 @@ object InsertMethod {
       case "CHECK-PREC" => if(actualParam == null) newParam else actualParam
       case "SELECT-CASE-TCGA" => if (actualParam == null) DbHandler.getSourceSiteByCode(newParam)else actualParam.concat(concatCharacter + DbHandler.getSourceSiteByCode(newParam))
       case "DEFAULT" => newParam
+      case "REMOVE" => this.remove(remCharacter,newParam)
+      case "SUB" => this.replace(subCharacter,newCharacter,newParam)
+      case "REMOVE-SUB" => this.replace(subCharacter, newCharacter, this.remove(remCharacter, newParam))
       case "SUB-CONCAT" => this.replaceAndConcat(actualParam, newParam, subCharacter, newCharacter, concatCharacter)
       case "SUB-REMOVE-CONCAT" => this.replaceAndConcat(actualParam, this.substituteWordWith(newParam, remCharacter, ""), subCharacter, newCharacter, concatCharacter)
       case "REMOVE-CONCAT" => if (actualParam == null) this.substituteWordWith(newParam, remCharacter, "") else actualParam.concat(concatCharacter + this.substituteWordWith(newParam, remCharacter, ""))
+      case "UPPERCASE" => newParam.toUpperCase()
+      case "LOWERCASE" => newParam.toLowerCase()
+      case "ONTOLOGY" => sourceKey + '*' + newParam
       /*case "SELECT-FEATURE-TCGA" => {
         if(actualParam == null)
         newParam match{
@@ -34,7 +45,7 @@ object InsertMethod {
             case "Genotyping Array" => "Copy Number Variation"
           })
       }*/
-      case _ => actualParam
+      case _ =>{ logger.error("Method " + method + " not found"); actualParam}
     }
   }
 
@@ -46,5 +57,21 @@ object InsertMethod {
       if (actualParam == null) this.substituteWordWith(newParam, wordToSub, wordToIns) else actualParam.concat(division + this.substituteWordWith(newParam, wordToSub, wordToIns))
   }
 
+ /* def splitting(settingParameter: String, specialCharacter: Char): Array[String] ={
+    settingParameter.split(specialCharacter)
+  }*/
+
+  def remove(remString: String, initialString: String): String = {
+    remString.split('*').foldLeft(initialString){(acc,i) => acc.replace(i,"")}
+  }
+
+  def replace(subString: String, newString: String, initialString: String): String = {
+    var newStringArray = newString.split('*')
+    subString.split('*').foldLeft(initialString){(acc,i) => {
+      val head = newStringArray.head
+      newStringArray = newStringArray.drop(1)
+      acc.replace(i,head)
+    }}
+  }
 
 }

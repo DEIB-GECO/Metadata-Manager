@@ -1,13 +1,17 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
-import exceptions.NoGlobalKeyException
+import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
 import it.polimi.genomics.importer.ModelDatabase.Exception.UniqueKeyException
+import org.apache.log4j.Logger
 
 abstract class EncodeTable(var encodeTableId: EncodeTableId){
 
+  private val loggerTable: Logger = Logger.getLogger(this.getClass)
+  private val conf = ConfigFactory.load()
+
   def noMatching(message: String): Unit = {
-    throw new NoGlobalKeyException("[ENCODE] No global key for " + message)
+    this.loggerTable.warn("No Global key for " + message)
   }
 
   def uniqueKeyException(message: String): Unit = {

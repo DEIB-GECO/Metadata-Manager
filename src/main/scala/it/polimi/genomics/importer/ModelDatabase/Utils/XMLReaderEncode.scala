@@ -4,10 +4,12 @@ import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, Re
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable.ListBuffer
-import scala.xml.{Node, XML}
+import scala.xml.XML
+
 
 class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosamples: BioSampleList, var states: collection.mutable.Map[String, String]) {
   private val xml = XML.loadFile(path)
+
   private val default: String = "DEFAULT"
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   val settingRetriver: XMLSettingRetriver = new XMLSettingRetriver(default)

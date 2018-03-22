@@ -12,8 +12,8 @@ import scala.collection.mutable.ListBuffer
 
 trait Table {
 
- val logger: Logger = Logger.getLogger(this.getClass)
-  private val conf = ConfigFactory.load()
+  val logger: Logger = Logger.getLogger(this.getClass)
+  protected val conf = ConfigFactory.load()
 
   private val prefix = conf.getString("export.prefix")
   private val separation = conf.getString("export.separation")
