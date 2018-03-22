@@ -29,7 +29,7 @@
             <source_key>clinical__clin_shared__race</source_key>
             <global_key>ethnicity</global_key>
         </mapping>
-        <mapping method="CONCAT">
+        <mapping method="CONCAT-LOWERCASE">
             <source_key>clinical__clin_shared__ethnicity</source_key>
             <global_key>ethnicity</global_key>
         </mapping>
