@@ -68,6 +68,9 @@ object InsertMethodNew {
         //this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
 
       }
+      case "WEEK" => {
+        (param.split(" ")(0).toInt * 7).toString
+      }
     }
   }
 }

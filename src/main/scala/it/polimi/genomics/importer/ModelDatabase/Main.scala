@@ -250,10 +250,10 @@ object main{
         logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
         Statistics.indexOutOfBoundsException += 1
       }
-      case e: Exception => {
+      /*case e: Exception => {
         logger.error(s"Unknown File input Exception file with path ${path}")
         Statistics.anotherInputException += 1
-      }
+      }*/
     }
   }
 
