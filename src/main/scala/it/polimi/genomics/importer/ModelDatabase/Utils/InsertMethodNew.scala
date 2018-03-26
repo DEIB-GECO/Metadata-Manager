@@ -54,23 +54,27 @@ object InsertMethodNew {
   }
 
   private def selectDayByParam(param: String): String = {
+    val values = param.split(" ")(0)
     param.split(" ")(1).toUpperCase match {
       case "YEAR" => {
-        (param.split(" ")(0).toInt * 365).toString
-        // this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+        (average(toArrayInt(values.split("-")))*365).toInt.toString
       }
       case "MONTH" => {
-        (param.split(" ")(0).toInt * 30).toString
-        //this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+        (average(toArrayInt(values.split("-")))*30).toInt.toString
       }
       case "DAY" => {
-        (param.split(" ")(0).toInt).toString
-        //this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
-
+        average(toArrayInt(values.split("-"))).toInt.toString
       }
       case "WEEK" => {
-        (param.split(" ")(0).toInt * 7).toString
+        (average(toArrayInt(values.split("-")))*7).toInt.toString
+      }
+      case _ => {
+        logger.error(s"Invalid argument Exception ${param.split(" ")(0)}")
+        null
       }
     }
   }
+  private def toArrayInt(list: Array[String]): Array[Float] = list.map(_.toFloat)
+  private def average(list: Array[Float]): Float = list.sum / list.length
+
 }
