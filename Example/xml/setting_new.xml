@@ -35,7 +35,7 @@
             <source_key>replicates__X__library__biosample__donor__organism__scientific_name</source_key>
             <global_key>species</global_key>
         </mapping>
-        <mapping>
+        <mapping method="DATETODAYS">
             <source_key>replicates__X__library__biosample__age_display</source_key>
             <global_key>age</global_key>
         </mapping>

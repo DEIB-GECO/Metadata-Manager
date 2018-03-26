@@ -10,7 +10,7 @@ object InsertMethodNew {
   private val characterSeparation = conf.getString("import.method_character_separation")
 
   def selectInsertionMethod(sourceKey: String, globalKey: String, methods: String, concatCharacter: String, subCharacter: String, newCharacter: String, remCharacter: String) = (actualParam: String, newParam: String) => {
-    methods.split("-").foldLeft(newParam) {case (acc, method) => {
+    methods.split("-").foldLeft(newParam) { case (acc, method) => {
       method.toUpperCase() match {
         case "DEFAULT" => acc
         case "MANUALLY" => if (sourceKey == "null") null else sourceKey
@@ -21,30 +21,53 @@ object InsertMethodNew {
         case "SUB" => this.replace(subCharacter, newCharacter, acc)
         case "UPPERCASE" => acc.toUpperCase()
         case "LOWERCASE" => acc.toLowerCase()
+        case "DATETODAYS" => this.selectDayByParam(newParam)
         case "ONTOLOGY" => sourceKey + '*' + acc
-        case _ => {logger.error("Method " + method + " not found"); actualParam}
+        case _ => {
+          logger.error("Method " + method + " not found"); actualParam
+        }
       }
-    }}
+    }
+    }
   }
 
   private def substituteWordWith(phrase: String, wordToSub: String, wordToIns: String): String = {
-    phrase.replace(wordToSub,wordToIns)
+    phrase.replace(wordToSub, wordToIns)
   }
 
-  private def replaceAndConcat(actualParam: String, newParam: String, wordToSub: String, wordToIns: String, division: String): String  =  {
+  private def replaceAndConcat(actualParam: String, newParam: String, wordToSub: String, wordToIns: String, division: String): String = {
     if (actualParam == null) this.substituteWordWith(newParam, wordToSub, wordToIns) else actualParam.concat(division + this.substituteWordWith(newParam, wordToSub, wordToIns))
   }
 
   private def remove(remString: String, initialString: String): String = {
-    remString.split(characterSeparation).foldLeft(initialString){(acc,i) => acc.replace(i,"")}
+    remString.split(characterSeparation).foldLeft(initialString) { (acc, i) => acc.replace(i, "") }
   }
 
   private def replace(subString: String, newString: String, initialString: String): String = {
     var newStringArray = newString.split(characterSeparation)
-    subString.split(characterSeparation).foldLeft(initialString){(acc,i) => {
+    subString.split(characterSeparation).foldLeft(initialString) { (acc, i) => {
       val head = newStringArray.head
       newStringArray = newStringArray.drop(1)
-      acc.replace(i,head)
-    }}
+      acc.replace(i, head)
+    }
+    }
+  }
+
+  private def selectDayByParam(param: String): String = {
+    param.split(" ")(1).toUpperCase match {
+      case "YEAR" => {
+        (param.split(" ")(0).toInt * 365).toString
+        // this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+      }
+      case "MONTH" => {
+        (param.split(" ")(0).toInt * 30).toString
+        //this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+      }
+      case "DAY" => {
+        (param.split(" ")(0).toInt).toString
+        //this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
+
+      }
+    }
   }
 }

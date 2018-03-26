@@ -124,6 +124,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
     val array = this.encodeTableId.techReplicateArray
     for(sourcePosition <- 0 to sourceIdArray.length-1){
+      Statistics.biosampleInsertedOrUpdated += 1
       this.actualPosition = sourcePosition
       if(this.checkInsert()) {
         id = this.insert

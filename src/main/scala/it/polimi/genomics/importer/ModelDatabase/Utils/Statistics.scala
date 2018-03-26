@@ -9,6 +9,9 @@ object Statistics {
   var releasedItemNotInserted: Int =_
   var itemInserted: Int = _
   var itemUpdated: Int = _
+  var donorInsertedOrUpdated: Int = _
+  var biosampleInsertedOrUpdated: Int = _
+  var replicateInsertedOrUpdated: Int = _
   var tsvFile: Int = _
   var constraintsViolated: Int = _
   var indexOutOfBoundsException: Int = _

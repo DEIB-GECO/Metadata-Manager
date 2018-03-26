@@ -1,10 +1,8 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
 import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
+import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 import it.polimi.genomics.importer.ModelDatabase.{Donor, Table}
-import it.polimi.genomics.importer.RemoteDatabase.DbHandler
-
-import scala.util.control.Breaks.{break, breakable}
 
 class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTable(encodeTableId) with Donor{
 
@@ -40,7 +38,7 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
         this.speciesArray(this.speciesInsertPosition) = insertMethod(this.speciesArray(this.speciesInsertPosition), param)
         this.speciesInsertPosition = resetPosition(speciesInsertPosition, quantity)
       }
-      case "AGE" => param.split(" ")(1).toUpperCase() match {
+      case "AGE" => { /*param.split(" ")(1).toUpperCase() match {
         case "YEAR" => {
           this.ageArray(this.ageInsertPosition) = param.split(" ")(0).toInt * 365
           this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
@@ -56,7 +54,9 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
         }
         case _ => {
           this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
-        }
+        }*/
+        this.ageArray(this.ageInsertPosition) = insertMethod(this.ageArray(this.ageInsertPosition).toString, param).toInt
+        this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
       }
       case "GENDER" => {
         this.genderArray(this.genderInsertPosition) = insertMethod(this.genderArray(this.genderInsertPosition), param)
@@ -105,6 +105,7 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
 
   override def insertRow(): Unit ={
     for(sourcePosition <- 0 to sourceIdArray.length-1) {
+      Statistics.donorInsertedOrUpdated += 1
       this.actualPosition = sourcePosition
       val id = this.getId
       if (id == -1) {

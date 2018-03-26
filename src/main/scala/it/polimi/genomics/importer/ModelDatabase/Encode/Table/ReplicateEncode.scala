@@ -1,6 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
 import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
+import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 import it.polimi.genomics.importer.ModelDatabase.{Replicate, Table}
 
 import scala.collection.mutable.ListBuffer
@@ -49,6 +50,7 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
 
   override def insertRow(): Unit ={
     this.sourceIdList.map(source=>{
+      Statistics.replicateInsertedOrUpdated += 1
       this.actualPosition = sourceIdList.indexOf(source)
       var id = getId
       if (id == -1) {

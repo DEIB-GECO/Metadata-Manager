@@ -143,6 +143,12 @@ object main{
       logger.info(s"Extracted Time  ${Statistics.getTimeFormatted(Statistics.extractTimeAcc)}")
       logger.info(s"Transform Time  ${Statistics.getTimeFormatted(Statistics.transformTimeAcc)}")
       logger.info(s"Load Time  ${Statistics.getTimeFormatted(Statistics.loadTimeAcc)}")
+      if(repositoryRef.toUpperCase.equals("ENCODE")) {
+        logger.info(s"Total Donor inserted or updated ${Statistics.donorInsertedOrUpdated}")
+        logger.info(s"Total Biosample inserted or updated ${Statistics.biosampleInsertedOrUpdated}")
+        logger.info(s"Total Replicate inserted or updated ${Statistics.replicateInsertedOrUpdated}")
+
+      }
 
 
     }
