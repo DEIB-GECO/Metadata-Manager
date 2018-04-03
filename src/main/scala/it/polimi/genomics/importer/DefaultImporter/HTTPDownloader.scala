@@ -125,15 +125,15 @@ class HTTPDownloader extends GMQLDownloader {
           for (i <- 0 until elements.size()) {
             //candidate name is the same as origin name.
             var candidateName: String =
-            if (source.parameters.filter(_._1.toLowerCase == "table").head._2.toLowerCase == "true")
-              try {
-                elements.get(i).text.trim.split(" ").filterNot(_.isEmpty)(
-                  source.parameters.filter(_._1.toLowerCase == "name_index").head._2.toInt)
-              } catch {
-                case _: Throwable => ""
-              }
-            else
-              elements.get(i).attr("href")
+              if (source.parameters.filter(_._1.toLowerCase == "table").head._2.toLowerCase == "true")
+                try {
+                  elements.get(i).text.trim.split(" ").filterNot(_.isEmpty)(
+                    source.parameters.filter(_._1.toLowerCase == "name_index").head._2.toInt)
+                } catch {
+                  case _: Throwable => ""
+                }
+              else
+                elements.get(i).attr("href")
 
             if (candidateName.startsWith("/"))
               candidateName = candidateName.substring(1)
@@ -141,10 +141,10 @@ class HTTPDownloader extends GMQLDownloader {
             if (candidateName.matches(dataset.parameters.filter(_._1.toLowerCase == "files_regex").head._2)) {
               //from the anchor tag, i need to get nextSibling's text, from table I join all the tds on the row
               val dateAndSize =
-              if (source.parameters.filter(_._1.toLowerCase == "table").head._2.toLowerCase == "true")
-                elements.get(i).text.trim.split(" ").filterNot(_.isEmpty)
-              else
-                elements.get(i).nextSibling().toString.trim.split(" ").filterNot(_.isEmpty)
+                if (source.parameters.filter(_._1.toLowerCase == "table").head._2.toLowerCase == "true")
+                  elements.get(i).text.trim.split(" ").filterNot(_.isEmpty)
+                else
+                  elements.get(i).nextSibling().toString.trim.split(" ").filterNot(_.isEmpty)
 
               val date = dateAndSize(source.parameters.filter(_._1.toLowerCase == "date_index").head._2.toInt) +
                 File.separator + dateAndSize(source.parameters.filter(_._1.toLowerCase == "hour_index").head._2.toInt)

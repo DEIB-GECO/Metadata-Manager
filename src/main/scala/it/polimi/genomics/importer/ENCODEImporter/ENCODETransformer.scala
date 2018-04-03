@@ -2,8 +2,8 @@ package it.polimi.genomics.importer.ENCODEImporter
 
 import java.io.{File, _}
 import java.util
-import java.util.zip.GZIPInputStream
 
+import it.polimi.genomics.importer.DefaultImporter.utils.Unzipper
 import it.polimi.genomics.importer.FileDatabase.{FILE_STATUS, FileDatabase, STAGE}
 import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource, GMQLTransformer}
 import org.codehaus.jackson.map.MappingJsonFactory
@@ -135,7 +135,7 @@ class ENCODETransformer extends GMQLTransformer {
     val fileTransformationPath = destinationPath + File.separator + filename
     if (originalFilename.endsWith(".gz")) {
       logger.debug("Start unGzipping: " + originalFilename)
-      if (unGzipIt(
+      if (Unzipper.unGzipIt(
         fileDownloadPath,
         fileTransformationPath)) {
         logger.info("UnGzipping: " + originalFilename + " DONE")
@@ -154,7 +154,10 @@ class ENCODETransformer extends GMQLTransformer {
 
         true
       }
-      else false
+      else {
+        logger.warn("UnGzipping: " + originalFilename + " FAIL")
+        false
+      }
     }
     else {
       val result1 =
@@ -462,39 +465,5 @@ class ENCODETransformer extends GMQLTransformer {
   //      }
   //    })
   //  }
-  //-------------------------------------UTILS -------------------------------------------------------------------------
-  /**
-    * extracts the gzipFile into the outputPath.
-    *
-    * @param gzipFile   full location of the gzip
-    * @param outputPath full path of destination, filename included.
-    */
-  def unGzipIt(gzipFile: String, outputPath: String): Boolean = {
-    val bufferSize = 1024
-    val buffer = new Array[Byte](bufferSize)
-    var unGzipped = false
-    var timesTried = 0
-    while (timesTried < 4 && !unGzipped) {
-      try {
-        val zis = new GZIPInputStream(new BufferedInputStream(new FileInputStream(gzipFile)))
-        val newFile = new File(outputPath)
-        val fos = new FileOutputStream(newFile)
 
-        var ze: Int = zis.read(buffer)
-        while (ze >= 0) {
-
-          fos.write(buffer, 0, ze)
-          ze = zis.read(buffer)
-        }
-        fos.close()
-        zis.close()
-        unGzipped = true
-      } catch {
-        case e: IOException => timesTried += 1
-      }
-    }
-    if (!unGzipped)
-      logger.error("Couldnt UnGzip the file: " + outputPath)
-    unGzipped
-  }
 }

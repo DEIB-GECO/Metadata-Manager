@@ -26,7 +26,7 @@ final class FTP() {
   def connect(host: String): Try[Unit] = Try {
     client.connect(host)
     client.enterLocalPassiveMode()
-//    client.setControlKeepAliveTimeout(300)
+    //    client.setControlKeepAliveTimeout(300)
     client.setBufferSize(1024*1024)
     client.setFileType(FTP.BINARY_FILE_TYPE)
   }

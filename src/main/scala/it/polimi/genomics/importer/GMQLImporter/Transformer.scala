@@ -1,20 +1,24 @@
 package it.polimi.genomics.importer.GMQLImporter
 
-import java.io.{File, FileWriter, IOException, PrintWriter}
+import java.io._
 
 import it.polimi.genomics.importer.DefaultImporter.schemaFinder
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
+import scala.collection.immutable.TreeMap
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.io.Source
 import scala.util.matching.Regex
+import scala.util.{Failure, Success, Try}
 import scala.xml.XML
 
 /**
   * Created by Nacho on 12/6/16.
   */
 object Transformer {
-  val logger = LoggerFactory.getLogger(this.getClass)
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   /**
     * Transforms the data and metadata into GDM friendly formats using the transformers.
@@ -37,10 +41,10 @@ object Transformer {
             .map(replacement => ((replacement \ "regex").text.r, (replacement \ "replace").text))
         }
         catch {
-          case e: IOException =>
+          case _: IOException =>
             logger.error("not valid metadata replacement xml file: ")
             Seq.empty
-          case e: NoSuchElementException =>
+          case _: NoSuchElementException =>
             logger.info("no metadata replacement defined for: " + source.name)
             Seq.empty
         }
@@ -137,12 +141,21 @@ object Transformer {
                             writer.close()
                           }
                           //metadata renaming. (standardizing of the metadata values should happen here also.
-                          if (changeMetadataKeys(metadataRenaming, fileTransformationPath))
+                          if (/*!metadataRenaming.isEmpty &&*/ changeMetadataKeys(metadataRenaming, fileTransformationPath))
                             modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
                           totalTransformedFiles = totalTransformedFiles + 1
                         }
                         //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
                         else {
+                          /*val dataUrl = FileDatabase.getFileDetails(fileId)._4*/
+                          /*val metaUrl = if (dataset.parameters.exists(_._1 == "spreadsheet_url"))
+                            dataset.parameters.filter(_._1 == "region_sorting").head._2
+                          else ""
+                          val fw = new FileWriter(fileTransformationPath + ".meta", true)
+                          try {
+                            fw.write(metaUrl)
+                          }
+                          finally fw.close()*/
                           val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
                           val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
                           if (modifiedAndSchema._1)
@@ -150,7 +163,11 @@ object Transformer {
                           if (!modifiedAndSchema._2)
                             wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
                           totalTransformedFiles = totalTransformedFiles + 1
-
+                          if(!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
+                            if (Try(regionFileSort(fileTransformationPath)).isFailure)
+                              logger.warn(s"fail to sort $fileTransformationPath")
+                            else
+                              logger.debug(s"$fileTransformationPath successfully sorted")
                         }
                         //standardization of the region data should be here.
                         FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
@@ -220,76 +237,232 @@ object Transformer {
     * @param schemaFilePath path of the schema file.
     * @return if the file was correctly modified and if it fits the schema.
     */
-  def checkRegionData(dataFilePath: String, schemaFilePath: String): (Boolean,Boolean) ={
+  def checkRegionData(dataFilePath: String, schemaFilePath: String): (Boolean, Boolean) = {
     //first I read the schema.
-    if(new File(schemaFilePath).exists()) {
+    if (new File(schemaFilePath).exists()) {
       val continue = {
         try {
           (XML.loadFile(schemaFilePath) \\ "field").nonEmpty
           true
         }
         catch {
-          case e: Exception => false
+          case _: Exception => false
         }
       }
       if (continue) {
-        val fields = (XML.loadFile(schemaFilePath) \\ "field").map(field => (field.text, (field \ "@type").text))
+        //load the schema in memory
+        val fields: Seq[(String, String)] = (XML.loadFile(schemaFilePath) \\ "field").map(field => (field.text, (field \ "@type").text))
 
+        val nodeSeq = XML.loadFile(schemaFilePath) \\ "gmqlSchema" \ "@type"
+        //detect schema type
+        val schemaType = if (nodeSeq.isEmpty)
+          "tab"
+        else if (nodeSeq.head.toString().toLowerCase.matches("tab|gtf"))
+          nodeSeq.head.toString().toLowerCase
+        else {
+          logger.warn(s"$schemaFilePath gmqlSchema type unknown, trying to treat it as a TAB")
+          "tab"
+        }
+        //generate a temp file
         val tempFile = dataFilePath + ".temp"
         val writer = new PrintWriter(tempFile)
+
+        //event register
+        val missingValueCount = Array.fill(fields.size)(0)
+        val typeMismatchCount = Array.fill(fields.size)(0)
+        var wrongAttNumCount = 0
+        var strandBadValCount = 0
+        var chromBadValCount = 0
+        var gtfMandatoryMissing = 0
+        var gtfOptionalMissing = 0
+        val gtfOptionalWrongName = Array.fill(fields.size)(0)
+        val gtfOptionalWrongFormt = Array.fill(fields.size)(0)
         //only replaces if everything goes right, if there is an error, we do not replace.
         var correctSchema = true
-        var replace = false
-        Source.fromFile(dataFilePath).getLines().foreach(line => {
-          val splitLine = line.split("\t", -1)
+        var modified = false
+
+        //scanning the file to check the consistency of each row to schema and manage missing value
+        val reader = Source.fromFile(dataFilePath)
+        reader.getLines().foreach(f = line => {
           var writeLine = ""
-          //here I have to check the schema
-          if (splitLine.size == fields.size) {
-            for (i <- 0 until splitLine.size) {
+          var isRemoved = false
+          val splitLine = line.split("\t", -1)
+          val regAttributes = if (schemaType == "gtf") {
+            //check if there are all the mandatory attribute
+            if (splitLine.length != 9){
+              isRemoved = true
+            }
+            //check if the last mandatory attribute containing the optional attributes is in the correct format
+            val optionalAttributes = splitLine(8).split("; |;")
+            //check if there are all the optional attribute
+            if (optionalAttributes.length + splitLine.length -1 != fields.length)
+              gtfOptionalMissing += 1
+            val optionalValues = ListBuffer[String]()
+            optionalAttributes.foreach(optAttribute => {
+              //check the format of optional attributes and extract the value
+              if (optAttribute.matches(""".+ ".*"""")) {
+                val optAttributeSplit = optAttribute.split(" ")
+                //check the optional attribute name
+                if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) +8 )._1)
+                  gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) +8) += 1
+                optionalValues += optAttributeSplit(1).dropRight(1).drop(1)
+              }
+              else if (optAttribute.matches(""".+ (^["].*^["]|^["])?""")) {
+                val optAttributeSplit = optAttribute.split(" ")
+                if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) +8 )._1)
+                  gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) +8) += 1
+                if (optAttributeSplit.length > 1)
+                  optionalValues += optAttributeSplit(1)
+                else
+                  optionalValues += ""
+              }
+              else {
+                gtfOptionalWrongFormt(optionalValues.indexOf(optAttribute) +8) += 1
+                optionalValues += ""
+              }
+            })
+            splitLine.dropRight(1) ++ optionalValues
+          }
+          else {
+            if(splitLine.length != fields.length)
+              isRemoved = true
+            splitLine
+          }
+          if (!isRemoved) { //check if number of region attributes is consistent to schema
+            for (i <- 0 until regAttributes.size) {
+              //managing missing value
+              if (regAttributes(i) == "" || regAttributes(i).toUpperCase == "NULL" || regAttributes(i).toUpperCase == "N/A" ||
+                (regAttributes(i) == "." && fields(i)._1 == "score")) {
+                missingValueCount(i) += 1
+                val oldValue = regAttributes(i)
+                //some attribute must be treated in different way if missing
+                if (fields(i)._1.toLowerCase == "score" || (schemaType == "gtf" && i < 8))
+                  regAttributes(i) = "."
+                else if (fields(i)._2.toUpperCase == "STRING" || fields(i)._2.toUpperCase == "CHAR")
+                  regAttributes(i) = ""
+                else
+                  regAttributes(i) = "NULL"
 
-              //try to parse for the type fields(i)._2
+                //check if the missing value has been modified
+                if (oldValue != regAttributes(i))
+                  modified = true
+              }
+              else {
+                //type consistency check
+                val typeMatch = fields(i)._2.toUpperCase match {
+                  case "LONG" => Try {
+                    regAttributes(i).toLong
+                  }
+                  case "DOUBLE" => Try {
+                    regAttributes(i).toDouble
+                  }
+                  case "INTEGER" => Try {
+                    regAttributes(i).toInt
+                  }
+                  case "CHAR" => if (regAttributes(i).length == 1) Success(regAttributes(i)) else Failure(new Exception("Not a char"))
+                  case "STRING" => Success(regAttributes(i))
+                  case _ => Failure(new Exception("Region attribute invalid type in schema"))
+                }
 
-              //if its a particular column, do particular action fields(i)._1
-              writeLine = writeLine + (if (i == 0) splitLine(i) else "\t" + splitLine(i))
+                typeMatch match {
+                  case Success(_) => //specific attribute value check
+                    //strand value check
+                    val strandAttributeNames: List[String] = List("strand")
+                    if (strandAttributeNames.contains(fields(i)._1.toLowerCase))
+                      regAttributes(i) match {
+                        case "+" | "-" | "*" | "." =>
+                        case _ => strandBadValCount += 1
+                      }
+                    //chromosome value check
+                    val chromAttributeNames: List[String] = List("seqname", "seqnames", "chr", "chrom", "chromosome")
+                    if (chromAttributeNames.contains(fields(i)._1.toLowerCase)) {
+                      val validChrom = "chr[0-9A-Z]{1,2}".r
+                      val invalidChrom1 = "[0-9A-Z]{1,2}".r
+                      val invalidChrom2 = "[cC][hH][rR][0-9A-Za-z]{1,2}".r
+                      regAttributes(i) match {
+                        case validChrom() =>
+                        case invalidChrom1() =>
+                          regAttributes(i) = "chr" + regAttributes(i)
+                          modified = true
+                        case invalidChrom2() => regAttributes(i) = "chr" + regAttributes(i).drop(3).toUpperCase
+                          modified = true
+                        case _ => chromBadValCount += 1
+                      }
+                    }
+                  case Failure(_) => //action to perform in case of type mismatch
+                    typeMismatchCount(i) += 1
+                    correctSchema = false
+                }
+              }
+
+              //write region on temp file
+              writeLine = writeLine + (if (i == 0) regAttributes(i)
+              else if (i>=8 && schemaType == "gtf")
+                if(i==8) s"""\t${fields(i)._1} "${regAttributes(i)}"""" else s"""; ${fields(i)._1} "${regAttributes(i)}""""
+              else
+                "\t" + regAttributes(i))
             }
             writeLine = writeLine + "\n"
             writer.write(writeLine)
-            //if there are changes to the lines, should replace the file.
-            replace = true
           }
           else {
-            if (correctSchema)
-              logger.warn("file: " + dataFilePath + " should have " + fields.length +
-                " columns. Instead has " + splitLine.length)
-            correctSchema = false
+            if(schemaType == "grf")
+              gtfMandatoryMissing += 1
+            else
+              wrongAttNumCount += 1
+            modified = true //schema still correct because the wrong line is removed.
           }
         })
+        reader.close()
         writer.close()
-        if (replace) {
+        //if there are changes to the lines, should replace the file.
+        if (modified) {
           //replace the file, and remove the temporary one.
           try {
-            import java.io.{File, FileInputStream, FileOutputStream}
-            val src = new File(tempFile)
-            val dest = new File(dataFilePath)
-            new FileOutputStream(dest) getChannel() transferFrom(
-              new FileInputStream(src) getChannel(), 0, Long.MaxValue)
-            new File(tempFile).delete()
+            val df = new File(dataFilePath)
+            val tf = new File(tempFile)
+            df.delete
+            tf.renameTo(df)
           }
           catch {
-            case e: IOException => logger.warn("could not change the file " + dataFilePath)
+            case _: IOException => logger.warn("could not change the file " + dataFilePath)
           }
         }
         else {
           new File(tempFile).delete()
         }
-        (replace, correctSchema)
+
+        if (gtfMandatoryMissing > 0)
+          logger.warn(s"In $dataFilePath: $gtfMandatoryMissing lines with wrong numbers of mandatory attributes removed.")
+        if (gtfOptionalMissing > 0)
+          logger.warn(s"In $dataFilePath: $gtfOptionalMissing lines with wrong numbers of optional attributes.")
+        if (wrongAttNumCount > 0)
+          logger.warn(s"In $dataFilePath: $wrongAttNumCount lines with wrong numbers of attributes removed.")
+        for (i <- fields.indices)
+          if (missingValueCount(i) > 0)
+            logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${missingValueCount(i)} missing value.")
+        for (i <- fields.indices)
+          if (typeMismatchCount(i) > 0)
+            logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${typeMismatchCount(i)} type mismatch.")
+        for (i <- fields.indices)
+          if (gtfOptionalWrongFormt(i) > 0)
+            logger.warn(s"In $dataFilePath optional attribute ${fields(i)._1}: ${gtfOptionalWrongFormt(i)} wrong optional attribute format.")
+        for (i <- fields.indices)
+          if (gtfOptionalWrongName(i) > 0)
+            logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${gtfOptionalWrongName(i)} wrong optional attribute name.")
+        if (strandBadValCount > 0)
+          logger.warn(s"In $dataFilePath: $strandBadValCount lines with invalid strand value.")
+        if (chromBadValCount > 0)
+          logger.warn(s"In $dataFilePath: $chromBadValCount lines with invalid chrom value.")
+        (modified, correctSchema)
       }
       else
-        (false,false)
+        (false, false)
     }
     else
-      (false,false)
+      (false, false)
   }
+
   /**
     * changes the name of key attribute in metadata.
     * replaces all parts of the key value that matches a regular expression.
@@ -300,7 +473,8 @@ object Transformer {
     var replaced = false
     if(new File(metadataFilePath).exists()){
       var metadataList: Seq[(String, String)] = Seq[(String,String)]()
-      Source.fromFile(metadataFilePath).getLines().foreach(line=>{
+      val reader = Source.fromFile(metadataFilePath)
+      reader.getLines().foreach(line=>{
         val split = line.split("\t", -1)
         if(split.length==2) {
           var metadataKey = split(0)
@@ -332,6 +506,7 @@ object Transformer {
           logger.warn("file: "+metadataFilePath+" should have 2 columns. Check this line that was excluded: "+line)
         }
       })
+      reader.close()
 
       val tempFile = metadataFilePath+".temp"
       val writer = new PrintWriter(tempFile)
@@ -341,15 +516,13 @@ object Transformer {
       writer.close()
 
       try {
-        import java.io.{File, FileInputStream, FileOutputStream}
-        val src = new File(tempFile)
-        val dest = new File(metadataFilePath)
-        new FileOutputStream(dest) getChannel() transferFrom(
-          new FileInputStream(src) getChannel(), 0, Long.MaxValue)
-        new File(tempFile).delete()
+        val df = new File(metadataFilePath)
+        val tf = new File(tempFile)
+        df.delete
+        tf.renameTo(df)
       }
       catch {
-        case e: IOException => logger.error("could not change metadata key on the file " + metadataFilePath)
+        case _: IOException => logger.error("could not change metadata key on the file " + metadataFilePath)
       }
     }
     replaced
@@ -433,6 +606,36 @@ object Transformer {
     }
     catch {
       case ex: SecurityException => logger.warn(s"Couldn't delete folder $path: ${ex.getMessage}")
+    }
+  }
+
+  /**
+    * sort region by chrom, start and stop coordinates
+    *
+    * @param filePath              file to sort
+    */
+  def regionFileSort(filePath: String): Unit = {
+    {
+      var tempMap: TreeMap[(String, Long, Long), mutable.Queue[String]] = new TreeMap[(String, Long, Long), mutable.Queue[String]]
+      val reader = Source.fromFile(filePath)
+      for (line <- reader.getLines) {
+        val lineSplit = line.split("\t")
+        val regionID = (lineSplit(0), lineSplit(1).toLong, lineSplit(2).toLong)
+        if (tempMap.contains(regionID))
+          tempMap(regionID) += line
+        else
+          tempMap = tempMap + ((regionID, mutable.Queue(line)))
+      }
+      reader.close()
+      using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(filePath))))) {
+        writer => { tempMap.foreach( pair => writer.write(pair._2.dequeue() + "\n"))
+        }
+      }
+    }
+
+    def using[T <: Closeable, R](resource: T)(block: T => R): R = {
+      try { block(resource) }
+      finally { resource.close() }
     }
   }
 }

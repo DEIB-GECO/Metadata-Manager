@@ -1,9 +1,6 @@
 package it.polimi.genomics.importer.main
 
 import java.io.File
-import scala.concurrent.{blocking, Future, Await}
-import scala.concurrent.duration._
-
 
 import it.polimi.genomics.importer.FileDatabase.FileDatabase
 import it.polimi.genomics.importer.GMQLImporter._
@@ -13,7 +10,6 @@ import org.apache.log4j._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import scala.concurrent.Future
 import scala.xml.{Elem, XML}
 
 /**
@@ -26,6 +22,7 @@ object program {
 
 
   /**
+    *
     * depending on the arguments, can run download/transform/load procedure or
     * delete transformed folder.
     * @param args arguments for GMQLImporter (help for more information)
