@@ -1,0 +1,1161 @@
+<?xml version="1.0"?>
+<root   xmlns="http://polimi.it/GDMImporter"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+    <settings>
+        <!--BASE WORKING FOLDER FOR THE IMPORTER-->
+        <base_working_directory>/home/hduser/gmql_importer/</base_working_directory>
+        <download_enabled>true</download_enabled>
+        <transform_enabled>true</transform_enabled>
+        <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
+    </settings>
+    <source_list>
+        <source name="HG19_TCGA">
+            <url>bioinf.iasi.cnr.it</url>
+            <source_working_directory>HG19_TCGA</source_working_directory>
+            <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
+            <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
+            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
+            <download_enabled>false</download_enabled>
+            <transform_enabled>false</transform_enabled>
+            <load_enabled>false</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>
+                    <key>metadata_replacement</key>
+                    <value>xml/metadataReplacementTcga.xml</value>
+                </parameter>
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For logging in ftp on tcga2bed we need this anonymous user</description>
+                    <key>username</key>
+                    <value>anonymous</value>
+                </parameter>
+                <parameter>
+                    <description>And also the corresponding null password</description>
+                    <key>password</key>
+                    <value/>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+            </parameter_list>
+            <dataset_list>
+                <!--THE SCHEMA URL HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <dataset name="cnv">
+                    <dataset_working_directory>cnv</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/cnv/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the cnv folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/cnv</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="dnamethylation">
+                    <dataset_working_directory>dnamethylation</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/dnamethylation27/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the dnamethylation folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/dnamethylation.*</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="dnaseq">
+                    <dataset_working_directory>dnaseq</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/dnaseq/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the dnaseq folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/dnaseq</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="mirnaseq_isoform">
+                    <dataset_working_directory>mirnaseq_isoform</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/mirnaseq/isoform.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the mirnaseq/isoform.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/mirnaseq/isoform.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="mirnaseq_mirna">
+                    <dataset_working_directory>mirnaseq_mirna</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/mirnaseq/mirna.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the mirnaseq/mirna.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/mirnaseq/mirna.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseq_exon">
+                    <dataset_working_directory>rnaseq_exon</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseq/exon.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseq/exon.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseq/exon.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseq_gene">
+                    <dataset_working_directory>rnaseq_gene</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseq/gene.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseq/gene.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseq/gene.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseq_spljxn">
+                    <dataset_working_directory>rnaseq_spljxn</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseq/spljxn.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseq/spljxn.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseq/spljxn.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_exon">
+                    <dataset_working_directory>rnaseqv2_exon</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseqv2/exon.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseq2/exon.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/exon.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_gene">
+                    <dataset_working_directory>rnaseqv2_gene</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseqv2/gene.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseqv2/gene.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/gene.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_isoform">
+                    <dataset_working_directory>rnaseqv2_isoform</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseqv2/isoform.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseqv2/isoform.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/isoform.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_spljxn">
+                    <dataset_working_directory>rnaseqv2_spljxn</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseqv2/spljxn.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>We look for all the rnaseqv2/spljxn.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/spljxn.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+        <source name="GRCh38_TCGA">
+            <!--url is the host in the FTPDownloader-->
+            <url>bioinformatics.iasi.cnr.it</url>
+            <source_working_directory>GRCh38_TCGA</source_working_directory>
+            <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
+            <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
+            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <load_enabled>false</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>
+                    <key>metadata_replacement</key>
+                    <value>xml/metadataReplacementTcga.xml</value>
+                </parameter>
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For logging in ftp on tcga2bed we need this anonymous user</description>
+                    <key>username</key>
+                    <value>anonymous</value>
+                </parameter>
+                <parameter>
+                    <description>And also the corresponding null password</description>
+                    <key>password</key>
+                    <value/>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+            </parameter_list>
+            <dataset_list>
+                <!--THE SCHEMA URL HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <dataset name="copy_number_segment">
+                    <dataset_working_directory>copy_number_segment</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/copy_number_segment/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                    	<parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_TCGA_copy_number</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of copy number variations (copy number segment).&lt;br&gt;
+                                    A copy number variation (CNV) is a variation in the number of copies of a given genomic segment per cell.&lt;br&gt;
+                                    The considered experiments include both germline and somatic CNVs.&lt;br&gt;
+                                    &lt;br&gt;
+                                    It is directly derived from data available on the Genomic Data Commons portal and transformed into GDM format through the openGDC pipeline.&lt;br&gt;
+                                    Documentation is available at http://bioinf.iasi.cnr.it/opengdc/data/OpenGDC_format_definition.pdf.&lt;br&gt;
+                                    More details are described in the GDC Data User's Guide available at https://docs.gdc.cancer.gov/Data/PDF/Data_UG.pdf and at https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/CNV_Pipeline/.&lt;br&gt;
+                                    &lt;br&gt;
+                                    The dataset includes tab separated BED files, in which the CNV file is converted, with the following fields:&lt;br&gt;
+                                    &lt;ol&gt;
+                                    &lt;li&gt;chrom (equal to the 2. field of the GDC CNV file, e.g., "1")&lt;/li&gt;
+                                    &lt;li&gt;start (equal to the 3. field of the GDC CNV file, e.g., 61735)&lt;/li&gt;
+                                    &lt;li&gt;end (equal to the 4. field of the GDC CNV file, e.g., 1628826)&lt;/li&gt;
+                                    &lt;li&gt;strand (unknown, set to '*')&lt;/li&gt;
+                                    &lt;li&gt;num_probes (equal to the 5. field of the GDC CNV file, e.g., 229)&lt;/li&gt;
+                                    &lt;li&gt;segment_mean (equal to the 6. field of the GDC CNV file, e.g., 0.1756)&lt;/li&gt;
+                                    &lt;/ol&gt;</value>
+                        </parameter>  
+                        <parameter>
+                            <description>We look for all the copy_number_segment folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/opengdc/bed/tcga/.*/copy_number_segment</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                    </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="gene_expression_quantification">
+                    <dataset_working_directory>gene_expression_quantification</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/gene_expression_quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                    	<parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_TCGA_gene_expression</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains data on gene expression quantification.&lt;br&gt;
+                                    It is directly derived from data available on the Genomic Data Commons portal and transformed into GDM format through the openGDC pipeline.&lt;br&gt;
+                                    Documentation is available at http://bioinf.iasi.cnr.it/opengdc/data/OpenGDC_format_definition.pdf.&lt;br&gt;
+                                    &lt;br&gt;
+                                    GDC provides gene expression quantification data in three files for each aliquot:&lt;br&gt;
+                                    -   FPKM (i.e., Fragments Per Kilobase of transcript per Million mapped reads)&lt;br&gt;
+                                    -   FPKM-UQ (i.e., Upper Quartile normalized FPKM values)&lt;br&gt;
+                                    -   counts (i.e., raw mapping counts of reads mapped to each gene)&lt;br&gt;
+                                    &lt;br&gt;
+                                    More details are described in the GDC Data User's Guide available at https://docs.gdc.cancer.gov/Data/PDF/Data_UG.pdf and at https://gdc.cancer.gov/about-data/data-harmonization-and-generation/genomic-data-harmonization/high-level-data-generation/rna-seq-quantification.&lt;br&gt;
+                                    &lt;br&gt;
+                                    The three original GDC files have been merged into one single BED file with the following fields:&lt;br&gt;
+                                    &lt;ol&gt;
+                                    &lt;li&gt;chrom (retrieved from GDC.h38 GENCODE v22 GTF annotation file according to the Ensembl ID of the gene, completed with "chr", e.g., "chr2")&lt;/li&gt;
+                                    &lt;li&gt;start (retrieved from GDC.h38 GENCODE v22 GTF annotation file5 according to the Ensembl ID of the gene, e.g., 32277910)&lt;/li&gt;
+                                    &lt;li&gt;end (retrieved from GDC.h38 GENCODE v22 GTF annotation file5 according to the Ensembl ID of the gene, e.g., 32316594)&lt;/li&gt;
+                                    &lt;li&gt;strand (retrieved from GDC.h38 GENCODE v22 GTF annotation file5 according to the Ensembl ID of the gene, e.g., '+')&lt;/li&gt;
+                                    &lt;li&gt;ensembl_gene_id (equal to the 1. field of any of the GDC gene expression quantification files, e.g., "ENSG00000119820.9")&lt;/li&gt;
+                                    &lt;li&gt;entrez_gene_id (retrieved from HUGO Gene Nomenclature Committee (HGNC) according to the Ensembl ID of the gene, e.g., "84272")&lt;/li&gt;
+                                    &lt;li&gt;gene_symbol (retrieved from GDC.h38 GENCODE v22 GTF annotation file5 according to the Ensembl ID of the gene, e.g., "YIPF4")&lt;/li&gt;
+                                    &lt;li&gt;type (retrieved from GDC.h38 GENCODE v22 GTF annotation files5 according to the Ensembl ID of the gene, e.g., "gene")&lt;/li&gt;
+                                    &lt;li&gt;htseq_count (equal to the 2. field of the GDC counts file, e.g., 1320)&lt;/li&gt;
+                                    &lt;li&gt;fpkm_uq (equal to the 2. field of the GDC FPKM-UQ file, e.g., 88737.5390983&lt;/li&gt;
+                                    &lt;li&gt;fpkm (equal to the 2. field of the GDC FPKM file, e.g., 2.44783943057)&lt;/li&gt;
+                                    &lt;/ol&gt;</value>
+                        </parameter>  
+                        <parameter>
+                            <description>We look for all the gene_expression_quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/opengdc/bed/tcga/.*/gene_expression_quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="isoform_expression_quantification">
+                    <dataset_working_directory>isoform_expression_quantification</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/isoform_expression_quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                    	<parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_TCGA_miRNA_isoform_expression</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains data on miRNA isoform expression quantification.&lt;br&gt;
+                                    It is directly derived from data available on the Genomic Data Commons portal and transformed into GDM format through the openGDC pipeline.&lt;br&gt;
+                                    Documentation is available at http://bioinf.iasi.cnr.it/opengdc/data/OpenGDC_format_definition.pdf.&lt;br&gt;
+                                    &lt;br&gt;
+                                    The miRNA Isoform Expression Quantification data contain expression profiles calculated for each individual miRNA sequence isoform observed.&lt;br&gt;
+                                    More details are described in the GDC Data User's Guide available at https://docs.gdc.cancer.gov/Data/PDF/Data_UG.pdf and at https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/miRNA_Pipeline/. GDC provides one file for each aliquot.&lt;br&gt;
+                                    &lt;br&gt;
+                                    The dataset includes tab separated BED files, in which the miRNA-seq Isoform quantification file is converted, with the following fields:&lt;br&gt;
+                                    &lt;ol&gt;
+                                    &lt;li&gt;chrom (retrieved from the 2. field of the GDC miRNA-seq file, part just after the first ":", e.g., "chr9")&lt;/li&gt;
+                                    &lt;li&gt;start (retrieved from the 2. field of the GDC miRNA-seq file, part just after the second ":", e.g., 96938243)&lt;/li&gt;
+                                    &lt;li&gt;end (retrieved from the 2. field of the GDC miRNA-seq file, part just before the third ":", e.g., 96938264)&lt;/li&gt;
+                                    &lt;li&gt;strand (retrieved from the 2. field of the GDC miRNA-seq file, part just after the third ":", e.g., '+')&lt;/li&gt;
+                                    &lt;li&gt;genome_version (retrieved from the 2. field of the GDC miRNA-seq file, part just before the first ":", e.g., "hg38")&lt;/li&gt;
+                                    &lt;li&gt;mirna_id (equal to the 1. field of the GDC miRNA-seq file, e.g., "has-let-7a-1")&lt;/li&gt;
+                                    &lt;li&gt;read_count (equal to the 3. field of the GDC miRNA-seq file, e.g., 4)&lt;/li&gt;
+                                    &lt;li&gt;reads_per_million_mirna_mapped (equal to the 4. field of the GDC miRNA-seq file, e.g., 0.707702)&lt;/li&gt;
+                                    &lt;li&gt;cross-mapped (equal to the 5. field of the GDC miRNA-seq file, e.g., 'N')&lt;/li&gt;
+                                    &lt;li&gt;mirna_region (equal to the 6. field of the GDC miRNA-seq file, e.g., "mature, MIMAT0000062")&lt;/li&gt;
+                                    &lt;li&gt;entrez_gene_id (retrieved from HUGO Gene Nomenclature Committee (HGNC) starting from the mirna_id provided in field 6)&lt;/li&gt;
+                                    &lt;li&gt;gene_symbol (retrieved from HUGO Gene Nomenclature Committee (HGNC)10 starting from the mirna_id provided in field 6)&lt;/li&gt;
+                                    &lt;/ol&gt;</value>
+                        </parameter> 
+                        <parameter>
+                            <description>We look for all the isoform_expression_quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/opengdc/bed/tcga/.*/isoform_expression_quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="masked_copy_number_segment">
+                    <dataset_working_directory>masked_copy_number_segment</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/masked_copy_number_segment/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                    	<parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_TCGA_copy_number_masked</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of copy number variations (masked copy number segment).&lt;br&gt;
+                                    A copy number variation (CNV) is a variation in the number of copies of a given genomic segment per cell.&lt;br&gt;
+                                    The considered experiments include only somatic CNVs.&lt;br&gt;
+                                    &lt;br&gt;
+                                    It is directly derived from data available on the Genomic Data Commons portal and transformed into GDM format through the openGDC pipeline.&lt;br&gt;
+                                    Documentation is available at http://bioinf.iasi.cnr.it/opengdc/data/OpenGDC_format_definition.pdf.&lt;br&gt;
+                                    More details are described in the GDC Data User's Guide available at https://docs.gdc.cancer.gov/Data/PDF/Data_UG.pdf and at https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/CNV_Pipeline/.&lt;br&gt;
+                                    &lt;br&gt;
+                                    The dataset includes tab separated BED files, in which the CNV file is converted, with the following fields:&lt;br&gt;
+                                    &lt;ol&gt;
+                                    &lt;li&gt;chrom (equal to the 2. field of the GDC CNV file, e.g., "1")&lt;/li&gt;
+                                    &lt;li&gt;start (equal to the 3. field of the GDC CNV file, e.g., 61735)&lt;/li&gt;
+                                    &lt;li&gt;end (equal to the 4. field of the GDC CNV file, e.g., 1628826)&lt;/li&gt;
+                                    &lt;li&gt;strand (unknown, set to '*')&lt;/li&gt;
+                                    &lt;li&gt;num_probes (equal to the 5. field of the GDC CNV file, e.g., 229)&lt;/li&gt;
+                                    &lt;li&gt;segment_mean (equal to the 6. field of the GDC CNV file, e.g., 0.1756)&lt;/li&gt;
+                                    &lt;/ol&gt;</value>
+                        </parameter> 
+                        <parameter>
+                            <description>We look for all the masked_copy_number_segment folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/opengdc/bed/tcga/.*/masked_copy_number_segment</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="masked_somatic_mutation">
+                    <dataset_working_directory>masked_somatic_mutation</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/masked_somatic_mutation/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                    	<parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_TCGA_somatic_mutation_masked</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains data on masked somatic mutations.&lt;br&gt;
+                                    It is directly derived from data available on the Genomic Data Commons portal and transformed into GDM format through the openGDC pipeline.&lt;br&gt;
+                                    Documentation is available at http://bioinf.iasi.cnr.it/opengdc/data/OpenGDC_format_definition.pdf.&lt;br&gt;
+                                    &lt;br&gt;
+                                    This type of Next Generation Sequencing (NGS) experiment discovers mutations by aligning DNA sequences derived from tumor samples to sequences derived from normal samples and a reference sequence. A Mutation Annotation Format (MAF) file is used to specify, for each sample, the discovered putative or validated mutations and to categorize those mutations (SNP, deletion, or insertion) as somatic (originating in the tissue) or germline (originating from the germline), as well as to specify additional information for those mutations.&lt;br&gt;
+                                    More details are available at https://docs.gdc.cancer.gov/Data/PDF/Data_UG.pdf and at https://gdc.cancer.gov/about-data/data-harmonization-and-generation/genomic-data-harmonization/high-level-data-generation/dna-seq-somatic-variation &lt;br&gt;
+                                    &lt;br&gt;
+                                    The dataset includes tab-separated BED files, in which each original DNA-seq .maf file is converted, with the following 18 fields, the main ones in the original MAF file: &lt;br&gt;
+                                    &lt;ol&gt;
+                                    &lt;li&gt;chrom (i.e., the name of the chromosome, e.g., "chr3", "chrY", "chr2_random", equal to the 5. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;start (i.e., the starting position of the feature in the chromosome or scaffold, e.g., 999, equal to the 6. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;end (i.e., the ending position of the feature in the chromosome or scaffold, e.g., 1000, equal to the 7. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;strand (i.e., the DNA strand where the feature is observed, either '+' or '-', equal to the 8. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;gene_symbol (i.e., the symbol of the gene related to the reported variant, if it exists, e.g., "HRG", equal to the 1. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;entrez_gene_id (i.e., the Entrez gene ID of the gene related to the reported variant, if it exists, e.g., "3273", equal to the 2. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;variant_classification (i.e., the classification of the reported variant, e.g., "Missense_Mutation", equal to the 9. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;variant_type (i.e., the type of mutation, e.g., "INS", equal to the 10. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;reference_allele (i.e., the plus strand reference allele at the variant position, e.g., "A", equal to the 11. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;tumor_seq_allele1 (i.e., the tumor sequencing (discovery) allele 1, e.g., "C", equal to the 12. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;tumor_seq_allele2 (i.e., the tumor sequencing (discovery) allele 2, e.g., "G", equal to the 13. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;dbsnp_rs (i.e., the latest dbSNP rs ID, e.g., "rs12345" or "novel" if not present in dbSNP, equal to the 14. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;tumor_sample_barcode (i.e., the BCR aliquot barcode for the tumor sample, e.g., "TCGA-02-0021-01A-01D-0002-04", equal to the 16. field of the GDC MAF file) &lt;/li&gt;
+                                    &lt;li&gt;matched_norm_sample_barcode (i.e., the BCR aliquot barcode for the matched normal sample, e.g., "TCGA-02-0021-10A-01D-0002-04", equal to the 17. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;match_norm_seq_allele1 (i.e., the matched normal sequencing allele 1, e.g., "T", equal to the 18. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;match_norm_seq_allele2 (i.e., the matched normal sequencing allele 2, e.g., "ACGT", equal to the 19. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;tumor_sample_uuid (i.e., the BCR aliquot UUID for the tumor sample, e.g., "b2804bb2-70f4-471a-b6db-70c0ef457df3", equal to the 33. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;li&gt;matched_norm_sample_uuid (i.e., the BCR aliquot UUID for the matched normal sample, e.g., "567e8487-e29b-32d4-a716-446655443246", equal to the 34. field of the GDC MAF file)&lt;/li&gt;
+                                    &lt;/ol&gt;</value>
+                        </parameter> 
+                        <parameter>
+                            <description>We look for all the masked_somatic_mutation folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/opengdc/bed/tcga/.*/masked_somatic_mutation</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="methylation_beta_value">
+                    <dataset_working_directory>methylation_beta_value</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/methylation_beta_value/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                    	<parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_TCGA_methylation</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains data on methylation beta value.&lt;br&gt;
+                                    It is directly derived from data available on the Genomic Data Commons portal and transformed into GDM format through the openGDC pipeline.&lt;br&gt;
+                                    Documentation is available at http://bioinf.iasi.cnr.it/opengdc/data/OpenGDC_format_definition.pdf.&lt;br&gt;
+                                    &lt;br&gt;
+                                    A wide-spread NGS experiment is the large-scale analysis of DNA methylation, which consists in deep sequencing of bisulfite-treated DNA. DNA methylation can be defined as the covalent modification of cytosine bases at the C-5 position, generally within a CpG sequence context. If DNA methylation occurs in promoter regions, it is an epigenetic mark that represents the inactivity of the transcripts of the promoter gene. &lt;br&gt;
+                                    More details are described in the GDC Data User's Guide available at https://docs.gdc.cancer.gov/Data/PDF/Data_UG.pdf and at https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/Methylation_LO_Pipeline/. &lt;br&gt;
+                                    Both data from Illumina Infinium HumanMethylation27 (HM27) and HumanMethylation450 (HM450) DNA methylation platforms are included.&lt;br&gt;
+                                    &lt;br&gt;
+                                    The dataset includes Tab-separated BED files, in which the DNA methylation file is converted, with the following fields:&lt;br&gt;
+                                    &lt;ol&gt;
+                                    &lt;li&gt;chrom (equal to the 3. field of the GDC DNA methylation file, i.e., the chromosome in which the probe binding site is located, e.g., "chr16")&lt;/li&gt;
+                                    &lt;li&gt;start (equal to the 4. field of the GDC DNA methylation file, i.e., the starting position of the probed CpG dinucleotide, since methylation involves a single base and the used genomic coordinate system is 1-based, e.g., 53434200)&lt;/li&gt;
+                                    &lt;li&gt;end (equal to the 5. field of the GDC DNA methylation file, i.e., the ending position of the probed CpG dinucleotide since methylation involves a single base and the used genomic coordinate system is 1-based, e.g., 53434201)&lt;/li&gt;
+                                    &lt;li&gt;strand (retrieved from GDC.h38 GENCODE v22 GTF annotation file5, based on the human gene symbol provided in 7. field of this output file, e.g., '+')&lt;/li&gt;
+                                    &lt;li&gt;composite_element_ref (equal to the 1. field of the GDC DNA methylation file, e.g., "cg00000092")&lt;/li&gt;
+                                    beta_value (equal to the 2. field of the GDC DNA methylation file, e.g., 0.157004810973011; it is worth to note that we filter out the methylation sites with missing beta values (i.e., not measured or with unreliable measurement), which were originally encoded with "NA".)&lt;/li&gt;
+                                    &lt;li&gt;gene_symbol (the symbol of the gene region where the CpG dinucleotide is located, e.g., "RBL2"; retrieved from field 6 of the input file and GDC.h38 GENCODE v22 GTF annotation file5; if the CpG dinucleotide is outside a gene region, we report the gene symbol that is at minimum bp distance from the CpG dinucleotide, as retrieved from field 6 of the input file and GDC.h38 GENCODE v22 GTF annotation file5)&lt;/li&gt;
+                                    &lt;li&gt;entrez_gene_id (retrieved from HUGO Gene Nomenclature Committee (HGNC)6 according to the human gene symbol provided in the 7. field of this output file, e.g., 5934)&lt;/li&gt;
+                                    &lt;li&gt;gene_type (type of gene provided in the 7. field of this output file, e.g., "protein_coding"; retrieved from the 7. field of the GDC DNA methylation file)&lt;/li&gt;
+                                    &lt;li&gt;ensembl_transcript_id (Ensembl IDs of the transcripts related to the gene provided in the 7. field of this output file, e.g., "ENST00000544405.5|ENST00000262133.9", retrieved from the 8. field of the GDC DNA methylation file)&lt;/li&gt;
+                                    &lt;li&gt;position_to_tss (distances in base pairs of the CpG site from each associated transcript's start site, related to the transcripts provided in the 10. field of this output file; negative values indicate that the CpG site is located downstream with respect to the TSS, e.g., "-221|-1420|222"; retrieved from the 9. field of the GDC DNA methylation file)&lt;/li&gt;
+                                    &lt;li&gt;all_gene_symbols (equal to the 6. field of the GDC DNA methylation file, i.e., the symbol of each of the genes (can be more than one, separated by the ; char) associated with the CpG site, e.g., "RBL2, COX")&lt;/li&gt;
+                                    &lt;li&gt;all_entrez_gene_ids (retrieved from HUGO Gene Nomenclature Committee (HGNC)5 according to the gene symbols provided in the 12. field of this output file, e.g., 5934;1253;4861)&lt;/li&gt;
+                                    &lt;li&gt;all_gene_types (equal to the 7. field of the GDC DNA methylation file, by taking into account the corresponding gene symbol (can be more than one, separated by the ; char) in field 12 of this output file, e.g., "protein_coding")&lt;/li&gt;
+                                    &lt;li&gt;all_ensembl_transcript_ids (equal to the 8. field of the GDC DNA methylation file, i.e., Ensembl transcript ID of each transcript associated with the corresponding gene symbol (can be more than one, separated by the ; char) in field 12 of this output file, e.g., "ENST00000155840.8|ENST00000335475.5;ENST00000597346.1"), pipe delimits transcript IDs related to the same gene, semicolon the ones related to different genes&lt;/li&gt;
+                                    &lt;li&gt;all_positions_to_tss (equal to the 9. field of the GDC DNA methylation file, i.e., distance in base pairs of the CpG site from each associated transcript's start site, by taking into account the corresponding gene symbol (can be more than one, separated by the ; char), negative values indicate that the CpG site is located downstream with respect to the TSS, e.g., "254241|237796;762"), pipe delimits positions_to_tss related to the same gene, semicolon the ones related to different genes&lt;/li&gt;
+                                    &lt;li&gt;cgi_coordinate (equal to the 10. field of the GDC DNA methylation file, i.e., the start and end coordinates of the CpG island associated with the CpG site, e.g., "CGI:chr16:53434489-53435297")&lt;/li&gt;
+                                    &lt;li&gt;feature_type (equal to the 11. field of the GDC DNA methylation file, i.e., the position of the CpG site in reference to the island, e.g., "N_Shore")&lt;/li&gt;
+                                    &lt;/ol&gt;</value>
+                        </parameter> 
+                        <parameter>
+                            <description>We look for all the methylation_beta_value folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/opengdc/bed/tcga/.*/methylation_beta_value</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="mirna_expression_quantification">
+                    <dataset_working_directory>mirna_expression_quantification</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/mirna_expression_quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                    	<parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_TCGA_miRNA_expression</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains data on miRNA expression quantification.&lt;br&gt;
+                                    It is directly derived from data available on the Genomic Data Commons portal and transformed into GDM format through the openGDC pipeline.&lt;br&gt;
+                                    Documentation is available at http://bioinf.iasi.cnr.it/opengdc/data/OpenGDC_format_definition.pdf.&lt;br&gt;
+                                    &lt;br&gt;
+                                    miRNA-seq data are derived from the sequencing of micro RNAs (miRNA). They contain information about both nucleotide sequence and expression. More details are described in the GDC Data User's Guide available at https://docs.gdc.cancer.gov/Data/PDF/Data_UG.pdf and at https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/miRNA_Pipeline/.&lt;br&gt;
+                                    &lt;br&gt;
+                                    One file for each aliquot is provided by GDC, containing the expression calculated based on all reads aligning to a particular miRNA.&lt;br&gt;
+                                    &lt;br&gt;
+                                    This dataset includes tab separated BED files, in which the miRNA-seq Mirna quantification file is converted, with the following fields:&lt;br&gt;
+                                    &lt;ol&gt;
+                                    &lt;li&gt;chrom (retrieved from miRBase database, according to the miRNA id provided in field 5, e.g., "chr9")&lt;/li&gt;
+                                    &lt;li&gt;start (retrieved from miRBase database8, according to the miRNA id provided in field 5, e.g., 94175957)&lt;/li&gt;
+                                    &lt;li&gt;end (retrieved from miRBase database8, according to the miRNA id provided in field 5, e.g., 94176036)&lt;/li&gt;
+                                    &lt;li&gt;strand (retrieved from miRBase database8, according to the miRNA id provided in field 5, e.g., '+')&lt;/li&gt;
+                                    &lt;li&gt;mirna_id (equal to the 1. field of the GDC miRNA-seq file, e.g., "hsa-let-7a-1")&lt;/li&gt;
+                                    &lt;li&gt;read_count (equal to the 2. field of the GDC miRNA-seq file, e.g., 29726)&lt;/li&gt;
+                                    &lt;li&gt;reads_per_million_mirna_mapped (equal to the 3. field of the GDC miRNA-seq file, e.g., 12429.699816)&lt;/li&gt;
+                                    &lt;li&gt;cross-mapped (equal to the 4. field of the GDC miRNA-seq file, e.g., 'N')&lt;/li&gt;
+                                    &lt;li&gt;entrez_gene_id (retrieved from HUGO Gene Nomenclature Committee (HGNC) starting from the mirna_id provided in field 5)&lt;/li&gt;
+                                    &lt;li&gt;gene_symbol (retrieved from HUGO Gene Nomenclature Committee (HGNC)9 starting from the entrez_gene_id retrieved in field 9)&lt;/li&gt;
+                                    &lt;/ol&gt;</value>
+                        </parameter> 
+                        <parameter>
+                            <description>We look for all the mirna_expression_quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/opengdc/bed/tcga/.*/mirna_expression_quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+        <source name="HG19_ENCODE">
+            <url>https://www.encodeproject.org/</url>
+            <source_working_directory>HG19_ENCODE</source_working_directory>
+            <downloader>it.polimi.genomics.importer.ENCODEImporter.ENCODEDownloader</downloader>
+            <transformer>it.polimi.genomics.importer.ENCODEImporter.ENCODETransformer</transformer>
+            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
+            <download_enabled>false</download_enabled>
+            <transform_enabled>false</transform_enabled>
+            <load_enabled>false</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For downloading the metadata.tsv from encode we need to add this at the end of the url</description>
+                    <key>metadata_prefix</key>
+                    <value>metadata/</value>
+                </parameter>
+                <parameter>
+                    <description>This suffix is needed after all the filters to download the metadata.tsv</description>
+                    <key>metadata_suffix</key>
+                    <value>/metadata.tsv</value>
+                </parameter>
+                <parameter>
+                    <description>As we download the json for the experiment, we need this prefix in the URL</description>
+                    <key>json_prefix</key>
+                    <value>experiments/</value>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+                <parameter>
+                    <description>We specified frame embedded and format json in encode for importing metadata</description>
+                    <key>json_suffix</key>
+                    <value>/?frame=embedded&amp;format=json/</value>
+                </parameter>
+                <parameter>
+                    <description>Excluding useless group of metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^contributing_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Excluding useless group of metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^original_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*analysis_step_version.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*derived_from.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*revoked_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^assembly$</value>
+                </parameter>
+                <parameter>
+                    <description>Xml file with the metadata key replacements.</description>
+                    <key>metadata_replacement</key>
+                    <value>xml/metadataReplacement.xml</value>
+                </parameter>
+                <parameter>
+                    <description>metadata extraction method tsv or json.</description>
+                    <key>metadata_extraction</key>
+                    <value>tsv</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude GRCh38 references</description>
+                    <type>exclusion</type>
+                    <key>Assembly</key>
+                    <value>GRCh38</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit WARNING</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit INTERNAL_ACTION</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit NOT_COMPLIANT</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit ERROR</value>
+                </parameter>
+            </parameter_list>
+            <dataset_list>
+                <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <dataset name="broadPeak">
+                    <dataset_working_directory>broadPeak</dataset_working_directory>
+                    <schema_url location="local">schemas/broadPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>false</transform_enabled>
+                    <load_enabled>false</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_ENCODE_BROAD_NOV_2017</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>BroadPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+broadPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>Hg19 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>files.assembly</key>
+                            <value>hg19</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="narrowPeak">
+                    <dataset_working_directory>narrowPeak</dataset_working_directory>
+                    <schema_url location="local">schemas/narrowPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>false</transform_enabled>
+                    <load_enabled>false</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_ENCODE_NARROW_NOV_2017</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>NarrowPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+narrowPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>Hg19 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>files.assembly</key>
+                            <value>hg19</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+        <!--I separated ENCODE in 2 diferent reference genomes to have a more "self explained" name in GMQL-->
+        <source name="GRCh38_ENCODE">
+            <url>https://www.encodeproject.org/</url>
+            <source_working_directory>GRCh38_ENCODE</source_working_directory>
+            <downloader>it.polimi.genomics.importer.ENCODEImporter.ENCODEDownloader</downloader>
+            <transformer>it.polimi.genomics.importer.ENCODEImporter.ENCODETransformer</transformer>
+            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
+            <download_enabled>false</download_enabled>
+            <transform_enabled>false</transform_enabled>
+            <load_enabled>false</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For downloading the metadata.tsv from encode we need to add this at the end of the url</description>
+                    <key>metadata_prefix</key>
+                    <value>metadata/</value>
+                </parameter>
+                <parameter>
+                    <description>This suffix is needed after all the filters to download the metadata.tsv</description>
+                    <key>metadata_suffix</key>
+                    <value>/metadata.tsv</value>
+                </parameter>
+                <parameter>
+                    <description>As we download the json for the experiment, we need this prefix in the URL</description>
+                    <key>json_prefix</key>
+                    <value>experiments/</value>
+                </parameter>
+                <parameter>
+                    <description>We specified frame embedded and format json in encode for importing metadata</description>
+                    <key>json_suffix</key>
+                    <value>/?frame=embedded&amp;format=json/</value>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+                <parameter>
+                    <description>Found this field to be not useful and too many fields</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^contributing_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Also creates a huge mess to include this metadata and is not useful</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^original_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*analysis_step_version.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*derived_from.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*revoked_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Xml file with the metadata key replacements.</description>
+                    <key>metadata_replacement</key>
+                    <value>xml/metadataReplacement.xml</value>
+                </parameter>
+                <parameter>
+                    <description>metadata extraction method tsv or json.</description>
+                    <key>metadata_extraction</key>
+                    <value>tsv</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude h19 references</description>
+                    <type>exclusion</type>
+                    <key>Assembly</key>
+                    <value>hg19</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit WARNING</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit INTERNAL_ACTION</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit NOT_COMPLIANT</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit ERROR</value>
+                </parameter>
+            </parameter_list>
+            <dataset_list>
+                <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <dataset name="broadPeak">
+                    <dataset_working_directory>broadPeak</dataset_working_directory>
+                    <schema_url location="local">schemas/broadPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>false</transform_enabled>
+                    <load_enabled>false</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_ENCODE_BROAD_NOV_2017</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>BroadPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+broadPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>GRCh38 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>files.assembly</key>
+                            <value>GRCh38</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="narrowPeak">
+                    <dataset_working_directory>narrowPeak</dataset_working_directory>
+                    <schema_url location="local">schemas/narrowPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>false</transform_enabled>
+                    <load_enabled>false</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_ENCODE_NARROW_NOV_2017</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>NarrowPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+narrowPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>GRCh38 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>files.assembly</key>
+                            <value>GRCh38</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+    </source_list>
+</root>
