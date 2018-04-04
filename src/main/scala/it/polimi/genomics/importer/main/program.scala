@@ -18,7 +18,7 @@ import scala.xml.{Elem, XML}
   */
 object program {
   val logger: Logger = Logger.getLogger(this.getClass)
-  val PATTERN = "%d [%p|%c|%C{1}] %m%n"
+  val PATTERN = "%d [%p] - %l %m%n"
 
 
   /**
