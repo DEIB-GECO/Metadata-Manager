@@ -234,7 +234,7 @@ class RoadmapTransformer  extends GMQLTransformer {
                 manCuratedMeta += (("feature", "histone modification"))
               }
               if (format == "bed") {
-                manCuratedMeta += (("peaks_caller", "HOTSPOT"))
+                manCuratedMeta += (("peak_caller", "HOTSPOT"))
                 if (nameComp.length > 1) {
                   manCuratedMeta += (("region_type", if (nameComp(nameComp.length-2).toLowerCase == "broad") "broad" else "narrow"))
                   if(nameComp.length > 2 && nameComp(nameComp.length-3) == "01")
@@ -244,7 +244,7 @@ class RoadmapTransformer  extends GMQLTransformer {
                 }
               }
               else
-                manCuratedMeta += (("peaks_caller", "MACS2"))
+                manCuratedMeta += (("peak_caller", "MACS2"))
             case patternRNAgenFile() =>
               manCuratedMeta += (("data_type", "RNA-seq"))
               manCuratedMeta += (("feature", "gene expression"))

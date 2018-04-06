@@ -5,6 +5,6 @@
 		<field type="LONG">start</field>
 		<field type="LONG">end</field>
 		<field type="CHAR">strand</field>
-		<field type="DOUBLE">score</field>
+		<field type="INTEGER">score</field>
 	</gmqlSchema>
 </gmqlSchemaCollection>
