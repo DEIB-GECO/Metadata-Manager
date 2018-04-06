@@ -236,7 +236,7 @@ class RoadmapTransformer  extends GMQLTransformer {
               if (format == "bed") {
                 manCuratedMeta += (("peaks_caller", "HOTSPOT"))
                 if (nameComp.length > 1) {
-                  manCuratedMeta += (("region_type", nameComp(nameComp.length-2)))
+                  manCuratedMeta += (("region_type", if (nameComp(nameComp.length-2).toLowerCase == "broad") "broad" else "narrow"))
                   if(nameComp.length > 2 && nameComp(nameComp.length-3) == "01")
                     manCuratedMeta += (("fdr_threshold", "0.01"))
                   else
@@ -262,7 +262,7 @@ class RoadmapTransformer  extends GMQLTransformer {
                 dataFileName match {
                   case s if s.matches(".*pc.bed") => manCuratedMeta += (("RNA_expression_region", "protein coding genes"))
                   case s if s.matches(".*nc.bed") => manCuratedMeta += (("RNA_expression_region", "non-coding RNAs"))
-                  case s if s.matches(".*rb.bed") => manCuratedMeta += (("RNA_expression_region", "ribosomal gene"))
+                  case s if s.matches(".*rb.bed") => manCuratedMeta += (("RNA_expression_region", "ribosomal genes"))
                 }
               }
             case patternDMRFile() =>
