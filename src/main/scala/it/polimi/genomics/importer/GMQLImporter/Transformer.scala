@@ -332,7 +332,7 @@ object Transformer {
             for (i <- 0 until regAttributes.size) {
               //managing missing value
               if (regAttributes(i) == "" || regAttributes(i).toUpperCase == "NULL" || regAttributes(i).toUpperCase == "N/A" ||
-                (regAttributes(i) == "." && fields(i)._1 == "score")) {
+                regAttributes(i).toUpperCase == "NA" || (regAttributes(i) == "." && fields(i)._1 == "score")) {
                 missingValueCount(i) += 1
                 val oldValue = regAttributes(i)
                 //some attribute must be treated in different way if missing
