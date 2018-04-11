@@ -289,43 +289,50 @@ object Transformer {
           val splitLine = line.split("\t", -1)
           val regAttributes = if (schemaType == "gtf") {
             //check if there are all the mandatory attribute
+            val optionalValues = ListBuffer[String]()
             if (splitLine.length != 9){
+              gtfMandatoryMissing += 1
               isRemoved = true
             }
-            //check if the last mandatory attribute containing the optional attributes is in the correct format
-            val optionalAttributes = splitLine(8).split("; |;")
-            //check if there are all the optional attribute
-            if (optionalAttributes.length + splitLine.length -1 != fields.length)
-              gtfOptionalMissing += 1
-            val optionalValues = ListBuffer[String]()
-            optionalAttributes.foreach(optAttribute => {
-              //check the format of optional attributes and extract the value
-              if (optAttribute.matches(""".+ ".*"""")) {
-                val optAttributeSplit = optAttribute.split(" ")
-                //check the optional attribute name
-                if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) +8 )._1)
-                  gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) +8) += 1
-                optionalValues += optAttributeSplit(1).dropRight(1).drop(1)
+            else {
+              //check if the last mandatory attribute containing the optional attributes is in the correct format
+              val optionalAttributes = splitLine(8).split("; |;")
+              //check if there are all the optional attribute
+              if (optionalAttributes.length + splitLine.length -1 != fields.length) {
+                gtfOptionalMissing += 1
+                isRemoved = true
               }
-              else if (optAttribute.matches(""".+ (^["].*^["]|^["])?""")) {
-                val optAttributeSplit = optAttribute.split(" ")
-                if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) +8 )._1)
-                  gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) +8) += 1
-                if (optAttributeSplit.length > 1)
-                  optionalValues += optAttributeSplit(1)
-                else
+              optionalAttributes.foreach(optAttribute => {
+                //check the format of optional attributes and extract the value
+                if (optAttribute.matches(""".+ ".*"""")) {
+                  val optAttributeSplit = optAttribute.split(" ")
+                  //check the optional attribute name
+                  if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) +8 )._1)
+                    gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) +8) += 1
+                  optionalValues += optAttributeSplit(1).dropRight(1).drop(1)
+                }
+                else if (optAttribute.matches(""".+ (^["].*^["]|^["])?""")) {
+                  val optAttributeSplit = optAttribute.split(" ")
+                  if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) +8 )._1)
+                    gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) +8) += 1
+                  if (optAttributeSplit.length > 1)
+                    optionalValues += optAttributeSplit(1)
+                  else
+                    optionalValues += ""
+                }
+                else {
+                  gtfOptionalWrongFormt(optionalValues.indexOf(optAttribute) +8) += 1
                   optionalValues += ""
-              }
-              else {
-                gtfOptionalWrongFormt(optionalValues.indexOf(optAttribute) +8) += 1
-                optionalValues += ""
-              }
-            })
+                }
+              })
+            }
             splitLine.dropRight(1) ++ optionalValues
           }
           else {
-            if(splitLine.length != fields.length)
+            if(splitLine.length != fields.length) {
+              wrongAttNumCount += 1
               isRemoved = true
+            }
             splitLine
           }
           if (!isRemoved) { //check if number of region attributes is consistent to schema
@@ -371,7 +378,10 @@ object Transformer {
                     if (strandAttributeNames.contains(fields(i)._1.toLowerCase))
                       regAttributes(i) match {
                         case "+" | "-" | "*" | "." =>
-                        case _ => strandBadValCount += 1
+                        case _ =>
+                          regAttributes(i) = "."
+                          strandBadValCount += 1
+                          modified = true
                       }
                     //chromosome value check
                     val chromAttributeNames: List[String] = List("seqname", "seqnames", "chr", "chrom", "chromosome")
@@ -406,10 +416,6 @@ object Transformer {
             writer.write(writeLine)
           }
           else {
-            if(schemaType == "grf")
-              gtfMandatoryMissing += 1
-            else
-              wrongAttNumCount += 1
             modified = true //schema still correct because the wrong line is removed.
           }
         })
@@ -433,27 +439,27 @@ object Transformer {
         }
 
         if (gtfMandatoryMissing > 0)
-          logger.info(s"In $dataFilePath: $gtfMandatoryMissing lines with wrong numbers of mandatory attributes removed.")
+          logger.warn(s"In $dataFilePath: $gtfMandatoryMissing lines with wrong numbers of mandatory attributes removed.")
         if (gtfOptionalMissing > 0)
-          logger.info(s"In $dataFilePath: $gtfOptionalMissing lines with wrong numbers of optional attributes.")
+          logger.warn(s"In $dataFilePath: $gtfOptionalMissing lines with wrong numbers of optional attributes removed.")
         if (wrongAttNumCount > 0)
-          logger.info(s"In $dataFilePath: $wrongAttNumCount lines with wrong numbers of attributes removed.")
+          logger.warn(s"In $dataFilePath: $wrongAttNumCount lines with wrong numbers of attributes removed.")
         for (i <- fields.indices)
           if (missingValueCount(i) > 0)
-            logger.info(s"In $dataFilePath attribute ${fields(i)._1}: ${missingValueCount(i)} missing value.")
+            logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${missingValueCount(i)} missing value.")
         for (i <- fields.indices)
           if (typeMismatchCount(i) > 0)
-            logger.info(s"In $dataFilePath attribute ${fields(i)._1}: ${typeMismatchCount(i)} type mismatch.")
+            logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${typeMismatchCount(i)} type mismatch.")
         for (i <- fields.indices)
           if (gtfOptionalWrongFormt(i) > 0)
-            logger.info(s"In $dataFilePath optional attribute ${fields(i)._1}: ${gtfOptionalWrongFormt(i)} wrong optional attribute format.")
+            logger.warn(s"In $dataFilePath optional attribute ${fields(i)._1}: ${gtfOptionalWrongFormt(i)} wrong optional attribute format.")
         for (i <- fields.indices)
           if (gtfOptionalWrongName(i) > 0)
-            logger.info(s"In $dataFilePath attribute ${fields(i)._1}: ${gtfOptionalWrongName(i)} wrong optional attribute name.")
+            logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${gtfOptionalWrongName(i)} wrong optional attribute name.")
         if (strandBadValCount > 0)
-          logger.info(s"In $dataFilePath: $strandBadValCount lines with invalid strand value.")
+          logger.warn(s"In $dataFilePath: $strandBadValCount lines with invalid strand value replaced with default value.")
         if (chromBadValCount > 0)
-          logger.info(s"In $dataFilePath: $chromBadValCount lines with invalid chrom value.")
+          logger.warn(s"In $dataFilePath: $chromBadValCount lines with invalid chrom value.")
         (modified, correctSchema)
       }
       else

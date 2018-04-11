@@ -17,7 +17,7 @@
             <downloader>it.polimi.genomics.importer.RoadmapImporter.RoadmapDownloader</downloader>
             <transformer>it.polimi.genomics.importer.RoadmapImporter.RoadmapTransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
-            <download_enabled>false</download_enabled>
+            <download_enabled>true</download_enabled>
             <transform_enabled>true</transform_enabled>
             <load_enabled>false</load_enabled>
             <parameter_list>     

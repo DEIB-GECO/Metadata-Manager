@@ -280,9 +280,9 @@ class RoadmapTransformer  extends GMQLTransformer {
           if (singleOrComposite == "C")
             for (i <- listMaps1(eid_index)("DONOR / SAMPLE ALIAS").split(";").indices)
               age match {
-                case _ if age.contains("CL") => manCuratedMeta += (("life_stage__"+ i+1, "cell line"))
-                case _ if age.contains("Y") => manCuratedMeta += (("life_stage__" + i+1, "born"))
-                case _ if age.contains("GW") => manCuratedMeta += (("life_stage__" + i+1, "fetal"))
+                case _ if age.contains("CL") => manCuratedMeta += (("life_stage__"+ {i+1}, "cell line"))
+                case _ if age.contains("Y") => manCuratedMeta += (("life_stage__" + {i+1}, "born"))
+                case _ if age.contains("GW") => manCuratedMeta += (("life_stage__" + {i+1}, "fetal"))
                 case _ =>
               }
           else
@@ -393,6 +393,7 @@ class RoadmapTransformer  extends GMQLTransformer {
     * @param key          name of the attribute
     * @param value        value of the attribute
     * @param writer       writer of the file
+    * @param map          the other attributes, used for computation that requires values of other attributes
     */
   def ageCorrector(key: String, value: String, writer: Writer, map:Map[String, String]): Unit = {
     val convertedValue:String = value match{
@@ -413,17 +414,26 @@ class RoadmapTransformer  extends GMQLTransformer {
         s"${valueSplit.mkString(", ")}"
       case _ => ""
     }
+    val convertedValueSplit = convertedValue.split(", ")
     val singleOrComposite = map("Single Donor (SD) /Composite (C)")
     if (convertedValue != "") {
-      val convertedValueSplit = convertedValue.split(", ")
+
       if (singleOrComposite == "C" && convertedValueSplit.length > 1){
         convertedValueSplit.foreach(weeks => writer.write(s"${key}__${convertedValueSplit.indexOf(weeks)}\t$weeks\n"))
       }
       else
-        writer.write(s"$key\t$convertedValue\n")
+        writer.write(s"$key\t${convertedValueSplit(0)}\n")
     }
   }
 
+  /**
+    * write the multiple metadata Donor / Sample Alias and multiple donor_id
+    *
+    * @param key          name of the attribute
+    * @param value        value of the attribute
+    * @param writer       writer of the file
+    * @param map          the other attributes, used for computation that requires values of other attributes
+    */
   def donorOrSampleCorrector(key: String, value: String, writer: Writer, map:Map[String, String]): Unit = {
     val sampleAliases = value.split(";")
     if (sampleAliases.length > 1)
@@ -436,7 +446,15 @@ class RoadmapTransformer  extends GMQLTransformer {
     else
       sampleAliases.foreach(sampleAlias => writer.write(s"epi__donor_id__${sampleAliases.indexOf(sampleAlias)+1}\t$sampleAlias\n"))
   }
-  
+
+  /**
+    * write the multiple metadata ETHNICITY if required
+    *
+    * @param key          name of the attribute
+    * @param value        value of the attribute
+    * @param writer       writer of the file
+    * @param map          the other attributes, used for computation that requires values of other attributes
+    */
   def ethnicityCorrector(key: String, value: String, writer: Writer, map:Map[String, String]): Unit = {
     val singleOrComposite = map("Single Donor (SD) /Composite (C)")
     if (singleOrComposite == "C") {
