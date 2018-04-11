@@ -433,27 +433,27 @@ object Transformer {
         }
 
         if (gtfMandatoryMissing > 0)
-          logger.warn(s"In $dataFilePath: $gtfMandatoryMissing lines with wrong numbers of mandatory attributes removed.")
+          logger.info(s"In $dataFilePath: $gtfMandatoryMissing lines with wrong numbers of mandatory attributes removed.")
         if (gtfOptionalMissing > 0)
-          logger.warn(s"In $dataFilePath: $gtfOptionalMissing lines with wrong numbers of optional attributes.")
+          logger.info(s"In $dataFilePath: $gtfOptionalMissing lines with wrong numbers of optional attributes.")
         if (wrongAttNumCount > 0)
-          logger.warn(s"In $dataFilePath: $wrongAttNumCount lines with wrong numbers of attributes removed.")
+          logger.info(s"In $dataFilePath: $wrongAttNumCount lines with wrong numbers of attributes removed.")
         for (i <- fields.indices)
           if (missingValueCount(i) > 0)
-            logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${missingValueCount(i)} missing value.")
+            logger.info(s"In $dataFilePath attribute ${fields(i)._1}: ${missingValueCount(i)} missing value.")
         for (i <- fields.indices)
           if (typeMismatchCount(i) > 0)
-            logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${typeMismatchCount(i)} type mismatch.")
+            logger.info(s"In $dataFilePath attribute ${fields(i)._1}: ${typeMismatchCount(i)} type mismatch.")
         for (i <- fields.indices)
           if (gtfOptionalWrongFormt(i) > 0)
-            logger.warn(s"In $dataFilePath optional attribute ${fields(i)._1}: ${gtfOptionalWrongFormt(i)} wrong optional attribute format.")
+            logger.info(s"In $dataFilePath optional attribute ${fields(i)._1}: ${gtfOptionalWrongFormt(i)} wrong optional attribute format.")
         for (i <- fields.indices)
           if (gtfOptionalWrongName(i) > 0)
-            logger.warn(s"In $dataFilePath attribute ${fields(i)._1}: ${gtfOptionalWrongName(i)} wrong optional attribute name.")
+            logger.info(s"In $dataFilePath attribute ${fields(i)._1}: ${gtfOptionalWrongName(i)} wrong optional attribute name.")
         if (strandBadValCount > 0)
-          logger.warn(s"In $dataFilePath: $strandBadValCount lines with invalid strand value.")
+          logger.info(s"In $dataFilePath: $strandBadValCount lines with invalid strand value.")
         if (chromBadValCount > 0)
-          logger.warn(s"In $dataFilePath: $chromBadValCount lines with invalid chrom value.")
+          logger.info(s"In $dataFilePath: $chromBadValCount lines with invalid chrom value.")
         (modified, correctSchema)
       }
       else
@@ -615,27 +615,26 @@ object Transformer {
     * @param filePath              file to sort
     */
   def regionFileSort(filePath: String): Unit = {
-    {
-      var tempMap: TreeMap[(String, Long, Long), mutable.Queue[String]] = new TreeMap[(String, Long, Long), mutable.Queue[String]]
-      val reader = Source.fromFile(filePath)
-      for (line <- reader.getLines) {
-        val lineSplit = line.split("\t")
-        val regionID = (lineSplit(0), lineSplit(1).toLong, lineSplit(2).toLong)
-        if (tempMap.contains(regionID))
-          tempMap(regionID) += line
-        else
-          tempMap = tempMap + ((regionID, mutable.Queue(line)))
-      }
-      reader.close()
-      using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(filePath))))) {
-        writer => { tempMap.foreach( pair => writer.write(pair._2.dequeue() + "\n"))
-        }
+    var tempMap: TreeMap[(String, Long, Long), mutable.Queue[String]] = new TreeMap[(String, Long, Long), mutable.Queue[String]]
+    val reader = Source.fromFile(filePath)
+    for (line <- reader.getLines) {
+      val lineSplit = line.split("\t")
+      val regionID = (lineSplit(0), lineSplit(1).toLong, lineSplit(2).toLong)
+      if (tempMap.contains(regionID))
+        tempMap(regionID) += line
+      else
+        tempMap = tempMap + ((regionID, mutable.Queue(line)))
+    }
+    reader.close()
+    using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("result"))))) {
+      writer => { tempMap.foreach( pair =>
+        while (pair._2.nonEmpty) writer.write(pair._2.dequeue() + "\n"))
       }
     }
+  }
 
-    def using[T <: Closeable, R](resource: T)(block: T => R): R = {
-      try { block(resource) }
-      finally { resource.close() }
-    }
+  def using[T <: Closeable, R](resource: T)(block: T => R): R = {
+    try { block(resource) }
+    finally { resource.close() }
   }
 }

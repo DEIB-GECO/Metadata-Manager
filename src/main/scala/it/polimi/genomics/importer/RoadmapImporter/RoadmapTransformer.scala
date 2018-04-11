@@ -212,7 +212,8 @@ class RoadmapTransformer  extends GMQLTransformer {
         else
           //write the metadata associated with the epigenome of th file
           mapToFile(listMaps1(eid_index).filterKeys(key => !(key.split("__").length > 1 && key.split("__")(1) != mark)), writer, keyPrefix =  "epi",
-            valueCorrections = List((".*AGE_Post_Birth_in_YEARS_or_Fetal_in_GESTATIONAL_WEEKS_or_CELL_LINE_CL.*", ageCorrector)))
+            valueCorrections = List((".*AGE_Post_Birth_in_YEARS_or_Fetal_in_GESTATIONAL_WEEKS_or_CELL_LINE_CL.*", ageCorrector),
+              (".*DONOR_or_SAMPLE_ALIAS*", donorOrSampleCorrector), (".*ETHNICITY.*", ethnicityCorrector)))
         dataFileName match { //add type specific metadata
             case patternPeakFile() =>
               //this metadata are duplicated and have been written with the epigenome metadata
@@ -275,12 +276,22 @@ class RoadmapTransformer  extends GMQLTransformer {
         //add metadata in common to all files
         if(eid_index >= 0 && listMaps1(eid_index).keys.toList.contains("AGE\n(Post Birth in YEARS/ Fetal in GESTATIONAL WEEKS/CELL LINE CL) ")) {
           val age = listMaps1(eid_index)("AGE\n(Post Birth in YEARS/ Fetal in GESTATIONAL WEEKS/CELL LINE CL) ")
-          age match {
-            case _ if age.contains("CL") => manCuratedMeta += (("life_stage", "cell line"))
-            case _ if age.contains("Y") => manCuratedMeta += (("life_stage", "born"))
-            case _ if age.contains("GW") => manCuratedMeta += (("life_stage", "fetal"))
-            case _ =>
-          }
+          val singleOrComposite = listMaps1(eid_index)("Single Donor (SD) /Composite (C)")
+          if (singleOrComposite == "C")
+            for (i <- listMaps1(eid_index)("DONOR / SAMPLE ALIAS").split(";").indices)
+              age match {
+                case _ if age.contains("CL") => manCuratedMeta += (("life_stage__"+ i+1, "cell line"))
+                case _ if age.contains("Y") => manCuratedMeta += (("life_stage__" + i+1, "born"))
+                case _ if age.contains("GW") => manCuratedMeta += (("life_stage__" + i+1, "fetal"))
+                case _ =>
+              }
+          else
+            age match {
+              case _ if age.contains("CL") => manCuratedMeta += (("life_stage", "cell line"))
+              case _ if age.contains("Y") => manCuratedMeta += (("life_stage", "born"))
+              case _ if age.contains("GW") => manCuratedMeta += (("life_stage", "fetal"))
+              case _ =>
+            }
         }
         manCuratedMeta += (("format", if (format == "bed") format.toUpperCase else format))
         manCuratedMeta += (("assembly", "hg19"))
@@ -340,7 +351,7 @@ class RoadmapTransformer  extends GMQLTransformer {
     * @return String containing the mark in the file name
     */
   def mapToFile(map: Map[String, String], writer: Writer, keyPrefix: String = "", keyPostfix: String = "", skipList: List[String] = List(),
-                valueCorrections: List[(String, (String, String, Writer) => Unit)] = List()): Unit = {
+                valueCorrections: List[(String, (String, String, Writer, Map[String, String]) => Unit)] = List()): Unit = {
     for ((k, v) <- map.toSeq.sortBy(_._1))
       if (!(k.isEmpty || v.isEmpty || v.toLowerCase.matches("na|n/a") || skipList.contains(k)))  {
         //the name of the attribute is transformed in a java valid key (alphanumeric string)
@@ -368,7 +379,7 @@ class RoadmapTransformer  extends GMQLTransformer {
         for ((regex, corrector) <- valueCorrections) {
           if (k_enriched.matches(regex)) {
             isCorrected = true
-            corrector(k_enriched, v, writer)
+            corrector(k_enriched, v, writer, map)
           }
         }
         if(!isCorrected)
@@ -383,27 +394,62 @@ class RoadmapTransformer  extends GMQLTransformer {
     * @param value        value of the attribute
     * @param writer       writer of the file
     */
-  def ageCorrector(key: String, value: String, writer: Writer): Unit = {
-    value match{
-      case _ if value.contains("CL") =>
+  def ageCorrector(key: String, value: String, writer: Writer, map:Map[String, String]): Unit = {
+    val convertedValue:String = value match{
+      case _ if value.contains("CL") => ""
       case _ if value.toLowerCase().contains("fetus") =>
-        writer.write(s"$key\tunknown\n")
+        "unknown"
       case _ if value.contains("Y") =>
         val valueSplit = value.split(", |,|\\. |\\.")
         for(i <- valueSplit.indices) {
           valueSplit(i) = Try((valueSplit(i).dropRight(1).toInt * 52).toString).getOrElse("unknown")
         }
-        writer.write(s"$key\t${valueSplit.mkString(", ")}\n")
+        s"${valueSplit.mkString(", ")}"
       case _ if value.contains("GW") =>
         val valueSplit = value.split(", |,|\\. |\\.")
         for(i <- valueSplit.indices) {
           valueSplit(i) = Try((valueSplit(i).dropRight(2).toInt * 52).toString).getOrElse("unknown")
         }
-        writer.write(s"$key\t${valueSplit.mkString(", ")}\n")
-      case _ =>
+        s"${valueSplit.mkString(", ")}"
+      case _ => ""
+    }
+    val singleOrComposite = map("Single Donor (SD) /Composite (C)")
+    if (convertedValue != "") {
+      val convertedValueSplit = convertedValue.split(", ")
+      if (singleOrComposite == "C" && convertedValueSplit.length > 1){
+        convertedValueSplit.foreach(weeks => writer.write(s"${key}__${convertedValueSplit.indexOf(weeks)}\t$weeks\n"))
+      }
+      else
+        writer.write(s"$key\t$convertedValue\n")
     }
   }
 
+  def donorOrSampleCorrector(key: String, value: String, writer: Writer, map:Map[String, String]): Unit = {
+    val sampleAliases = value.split(";")
+    if (sampleAliases.length > 1)
+      sampleAliases.foreach(sampleAlias => writer.write(s"epi__sample_alias__${sampleAliases.indexOf(sampleAlias)+1}\t$sampleAlias\n"))
+    else
+      writer.write(s"$key\t$value\n")
+    val singleOrComposite = map("Single Donor (SD) /Composite (C)")
+    if (singleOrComposite == "SD")
+      writer.write(s"epi__donor_id\t${sampleAliases(0)}\n")
+    else
+      sampleAliases.foreach(sampleAlias => writer.write(s"epi__donor_id__${sampleAliases.indexOf(sampleAlias)+1}\t$sampleAlias\n"))
+  }
+  
+  def ethnicityCorrector(key: String, value: String, writer: Writer, map:Map[String, String]): Unit = {
+    val singleOrComposite = map("Single Donor (SD) /Composite (C)")
+    if (singleOrComposite == "C") {
+      val valueSplit = value.split(", |,")
+      if (valueSplit.length == 1)
+        for (i <- map("DONOR / SAMPLE ALIAS").split(";").indices)
+          writer.write(s"${key}__${i+1}\t$value\n")
+      else
+        valueSplit.foreach(ethnicity => writer.write(s"${key}__${valueSplit.indexOf(ethnicity)+1}\t$ethnicity\n"))
+    }
+    else
+      writer.write(s"$key\t$value\n")
+  }
   /**
     * generate a gene expression region file from the tabular expression quantification files (N and RPKM) and the
     * gene_info file
