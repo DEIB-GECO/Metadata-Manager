@@ -497,13 +497,13 @@ class RoadmapTransformer  extends GMQLTransformer {
     val eid = fileNameSplit(0)
     val coreSplit = fileNameSplit.drop(1)
     val NSource = if (fileName.contains("exon") || fileName.contains("exn"))
-      "57epigenomes." + coreSplit(0) +".N."+coreSplit(coreSplit.length-1)
+      "57epigenomes." + coreSplit(0) +".N."+ coreSplit.drop(1).mkString(".")
     else
-      "57epigenomes.N." + coreSplit(coreSplit.length-1)
+      "57epigenomes.N." + coreSplit.mkString(".")
     val RPKMSource = if (fileName.contains("exon") || fileName.contains("exn"))
-      "57epigenomes." + coreSplit(0) +".RPKM."+coreSplit(coreSplit.length-1)
+      "57epigenomes." + coreSplit(0) +".RPKM."+ coreSplit.drop(1).mkString(".")
     else
-      "57epigenomes.RPKM." + coreSplit(coreSplit.length-1)
+      "57epigenomes.RPKM." + coreSplit.mkString(".")
 
     //get the iterator over the tabular files
     val exprReaderN = CSVReader.open(new File(filePath + File.separator + NSource))
