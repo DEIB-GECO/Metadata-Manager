@@ -163,11 +163,11 @@ object Transformer {
                           if (!modifiedAndSchema._2)
                             wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
                           totalTransformedFiles = totalTransformedFiles + 1
-                          if(!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
-                            if (Try(regionFileSort(fileTransformationPath)).isFailure)
-                              logger.warn(s"fail to sort $fileTransformationPath")
-                            else
-                              logger.debug(s"$fileTransformationPath successfully sorted")
+//                          if(!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
+//                            if (Try(regionFileSort(fileTransformationPath)).isFailure)
+//                              logger.warn(s"fail to sort $fileTransformationPath")
+//                            else
+//                              logger.debug(s"$fileTransformationPath successfully sorted")
                         }
                         //standardization of the region data should be here.
                         FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
