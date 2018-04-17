@@ -199,7 +199,7 @@ class RoadmapTransformer  extends GMQLTransformer {
             case "E000" =>
               val inferredMetadata = Map(("Epigenome ID (EID)", eid),
                 ("Standardized Epigenome name", "Universal Human Reference RNA"),
-                ("Epgenome Mnemonic", "HUR"),
+                ("Epigenome Mnemonic", "HUR"),
                 ("Comments", "Agilent's Universal Human Reference RNA is composed of total RNA from 10 human cell lines. " +
                   "The reference RNA is designed to be used as a reference for expression profiling experiments."))
               mapToFile(inferredMetadata, writer, "epi")
