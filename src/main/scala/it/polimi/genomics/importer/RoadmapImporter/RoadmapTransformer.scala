@@ -199,7 +199,7 @@ class RoadmapTransformer  extends GMQLTransformer {
             case "E000" =>
               val inferredMetadata = Map(("Epigenome ID (EID)", eid),
                 ("Standardized Epigenome name", "Universal Human Reference RNA"),
-                ("Epgenome Mnemonic", "HUR"),
+                ("Epigenome Mnemonic", "HUR"),
                 ("Comments", "Agilent's Universal Human Reference RNA is composed of total RNA from 10 human cell lines. " +
                   "The reference RNA is designed to be used as a reference for expression profiling experiments."))
               mapToFile(inferredMetadata, writer, "epi")
@@ -419,7 +419,7 @@ class RoadmapTransformer  extends GMQLTransformer {
     if (convertedValue != "") {
 
       if (singleOrComposite == "C" && convertedValueSplit.length > 1){
-        convertedValueSplit.foreach(weeks => writer.write(s"${key}__${convertedValueSplit.indexOf(weeks)}\t$weeks\n"))
+        convertedValueSplit.foreach(weeks => writer.write(s"${key}__${convertedValueSplit.indexOf(weeks)+1}\t$weeks\n"))
       }
       else
         writer.write(s"$key\t${convertedValueSplit(0)}\n")
@@ -439,7 +439,7 @@ class RoadmapTransformer  extends GMQLTransformer {
     if (sampleAliases.length > 1)
       sampleAliases.foreach(sampleAlias => writer.write(s"epi__sample_alias__${sampleAliases.indexOf(sampleAlias)+1}\t$sampleAlias\n"))
     else
-      writer.write(s"$key\t$value\n")
+      writer.write(s"epi__sample_alias\t$value\n")
     val singleOrComposite = map("Single Donor (SD) /Composite (C)")
     if (singleOrComposite == "SD")
       writer.write(s"epi__donor_id\t${sampleAliases(0)}\n")
