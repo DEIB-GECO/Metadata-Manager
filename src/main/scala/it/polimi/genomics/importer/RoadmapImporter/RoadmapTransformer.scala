@@ -19,10 +19,10 @@ import scala.util.matching.Regex
 class RoadmapTransformer  extends GMQLTransformer {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val patternPeakFile: Regex = """.*\.narrowPeak|.*\.gappedPeak|.*\.broadPeak|.*_peaks\.bed|.*_broad\.bed""".r
-  val patternRNAgenFile: Regex = """.*pc\.bed|.*nc\.bed|.*rb\.bed""".r
-  val patternRNAexpArch: Regex = """.*\.pc.gz|.*\.nc.gz|.*\.rb.gz""".r
-  val patternDMRFile: Regex = """.*_DMRs_v2\.bed""".r
+  val patternPeakFile: Regex = """.*.narrowPeak|.*\.gappedPeak|.*\.broadPeak|.*_peaks(?:_v\d+)?\.bed|.*_broad(?:_v\d+)?\.bed""".r
+  val patternRNAgenFile: Regex = """.*pc(?:_v\d+)?\.bed|.*nc(?:_v\d+)?\.bed|.*rb(?:_v\d+)?\.bed""".r
+  val patternRNAexpArch: Regex = """.*\.pc(?:_v\d+)?\.gz|.*\.nc(?:_v\d+)?\.gz|.*\.rb(?:_v\d+)?\.gz""".r
+  val patternDMRFile: Regex = """.*_DMRs(?:_v\d+)?\.bed""".r
   val patternMetadata: Regex = """.*\.meta""".r
 
   /**
@@ -409,7 +409,7 @@ class RoadmapTransformer  extends GMQLTransformer {
       case _ if value.contains("GW") =>
         val valueSplit = value.split(", |,|\\. |\\.")
         for(i <- valueSplit.indices) {
-          valueSplit(i) = Try((valueSplit(i).dropRight(2).toInt * 52).toString).getOrElse("unknown")
+          valueSplit(i) = Try(valueSplit(i).dropRight(2)).getOrElse("unknown")
         }
         s"${valueSplit.mkString(", ")}"
       case _ => ""
@@ -419,7 +419,9 @@ class RoadmapTransformer  extends GMQLTransformer {
     if (convertedValue != "") {
 
       if (singleOrComposite == "C" && convertedValueSplit.length > 1){
-        convertedValueSplit.foreach(weeks => writer.write(s"${key}__${convertedValueSplit.indexOf(weeks)+1}\t$weeks\n"))
+        for (i <- convertedValueSplit.indices)
+          writer.write(s"${key}__${i+1}\t${convertedValueSplit(i)}\n")
+        //convertedValueSplit.foreach(weeks => writer.write(s"${key}__${convertedValueSplit.indexOf(weeks)+1}\t$weeks\n"))
       }
       else
         writer.write(s"$key\t${convertedValueSplit(0)}\n")
@@ -437,14 +439,18 @@ class RoadmapTransformer  extends GMQLTransformer {
   def donorOrSampleCorrector(key: String, value: String, writer: Writer, map:Map[String, String]): Unit = {
     val sampleAliases = value.split(";")
     if (sampleAliases.length > 1)
-      sampleAliases.foreach(sampleAlias => writer.write(s"epi__sample_alias__${sampleAliases.indexOf(sampleAlias)+1}\t$sampleAlias\n"))
+      for (i <- sampleAliases.indices)
+        writer.write(s"epi__sample_alias__${i+1}\t${sampleAliases(i)}\n")
+      //sampleAliases.foreach(sampleAlias => writer.write(s"epi__sample_alias__${sampleAliases.indexOf(sampleAlias)+1}\t$sampleAlias\n"))
     else
       writer.write(s"epi__sample_alias\t$value\n")
     val singleOrComposite = map("Single Donor (SD) /Composite (C)")
     if (singleOrComposite == "SD")
       writer.write(s"epi__donor_id\t${sampleAliases(0)}\n")
     else
-      sampleAliases.foreach(sampleAlias => writer.write(s"epi__donor_id__${sampleAliases.indexOf(sampleAlias)+1}\t$sampleAlias\n"))
+      for (i <- sampleAliases.indices)
+        writer.write(s"epi__donor_id__${i+1}\t${sampleAliases(i)}\n")
+      //sampleAliases.foreach(sampleAlias => writer.write(s"epi__donor_id__${sampleAliases.indexOf(sampleAlias)+1}\t$sampleAlias\n"))
   }
 
   /**
@@ -463,7 +469,9 @@ class RoadmapTransformer  extends GMQLTransformer {
         for (i <- map("DONOR / SAMPLE ALIAS").split(";").indices)
           writer.write(s"${key}__${i+1}\t$value\n")
       else
-        valueSplit.foreach(ethnicity => writer.write(s"${key}__${valueSplit.indexOf(ethnicity)+1}\t$ethnicity\n"))
+        for (i <- valueSplit.indices)
+          writer.write(s"${key}__${i+1}\t${valueSplit(i)}\n")
+        //valueSplit.foreach(ethnicity => writer.write(s"${key}__${valueSplit.indexOf(ethnicity)+1}\t$ethnicity\n"))
     }
     else
       writer.write(s"$key\t$value\n")
