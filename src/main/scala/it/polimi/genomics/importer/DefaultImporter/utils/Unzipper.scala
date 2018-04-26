@@ -135,22 +135,23 @@ object Unzipper {
     */
   def unpackRecursive(inputPath: String, outputPath: String, delateOriginal: Boolean = false): Unit = {
     val input = new File(inputPath)
-    if (input.isFile) {
+    //detect if the inputPath corresponds to a file or a directory
+    if (input.isFile) { //if it is a file...
       val extension = ext.findFirstIn(input.getName).getOrElse("")
-      if (archiveExt.contains(extension)) {
-        unpack(inputPath, outputPath, delateOriginal)
+      if (archiveExt.contains(extension)) { //...and it is an archive
+        unpack(inputPath, outputPath, delateOriginal) //extract its contents in outputPath
         unpackRecursive(outputPath, outputPath, delateOriginal = true)
       }
     }
-    else {
+    else { //if it is folder
       val files = getListOfFiles(inputPath)
-      files.foreach(file => {
-        if (file.isFile ) {
+      files.foreach(file => { //for each element contained in the folder
+        if (file.isFile ) { //if it is a file
           val extension = ext.findFirstIn(file.getName).getOrElse("")
-          if (archiveExt.contains(extension))
+          if (archiveExt.contains(extension)) // if it is an archive
             unpackRecursive(file.getCanonicalPath, outputPath, delateOriginal = true)
         }
-        else {
+        else { //if it is a directory
           unpackRecursive(file.getAbsolutePath, outputPath + File.separator + file.getName, delateOriginal = true)
         }
       })
