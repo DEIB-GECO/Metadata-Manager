@@ -648,7 +648,7 @@ class RoadmapTransformer  extends GMQLTransformer {
           if (Unzipper.unGzipIt(inputPath + File.separator + filename, outPath + File.separator + unzippedTabName.replace("N", "RPKM")))
             logger.info("unGzipping: " + filename + " DONE")
           else
-            logger.warn("unGzipping: " + filename + "FAILED")
+            logger.warn("unGzipping: " + filename + " FAILED")
 
           newNames.toList
         }
