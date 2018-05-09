@@ -115,35 +115,7 @@ class CistromeDownloader extends GMQLDownloader{
     }
 
 
-    if (urlExists(source.url) && source.downloadEnabled) {
-      logger.info("Starting download for: " + source.name)
-      if (!new java.io.File(source.outputFolder).exists) {
-        new java.io.File(source.outputFolder).mkdirs()
-      }
-      //same as FTP the mark to compare is done here because the iteration on http is based on http folders and not
-      //on the source datasets.
-      val sourceId = FileDatabase.sourceId(source.name)
-      source.datasets.foreach(dataset => {
-        if (dataset.downloadEnabled) {
-          val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
-          val outputPath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
-          if (!new File(outputPath).exists())
-            new File(outputPath).mkdirs()
-          FileDatabase.markToCompare(datasetId, STAGE.DOWNLOAD)
-        }
-      })
 
-
-
-      source.datasets.foreach(dataset => {
-        if (dataset.downloadEnabled) {
-          val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
-          FileDatabase.markAsOutdated(datasetId, STAGE.DOWNLOAD)
-        }
-      })
-      logger.info(s"Download for ${source.name} Finished.")
-      downloadFailedFiles(source, parallelExecution)
-    }
   }
 
   def downloadFileFromURL(url: String, path: String): Try[Unit] = Try(new URL(url) #> new File(path) !!)
