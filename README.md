@@ -1,3 +1,5 @@
+# GMQL-Importer [![Build Status](https://travis-ci.org/DEIB-GECO/GMQL-Importer.svg?branch=master)](https://travis-ci.org/DEIB-GECO/GMQL-Importer)
+
 ## Synopsis
 
 [GMQL-Importer](https://github.com/DEIB-GECO/GMQL-Importer) gathers information from heterogeneous datasources and integrates them into the [Genomic Data Model (GDM)](http://www.sciencedirect.com/science/article/pii/S1046202316303012) for further processing using [GenoMetric Query Language (GMQL)](http://www.bioinformatics.deib.polimi.it/genomic_computing/)

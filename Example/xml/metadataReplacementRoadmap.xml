@@ -31,4 +31,8 @@
         <regex>AGE_Post_Birth_in_YEARS_or_Fetal_in_GESTATIONAL_WEEKS_or_CELL_LINE_CL</regex>
         <replace>AGE_WEEKS</replace>
     </metadata_replace>
+    <metadata_replace>
+        <regex>Perc_of_Impute_Top_1_perc_in_Observed_Top_1_perc</regex>
+        <replace>Perc_of_Imputed_Top_1_perc_in_Observed_Top_1_perc</replace>
+    </metadata_replace>
 </metadata_replace_list>

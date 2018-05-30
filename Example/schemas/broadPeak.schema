@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <gmqlSchemaCollection name="broadPeak" xmlns="http://genomic.elet.polimi.it/entities">
     <gmqlSchema type="TAB">
         <field type="STRING">chrom</field>

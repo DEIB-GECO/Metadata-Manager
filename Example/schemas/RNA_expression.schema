@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 	<gmqlSchemaCollection name="RNA_expression" xmlns="http://genomic.elet.polimi.it/entities">
 	<gmqlSchema type="TAB" coordinate_system="1-based">
 		<field type="STRING">chrom</field>
@@ -6,7 +6,7 @@
 		<field type="LONG">end</field>
 		<field type="CHAR">strand</field>
 		<field type="INTEGER">read_count</field>
-		<field type="DOUBLE">RPMK</field>
+		<field type="DOUBLE">RPKM</field>
 		<field type="STRING">geneID</field>
 		<field type="STRING">gene_type</field>
 		<field type="STRING">gene_symbol</field>

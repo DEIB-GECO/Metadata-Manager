@@ -1,5 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<gmqlSchemaCollection name="HOTSPOT_bed" xmlns="http://genomic.elet.polimi.it/entities">
+<?xml version="1.0" encoding="UTF-8"?>
+<gmqlSchemaCollection name="HOTSPOT_BED" xmlns="http://genomic.elet.polimi.it/entities">
 	<gmqlSchema type="TAB">
 		<field type="STRING">chrom</field>
 		<field type="LONG">start</field>
