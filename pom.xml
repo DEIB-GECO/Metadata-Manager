@@ -90,7 +90,7 @@
 
         <dependency>
             <groupId>com.typesafe.slick</groupId>
-            <artifactId>slick_2.12</artifactId>
+            <artifactId>slick_2.11</artifactId>
             <version>3.2.1</version>
         </dependency>
 
