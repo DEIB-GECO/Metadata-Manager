@@ -18,7 +18,7 @@ import org.joda.time.format.DateTimeFormat
 import scala.io.Source
 
 
-object main{
+object main {
   val logger: Logger = Logger.getLogger(this.getClass)
   private val regexBedMetaJson = ".*.bed.meta.json".r
   private val regexBedMeta = ".*.bed.meta\\z".r
@@ -62,53 +62,55 @@ object main{
 
     var states = collection.mutable.Map[String, String]()
 
-     DbHandler.setDatabase()
+
+    //set connection and create the tables if not exists
+    DbHandler.setDatabase()
 
 
-     if (args.length == 0) {
-       logger.warn(s"No arguments specified")
-       return
-     }
-     if( args.length < 3 || args.length > 4){
-       logger.error(s"Incorrect number of arguments:")
-       logger.info("GMQLImporter help; in order to import Data from File:\n"
-         + "\t Run with configuration_xml_path, file_folder, repository_ref and IMPORT as arguments\n"
-       )
-       logger.info("GMQLImporter help; in order to export Data from Database to file:\n"
-         + "\t Run with file_folder, repository_ref and EXPORT as arguments\n"
-       )
-       return
-     }
-     if(args(0).toUpperCase != "IMPORT" && args(0).toUpperCase != "EXPORT") {
-       logger.error(s"Incorrect execution_mode argument")
-       logger.info("Please select 'import' or 'export'")
-       return
-     }
-     if (args(0).toUpperCase.equals("IMPORT")) {
-       if (args.length != 4) {
-         logger.error(s"Incorrect number of arguments for IMPORT execution mode")
-         logger.info("GMQLImporter help; in order to import Data from File:\n"
-           + "\t Run with configuration_xml_path, file_folder, repository_ref and IMPORT as arguments\n"
-         )
-         return
-       }
-       if(args(1).toUpperCase != encodeString && args(1).toUpperCase != tcgaString ){
-         logger.error(s"Incorrect repository argument")
-         logger.info("Please select 'encode' or 'tcga'")
-         return
-       }
-       importModality(args(1), args(2), args(3))
-     } else {
-       if (args.length != 3) {
-         logger.error(s"Incorrect number of arguments")
-         logger.info("GMQLImporter help; in order to export Data from Database to file:\n"
-           + "\t Run with EXPORT, repository_ref and file_folder as arguments\n"
-         )
-         return
-       }
-       exportModality(args(1), args(2))
-     }
-     DbHandler.closeDatabase()
+    if (args.length == 0) {
+      logger.warn(s"No arguments specified")
+      return
+    }
+    if (args.length < 4 || args.length > 4) {
+      logger.error(s"Incorrect number of arguments:")
+      logger.info("GMQLImporter help; in order to import Data from File:\n"
+        + "\t Run with configuration_xml_path, file_folder, repository_ref and IMPORT as arguments\n"
+      )
+      logger.info("GMQLImporter help; in order to export Data from Database to file:\n"
+        + "\t Run with file_folder, repository_ref and EXPORT as arguments\n"
+      )
+      return
+    }
+    if (args(0).toUpperCase != "IMPORT" && args(0).toUpperCase != "EXPORT") {
+      logger.error(s"Incorrect execution_mode argument")
+      logger.info("Please select 'import' or 'export'")
+      return
+    }
+    if (args(0).toUpperCase.equals("IMPORT")) {
+      if (args.length != 4) {
+        logger.error(s"Incorrect number of arguments for IMPORT execution mode")
+        logger.info("GMQLImporter help; in order to import Data from File:\n"
+          + "\t Run with configuration_xml_path, file_folder, repository_ref and IMPORT as arguments\n"
+        )
+        return
+      }
+      if (args(1).toUpperCase != encodeString && args(1).toUpperCase != tcgaString) {
+        logger.error(s"Incorrect repository argument")
+        logger.info("Please select 'encode' or 'tcga'")
+        return
+      }
+      importModality(args(1), args(2), args(3))
+    } else {
+      if (args.length != 3) {
+        logger.error(s"Incorrect number of arguments")
+        logger.info("GMQLImporter help; in order to export Data from Database to file:\n"
+          + "\t Run with EXPORT, repository_ref and file_folder as arguments\n"
+        )
+        return
+      }
+      exportModality(args(1), args(2))
+    }
+    DbHandler.closeDatabase()
   }
 
 
@@ -143,7 +145,7 @@ object main{
       logger.info(s"Extracted Time  ${Statistics.getTimeFormatted(Statistics.extractTimeAcc)}")
       logger.info(s"Transform Time  ${Statistics.getTimeFormatted(Statistics.transformTimeAcc)}")
       logger.info(s"Load Time  ${Statistics.getTimeFormatted(Statistics.loadTimeAcc)}")
-      if(repositoryRef.toUpperCase.equals("ENCODE")) {
+      if (repositoryRef.toUpperCase.equals("ENCODE")) {
         logger.info(s"Total Donor inserted or updated ${Statistics.donorInsertedOrUpdated}")
         logger.info(s"Total Biosample inserted or updated ${Statistics.biosampleInsertedOrUpdated}")
         logger.info(s"Total Replicate inserted or updated ${Statistics.replicateInsertedOrUpdated}")
@@ -156,7 +158,7 @@ object main{
 
   def exportModality(repositoryRef: String, pathGMQL: String): Unit = {
 
-    val logName = "EXPORT_" + repositoryRef.toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z"))+".log"
+    val logName = "EXPORT_" + repositoryRef.toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z")) + ".log"
 
     defineFileAppenderSetting(logName)
 
@@ -172,7 +174,7 @@ object main{
           fromDbToTsv.run(path.getAbsolutePath, exportRegexENCODE)
         })
       }
-      case "TCGA" =>  {
+      case "TCGA" => {
         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => {
           val tables = new TCGATables().getListOfTables()
           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
@@ -200,8 +202,8 @@ object main{
       //var states = collection.mutable.Map[String, String]()
       filePath = path
       val encodesTableId = new EncodeTableId
-      val bioSampleList = new BioSampleList(lines,encodesTableId)
-      val replicateList = new ReplicateList(lines,bioSampleList)
+      val bioSampleList = new BioSampleList(lines, encodesTableId)
+      val replicateList = new ReplicateList(lines, bioSampleList)
       encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
       encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
       encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
@@ -225,21 +227,23 @@ object main{
         val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
         val operationsList = xml.operationsList
         val t1: Long = System.nanoTime()
-        Statistics.incrementExtractTime(t1-t0)
+        Statistics.incrementExtractTime(t1 - t0)
         operationsList.map(x => {
           try {
             populateTable(x, tables.selectTableByName(x.head), states.toMap)
 
           } catch {
             case e: NoSuchElementException => {
-              tables.nextPosition(x.head, x(2), x(3)); logger.warn(s"SourceKey doesn't find for $x")
+              tables.nextPosition(x.head, x(2), x(3));
+              logger.warn(s"SourceKey doesn't find for $x")
             }
-          }})
+          }
+        })
         val t2: Long = System.nanoTime()
-        Statistics.incrementTrasformTime((t2-t1))
+        Statistics.incrementTrasformTime((t2 - t1))
         tables.insertTables()
         val t3: Long = System.nanoTime()
-        Statistics.incrementLoadTime((t3-t2))
+        Statistics.incrementLoadTime((t3 - t2))
       }
       else {
         Statistics.archived += 1
@@ -261,7 +265,7 @@ object main{
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
-    try{
+    try {
       val lines = Source.fromFile(path).getLines.toArray
       var states = collection.mutable.Map[String, String]()
 
@@ -270,7 +274,7 @@ object main{
 
       for (l <- lines) {
         val first = l.split("\t", 2)
-        if(first.size == 2)
+        if (first.size == 2)
           states += (first(0) -> first(1))
         else {
           logger.warn(s"Malformation in line ${first(0)}")
@@ -282,7 +286,7 @@ object main{
       val xml = new XMLReaderTCGA(pathXML)
       val operationsList = xml.operationsList
       val t1: Long = System.nanoTime()
-      Statistics.incrementExtractTime(t1-t0)
+      Statistics.incrementExtractTime(t1 - t0)
       operationsList.map(x =>
         try {
           populateTable(x, tables.selectTableByName(x.head), states.toMap)
@@ -291,10 +295,10 @@ object main{
           case e: NoSuchElementException => logger.warn(s"SourceKey does't find for $x")
         })
       val t2: Long = System.nanoTime()
-      Statistics.incrementTrasformTime((t2-t1))
+      Statistics.incrementTrasformTime((t2 - t1))
       tables.insertTables()
       val t3: Long = System.nanoTime()
-      Statistics.incrementLoadTime((t3-t2))
+      Statistics.incrementLoadTime((t3 - t2))
     } catch {
       case aioobe: ArrayIndexOutOfBoundsException => {
         logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
@@ -307,11 +311,11 @@ object main{
     }
   }
 
-  def populateTable(list: List[String], table: Table, states: Map[String,String]): Unit = {
+  def populateTable(list: List[String], table: Table, states: Map[String, String]): Unit = {
     //val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3), list(4), list(5), list(6), list(7))
-    val insertMethod = InsertMethodNew.selectInsertionMethod(list(1),list(2),list(3), list(4), list(5), list(6), list(7))
+    val insertMethod = InsertMethodNew.selectInsertionMethod(list(1), list(2), list(3), list(4), list(5), list(6), list(7))
 
-    if(list(3).contains("MANUALLY"))
+    if (list(3).contains("MANUALLY"))
       table.setParameter(list(1), list(2), insertMethod)
     else
       table.setParameter(states(list(1)), list(2), insertMethod)
@@ -332,7 +336,7 @@ object main{
     var states = collection.mutable.Map[String, String]()
     for (l <- lines) {
       val first = l.split("\t", 2)
-      if(first.size == 2) {
+      if (first.size == 2) {
         if (states.contains(first(0)))
           states += (first(0) -> states(first(0)).concat(conf.getString("import.multiple_value_concatenation") + first(1)))
         else

@@ -49,7 +49,7 @@ object DbHandler {
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList
 
     //donors
-    logger.info("Start to create the database")
+    logger.info("Connecting to the database...")
 
     if (!tables.exists(_.name.name == DONOR_TABLE_NAME)) {
       var queries = DBIO.seq(donors.schema.create)
