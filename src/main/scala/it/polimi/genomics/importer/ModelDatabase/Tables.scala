@@ -37,8 +37,9 @@ trait Tables extends Enumeration{
     val constrainsSatisfacted = this.checkTablesConstrainsSatisfaction()
     if(!conf.getBoolean("import.constraints_activated") || constrainsSatisfacted) {
       var insert = true
-      getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach(table => {
+      getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach((table: Table) => {
         if (table.hasForeignKeys) {
+          println(table.getClass)
           table.foreignKeysTables.map(t => this.selectTableByName(t)).map(t => table.setForeignKeys(t))
         }
         if (table.checkConsistency() == false && insert) {

@@ -9,7 +9,7 @@ import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import it.polimi.genomics.importer.main.program.getTotalTimeFormatted
 import org.apache.log4j._
 import it.polimi.genomics.importer.GMQLImporter.schemaValidator
-import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, PlatformRetriver, ReplicateList}
+import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, ReplicateList}
 import it.polimi.genomics.importer.ModelDatabase.Encode.{EncodeTableId, EncodeTables}
 import it.polimi.genomics.importer.ModelDatabase.TCGA.TCGATables
 import org.joda.time.DateTime

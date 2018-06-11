@@ -152,14 +152,14 @@
             <source_key>file__accession</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping>
-            <source_key>file__output_type</source_key>
-            <global_key>dataType</global_key>
-        </mapping>
-        <mapping>
-            <source_key>file__file_format_type</source_key>
-            <global_key>format</global_key>
-        </mapping>
+        <!--<mapping>-->
+            <!--<source_key>file__output_type</source_key>-->
+            <!--<global_key>dataType</global_key>-->
+        <!--</mapping>-->
+        <!--<mapping>-->
+            <!--<source_key>file__file_format_type</source_key>-->
+            <!--<global_key>format</global_key>-->
+        <!--</mapping>-->
         <mapping>
             <source_key>file__file_size</source_key>
             <global_key>size</global_key>

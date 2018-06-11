@@ -14,24 +14,24 @@ trait Container extends Table{
 
   var annotation: String = _
 
-  _hasForeignKeys = true
+  _hasForeignKeys = false
 
-  _foreignKeysTables = List("PROJECTS")
+//  _foreignKeysTables = List("PROJECTS")
 
   _hasDependencies = true
 
   _dependenciesTables = List("CONTAINERS", "DONORS")
 
   override def insert() : Int ={
-    dbHandler.insertContainer(projectId,this.name,this.assembly,this.isAnn,this.annotation)
+    dbHandler.insertContainer(this.name,this.assembly,this.isAnn,this.annotation)
   }
 
   override def update() : Int ={
-    dbHandler.updateContainer(projectId,this.name,this.assembly,this.isAnn,this.annotation)
+    dbHandler.updateContainer(this.name,this.assembly,this.isAnn,this.annotation)
   }
 
   override def updateById() : Unit ={
-    dbHandler.updateContainerById(primaryKey, projectId,this.name,this.assembly,this.isAnn,this.annotation)
+    dbHandler.updateContainerById(primaryKey, this.name,this.assembly,this.isAnn,this.annotation)
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -79,17 +79,16 @@ trait Container extends Table{
     }
   }
 
-  def convertTo(values: Seq[(Int, Int, String, Option[String], Option[Boolean], Option[String])]): Unit = {
+  def convertTo(values: Seq[(Int, String, Option[String], Option[Boolean], Option[String])]): Unit = {
     if(values.length > 1)
       logger.error(s"Too many value: ${values.length}")
     else {
       var value = values.head
       this.primaryKey_(value._1)
-      this.projectId = value._2
-      this.name = value._3
-      if(value._4.isDefined) this.assembly = value._4.get
-      if(value._5.isDefined) this.isAnn = value._5.get
-      if(value._6.isDefined) this.annotation = value._6.get
+      this.name = value._2
+      if(value._3.isDefined) this.assembly = value._3.get
+      if(value._4.isDefined) this.isAnn = value._4.get
+      if(value._5.isDefined) this.annotation = value._5.get
     }
   }
 

@@ -61,7 +61,7 @@ class FromDbToTsv() {
       cases.convertTo(DbHandler.getCaseByItemId(item.primaryKey))
       cases.writeInFile(path)
 
-      container.convertTo(DbHandler.getContainerById(cases.containerId))
+      container.convertTo(DbHandler.getContainerById(cases.projectId))
       container.writeInFile(path)
 
       project.convertTo(DbHandler.getProjectById(container.projectId))
