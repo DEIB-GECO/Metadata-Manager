@@ -696,6 +696,19 @@ case class dbContainer() {
       None
   }
 
+  /**
+    * returns the url of a specified file.
+    * @param fileName name of the file.
+    * @param datasetID dataset from where files are required.
+    * @param stage whether is download or transform.
+    * @return the url of the file.
+    */
+  def getFileUrl(fileName: String, datasetID: Int, stage: STAGE.Value): String = {
+    val query = for (f <- files.filter(f => f.name === fileName && f.datasetId === datasetID && f.stage === stage.toString))yield f.url
+    val execution = database.run(query.result)
+    Await.result(execution, Duration.Inf).head
+  }
+
   //------------------------------DATABASE BASIC OPERATIONS OPEN/CLOSE--------------------------------------------------
   /**
     * Opens or create the database, checks the existence of its tables and creates them if do not exist.
@@ -769,6 +782,17 @@ case class dbContainer() {
     }
   }
 
+  /**
+    * Returns the last date in which a file of the specified dataset is returned.
+    * @param datasetID identifier of the dataset.
+    * @return the date of the last download.
+    */
+  def getLastDownloadDate(datasetID: Int): String ={
+    val query = for (f <- files.filter(f => f.datasetId === datasetID))yield f.lastUpdate
+    val execution = database.run(query.result)
+    val res = Await.result(execution, Duration.Inf)
+    res.max
+  }
   /**
     * closes the database connection.
     */

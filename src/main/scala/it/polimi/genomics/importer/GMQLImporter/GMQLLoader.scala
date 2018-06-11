@@ -90,6 +90,7 @@ class GMQLLoader {
                 None
             if(description.nonEmpty)
               repo.setDatasetMeta(datasetName, gmqlUser, Map(" Description" -> description.get))
+            repo.setDatasetMeta(datasetName, gmqlUser, Map(" Download date" -> FileDatabase.getLastDownloadDate(datasetId)))
 
           }
           catch {

@@ -1,9 +1,6 @@
 package it.polimi.genomics.importer.main
 
 import java.io.File
-import scala.concurrent.{blocking, Future, Await}
-import scala.concurrent.duration._
-
 
 import it.polimi.genomics.importer.FileDatabase.FileDatabase
 import it.polimi.genomics.importer.GMQLImporter._
@@ -13,7 +10,6 @@ import org.apache.log4j._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import scala.concurrent.Future
 import scala.xml.{Elem, XML}
 
 /**
@@ -22,8 +18,11 @@ import scala.xml.{Elem, XML}
   */
 object program {
   val logger: Logger = Logger.getLogger(this.getClass)
+  val PATTERN = "%d [%p] - %l %m%n"
+
 
   /**
+    *
     * depending on the arguments, can run download/transform/load procedure or
     * delete transformed folder.
     * @param args arguments for GMQLImporter (help for more information)
@@ -32,7 +31,6 @@ object program {
 
     val console = new ConsoleAppender() //create appender
     //configure the appender
-    val PATTERN = "%d [%p|%c|%C{1}] %m%n"
     console.setLayout(new PatternLayout(PATTERN))
     console.setThreshold(Level.ERROR)
     console.activateOptions()
@@ -227,7 +225,7 @@ object program {
         val fa2 = new FileAppender()
         fa2.setName("FileLogger")
         fa2.setFile(logName)
-        fa2.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"))
+        fa2.setLayout(new PatternLayout(PATTERN))
         fa2.setThreshold(Level.DEBUG)
         fa2.setAppend(true)
         fa2.activateOptions()

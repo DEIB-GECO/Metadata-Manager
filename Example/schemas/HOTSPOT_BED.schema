@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmqlSchemaCollection name="HOTSPOT_BED" xmlns="http://genomic.elet.polimi.it/entities">
+	<gmqlSchema type="TAB">
+		<field type="STRING">chrom</field>
+		<field type="LONG">start</field>
+		<field type="LONG">end</field>
+		<field type="CHAR">strand</field>
+		<field type="INTEGER">peak</field>
+		<field type="DOUBLE">zscore</field>	
+	</gmqlSchema>
+</gmqlSchemaCollection>
