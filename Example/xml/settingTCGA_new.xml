@@ -128,7 +128,7 @@
             <global_key>externalRef</global_key>
         </mapping>
     </table>
-    <table name="CONTAINERS">
+    <table name="DATASETS">
         <mapping method="MANUALLY">
             <source_key>GRCh38</source_key>
             <global_key>name</global_key>

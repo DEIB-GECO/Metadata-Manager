@@ -14,7 +14,7 @@ trait Tables extends Enumeration{
   val Replicates = Value("REPLICATES")
   val ExperimentsType = Value("EXPERIMENTSTYPE")
   val Projects = Value("PROJECTS")
-  val Containers = Value("CONTAINERS")
+  val Datasets = Value("DATASETS")
   val Cases = Value("CASES")
   val Items = Value("ITEMS")
   val CasesItems = Value("CASESITEMS")
@@ -28,7 +28,7 @@ trait Tables extends Enumeration{
   def selectTableByValue(enum: this.Value): Table = tables(enum)
 
   def getOrderOfInsertion(): List[Value] ={
-    return List(Donors,BioSamples,Replicates,ExperimentsType,Projects,Containers,Cases,Items,CasesItems,ReplicatesItems)
+    return List(Donors,BioSamples,Replicates,ExperimentsType,Projects,Datasets,Cases,Items,CasesItems,ReplicatesItems)
   }
 
   def insertTables(): Unit = {
@@ -74,6 +74,6 @@ trait Tables extends Enumeration{
   def filePath: String = _filePath
   def filePath_: (filePath: String): Unit = this._filePath = filePath
 
-  def getListOfTables(): (Donor, BioSample, Replicate, Case, Container, ExperimentType, Project, Item)
+  def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item)
 
 }

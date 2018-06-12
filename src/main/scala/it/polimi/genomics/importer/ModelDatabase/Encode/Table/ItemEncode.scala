@@ -21,14 +21,14 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
 
   override def insert(): Int = {
 //    this.definePlatformRetriver()
-    val id = dbHandler.insertItem(experimentTypeId, containerId,this.sourceId, this.size, this.platform, this.pipeline, this.sourceUrl)
+    val id = dbHandler.insertItem(experimentTypeId, datasetId,this.sourceId, this.size, this.platform, this.pipeline, this.sourceUrl)
 //    this.retriveDerivedItems(id)
     Statistics.itemInserted += 1
     id
   }
 
 //  def specialInsert(): Int ={
-//    val id = dbHandler.insertItem(experimentTypeId, containerId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+//    val id = dbHandler.insertItem(experimentTypeId, datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
 //    Statistics.itemInserted += 1
 //    id
 //  }
@@ -36,7 +36,7 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
 
   override def update(): Int = {
 //    this.definePlatformRetriver()
-    val id = dbHandler.updateItem(experimentTypeId,containerId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
 //    this.retriveDerivedItems(id)
     Statistics.itemUpdated += 1
     id
@@ -44,14 +44,14 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
 
   override def updateById(): Unit = {
 //    this.definePlatformRetriver()
-    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,containerId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
 //    this.retriveDerivedItems(id)
     Statistics.itemUpdated += 1
     id
   }
 
 //  def specialUpdate(): Int ={
-//    val id = dbHandler.updateItem(experimentTypeId,containerId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+//    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
 //    Statistics.itemUpdated += 1
 //    id
 //  }

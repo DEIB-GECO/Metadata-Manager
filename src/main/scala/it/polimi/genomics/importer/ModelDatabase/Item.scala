@@ -8,7 +8,7 @@ trait Item extends Table{
 
   var experimentTypeId : Int = _
 
-  var containerId: Int = _
+  var datasetId: Int = _
 
   var sourceId : String = _
 
@@ -28,7 +28,7 @@ trait Item extends Table{
 
   _hasForeignKeys = true
 
-  _foreignKeysTables = List("EXPERIMENTSTYPE", "CONTAINERS")
+  _foreignKeysTables = List("EXPERIMENTSTYPE", "DATASETS")
 
   _hasDependencies = true
 
@@ -36,19 +36,19 @@ trait Item extends Table{
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(experimentTypeId,containerId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(experimentTypeId,containerId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,containerId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
     Statistics.itemUpdated += 1
     return id
   }
@@ -56,8 +56,8 @@ trait Item extends Table{
   override def setForeignKeys(table: Table): Unit = {
     if(table.isInstanceOf[ExperimentType])
       this.experimentTypeId = table.primaryKey
-    if(table.isInstanceOf[Container]) {
-      this.containerId = table.primaryKey
+    if(table.isInstanceOf[Dataset]) {
+      this.datasetId = table.primaryKey
     }
   }
 
@@ -112,7 +112,7 @@ trait Item extends Table{
         var value = values.head
         this.primaryKey_(value._1)
         this.experimentTypeId = value._2
-        this.containerId = value._3
+        this.datasetId = value._3
         this.sourceId = value._4
         if (value._5.isDefined) this.size = value._5.get
         if (value._6.isDefined) this.pipeline = value._6.get

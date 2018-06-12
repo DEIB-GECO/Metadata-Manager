@@ -21,7 +21,7 @@ object DbHandler {
   private val BIOSAMPLE_TABLE_NAME = "biosample"
   private val REPLICATE_TABLE_NAME = "replicate"
   private val CASE_TABLE_NAME = "case_study"
-  private val CONTAINER_TABLE_NAME = "container"
+  private val DATASET_TABLE_NAME = "dataset"
   private val PROJECT_TABLE_NAME = "project"
   private val EXPERIMENTTYPE_TABLE_NAME = "experiment_type"
   private val ITEM_TABLE_NAME = "item"
@@ -98,14 +98,14 @@ object DbHandler {
       logger.info("Table PROJECTS created")
     }
 
-    //container
-    if (!tables.exists(_.name.name == CONTAINER_TABLE_NAME)) {
+    //dataset
+    if (!tables.exists(_.name.name == DATASET_TABLE_NAME)) {
       val queries = DBIO.seq(
-      containers.schema.create
+      datasets.schema.create
       )
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table CONTAINERS created")
+      logger.info("Table DATASETS created")
     }
 
     //case
@@ -194,7 +194,7 @@ object DbHandler {
   //Insert Method
 
   def insertDonor(sourceId: String, species : String, age: Int, gender: String, ethnicity: String): Int ={
-    val idQuery = (donors returning donors.map(_.donorId)) += (None, sourceId, Option(species), this.toOption[Int](age), Option(gender), Option(ethnicity), None, None)
+    val idQuery = (donors returning donors.map(_.donorId)) += (None, sourceId, Option(species), None, this.toOption[Int](age), Option(gender), Option(ethnicity), None)
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
@@ -221,14 +221,15 @@ object DbHandler {
   }
 
   def insertBioSample(donorId: Int, sourceId: String, types : String, tissue: String, cellLine: String, isHealthy: Boolean, disease: String): Int ={
-    val idQuery = (bioSamples returning bioSamples.map(_.bioSampleId)) += (None, donorId, sourceId, Option(types), Option(tissue), Option(cellLine), Option(isHealthy), Option(disease), None, None)
+    val idQuery = (bioSamples returning bioSamples.map(_.bioSampleId)) += (None, donorId, sourceId, Option(types), Option(tissue), None, Option(cellLine), None, Option(isHealthy), Option(disease), None)
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
   def updateBioSample(donorId: Int, sourceId: String, types : String, tIussue: String, cellLine: String, isHealthy: Boolean, disease: String): Int ={
-    val query = for { bioSample <- bioSamples if bioSample.sourceId === sourceId } yield (bioSample.donorId,bioSample.types, bioSample.tissue, bioSample.cellLine, bioSample.isHealthy, bioSample.disease)
+    val query = for { bioSample <- bioSamples if bioSample.sourceId === sourceId }
+      yield (bioSample.donorId,bioSample.types, bioSample.tissue, bioSample.cellLine, bioSample.isHealthy, bioSample.disease)
     val updateAction = query.update(donorId,Option(types),Option(tIussue),Option(cellLine),Option(isHealthy),Option(disease))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
@@ -240,7 +241,8 @@ object DbHandler {
   }
 
   def updateBioSampleById(bioSampleId: Int, donorId: Int, sourceId: String, types : String, tIussue: String, cellLine: String, isHealthy: Boolean, disease: String): Int ={
-    val query = for { bioSample <- bioSamples if bioSample.bioSampleId === bioSampleId} yield (bioSample.donorId, bioSample.sourceId,bioSample.types, bioSample.tissue, bioSample.cellLine, bioSample.isHealthy, bioSample.disease)
+    val query = for { bioSample <- bioSamples if bioSample.bioSampleId === bioSampleId}
+      yield (bioSample.donorId, bioSample.sourceId,bioSample.types, bioSample.tissue, bioSample.cellLine, bioSample.isHealthy, bioSample.disease)
     val updateAction = query.update(donorId, sourceId, Option(types), Option(tIussue), Option(cellLine), Option(isHealthy), Option(disease))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
@@ -275,7 +277,7 @@ object DbHandler {
   }
 
   def insertExperimentType(technique: String, feature: String, target: String, antibody: String): Int ={
-    val idQuery = (experimentsType returning experimentsType.map(_.experimentTypeId))+= (None, Option(technique), Option(feature), Option(target), Option(antibody), None, None, None)
+    val idQuery = (experimentsType returning experimentsType.map(_.experimentTypeId))+= (None, Option(technique), None, Option(feature), None, Option(target), None, Option(antibody))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
@@ -332,8 +334,8 @@ object DbHandler {
     projectId
   }
 
-  def insertCase(containerId: Int, sourceId: String, sourceSite: String, externalRef: String): Int ={
-    val idQuery = (cases returning cases.map(_.caseId))+= (None, containerId, sourceId, Option(sourceSite), Option(externalRef))
+  def insertCase(projectId: Int, sourceId: String, sourceSite: String, externalRef: String): Int ={
+    val idQuery = (cases returning cases.map(_.caseId))+= (None, projectId, sourceId, Option(sourceSite), Option(externalRef))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
@@ -359,43 +361,46 @@ object DbHandler {
     caseId
   }
 
-  def insertContainer(name: String, assembly: String, isAnn: Boolean, annotation: String): Int ={
-    val idQuery = (containers returning containers.map(_.containerId))+= (None, name, Option(assembly), Option(isAnn), Option(annotation), None)
+  def insertDataset(name: String, dataType: String, format: String, assembly: String, isAnn: Boolean, annotation: String, localUrl: String): Int ={
+    val idQuery = (datasets returning datasets.map(_.datasetId))+= (None, name, Option(dataType), Option(format), Option(assembly), Option(isAnn), Option(annotation), None, Option(localUrl))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
-  def updateContainer(name: String, assembly: String, isAnn: Boolean, annotation: String): Int ={
-    val query = for { container <- containers if container.name === name } yield (container.name, container.assembly, container.isAnn, container.annotation)
-    val updateAction = query.update(name, Option(assembly), Option(isAnn), Option(annotation))
+  def updateDataset(name: String, dataType: String, format: String, assembly: String, isAnn: Boolean, annotation: String, localUrl: String): Int ={
+    val query = for { dataset <- datasets if dataset.dataType === dataType && dataset.format === format && dataset.assembly === assembly && dataset.annotation == annotation }
+      yield (dataset.name, dataset.isAnn, dataset.localUrl)
+    val updateAction = query.update(name, Option(isAnn), Option(localUrl))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
-    val idQuery = containers.filter(_.name === name).map(_.containerId)
+    val idQuery = datasets.filter(value => { value.dataType === dataType && value.format === format && value.assembly === assembly && value.annotation === annotation}).map(_.datasetId)
     val returnAction = idQuery.result
     val execution2 = database.run(returnAction)
     val id = Await.result(execution2,Duration.Inf)
     id.head
   }
 
-  def updateContainerById(containerId: Int, name: String, assembly: String, isAnn: Boolean, annotation: String): Int ={
-    val query = for { container <- containers if container.containerId === containerId } yield (container.name, container.assembly, container.isAnn, container.annotation)
-    val updateAction = query.update(name, Option(assembly), Option(isAnn), Option(annotation))
+  def updateDatasetById(datasetId: Int, name: String, dataType: String, format: String, assembly: String, isAnn: Boolean, annotation: String, localUrl: String): Int ={
+    val query = for { dataset <- datasets if dataset.datasetId === datasetId }
+      yield (dataset.name, dataset.dataType, dataset.format, dataset.assembly, dataset.isAnn, dataset.annotation, dataset.localUrl)
+    val updateAction = query.update(name, Option(dataType), Option(format), Option(assembly), Option(isAnn), Option(annotation), Option(localUrl))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
-    containerId
+    datasetId
   }
 
-  def insertItem(experimentTypeId: Int, containerId: Int, sourceId: String, size: Long, platform: String,  pipeline: String, sourceUrl: String): Int ={
-    val idQuery = (items returning items.map(_.itemId))+= (None, experimentTypeId, containerId, sourceId, this.toOption[Long](size), Option(platform),  None, Option(pipeline), Option(sourceUrl))
+
+  def insertItem(experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, platform: String,  pipeline: String, sourceUrl: String): Int ={
+    val idQuery = (items returning items.map(_.itemId))+= (None, experimentTypeId, datasetId, sourceId, this.toOption[Long](size), Option(platform),  None, Option(pipeline), Option(sourceUrl))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
-  def updateItem(experimentTypeId: Int, containerId: Int, sourceId: String, size: Long, platform: String,  pipeline: String, sourceUrl: String): Int ={
-    val updateQuery = for { item <- items if item.sourceId === sourceId } yield (item.experimentTypeId, item.containerId,  item.size, item.platform, item.pipeline, item.sourceUrl)
-    val updateAction = updateQuery.update(experimentTypeId, containerId, this.toOption[Long](size), Option(platform), Option(pipeline), Option(sourceUrl))
+  def updateItem(experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, platform: String,  pipeline: String, sourceUrl: String): Int ={
+    val updateQuery = for { item <- items if item.sourceId === sourceId } yield (item.experimentTypeId, item.datasetId,  item.size, item.platform, item.pipeline, item.sourceUrl)
+    val updateAction = updateQuery.update(experimentTypeId, datasetId, this.toOption[Long](size), Option(platform), Option(pipeline), Option(sourceUrl))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     val idQuery = items.filter(_.sourceId === sourceId).map(_.itemId)
@@ -405,9 +410,9 @@ object DbHandler {
     id.head
   }
 
-  def updateItemById(itemId: Int, experimentTypeId: Int, containerId: Int, sourceId: String, size: Long, platform: String,  pipeline: String, sourceUrl: String): Int ={
-    val updateQuery = for { item <- items if item.itemId === itemId } yield (item.experimentTypeId, item.containerId, item.sourceId, item.size, item.platform, item.pipeline, item.sourceUrl)
-    val updateAction = updateQuery.update(experimentTypeId, containerId, sourceId, this.toOption[Long](size), Option(platform), Option(pipeline), Option(sourceUrl))
+  def updateItemById(itemId: Int, experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, platform: String,  pipeline: String, sourceUrl: String): Int ={
+    val updateQuery = for { item <- items if item.itemId === itemId } yield (item.experimentTypeId, item.datasetId, item.sourceId, item.size, item.platform, item.pipeline, item.sourceUrl)
+    val updateAction = updateQuery.update(experimentTypeId, datasetId, sourceId, this.toOption[Long](size), Option(platform), Option(pipeline), Option(sourceUrl))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     itemId
@@ -536,8 +541,8 @@ object DbHandler {
     checkResult(result)
   }
 
-  def checkInsertContainer(name: String): Boolean = {
-    val query = containers.filter(_.name === name)
+  def checkInsertDataset(dataType: String, format: String, assembly: String, annotation: String): Boolean = {
+    val query = datasets.filter( value => { value.dataType === dataType && value.format === format && value.assembly === assembly && value.annotation === annotation})
     val action = query.result
     val result = database.run(action)
     checkResult(result)
@@ -622,8 +627,8 @@ object DbHandler {
     checkId(result)
   }
 
-  def getContainerId(name : String): Int = {
-    val query = containers.filter(_.name === name).map(_.containerId)
+  def getDatasetId(dataType : String, format: String, assembly: String, annotation: String): Int = {
+    val query = datasets.filter(value => { value.dataType === dataType && value.format === format && value.assembly === assembly && value.annotation === annotation}).map(_.datasetId)
     val action = query.result
     val result = database.run(action)
     checkId(result)
@@ -676,7 +681,7 @@ object DbHandler {
   }
 
   def getItemBySourceId(sourceId: String): Seq[(Int, Int, Int, String, Option[Long], Option[String], Option[String], Option[String])] = {
-    val query = for { item <- items if item.sourceId === sourceId } yield (item.itemId, item.experimentTypeId, item.containerId, item.sourceId,  item.size, item.pipeline, item.platform, item.sourceUrl)
+    val query = for { item <- items if item.sourceId === sourceId } yield (item.itemId, item.experimentTypeId, item.datasetId, item.sourceId,  item.size, item.pipeline, item.platform, item.sourceUrl)
     val action = query.result
     val result = database.run(action)
     val res = Await.result(result, Duration.Inf)
@@ -684,8 +689,8 @@ object DbHandler {
   }
 
 
-  def getContainerById(id: Int): Seq[(Int, String, Option[String], Option[Boolean], Option[String])] = {
-    val query = for { container <- containers if container.containerId === id } yield (container.containerId, container.name, container.assembly, container.isAnn, container.annotation)
+  def getDatasetById(id: Int): Seq[(Int, String, Option[String], Option[String], Option[String], Option[Boolean], Option[String], Option[String])] = {
+    val query = for { dataset <- datasets if dataset.datasetId === id } yield (dataset.datasetId, dataset.name, dataset.dataType, dataset.format, dataset.assembly, dataset.isAnn, dataset.annotation, dataset.localUrl)
     val action = query.result
     val result = database.run(action)
     val res = Await.result(result, Duration.Inf)
@@ -731,7 +736,7 @@ object DbHandler {
   def getItemsByDerivedFromId (finalId: Int): Seq[(Int, Int, Int, String, Option[Long], Option[String], Option[String], Option[String])] ={
     val crossJoin = for {
       (derivedFrom, item) <- derivedFrom.filter(_.finalItemId === finalId).join(items).on(_.initialItemId === _.itemId)
-    } yield (item.itemId, item.experimentTypeId, item.containerId, item.sourceId, item.size, item.platform, item.pipeline, item.sourceUrl)
+    } yield (item.itemId, item.experimentTypeId, item.datasetId, item.sourceId, item.size, item.platform, item.pipeline, item.sourceUrl)
     val action = crossJoin.result
     val result = database.run(action)
     val res = Await.result(result, Duration.Inf)
@@ -744,12 +749,14 @@ object DbHandler {
   //---------------------------------- Definition of the SOURCES table--------------------------------------------------
 
   class Donors(tag: Tag) extends
-    Table[(Option[Int], String, Option[String], Option[Int], Option[String], Option[String],  Option[Int], Option[Int])](tag, DONOR_TABLE_NAME) {
+    Table[(Option[Int], String, Option[String], Option[Int], Option[Int], Option[String], Option[String], Option[Int])](tag, DONOR_TABLE_NAME) {
     def donorId = column[Int]("donor_id", O.PrimaryKey, O.AutoInc)
 
     def sourceId = column[String]("source_id", O.Unique)
 
     def species = column[Option[String]]("species", O.Default(None))
+
+    def speciesTid = column[Option[Int]]("species_tid", O.Default(None))
 
     def age = column[Option[Int]]("age", O.Default(None))
 
@@ -757,17 +764,15 @@ object DbHandler {
 
     def ethnicity = column[Option[String]]("ethnicity", O.Default(None))
 
-    def speciesTid = column[Option[Int]]("species_tid", O.Default(None))
-
     def ethnicityTid = column[Option[Int]]("ethnicity_tid", O.Default(None))
 
-    def * = (donorId.?, sourceId, species, age, gender, ethnicity, speciesTid, ethnicityTid)
+    def * = (donorId.?, sourceId, species, speciesTid, age, gender, ethnicity, ethnicityTid)
   }
 
   val donors = TableQuery[Donors]
 
   class BioSamples(tag: Tag) extends
-    Table[(Option[Int], Int, String, Option[String], Option[String], Option[String], Option[Boolean], Option[String], Option[Int], Option[Int])](tag, BIOSAMPLE_TABLE_NAME) {
+    Table[(Option[Int], Int, String, Option[String], Option[String], Option[Int], Option[String], Option[Int], Option[Boolean], Option[String], Option[Int])](tag, BIOSAMPLE_TABLE_NAME) {
     def bioSampleId = column[Int]("biosample_id", O.PrimaryKey, O.AutoInc)
 
     def donorId = column[Int]("donor_id")
@@ -778,15 +783,17 @@ object DbHandler {
 
     def tissue = column[Option[String]]("tissue", O.Default(None))
 
+    def tissueTid = column[Option[Int]]("tissue_tid", O.Default(None))
+
     def cellLine = column[Option[String]]("cell_line", O.Default(None))
+
+    def cellLineTid = column[Option[Int]]("cell_line_tid", O.Default(None))
 
     def isHealthy = column[Option[Boolean]]("is_healthy", O.Default(None))
 
     def disease = column[Option[String]]("disease", O.Default(None))
 
-    def tissueTid = column[Option[Int]]("tissue_tid", O.Default(None))
-
-    def cellLineTid = column[Option[Int]]("cell_line_tid", O.Default(None))
+    def diseaseTid = column[Option[Int]]("disease_tid", O.Default(None))
 
     def donor = foreignKey("biosamples_donor_fk", donorId, donors)(
       _.donorId,
@@ -794,7 +801,7 @@ object DbHandler {
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def * = (bioSampleId.?, donorId, sourceId, types, tissue, cellLine, isHealthy, disease, tissueTid, cellLineTid)
+    def * = (bioSampleId.?, donorId, sourceId, types, tissue, tissueTid, cellLine, cellLineTid, isHealthy, disease, diseaseTid)
   }
 
 
@@ -824,26 +831,26 @@ object DbHandler {
   val replicates = TableQuery[Replicates]
 
   class ExperimentsType(tag: Tag) extends
-    Table[(Option[Int], Option[String], Option[String], Option[String], Option[String], Option[Int], Option[Int], Option[Int])](tag, EXPERIMENTTYPE_TABLE_NAME) {
+    Table[(Option[Int], Option[String], Option[Int], Option[String], Option[Int], Option[String], Option[Int], Option[String])](tag, EXPERIMENTTYPE_TABLE_NAME) {
     def experimentTypeId = column[Int]("experiment_type_id", O.PrimaryKey, O.AutoInc)
 
     def technique = column[Option[String]]("technique", O.Default(None))
 
-    def feature = column[Option[String]]("feature", O.Default(None))
-
-    def target = column[Option[String]]("target", O.Default(None))
-
-    def antibody = column[Option[String]]("antibody", O.Default(None))
-
     def techniqueTid = column[Option[Int]]("technique_tid", O.Default(None))
+
+    def feature = column[Option[String]]("feature", O.Default(None))
 
     def featureTid = column[Option[Int]]("feature_tid", O.Default(None))
 
+    def target = column[Option[String]]("target", O.Default(None))
+
     def targetTid = column[Option[Int]]("target_tid", O.Default(None))
+
+    def antibody = column[Option[String]]("antibody", O.Default(None))
 
     def uniqueKey = index("technique_feature_target", (technique, feature, target), unique = true)
 
-    def * = (experimentTypeId.?, technique, feature, target, antibody, techniqueTid, featureTid, targetTid)
+    def * = (experimentTypeId.?, technique, techniqueTid, feature, featureTid, target, targetTid, antibody)
   }
 
   val experimentsType = TableQuery[ExperimentsType]
@@ -884,11 +891,15 @@ object DbHandler {
 
   val cases = TableQuery[Cases]
 
-  class Containers(tag: Tag) extends
-    Table[(Option[Int], String, Option[String], Option[Boolean], Option[String], Option[Int])](tag, CONTAINER_TABLE_NAME) {
-    def containerId = column[Int]("container_id", O.PrimaryKey, O.AutoInc)
+  class Datasets(tag: Tag) extends
+    Table[(Option[Int], String, Option[String],Option[String], Option[String], Option[Boolean], Option[String], Option[Int], Option[String])](tag, DATASET_TABLE_NAME) {
+    def datasetId = column[Int]("dataset_id", O.PrimaryKey, O.AutoInc)
 
-    def name = column[String]("name", O.Unique)
+    def name = column[String]("name", O.Default("DS_NAME"))
+
+    def dataType = column[Option[String]]("data_type", O.Default(None))
+
+    def format = column[Option[String]]("format", O.Default(None))
 
     def assembly = column[Option[String]]("assembly", O.Default(None))
 
@@ -898,10 +909,14 @@ object DbHandler {
 
     def annotationTid = column[Option[Int]]("annotation_tid", O.Default(None))
 
-    def * = (containerId.?, name, assembly, isAnn, annotation, annotationTid)
+    def localUrl = column[Option[String]]("local_url", O.Default(None))
+
+    def uniqueKey = index("datatype_format_assembly_annotation", (dataType,format,assembly,annotation), unique = true)
+
+    def * = (datasetId.?, name, dataType, format, assembly, isAnn, annotation, annotationTid, localUrl)
   }
 
-  val containers = TableQuery[Containers]
+  val datasets = TableQuery[Datasets]
 
   class Items(tag: Tag) extends
     Table[(Option[Int], Int, Int, String, Option[Long], Option[String], Option[Int], Option[String], Option[String])](tag, ITEM_TABLE_NAME) {
@@ -909,7 +924,7 @@ object DbHandler {
 
     def experimentTypeId = column[Int]("experiment_type_id")
 
-    def containerId = column[Int]("container_id")
+    def datasetId = column[Int]("dataset_id")
 
     def sourceId = column[String]("source_id", O.Unique)
 
@@ -929,13 +944,13 @@ object DbHandler {
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def container = foreignKey("items_container_fk", containerId, containers)(
-      _.containerId,
+    def dataset = foreignKey("items_dataset_fk", datasetId, datasets)(
+      _.datasetId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def * = (itemId.?, experimentTypeId, containerId, sourceId, size, platform, platformTid, pipeline, sourceUrl)
+    def * = (itemId.?, experimentTypeId, datasetId, sourceId, size, platform, platformTid, pipeline, sourceUrl)
   }
 
   val items = TableQuery[Items]

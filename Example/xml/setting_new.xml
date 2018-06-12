@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <root>
-    <table name="CONTAINERS">
+    <table name="DATASETS">
         <mapping method="SUB" sub_character=" " new_character="_" concat_character="_">
             <source_key>file__assembly</source_key>
             <global_key>name</global_key>
@@ -12,6 +12,14 @@
         <mapping method="SUB-REMOVE-CONCAT" rem_character="Peak" sub_character=" " new_character="_" concat_character="_">
             <source_key>file__file_format_type</source_key>
             <global_key>name</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__file_format_type</source_key>
+            <global_key>dataType</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__file_format</source_key>
+            <global_key>format</global_key>
         </mapping>
         <mapping>
             <source_key>file__assembly</source_key>
@@ -152,14 +160,6 @@
             <source_key>file__accession</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <!--<mapping>-->
-            <!--<source_key>file__output_type</source_key>-->
-            <!--<global_key>dataType</global_key>-->
-        <!--</mapping>-->
-        <!--<mapping>-->
-            <!--<source_key>file__file_format_type</source_key>-->
-            <!--<global_key>format</global_key>-->
-        <!--</mapping>-->
         <mapping>
             <source_key>file__file_size</source_key>
             <global_key>size</global_key>

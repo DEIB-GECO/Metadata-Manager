@@ -13,7 +13,7 @@ class XMLReaderTCGA(val path: String) {
   val settingRetriver: XMLSettingRetriver = new XMLSettingRetriver(default)
 
 
-  private var list = List(((xml \\ "table" \ "mapping" \ "source_key").text), ((xml \\ "table" \ "mapping" \ "global_key").text), (xml \\ "@name"))
+  private var list = List((xml \\ "table" \ "mapping" \ "source_key").text, (xml \\ "table" \ "mapping" \ "global_key").text, xml \\ "@name")
 
   private var operations = new ListBuffer[List[String]]()
   for (x <- xml \\ "table") {

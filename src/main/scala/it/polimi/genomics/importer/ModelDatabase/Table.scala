@@ -32,7 +32,7 @@ trait Table {
   def dependenciesTables: List[String] = _dependenciesTables
   def hasDependencies: Boolean = _hasDependencies
   def checkDependenciesSatisfaction(table: Table): Boolean = true
-  def getDependencies(): Set[Any] = null
+  def getDependencies: Set[Any] = null
 
 
   protected var _primaryKey: Int = _
@@ -94,7 +94,7 @@ trait Table {
   }
 
   def checkValueLength(values: Seq[Any]): Unit = {
-    if(values.length == 0){
+    if(values.isEmpty){
       throw new NoTupleInDatabaseException("Not tuple found Exception")
     }
   }

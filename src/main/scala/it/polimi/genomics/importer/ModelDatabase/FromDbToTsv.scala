@@ -19,7 +19,7 @@ class FromDbToTsv() {
   var replicate: Replicate =  _
   var cases: Case = _
   var experimentType: ExperimentType = _
-  var container: Container =_
+  var dataset: Dataset =_
   var project: Project = _
   var item: Item = _
   private val isNewFile = conf.getBoolean("export.newfile")
@@ -31,13 +31,13 @@ class FromDbToTsv() {
 
 
 
-  def setTable(donor: Donor, bioSample: BioSample, replicate: Replicate, cases: Case, container: Container, experimentType: ExperimentType, project: Project, item: Item): Unit ={
+  def setTable(donor: Donor, bioSample: BioSample, replicate: Replicate, cases: Case, dataset: Dataset, experimentType: ExperimentType, project: Project, item: Item): Unit ={
     this.donor = donor
     this.bioSample = bioSample
     this.replicate =  replicate
     this.cases = cases
     this.experimentType = experimentType
-    this.container = container
+    this.dataset = dataset
     this.project = project
     this.item = item
   }
@@ -61,10 +61,10 @@ class FromDbToTsv() {
       cases.convertTo(DbHandler.getCaseByItemId(item.primaryKey))
       cases.writeInFile(path)
 
-      container.convertTo(DbHandler.getContainerById(cases.projectId))
-      container.writeInFile(path)
+      dataset.convertTo(DbHandler.getDatasetById(item.datasetId))
+      dataset.writeInFile(path)
 
-      project.convertTo(DbHandler.getProjectById(container.projectId))
+      project.convertTo(DbHandler.getProjectById(cases.projectId))
       project.writeInFile(path)
 
       replicate.convertTo(DbHandler.getReplicateByItemId(item.primaryKey))

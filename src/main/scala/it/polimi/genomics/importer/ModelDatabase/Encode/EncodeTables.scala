@@ -3,7 +3,7 @@ package it.polimi.genomics.importer.ModelDatabase.Encode
 import exceptions.NoTableNameException
 import it.polimi.genomics.importer.ModelDatabase.Encode.Table._
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
-import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Container, Donor, ExperimentType, Item, Project, Replicate, Table, Tables}
+import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Dataset, Donor, ExperimentType, Item, Project, Replicate, Table, Tables}
 import org.apache.log4j.Logger
 
 
@@ -36,7 +36,7 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
       case Replicates => return new ReplicateEncode(encodeTableId)
       case ExperimentsType => return new ExperimentTypeEncode(encodeTableId)
       case Projects => return new ProjectEncode(encodeTableId)
-      case Containers => return new ContainerEncode(encodeTableId)
+      case Datasets => return new DatasetEncode(encodeTableId)
       case Cases => return new CaseEncode(encodeTableId)
       case Items => return new ItemEncode(encodeTableId)
       case CasesItems => return new CaseItemEncode(encodeTableId)
@@ -62,10 +62,10 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
     })
   }*/
 
-  override def getListOfTables(): (Donor, BioSample, Replicate, Case, Container, ExperimentType, Project, Item) = {
+  override def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item) = {
     val encodeTableId: EncodeTableId = new EncodeTableId
     return (new DonorEncode(encodeTableId,1), new BioSampleEncode(encodeTableId, 1), new ReplicateEncode(encodeTableId), new CaseEncode(encodeTableId),
-    new ContainerEncode(encodeTableId), new ExperimentTypeEncode(encodeTableId), new ProjectEncode(encodeTableId), new ItemEncode(encodeTableId))
+    new DatasetEncode(encodeTableId), new ExperimentTypeEncode(encodeTableId), new ProjectEncode(encodeTableId), new ItemEncode(encodeTableId))
   }
 
   def nextPosition(tableName: String, globalKey: String, method: String): Unit = {

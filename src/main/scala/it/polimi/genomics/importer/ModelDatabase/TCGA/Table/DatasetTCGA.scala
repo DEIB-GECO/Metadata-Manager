@@ -1,8 +1,8 @@
 package it.polimi.genomics.importer.ModelDatabase.TCGA.Table
 
-import it.polimi.genomics.importer.ModelDatabase.Container
+import it.polimi.genomics.importer.ModelDatabase.{Dataset, Table}
 
-class ContainerTCGA extends TCGATable with Container{
+class DatasetTCGA extends TCGATable with Dataset{
 
   override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit = dest.toUpperCase match {
     case "NAME" => this.name = insertMethod(this.name,param)
@@ -12,4 +12,6 @@ class ContainerTCGA extends TCGATable with Container{
     case _ => noMatching(dest)
   }
 
+  override def setForeignKeys(table: Table): Unit = {
+  }
 }

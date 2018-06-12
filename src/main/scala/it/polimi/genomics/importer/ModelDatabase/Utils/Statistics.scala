@@ -24,15 +24,15 @@ object Statistics {
   var loadTimeAcc: Long = _
   var transformTimeAcc: Long = _
 
-  def incrementExtractTime(time: Long) = {
+  def incrementExtractTime(time: Long): Unit = {
     extractTimeAcc += time
   }
 
-  def incrementLoadTime(time: Long) = {
+  def incrementLoadTime(time: Long): Unit = {
     loadTimeAcc += time
   }
 
-  def incrementTrasformTime(time: Long) = {
+  def incrementTrasformTime(time: Long): Unit = {
     transformTimeAcc += time
   }
 
