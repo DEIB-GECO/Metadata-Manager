@@ -60,7 +60,7 @@ trait Dataset extends Table{
         case dataset: Dataset => {
           if (dataset.isAnn && dataset.annotation == null) {
             Statistics.constraintsViolated += 1
-            this.logger.warn("Dataset annotation constrains violated")
+            this.logger.warn("Dataset annotation constraints violated")
             return false
           }
           true
@@ -68,7 +68,7 @@ trait Dataset extends Table{
         case donor: Donor => {
           if (donor.species.toUpperCase().equals("HOMO SAPIENS") && !(this.assembly.equals("hg19") || this.assembly.equals("GRCh38"))) {
             Statistics.constraintsViolated += 1
-            this.logger.warn("Dataset species constrains violated")
+            this.logger.warn("Dataset species constraints violated")
             return false
           }
           true

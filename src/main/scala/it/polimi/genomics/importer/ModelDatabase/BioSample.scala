@@ -60,17 +60,17 @@ trait BioSample extends Table{
         case bioSample: BioSample => {
           if (bioSample.types.equals("tissue") && bioSample.tissue == null) {
             Statistics.constraintsViolated += 1
-            this.logger.warn("Biosample tissue constrains violated")
+            this.logger.warn("Biosample tissue constraints violated")
             false
           }
           else if (bioSample.types.equals("cellLine") && bioSample.tissue == null) {
             Statistics.constraintsViolated += 1
-            this.logger.warn("Biosample cellLine constrains violated")
+            this.logger.warn("Biosample cellLine constraints violated")
             false
           }
           else if (bioSample.isHealthy && bioSample.disease != null) {
             Statistics.constraintsViolated += 1
-            this.logger.warn("Biosample isHealty constrains violated")
+            this.logger.warn("Biosample isHealty constraints violated")
             false
           }
           else

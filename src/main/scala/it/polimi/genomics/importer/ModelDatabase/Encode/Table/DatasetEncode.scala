@@ -25,7 +25,7 @@ class DatasetEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTabl
           donorEncode.speciesArray.filter(donorSpecies => donorSpecies != null).foreach(donorSpecies =>{
             if(donorSpecies.toUpperCase().equals("HOMO SAPIENS") && !(this.assembly.equals("hg19") || this.assembly.equals("GRCh38"))) {
               Statistics.constraintsViolated += 1
-              this.logger.warn("Dataset species constrains violated")
+              this.logger.warn("Dataset species constraints violated")
               res = false
             }
           })

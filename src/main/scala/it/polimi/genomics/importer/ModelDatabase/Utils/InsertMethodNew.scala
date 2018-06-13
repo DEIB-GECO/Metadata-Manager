@@ -22,6 +22,7 @@ object InsertMethodNew {
         case "UPPERCASE" => acc.toUpperCase()
         case "LOWERCASE" => acc.toLowerCase()
         case "DATETODAYS" => this.selectDayByParam(newParam)
+        case "WEEKSTODAYS" => this.weeksToDays(newParam)
         case "ONTOLOGY" => sourceKey + '*' + acc
         case _ => {
           logger.error("Method " + method + " not found"); actualParam
@@ -74,6 +75,9 @@ object InsertMethodNew {
       }
     }
   }
+
+  private def weeksToDays(param: String): String = (param.toInt * 7).toString
+
   private def toArrayInt(list: Array[String]): Array[Float] = list.map(_.toFloat)
   private def average(list: Array[Float]): Float = list.sum / list.length
 

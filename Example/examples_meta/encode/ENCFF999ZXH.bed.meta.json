@@ -1,0 +1,501 @@
+file__no_file_available	false
+file__@type	File
+file__@type	Item
+file__notes	{"dx-createdBy": {"job": "job-F3g8Zq003693qY1G9gz0Px9z", "executable": "applet-F2pzb5Q0369J4x3z5Pq8GXQV", "user": "user-cricketsloan"}, "qc": {}, "dx-parentAnalysis": "analysis-F3g8YxQ03691X4Pg29Y7jvgf", "dx-id": "file-F3gB99Q0kBq5BBbvBGp8PZYf"}
+file__accession	ENCFF999ZXH
+file__uuid	426f71bc-6814-4aa5-a71d-efc8b5f294f7
+file__dataset	/experiments/ENCSR000AUP/
+file__output_category	annotation
+file__file_format_specifications	/documents/948203bb-8eb2-42a2-8b12-1c10f356c998/
+file__submitted_file_name	project-BpBZvb003694v3fj3QJGK3Zb:/peaks_tf_hg19/ENCSR000AUP/peaks/encode_macs2/r1.narrowPeak.gz
+file__submitted_by__@type	User
+file__submitted_by__@type	Item
+file__submitted_by__lab	/labs/j-michael-cherry/
+file__submitted_by__title	Cricket Sloan
+file__submitted_by__uuid	81a6cc12-2847-4e2e-8f2c-f566699eb29e
+file__submitted_by__@id	/users/81a6cc12-2847-4e2e-8f2c-f566699eb29e/
+file__file_format	bed
+file__@id	/files/ENCFF999ZXH/
+file__award	/awards/U41HG006992/
+file__schema_version	11
+file__file_type	bed narrowPeak
+file__title	ENCFF999ZXH
+file__technical_replicates	1_1
+file__file_format_type	narrowPeak
+file__date_created	2017-04-12T23:19:32.684032+00:00
+file__biological_replicates	1
+file__lab__@type	Lab
+file__lab__@type	Item
+file__lab__country	USA
+file__lab__title	ENCODE Processing Pipeline
+file__lab__uuid	a558111b-4c50-4b2e-9de8-73fd8fd3a67d
+file__lab__@id	/labs/encode-processing-pipeline/
+file__lab__name	encode-processing-pipeline
+file__lab__status	current
+file__lab__awards	/awards/U41HG007000/
+file__lab__awards	/awards/U41HG006992/
+file__lab__pi	/users/8b1f8780-b5d6-4fb7-a5a2-ddcec9054288/
+file__lab__schema_version	5
+file__content_md5sum	cc879b3ce067226cee7b7aa9b8410ced
+file__output_type	peaks
+file__md5sum	fc1d866e9d0552ad86216df8e0cd47b2
+file__step_run	/analysis-step-runs/2b771b15-9ee9-4be7-947f-4848fb4e0e2e/
+file__assembly	hg19
+file__href	/files/ENCFF999ZXH/@@download/ENCFF999ZXH.bed.gz
+file__status	released
+file__file_size	1425340
+replicates__1__@type	Replicate
+replicates__1__@type	Item
+replicates__1__notes	{}
+replicates__1__experiment	/experiments/ENCSR000AUP/
+replicates__1__uuid	383473e8-3d85-493b-8eaf-bbfd6c892aa8
+replicates__1__date_created	2013-10-25T00:00:31.466831+00:00
+replicates__1__library__documents__@type	Document
+replicates__1__library__documents__@type	Item
+replicates__1__library__documents__document_type	general protocol
+replicates__1__library__documents__uuid	f10bdd36-e370-4777-a7f3-83091c115749
+replicates__1__library__documents__attachment__type	application/pdf
+replicates__1__library__documents__attachment__download	wgEncodeBroadHistone.html.pdf
+replicates__1__library__documents__attachment__href	@@download/attachment/wgEncodeBroadHistone.html.pdf
+replicates__1__library__documents__lab__address2	185 Cambridge St.
+replicates__1__library__documents__lab__@type	Lab
+replicates__1__library__documents__lab__@type	Item
+replicates__1__library__documents__lab__country	USA
+replicates__1__library__documents__lab__title	Bradley Bernstein, Broad
+replicates__1__library__documents__lab__state	MA
+replicates__1__library__documents__lab__uuid	b83215c3-3960-4085-b220-614a122eea01
+replicates__1__library__documents__lab__@id	/labs/bradley-bernstein/
+replicates__1__library__documents__lab__institute_label	Broad
+replicates__1__library__documents__lab__name	bradley-bernstein
+replicates__1__library__documents__lab__city	Boston
+replicates__1__library__documents__lab__status	current
+replicates__1__library__documents__lab__phone1	617-726-6906
+replicates__1__library__documents__lab__awards	/awards/U01ES017155/
+replicates__1__library__documents__lab__awards	/awards/U54HG004570/
+replicates__1__library__documents__lab__awards	/awards/U54HG006991/
+replicates__1__library__documents__lab__awards	/awards/UM1HG009390/
+replicates__1__library__documents__lab__institute_name	Broad Institute
+replicates__1__library__documents__lab__fax	617-643-3566
+replicates__1__library__documents__lab__pi	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+replicates__1__library__documents__lab__postal_code	2114
+replicates__1__library__documents__lab__schema_version	5
+replicates__1__library__documents__lab__address1	Massachusetts General Hospital Simches Research Building, CPZN 8234
+replicates__1__library__documents__date_created	2014-10-16T20:33:49.421059+00:00
+replicates__1__library__documents__aliases	encode:wgEncodeBroadHistone
+replicates__1__library__documents__description	Track description for UCSC Genome Browser composite track hg19/wgEncodeBroadHistone
+replicates__1__library__documents__submitted_by__@type	User
+replicates__1__library__documents__submitted_by__@type	Item
+replicates__1__library__documents__submitted_by__lab	/labs/thomas-gingeras/
+replicates__1__library__documents__submitted_by__title	Carrie Davis
+replicates__1__library__documents__submitted_by__uuid	0abbd494-b852-433c-b360-93996f679dae
+replicates__1__library__documents__submitted_by__@id	/users/0abbd494-b852-433c-b360-93996f679dae/
+replicates__1__library__documents__@id	/documents/f10bdd36-e370-4777-a7f3-83091c115749/
+replicates__1__library__documents__award__@type	Award
+replicates__1__library__documents__award__@type	Item
+replicates__1__library__documents__award__viewing_group	ENCODE3
+replicates__1__library__documents__award__title	HIGH-THROUGHPUT SEQUENCING OF CHROMATIN REGULATORY ELEMENTS
+replicates__1__library__documents__award__uuid	1f3cffd4-457f-4105-9b3c-3e9119abfcf0
+replicates__1__library__documents__award__rfa	ENCODE2
+replicates__1__library__documents__award__project	ENCODE
+replicates__1__library__documents__award__name	U54HG004570
+replicates__1__library__documents__award__@id	/awards/U54HG004570/
+replicates__1__library__documents__award__url	http://projectreporter.nih.gov/project_info_details.cfm?aid=8321257
+replicates__1__library__documents__award__start_date	2007-09-28
+replicates__1__library__documents__award__end_date	2013-06-30
+replicates__1__library__documents__award__pi	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+replicates__1__library__documents__award__description	A key goal in characterizing the human genome is to acquire a complete catalog of chromatin regulatory elements and sequence determinants of chromatin state. In this application, we propose to undertake a large-scale project to map the genomewide locations of >35 histone modifications and related proteins in >20 human cell types by coupling chromatin IP with massive-throughput sequencing on the Solexa platform. Our preliminary data demonstrate that this approach is highly accurate and a major advance over existing technologies in terms of cell requirements, genome coverage, throughput and cost-effectiveness. A sequencing pipeline will be applied to generate more than 500 genomewide datasets of chromatin structure by sequencing >1000 samples. A computational pipeline will then convert the sequencing reads into high resolution, genomewide maps that can be visualized in genome browsers and used for downstream analysis. Comparative genomic analysis and motif-finding tools will be applied to classify genomic sites based on associated chromatin structures and to identify underlying sequence determinants. Cell and molecular biology methods will be used to validate inferred functions for a representative subset of discovered elements. Chromatin regulation is extensively implicated in many aspects of human development and disease. In particular, cancer cells may universally exhibit aberrant chromatin states. The proposed systematic identification and characterization of chromatin regulatory elements in the human genome will offer unprecedented insight into the structure and function of chromatin, and provide an invaluable resource for investigators in chromatin, genomics, cancer and many other fields of research. All data collected in the context of the proposed project will be made available pre-publication to the greater scientific community once reliability has been confirmed.
+replicates__1__library__documents__award__schema_version	5
+replicates__1__library__documents__award__status	disabled
+replicates__1__library__documents__schema_version	8
+replicates__1__library__documents__status	released
+replicates__1__library__accession	ENCLB695AIK
+replicates__1__library__uuid	7075baae-ee61-4be2-b42b-a4b941016332
+replicates__1__library__@type	Library
+replicates__1__library__@type	Item
+replicates__1__library__biosample__@type	Biosample
+replicates__1__library__biosample__@type	Item
+replicates__1__library__biosample__age_display	27 year
+replicates__1__library__biosample__accession	ENCBS836CYW
+replicates__1__library__biosample__uuid	5d00f6b6-4177-4e54-93b0-0e76691b54ec
+replicates__1__library__biosample__@id	/biosamples/ENCBS836CYW/
+replicates__1__library__biosample__age_units	year
+replicates__1__library__biosample__date_obtained	2010-12-17
+replicates__1__library__biosample__organism__@type	Organism
+replicates__1__library__biosample__organism__@type	Item
+replicates__1__library__biosample__organism__scientific_name	Homo sapiens
+replicates__1__library__biosample__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicates__1__library__biosample__organism__taxon_id	9606
+replicates__1__library__biosample__organism__name	human
+replicates__1__library__biosample__organism__@id	/organisms/human/
+replicates__1__library__biosample__organism__schema_version	4
+replicates__1__library__biosample__organism__status	current
+replicates__1__library__biosample__aliases	bradley-bernstein:BioSam 216
+replicates__1__library__biosample__biosample_term_name	B cell
+replicates__1__library__biosample__award	/awards/U54HG004570/
+replicates__1__library__biosample__schema_version	17
+replicates__1__library__biosample__life_stage	adult
+replicates__1__library__biosample__sex	female
+replicates__1__library__biosample__biosample_term_id	CL:0000236
+replicates__1__library__biosample__date_created	2014-02-13T00:07:03.437001+00:00
+replicates__1__library__biosample__biosample_type	primary cell
+replicates__1__library__biosample__biosample_synonyms	B Cells
+replicates__1__library__biosample__biosample_synonyms	Bursa-Dependent Lymphocytes
+replicates__1__library__biosample__biosample_synonyms	B-Cells
+replicates__1__library__biosample__biosample_synonyms	B-cell
+replicates__1__library__biosample__biosample_synonyms	B-Lymphocytes
+replicates__1__library__biosample__biosample_synonyms	Bursa-Equivalent Lymphocyte
+replicates__1__library__biosample__biosample_synonyms	B Lymphocytes
+replicates__1__library__biosample__biosample_synonyms	B-lymphocyte
+replicates__1__library__biosample__biosample_synonyms	B lymphocyte
+replicates__1__library__biosample__summary	Homo sapiens B primary cell female adult (27 years)
+replicates__1__library__biosample__age	27
+replicates__1__library__biosample__status	released
+replicates__1__library__biosample__health_status	normal
+replicates__1__library__biosample__submitted_by__@type	User
+replicates__1__library__biosample__submitted_by__@type	Item
+replicates__1__library__biosample__submitted_by__lab	/labs/bradley-bernstein/
+replicates__1__library__biosample__submitted_by__title	Noam Shoresh
+replicates__1__library__biosample__submitted_by__uuid	f1843c60-e027-4b18-8582-64d3f3eae45b
+replicates__1__library__biosample__submitted_by__@id	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__library__biosample__system_slims	immune system
+replicates__1__library__biosample__dbxrefs	GEO:SAMN06464529
+replicates__1__library__biosample__source__@type	Source
+replicates__1__library__biosample__source__@type	Item
+replicates__1__library__biosample__source__title	Rajinder Kaul
+replicates__1__library__biosample__source__uuid	0076f6c8-df76-4f17-a0fa-ff452eb2b7e2
+replicates__1__library__biosample__source__@id	/sources/rajinder-kaul/
+replicates__1__library__biosample__source__name	rajinder-kaul
+replicates__1__library__biosample__source__description	Rajinder Kaul at University of Washington
+replicates__1__library__biosample__source__schema_version	5
+replicates__1__library__biosample__source__status	current
+replicates__1__library__biosample__source__url	http://depts.washington.edu/medgen/faculty/Rajinder_Kaul.shtml
+replicates__1__library__biosample__donor__@type	HumanDonor
+replicates__1__library__biosample__donor__@type	Donor
+replicates__1__library__biosample__donor__@type	Item
+replicates__1__library__biosample__donor__accession	ENCDO115AAA
+replicates__1__library__biosample__donor__uuid	d1343b07-f77b-4368-b8cb-e0dfa42da217
+replicates__1__library__biosample__donor__health_status	normal
+replicates__1__library__biosample__donor__age_units	year
+replicates__1__library__biosample__donor__organism__@type	Organism
+replicates__1__library__biosample__donor__organism__@type	Item
+replicates__1__library__biosample__donor__organism__scientific_name	Homo sapiens
+replicates__1__library__biosample__donor__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicates__1__library__biosample__donor__organism__taxon_id	9606
+replicates__1__library__biosample__donor__organism__name	human
+replicates__1__library__biosample__donor__organism__@id	/organisms/human/
+replicates__1__library__biosample__donor__organism__schema_version	4
+replicates__1__library__biosample__donor__organism__status	current
+replicates__1__library__biosample__donor__aliases	bradley-bernstein:donor R01835
+replicates__1__library__biosample__donor__award	/awards/U54HG004570/
+replicates__1__library__biosample__donor__schema_version	9
+replicates__1__library__biosample__donor__life_stage	adult
+replicates__1__library__biosample__donor__sex	female
+replicates__1__library__biosample__donor__date_created	2014-02-13T00:06:26.902543+00:00
+replicates__1__library__biosample__donor__lab	/labs/bradley-bernstein/
+replicates__1__library__biosample__donor__@id	/human-donors/ENCDO115AAA/
+replicates__1__library__biosample__donor__age	27
+replicates__1__library__biosample__donor__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__library__biosample__donor__dbxrefs	GEO:SAMN06044674
+replicates__1__library__biosample__donor__ethnicity	African-American
+replicates__1__library__biosample__donor__status	released
+replicates__1__library__biosample__lab	/labs/bradley-bernstein/
+replicates__1__library__lysis_method	see document
+replicates__1__library__nucleic_acid_term_name	DNA
+replicates__1__library__aliases	bradley-bernstein:DNA_Lib 2033
+replicates__1__library__@id	/libraries/ENCLB695AIK/
+replicates__1__library__fragmentation_method	see document
+replicates__1__library__schema_version	8
+replicates__1__library__strand_specificity	false
+replicates__1__library__award	/awards/U54HG004570/
+replicates__1__library__date_created	2013-10-24T23:41:25.965267+00:00
+replicates__1__library__lab	/labs/bradley-bernstein/
+replicates__1__library__nucleic_acid_term_id	SO:0000352
+replicates__1__library__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__library__library_size_selection_method	see document
+replicates__1__library__status	released
+replicates__1__library__extraction_method	see document
+replicates__1__@id	/replicates/383473e8-3d85-493b-8eaf-bbfd6c892aa8/
+replicates__1__aliases	bradley-bernstein:Rep_DNA_Lib 2033
+replicates__1__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__biological_replicate_number	1
+replicates__1__antibody__@type	AntibodyLot
+replicates__1__antibody__@type	Item
+replicates__1__antibody__accession	ENCAB000ANA
+replicates__1__antibody__uuid	1960fb12-64ce-41f4-944d-d15fc1494874
+replicates__1__antibody__submitted_by	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+replicates__1__antibody__award	/awards/U54HG004570/
+replicates__1__antibody__lot_reviews__biosample_term_name	any cell type or tissue
+replicates__1__antibody__lot_reviews__detail	Awaiting submission of a primary characterization and secondary characterization not reviewed.
+replicates__1__antibody__lot_reviews__biosample_term_id	NTR:99999999
+replicates__1__antibody__lot_reviews__targets	/targets/H3K27ac-human/
+replicates__1__antibody__lot_reviews__targets	/targets/H3K27ac-mouse/
+replicates__1__antibody__lot_reviews__status	awaiting characterization
+replicates__1__antibody__lot_reviews__organisms	/organisms/mouse/
+replicates__1__antibody__lot_id	31456
+replicates__1__antibody__characterizations	/antibody-characterizations/c3eaa0ac-bfb9-4ebd-af13-ce90819c03e2/
+replicates__1__antibody__title	ENCAB000ANA
+replicates__1__antibody__date_created	2013-09-13T13:23:29.112150-08:00
+replicates__1__antibody__schema_version	9
+replicates__1__antibody__lab	/labs/bradley-bernstein/
+replicates__1__antibody__@id	/antibodies/ENCAB000ANA/
+replicates__1__antibody__product_id	ab4729
+replicates__1__antibody__url	http://www.abcam.com/index.html?datasheet=4729
+replicates__1__antibody__dbxrefs	AR:AB_2118291
+replicates__1__antibody__dbxrefs	UCSC-ENCODE-cv:H3K27ac
+replicates__1__antibody__targets	/targets/H3K27ac-human/
+replicates__1__antibody__targets	/targets/H3K27ac-mouse/
+replicates__1__antibody__source	/sources/abcam/
+replicates__1__antibody__clonality	polyclonal
+replicates__1__antibody__status	released
+replicates__1__antibody__host_organism	/organisms/rabbit/
+replicates__1__technical_replicate_number	1
+replicates__1__schema_version	8
+replicates__1__status	released
+@type	Experiment
+@type	Dataset
+@type	Item
+uuid	a6121c01-12db-4cf3-80f4-f731696dfbfb
+@id	/experiments/ENCSR000AUP/
+type_slims	immunoprecipitation assay
+assay_term_name	ChIP-seq
+category_slims	protein and DNA interaction
+objective_slims	epigenetic modification identification objective
+objective_slims	protein and DNA interaction identification objective
+internal_status	pipeline ready
+biosample_synonyms	B Cells
+biosample_synonyms	Bursa-Dependent Lymphocytes
+biosample_synonyms	B-Cells
+biosample_synonyms	B-cell
+biosample_synonyms	B-Lymphocytes
+biosample_synonyms	Bursa-Equivalent Lymphocyte
+biosample_synonyms	B Lymphocytes
+biosample_synonyms	B-lymphocyte
+biosample_synonyms	B lymphocyte
+system_slims	immune system
+dbxrefs	UCSC-ENCODE-hg19:wgEncodeEH003125
+dbxrefs	GEO:GSM1003459
+status	released
+assay_term_id	OBI:0000716
+replication_type	isogenic
+accession	ENCSR000AUP
+assay_slims	DNA binding
+description	H3K27ac ChIP-seq on human B cell CD20+ (RO01794)
+date_released	2012-08-06
+biosample_term_name	B cell
+internal_tags	ENCYCLOPEDIAv4
+related_series__@type	ReferenceEpigenome
+related_series__@type	Series
+related_series__@type	Dataset
+related_series__@type	Item
+related_series__assay_term_id	OBI:0001271
+related_series__assay_term_id	OBI:0000716
+related_series__assay_term_id	OBI:0001853
+related_series__accession	ENCSR682AXR
+related_series__uuid	05540809-c54d-45f7-9708-a076c574003d
+related_series__organism	/organisms/human/
+related_series__description	Reference Epigenome of B cell
+related_series__date_released	2016-05-20
+related_series__biosample_term_name	B cell
+related_series__assay_term_name	DNase-seq
+related_series__assay_term_name	ChIP-seq
+related_series__assay_term_name	RNA-seq
+related_series__@id	/reference-epigenomes/ENCSR682AXR/
+related_series__award	/awards/U41HG006992/
+related_series__schema_version	12
+related_series__system_slims	immune system
+related_series__status	started
+related_series__biosample_term_id	CL:0000236
+related_series__date_created	2015-12-15T23:15:23.355238+00:00
+related_series__biosample_type	primary cell
+related_series__biosample_synonyms	B Cells
+related_series__biosample_synonyms	Bursa-Dependent Lymphocytes
+related_series__biosample_synonyms	B-Cells
+related_series__biosample_synonyms	B-cell
+related_series__biosample_synonyms	B-Lymphocytes
+related_series__biosample_synonyms	Bursa-Equivalent Lymphocyte
+related_series__biosample_synonyms	B Lymphocytes
+related_series__biosample_synonyms	B-lymphocyte
+related_series__biosample_synonyms	B lymphocyte
+related_series__target	/targets/H3K27ac-human/
+related_series__target	/targets/Control-human/
+related_series__target	/targets/H3K4me3-human/
+related_series__target	/targets/H3K27me3-human/
+related_series__submitted_by	/users/85978cd9-131e-48e2-a389-f752ab05b0a6/
+related_series__hub	/reference-epigenomes/ENCSR682AXR/@@hub/hub.txt
+related_series__assembly	hg19
+related_series__assembly	GRCh38
+related_series__assay_synonyms	RNA-seq assay
+related_series__assay_synonyms	ChIP-seq assay
+related_series__assay_synonyms	DNase-seq
+related_series__assay_synonyms	transcription profiling by high throughput sequencing
+related_series__assay_synonyms	DNase-seq assay
+related_series__assay_synonyms	DNase I hypersensitive sites sequencing assay
+related_series__assay_synonyms	chromatin immunoprecipitation sequencing assay
+related_series__lab	/labs/encode-consortium/
+related_series__month_released	May, 2016
+related_series__related_datasets	/experiments/ENCSR000EMJ/
+related_series__related_datasets	/experiments/ENCSR000CTV/
+related_series__related_datasets	/experiments/ENCSR000AUP/
+related_series__related_datasets	/experiments/ENCSR000DQP/
+related_series__related_datasets	/experiments/ENCSR000DQO/
+related_series__related_datasets	/experiments/ENCSR000AUW/
+related_series__related_datasets	/experiments/ENCSR162DGX/
+related_series__related_datasets	/experiments/ENCSR000CUU/
+award__@type	Award
+award__@type	Item
+award__viewing_group	ENCODE3
+award__title	HIGH-THROUGHPUT SEQUENCING OF CHROMATIN REGULATORY ELEMENTS
+award__uuid	1f3cffd4-457f-4105-9b3c-3e9119abfcf0
+award__rfa	ENCODE2
+award__project	ENCODE
+award__name	U54HG004570
+award__@id	/awards/U54HG004570/
+award__url	http://projectreporter.nih.gov/project_info_details.cfm?aid=8321257
+award__start_date	2007-09-28
+award__end_date	2013-06-30
+award__pi__@type	User
+award__pi__@type	Item
+award__pi__lab__address2	185 Cambridge St.
+award__pi__lab__@type	Lab
+award__pi__lab__@type	Item
+award__pi__lab__country	USA
+award__pi__lab__title	Bradley Bernstein, Broad
+award__pi__lab__state	MA
+award__pi__lab__uuid	b83215c3-3960-4085-b220-614a122eea01
+award__pi__lab__@id	/labs/bradley-bernstein/
+award__pi__lab__institute_label	Broad
+award__pi__lab__name	bradley-bernstein
+award__pi__lab__city	Boston
+award__pi__lab__status	current
+award__pi__lab__phone1	617-726-6906
+award__pi__lab__awards	/awards/U01ES017155/
+award__pi__lab__awards	/awards/U54HG004570/
+award__pi__lab__awards	/awards/U54HG006991/
+award__pi__lab__awards	/awards/UM1HG009390/
+award__pi__lab__institute_name	Broad Institute
+award__pi__lab__fax	617-643-3566
+award__pi__lab__pi	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+award__pi__lab__postal_code	2114
+award__pi__lab__schema_version	5
+award__pi__lab__address1	Massachusetts General Hospital Simches Research Building, CPZN 8234
+award__pi__title	Bradley Bernstein
+award__pi__uuid	aa57ecb5-3d0e-4b1f-9608-665785270ad7
+award__pi__@id	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+award__description	A key goal in characterizing the human genome is to acquire a complete catalog of chromatin regulatory elements and sequence determinants of chromatin state. In this application, we propose to undertake a large-scale project to map the genomewide locations of >35 histone modifications and related proteins in >20 human cell types by coupling chromatin IP with massive-throughput sequencing on the Solexa platform. Our preliminary data demonstrate that this approach is highly accurate and a major advance over existing technologies in terms of cell requirements, genome coverage, throughput and cost-effectiveness. A sequencing pipeline will be applied to generate more than 500 genomewide datasets of chromatin structure by sequencing >1000 samples. A computational pipeline will then convert the sequencing reads into high resolution, genomewide maps that can be visualized in genome browsers and used for downstream analysis. Comparative genomic analysis and motif-finding tools will be applied to classify genomic sites based on associated chromatin structures and to identify underlying sequence determinants. Cell and molecular biology methods will be used to validate inferred functions for a representative subset of discovered elements. Chromatin regulation is extensively implicated in many aspects of human development and disease. In particular, cancer cells may universally exhibit aberrant chromatin states. The proposed systematic identification and characterization of chromatin regulatory elements in the human genome will offer unprecedented insight into the structure and function of chromatin, and provide an invaluable resource for investigators in chromatin, genomics, cancer and many other fields of research. All data collected in the context of the proposed project will be made available pre-publication to the greater scientific community once reliability has been confirmed.
+award__schema_version	5
+award__status	disabled
+schema_version	12
+possible_controls__@type	Experiment
+possible_controls__@type	Dataset
+possible_controls__@type	Item
+possible_controls__uuid	802306c7-d7c3-45ec-8f31-0cf761430342
+possible_controls__@id	/experiments/ENCSR000AUW/
+possible_controls__type_slims	immunoprecipitation assay
+possible_controls__assay_term_name	ChIP-seq
+possible_controls__category_slims	protein and DNA interaction
+possible_controls__original_files	/files/ENCFF000AMC/
+possible_controls__original_files	/files/ENCFF000AMM/
+possible_controls__original_files	/files/ENCFF128SFZ/
+possible_controls__original_files	/files/ENCFF849QON/
+possible_controls__original_files	/files/ENCFF825GGQ/
+possible_controls__original_files	/files/ENCFF248YTS/
+possible_controls__objective_slims	epigenetic modification identification objective
+possible_controls__objective_slims	protein and DNA interaction identification objective
+possible_controls__internal_status	processing
+possible_controls__biosample_synonyms	B Cells
+possible_controls__biosample_synonyms	Bursa-Dependent Lymphocytes
+possible_controls__biosample_synonyms	B-Cells
+possible_controls__biosample_synonyms	B-cell
+possible_controls__biosample_synonyms	B-Lymphocytes
+possible_controls__biosample_synonyms	Bursa-Equivalent Lymphocyte
+possible_controls__biosample_synonyms	B Lymphocytes
+possible_controls__biosample_synonyms	B-lymphocyte
+possible_controls__biosample_synonyms	B lymphocyte
+possible_controls__contributing_files	/files/ENCFF643CGH/
+possible_controls__contributing_files	/files/ENCFF807MUK/
+possible_controls__contributing_files	/files/ENCFF752DYX/
+possible_controls__contributing_files	/files/ENCFF000AMT/
+possible_controls__system_slims	immune system
+possible_controls__dbxrefs	GEO:GSM1003477
+possible_controls__dbxrefs	UCSC-ENCODE-hg19:wgEncodeEH003132
+possible_controls__dbxrefs	GEO:GSE95871
+possible_controls__status	released
+possible_controls__assay_term_id	OBI:0000716
+possible_controls__replication_type	unreplicated
+possible_controls__accession	ENCSR000AUW
+possible_controls__assay_slims	DNA binding
+possible_controls__description	ChIP-seq on human CD20+ Control
+possible_controls__date_released	2012-08-06
+possible_controls__biosample_term_name	B cell
+possible_controls__related_series	/reference-epigenomes/ENCSR682AXR/
+possible_controls__award	/awards/U54HG004570/
+possible_controls__schema_version	12
+possible_controls__biosample_term_id	CL:0000236
+possible_controls__date_created	2013-11-07T22:16:25.447789+00:00
+possible_controls__biosample_type	primary cell
+possible_controls__assay_title	ChIP-seq
+possible_controls__target	/targets/Control-human/
+possible_controls__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+possible_controls__biosample_summary	B cell female adult (27 years)
+possible_controls__lab	/labs/bradley-bernstein/
+possible_controls__month_released	August, 2012
+biosample_term_id	CL:0000236
+date_created	2013-11-07T22:16:05.166518+00:00
+biosample_type	primary cell
+submitter_comment	This experiment requires new peak calling due to a new control, ENCSR000AUW.
+assay_title	ChIP-seq
+target__@type	Target
+target__@type	Item
+target__title	H3K27ac (Homo sapiens)
+target__uuid	a2cd45c9-f214-4af8-9051-87afc828c987
+target__@id	/targets/H3K27ac-human/
+target__gene_name	HIST2H3C
+target__name	H3K27ac-human
+target__organism__@type	Organism
+target__organism__@type	Item
+target__organism__scientific_name	Homo sapiens
+target__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+target__organism__taxon_id	9606
+target__organism__name	human
+target__organism__@id	/organisms/human/
+target__organism__schema_version	4
+target__organism__status	current
+target__dbxref	UniProtKB:Q71DI3
+target__investigated_as	histone
+target__investigated_as	histone modification
+target__investigated_as	narrow histone mark
+target__schema_version	5
+target__status	current
+target__label	H3K27ac
+submitted_by__@type	User
+submitted_by__@type	Item
+submitted_by__lab	/labs/bradley-bernstein/
+submitted_by__title	Noam Shoresh
+submitted_by__uuid	f1843c60-e027-4b18-8582-64d3f3eae45b
+submitted_by__@id	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+biosample_summary	B cell female adult (27 years)
+hub	/experiments/ENCSR000AUP/@@hub/hub.txt
+lab__address2	185 Cambridge St.
+lab__@type	Lab
+lab__@type	Item
+lab__country	USA
+lab__title	Bradley Bernstein, Broad
+lab__state	MA
+lab__uuid	b83215c3-3960-4085-b220-614a122eea01
+lab__@id	/labs/bradley-bernstein/
+lab__institute_label	Broad
+lab__name	bradley-bernstein
+lab__city	Boston
+lab__status	current
+lab__phone1	617-726-6906
+lab__awards	/awards/U01ES017155/
+lab__awards	/awards/U54HG004570/
+lab__awards	/awards/U54HG006991/
+lab__awards	/awards/UM1HG009390/
+lab__institute_name	Broad Institute
+lab__fax	617-643-3566
+lab__pi	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+lab__postal_code	2114
+lab__schema_version	5
+lab__address1	Massachusetts General Hospital Simches Research Building, CPZN 8234
+month_released	August, 2012

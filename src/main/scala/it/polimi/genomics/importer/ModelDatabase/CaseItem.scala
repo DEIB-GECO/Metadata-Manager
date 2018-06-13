@@ -10,10 +10,12 @@ trait CaseItem extends Table{
 
   _foreignKeysTables = List("ITEMS","CASES")
 
-  override def insertRow(): Unit ={
+  override def insertRow(): Int ={
+    var id: Int = 0
     if(this.checkInsert()) {
-      this.insert
+      id = this.insert
     }
+    id
   }
 
   override def insert() : Int ={

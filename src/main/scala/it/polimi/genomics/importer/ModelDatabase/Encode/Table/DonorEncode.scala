@@ -103,11 +103,12 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
     }
   }*/
 
-  override def insertRow(): Unit ={
+  override def insertRow(): Int ={
+    var id: Int = 0
     for(sourcePosition <- 0 to sourceIdArray.length-1) {
       Statistics.donorInsertedOrUpdated += 1
       this.actualPosition = sourcePosition
-      val id = this.getId
+      id = this.getId
       if (id == -1) {
         val newId = this.insert
         this.primaryKeys_(newId)
@@ -116,6 +117,7 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
         this.updateById()
       }
     }
+    id
   }
 
   override def checkDependenciesSatisfaction(table: Table): Boolean = {
@@ -125,6 +127,8 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
     override def insert(): Int ={
     dbHandler.insertDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
   }
+
+ // override def insert(states: collection.mutable.Map[String, String]): Int = ???
 
   override def update(): Int ={
     dbHandler.updateDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))

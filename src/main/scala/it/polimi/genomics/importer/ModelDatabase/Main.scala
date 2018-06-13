@@ -27,8 +27,31 @@ object main {
   private val exportRegexENCODE = "bed.meta.json".r
   private val exportRegexTCGA = "bed.meta".r
 
-  private val encodeString = "ENCODE"
+/*  private val encodeString = "ENCODE"
   private val tcgaString = "TCGA"
+  private val roadmapString = "REP"
+  private val tadsString = "TADS"
+  private val gencodeString = "GENCODE"
+  private val refseqString = "REFSEQ"
+  */
+
+  object SourceString extends Enumeration {
+    type SourceString = Value
+
+    val encodeString = Value("ENCODE")
+    val tcgaString =  Value("TCGA")
+    val roadmapString = Value("REP")
+
+    def isSourceString(s: String) = values.exists(_.toString == s)
+
+    override def toString: String = {
+      var toPrint: String = ""
+      for(s <- values){ toPrint = s + ", " + toPrint}
+      toPrint.substring(0,toPrint.size-2)
+    }
+
+  }
+
 
   var filePath: String = _
 
@@ -94,12 +117,12 @@ object main {
         )
         return
       }
-      if (args(1).toUpperCase != encodeString && args(1).toUpperCase != tcgaString) {
-        logger.error(s"Incorrect repository argument")
-        logger.info("Please select 'encode' or 'tcga'")
+      if (!SourceString.isSourceString(args(1).toUpperCase)) { //checks if source inserted as argument 1 is one of the supported ones
+        logger.error(s"The source specified as second argument is currently not supported")
+        logger.info("Please select among the following: " + SourceString.toString)
         return
       }
-      importModality(args(1), args(2), args(3))
+      importMode(args(1), args(2), args(3))
     } else {
       if (args.length != 3) {
         logger.error(s"Incorrect number of arguments")
@@ -108,13 +131,13 @@ object main {
         )
         return
       }
-      exportModality(args(1), args(2))
+      exportMode(args(1), args(2))
     }
     DbHandler.closeDatabase()
   }
 
 
-  def importModality(repositoryRef: String, pathGMQL: String, pathXML: String): Unit = {
+  def importMode(repositoryRef: String, pathGMQL: String, pathXML: String): Unit = {
     val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico_merged/Example/xml/setting.xsd"
     if (schemaValidator.validate(pathXML, schemaUrl)) {
       logger.info("Xml file is valid for the schema")
@@ -126,9 +149,11 @@ object main {
 
       val t0: Long = System.nanoTime()
       repositoryRef.toUpperCase() match {
-        case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => analizeFileEncode(path.toString, pathXML))
-        case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => analizeFileTCGA(path.toString, pathXML))
-        case _ => logger.error(s"Incorrect repository")
+        case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => analyzeFileEncode(path.toString, pathXML))
+        case "REP" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
+        case _ => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => analyzeFileTCGA(path.toString, pathXML))
+        // case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => analyzeFileTCGA(path.toString, pathXML))
+       // case _ => logger.error(s"Incorrect repository")
       }
       val t1 = System.nanoTime()
       logger.info(s"Total time to insert data in DB ${getTotalTimeFormatted(t0, t1)}")
@@ -156,7 +181,7 @@ object main {
     }
   }
 
-  def exportModality(repositoryRef: String, pathGMQL: String): Unit = {
+  def exportMode(repositoryRef: String, pathGMQL: String): Unit = {
 
     val logName = "EXPORT_" + repositoryRef.toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z")) + ".log"
 
@@ -193,13 +218,12 @@ object main {
 
   }
 
-  def analizeFileEncode(path: String, pathXML: String): Unit = {
+  def analyzeFileEncode(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
     try {
       val lines = Source.fromFile(path).getLines.toArray
-      //var states = collection.mutable.Map[String, String]()
       filePath = path
       val encodesTableId = new EncodeTableId
       val bioSampleList = new BioSampleList(lines, encodesTableId)
@@ -211,7 +235,7 @@ object main {
       tables.filePath_:(path)
       tables.setPathOnTables()
 
-      var states = createMapper(lines)
+      var states: collection.mutable.Map[String, String] = createMapper(lines)
 
       var status: String = "archived"
       var analizeFileBool: Boolean = false
@@ -223,7 +247,7 @@ object main {
       }
       if (analizeFileBool) {
         Statistics.released += 1
-        logger.info(s"File status released, start populate table")
+        logger.info(s"File status released, start populating table")
         val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
         val operationsList = xml.operationsList
         val t1: Long = System.nanoTime()
@@ -231,7 +255,6 @@ object main {
         operationsList.map(x => {
           try {
             populateTable(x, tables.selectTableByName(x.head), states.toMap)
-
           } catch {
             case e: NoSuchElementException => {
               tables.nextPosition(x.head, x(2), x(3));
@@ -241,7 +264,7 @@ object main {
         })
         val t2: Long = System.nanoTime()
         Statistics.incrementTrasformTime((t2 - t1))
-        tables.insertTables()
+        tables.insertTables(states)
         val t3: Long = System.nanoTime()
         Statistics.incrementLoadTime((t3 - t2))
       }
@@ -261,7 +284,73 @@ object main {
     }
   }
 
-  def analizeFileTCGA(path: String, pathXML: String): Unit = {
+  def analyzeFileRep(path: String, pathXML: String): Unit = {
+    val t0: Long = System.nanoTime()
+    Statistics.fileNumber += 1
+    logger.info(s"Start to read $path")
+    try {
+      val lines = Source.fromFile(path).getLines.toArray
+      filePath = path
+      val encodesTableId = new EncodeTableId
+      val bioSampleList = new BioSampleList(lines, encodesTableId)
+      val replicateList = new ReplicateList(lines, bioSampleList)
+      encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
+      encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
+      encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
+      var tables = new EncodeTables(encodesTableId)
+      tables.filePath_:(path)
+      tables.setPathOnTables()
+
+      var states: collection.mutable.Map[String, String] = createMapper(lines)
+
+      var status: String = "archived"
+      var analizeFileBool: Boolean = false
+      if (states.contains("file__status")) {
+        if (states("file__status").equals("released")) {
+          status = "released"
+          analizeFileBool = true
+        }
+      }
+      if (analizeFileBool) {
+        Statistics.released += 1
+        logger.info(s"File status released, start populating table")
+        val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
+        val operationsList = xml.operationsList
+        val t1: Long = System.nanoTime()
+        Statistics.incrementExtractTime(t1 - t0)
+        operationsList.map(x => {
+          try {
+            populateTable(x, tables.selectTableByName(x.head), states.toMap)
+          } catch {
+            case e: NoSuchElementException => {
+              tables.nextPosition(x.head, x(2), x(3));
+              logger.warn(s"SourceKey doesn't find for $x")
+            }
+          }
+        })
+        val t2: Long = System.nanoTime()
+        Statistics.incrementTrasformTime((t2 - t1))
+        tables.insertTables(states)
+        val t3: Long = System.nanoTime()
+        Statistics.incrementLoadTime((t3 - t2))
+      }
+      else {
+        Statistics.archived += 1
+        logger.info(s"File status $status, go to next file")
+      }
+    } catch {
+      case aioobe: ArrayIndexOutOfBoundsException => {
+        logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
+        Statistics.indexOutOfBoundsException += 1
+      }
+      /*case e: Exception => {
+        logger.error(s"Unknown File input Exception file with path ${path}")
+        Statistics.anotherInputException += 1
+      }*/
+    }
+  }
+
+  def analyzeFileTCGA(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
@@ -282,7 +371,7 @@ object main {
         }
       }
       Statistics.released += 1
-      logger.info(s"File status released, start populate table")
+      logger.info(s"File status released, start populating table")
       val xml = new XMLReaderTCGA(pathXML)
       val operationsList = xml.operationsList
       val t1: Long = System.nanoTime()
@@ -292,11 +381,11 @@ object main {
           populateTable(x, tables.selectTableByName(x.head), states.toMap)
 
         } catch {
-          case e: NoSuchElementException => logger.warn(s"SourceKey does't find for $x")
+          case e: NoSuchElementException => logger.warn(s"SourceKey not found for $x")
         })
       val t2: Long = System.nanoTime()
       Statistics.incrementTrasformTime((t2 - t1))
-      tables.insertTables()
+      tables.insertTables(states)
       val t3: Long = System.nanoTime()
       Statistics.incrementLoadTime((t3 - t2))
     } catch {
@@ -306,6 +395,7 @@ object main {
       }
       case e: Exception => {
         logger.error(s"Unknown File input Exception file with path ${path}")
+        e.printStackTrace()
         Statistics.anotherInputException += 1
       }
     }

@@ -4,8 +4,6 @@ import com.typesafe.config.ConfigFactory
 import org.slf4j.{Logger, LoggerFactory}
 
 import slick.driver.PostgresDriver.api._
-//import slick.jdbc.PostgresProfile.api._
-//import slick.driver.MySQLDriver.api._
 
 import slick.jdbc.meta.MTable
 import slick.lifted.Tag
@@ -30,7 +28,7 @@ object DbHandler {
   private val REPLICATEITEM_TABLE_NAME = "replicate2item"
   private val CASE_TCGA_MAPPING = "case_tcga_mapping"
   private val ONTOLOGY_TABLE = "ontology_table"
-
+  private val PAIR_TABLE_NAME = "pair"
 
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
@@ -176,6 +174,15 @@ object DbHandler {
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
       logger.info("Table ONTOLOGY created")
+    }
+
+    if (!tables.exists(_.name.name == PAIR_TABLE_NAME)) {
+      val queries = DBIO.seq(
+        pairs.schema.create
+      )
+      val setup = database.run(queries)
+      Await.result(setup, Duration.Inf)
+      logger.info("Table PAIR created")
     }
   }
 
@@ -472,6 +479,23 @@ object DbHandler {
     Await.result(execution, Duration.Inf)
   }
 
+  def insertPair(itemId: Int, key: String, value: String): Int ={
+    val insertActions = DBIO.seq(
+      pairs += (itemId,key,value)
+    )
+    Await.result(database.run(insertActions), Duration.Inf)
+    1
+  }
+
+  //TODO togliere yield che in questo caso non serve a niente
+  def updatePair(itemId: Int, key: String, value: String): Int ={
+    val query = for { pair <- pairs if pair.itemId === itemId && pair.key === key && pair.value === value } yield pair.value
+    val updateAction = query.update(value)
+    val execution = database.run(updateAction)
+    val id = Await.result(execution, Duration.Inf)
+    id
+  }
+
   /**
     *
     * @param result A general query
@@ -578,6 +602,13 @@ object DbHandler {
 
   def checkInsertOntology(tableId: Int, tableName: String, tableColumn: String): Boolean = {
     val query = ontologyTable.filter( value => { value.tableId === tableId && value.tableNames === tableName && value.tableColumn === tableColumn})
+    val action = query.result
+    val result = database.run(action)
+    checkResult(result)
+  }
+
+  def checkInsertPair(itemId: Int, key: String, value: String): Boolean = {
+    val query = pairs.filter(_.itemId === itemId).filter(_.key === key).filter(_.value === value)
     val action = query.result
     val result = database.run(action)
     checkResult(result)
@@ -1066,4 +1097,26 @@ object DbHandler {
   }
 
   val ontologyTable = TableQuery[OntologyTable]
+
+
+  class PairTable(tag: Tag) extends
+    Table[(Int, String, String)](tag, PAIR_TABLE_NAME) {
+    def itemId = column[Int]("item_id")
+
+    def key =  column[String]("key")
+
+    def value =  column[String]("value")
+
+    def pk = ("item_id_key_value",(itemId,key,value))
+
+    def itemIdFK= foreignKey("items_item_id_fk", itemId, items)(
+      _.itemId,
+      onUpdate = ForeignKeyAction.Restrict,
+      onDelete = ForeignKeyAction.Cascade
+    )
+
+    def * = (itemId, key, value)
+  }
+
+  val pairs = TableQuery[PairTable]
 }

@@ -7,7 +7,7 @@ import org.apache.log4j.Logger
 import scala.collection.mutable
 
 
-trait Tables extends Enumeration{
+trait Tables extends Enumeration {
 
   val Donors = Value("DONORS")
   val BioSamples = Value("BIOSAMPLES")
@@ -18,28 +18,29 @@ trait Tables extends Enumeration{
   val Cases = Value("CASES")
   val Items = Value("ITEMS")
   val CasesItems = Value("CASESITEMS")
-  val ReplicatesItems = Value ("REPLICATESITEMS")
+  val ReplicatesItems = Value("REPLICATESITEMS")
+  val Pairs = Value("PAIRS")
 
   protected val tables: mutable.Map[Value, Table] = collection.mutable.Map[this.Value, Table]()
 
   var logger: Logger = _
 
   def selectTableByName(name: String): Table = tables(this.withName(name))
+
   def selectTableByValue(enum: this.Value): Table = tables(enum)
 
-  def getOrderOfInsertion(): List[Value] ={
-    return List(Donors,BioSamples,Replicates,ExperimentsType,Projects,Datasets,Cases,Items,CasesItems,ReplicatesItems)
+  def getOrderOfInsertion(): List[Value] = {
+    return List(Donors, BioSamples, Replicates, ExperimentsType, Projects, Datasets, Cases, Items, CasesItems, ReplicatesItems)
   }
 
-  def insertTables(): Unit = {
+  def insertTables(states: collection.mutable.Map[String, String]): Unit = {
 
     val conf = ConfigFactory.load()
-    val constrainsSatisfacted = this.checkTablesConstrainsSatisfaction()
-    if(!conf.getBoolean("import.constraints_activated") || constrainsSatisfacted) {
+    val constraintsSatisfacted = this.checkTablesConstraintsSatisfaction()
+    if (!conf.getBoolean("import.constraints_activated") || constraintsSatisfacted) {
       var insert = true
       getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach((table: Table) => {
         if (table.hasForeignKeys) {
-          println(table.getClass)
           table.foreignKeysTables.map(t => this.selectTableByName(t)).map(t => table.setForeignKeys(t))
         }
         if (table.checkConsistency() == false && insert) {
@@ -48,22 +49,38 @@ trait Tables extends Enumeration{
           Statistics.releasedItemNotInserted += 1
         }
         if (insert) {
-          table.insertRow()
+          if (!table.isInstanceOf[Item])
+            table.insertRow()
+          else {
+            val insertedId = table.insertRow()
+            println("Now I insert pairs for item" + insertedId)
+
+            for (p <- states) {
+              val pairTable: SamplePair = this.selectTableByName("PAIRS").asInstanceOf[SamplePair]
+              pairTable.itemId = insertedId
+              pairTable.key = p._1
+              pairTable.value = p._2
+              pairTable.insert()
+            }
+
+          }
         }
       }
       )
     }
+
+
   }
 
-  def checkTablesConstrainsSatisfaction(): Boolean = {
+  def checkTablesConstraintsSatisfaction(): Boolean = {
     var res = true
-    getOrderOfInsertion().map(tableValue => this.selectTableByValue(tableValue)).foreach(table =>{
-      if(table.hasDependencies) {
+    getOrderOfInsertion().map(tableValue => this.selectTableByValue(tableValue)).foreach(table => {
+      if (table.hasDependencies) {
         table.dependenciesTables.map(t => this.selectTableByName(t)).map(t => if (!table.checkDependenciesSatisfaction(t)) res = false) //non lo torno subito perchè devo controllare le contrains di tutte le tabelle, non solo la prima che non matcha
       }
     })
     res
-    }
+  }
 
   this.values.foreach(v => tables += v -> this.getNewTable(v))
 
@@ -72,7 +89,8 @@ trait Tables extends Enumeration{
   protected var _filePath: String = _
 
   def filePath: String = _filePath
-  def filePath_: (filePath: String): Unit = this._filePath = filePath
+
+  def filePath_:(filePath: String): Unit = this._filePath = filePath
 
   def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item)
 
