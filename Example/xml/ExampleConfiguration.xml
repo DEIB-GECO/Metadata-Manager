@@ -486,12 +486,6 @@
                     <value>Audit ERROR</value>
                 </parameter>
                 <parameter>
-                    <description>to exclude h19 references</description>
-                    <type>exclusion</type>
-                    <key>Biosample Age</key>
-                    <value>unknown</value>
-                </parameter>
-                <parameter>
                     <description>to exclude GRCh38 references</description>
                     <type>exclusion</type>
                     <key>Assembly</key>
@@ -548,7 +542,7 @@
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>HG19_ENCODE_BROAD_NOV_2017</value>
+                            <value>HG19_ENCODE_BROAD_NOV_2027</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>

@@ -56,21 +56,12 @@
             </exclusions>
         </dependency>
 
-        <!--[INFO] |  |     +- com.fasterxml.jackson.module:jackson-module-scala_2.11:jar:2.6.5:compile-->
-        <!--[INFO] |  |     |  \- com.fasterxml.jackson.module:jackson-module-paranamer:jar:2.6.5:compile-->
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.11</artifactId>
-            <version>2.6.5</version>
+            <artifactId>jackson-module-scala_2.12</artifactId>
+            <version>2.6.7.1</version>
         </dependency>
 
-        <!--
-                <dependency>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                    <version>21.0</version>
-                </dependency>
-        -->
         <!-- https://mvnrepository.com/artifact/commons-net/commons-net -->
         <dependency>
             <groupId>commons-net</groupId>
@@ -84,34 +75,31 @@
             <artifactId>h2</artifactId>
             <version>1.4.193</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/ com.typesafe.play/play_2.10 -->
-        <!--<dependency>-->
-        <!--<groupId>com.typesafe.play</groupId>-->
-        <!--<artifactId>play_2.11</artifactId>-->
-        <!--<version>2.4.11</version>-->
-        <!--<exclusions>-->
-        <!--<exclusion>-->
-        <!--<groupId>ch.qos.logback</groupId>-->
-        <!--<artifactId>logback-classic</artifactId>-->
-        <!--</exclusion>-->
-        <!--<exclusion>-->
-        <!--<groupId>ch.qos.logback</groupId>-->
-        <!--<artifactId>logback-core</artifactId>-->
-        <!--</exclusion>-->
-        <!--</exclusions>-->
-        <!--</dependency>-->
-        <!-- https://mvnrepository.com/artifact/com.typesafe.play/play-ws_2.10 -->
-        <!--<dependency>-->
-        <!--<groupId>com.typesafe.play</groupId>-->
-        <!--<artifactId>play-ws_2.11</artifactId>-->
-        <!--<version>2.4.11</version>-->
-        <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.39</version>
+        </dependency>
 
         <dependency>
             <groupId>com.typesafe.slick</groupId>
             <artifactId>slick_2.11</artifactId>
-            <version>3.1.1</version>
+            <version>3.2.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>1.3.3</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -131,42 +119,27 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.21</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-asl -->
-        <!--<dependency>-->
-        <!--<groupId>org.codehaus.jackson</groupId>-->
-        <!--<artifactId>jackson-core-asl</artifactId>-->
-        <!--<version>1.9.13</version>-->
-        <!--</dependency>&lt;!&ndash; https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl &ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>org.codehaus.jackson</groupId>-->
-        <!--<artifactId>jackson-mapper-asl</artifactId>-->
-        <!--<version>1.9.13</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-        <!--<groupId>com.fasterxml.jackson.core</groupId>-->
-        <!--<artifactId>jackson-databind</artifactId>-->
-        <!--<version>2.6.5</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-        <!--<groupId>com.fasterxml.jackson.core</groupId>-->
-        <!--<artifactId>jackson-core</artifactId>-->
-        <!--<version>2.6.5</version>-->
-        <!--</dependency>-->
-
 
         <dependency>
-            <groupId>org.scala-lang.modules</groupId>
-            <artifactId>scala-xml_2.11</artifactId>
-            <version>1.0.6</version>
+            <groupId>com.typesafe.slick</groupId>
+            <artifactId>slick-hikaricp_2.12</artifactId>
+            <version>3.2.1</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.scala-lang.modules/scala-xml -->
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-xml_2.12</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.9.6</version>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
         <dependency>
             <groupId>com.google.api-client</groupId>
@@ -191,13 +164,23 @@
             <artifactId>scala-csv_2.11</artifactId>
             <version>1.3.5</version>
         </dependency>
+
+
+
+        <!--<dependency>-->
+            <!--<groupId>org.scala-lang</groupId>-->
+            <!--<artifactId>scala-library</artifactId>-->
+            <!--<version>2.11.8</version>-->
+        <!--</dependency>-->
+
+
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <goals>

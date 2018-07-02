@@ -6,6 +6,7 @@ syntax: glob
 *.bak
 #*.off
 *.old
+*.log
 
 # eclipse conf file
 .settings
@@ -16,7 +17,7 @@ syntax: glob
 
 # idea
 .idea
-*.iml
+*.uml
 
 # building
 target
@@ -26,7 +27,6 @@ tmp*
 temp*
 dist
 test-output
-build.log
 
 # other scm
 .svn
