@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory
 
 import scala.io.Source
 
+import collection.JavaConverters._
+
+
 /**
   * Created by Nacho on 10/13/16.
   * Object meant to be used for transform the data from ENCODE to data for GMQL,
@@ -277,6 +280,9 @@ class ENCODETransformer extends GMQLTransformer {
           writeReplicates(node, writer, replicateIds, metadataList, separator)
           //here is the regular case
 
+          writePlatform(node, writer, replicateIds, metadataList, separator)
+
+
           printTree(node, "", writer, metadataList, separator, exclusion = true)
           writer.close()
           true
@@ -368,6 +374,37 @@ class ENCODETransformer extends GMQLTransformer {
           if (replicate.has("biological_replicate_number") &&
             replicateIds.contains(replicate.get("biological_replicate_number").asText()))
             printTree(replicate, s"replicates$separator${replicate.get("biological_replicate_number").asText()}", writer, metaList, separator, exclusion = false)
+        }
+      }
+    }
+  }
+
+  /**
+    * handles the particular case of biological replicates, writes their metadata from a list of replicates
+    *
+    * @param rootNode     initial node of the json file.
+    * @param writer       output for metadata.
+    * @param replicateIds list with the biological_replicate_number used by the file.
+    * @param metaList     list with already inserted meta to avoid duplication.
+    * @param separator    separator string to use for separating the nested metadata
+    */
+  def writePlatform(rootNode: JsonNode, writer: PrintWriter, replicateIds: List[String],
+                      metaList: java.util.ArrayList[(String, String)], separator: String): Unit = {
+    if (rootNode.has("files")) {
+      val filesNode = rootNode.get("files")
+      if (filesNode.isArray) {
+        val files = filesNode.getElements
+        while (files.hasNext) {
+          val file = files.next()
+          if(file.has("platform") && file.has("biological_replicates")){
+            val fileReplicates = file.get("biological_replicates")
+            if(fileReplicates.isArray){
+              val fileReplicateAsText = fileReplicates.getElements().asScala.map(_.asText()).toSet
+              val hasIntersection = fileReplicateAsText.intersect(replicateIds.toSet).nonEmpty
+              if(hasIntersection)
+                printTree(file.get("platform"), s"platform", writer, metaList, separator, exclusion = false)
+            }
+          }
         }
       }
     }

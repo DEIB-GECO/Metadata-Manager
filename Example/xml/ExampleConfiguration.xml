@@ -17,9 +17,9 @@
             <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
             <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
-            <download_enabled>true</download_enabled>
-            <transform_enabled>true</transform_enabled>
-            <load_enabled>true</load_enabled>
+            <download_enabled>false</download_enabled>
+            <transform_enabled>false</transform_enabled>
+            <load_enabled>false</load_enabled>
             <parameter_list>
                 <parameter>
                     <description>to know which user in gmql is going to be imported</description>
@@ -439,11 +439,11 @@
                     <key>encode_metadata_exclusion</key>
                     <value>^original_files.*$</value>
                 </parameter>
-                <parameter>
-                    <description>not useful</description>
-                    <key>encode_metadata_exclusion</key>
-                    <value>^.*analysis_step_version.*$</value>
-                </parameter>
+                <!--<parameter>-->
+                    <!--<description>not useful</description>-->
+                    <!--<key>encode_metadata_exclusion</key>-->
+                    <!--<value>^.*analysis_step_version.*$</value>-->
+                <!--</parameter>-->
                 <parameter>
                     <description>not useful metadata</description>
                     <key>encode_metadata_exclusion</key>
@@ -467,7 +467,7 @@
                 <parameter>
                     <description>metadata extraction method tsv or json.</description>
                     <key>metadata_extraction</key>
-                    <value>json_tsv</value>
+                    <value>json</value>
                 </parameter>
                 <parameter>
                     <key>multiple_comma_separated</key>
@@ -489,7 +489,7 @@
                     <description>to exclude GRCh38 references</description>
                     <type>exclusion</type>
                     <key>Assembly</key>
-                    <value>hg19</value>
+                    <value>GRCh38</value>
                 </parameter>
             </parameter_list>
             <dataset_list>
@@ -575,27 +575,10 @@
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
                             <type>url_generation</type>
-                            <key>organ_slims</key>
-                            <value>liver</value>
+                            <key>files.accession</key>
+                            <value>ENCFF020QBK</value>
                         </parameter>
-                        <parameter>
-                            <description>this one selects chip-seq experiments.</description>
-                            <type>url_generation</type>
-                            <key>assay_title</key>
-                            <value>ChIP-seq</value>
-                        </parameter>
-                        <parameter>
-                            <description>this ones are to reduce the downloaded files</description>
-                            <type>url_generation</type>
-                            <key>award.project</key>
-                            <value>Roadmap</value>
-                        </parameter>
-                        <parameter>
-                            <description>this ones are to reduce the downloaded files</description>
-                            <type>url_generation</type>
-                            <key>target.investigated_as</key>
-                            <value>narrow+histone+mark</value>
-                        </parameter>
+
                     </parameter_list>
                 </dataset>
                 <dataset name="exampleBroadPeak">
