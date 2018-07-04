@@ -93,134 +93,141 @@ object Transformer {
               FileDatabase.markToCompare(datasetId, STAGE.TRANSFORM)
               //id, filename, copy number.
               var filesToTransform = 0
-              FileDatabase.getFilesToProcess(datasetId, STAGE.DOWNLOAD).foreach(file => {
+              val candidates = FileDatabase.getFilesToProcess(datasetId, STAGE.DOWNLOAD).flatMap { file =>
                 val originalFileName =
                   if (file._3 == 1) file._2
                   else file._2.replaceFirst("\\.", "_" + file._3 + ".")
 
                 val fileDownloadPath = downloadsFolder + File.separator + originalFileName
-                val files = Class
+                val candidates = Class
                   .forName(source.transformer)
                   .newInstance.asInstanceOf[GMQLTransformer]
                   .getCandidateNames(originalFileName, dataset, source)
-                  .map(candidateName => {
-                    FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName)
-                  })
-                filesToTransform = filesToTransform + files.length
-                var runningThreads = 0
-                val fileTransformThreads = files.map(fileId => {
-                  new Thread {
-                    override def run(): Unit = {
+                logger.info(s"candidates: $originalFileName, $candidates")
 
-                      val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
-                      val name =
-                        if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
-                        else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
-                      val originDetails = FileDatabase.getFileDetails(file._1)
-
-                      //I always transform, so the boolean checkIfUpdate is not used here.
-                      FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-                      val transformed = Class
-                        .forName(source.transformer)
-                        .newInstance.asInstanceOf[GMQLTransformer]
-                        .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
-                      val fileTransformationPath = transformationsFolder + File.separator + name
-                      //add copy numbers if needed.
-                      if (transformed) {
-                        if (name.endsWith(".meta")) {
-                          val separator =
-                            if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
-                              source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
-                            else
-                              "__"
-
-
-                          // enrich metadata file
-                          {
-                            val fileLastUpdate = originDetails._3.substring(0, 10)
-                            val (fileSize, md5) = {
-                              val regionFileName = fileTransformationPath.substring(0, fileTransformationPath.length - 5)
-                              val file = new File(regionFileName)
-                              val fileSize = file.length()
-                              val fis = new FileInputStream(file)
-                              val md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis)
-                              fis.close()
-                              (fileSize, md5)
-                            }
-
-                            val writer = new FileWriter(fileTransformationPath, true)
-                            writer.write("manually_curated" + separator + "local_file_size\t" + fileSize + "\n")
-                            writer.write("manually_curated" + separator + "download_date\t" + fileLastUpdate + "\n")
-                            writer.write("manually_curated" + separator + "local_md5\t" + md5 + "\n")
-
-                            val maxCopy = FileDatabase.getMaxCopyNumber(datasetId, file._2, STAGE.DOWNLOAD)
-                            if (maxCopy > 1) {
-                              writer.write("manually_curated" + separator + "file_copy_total_count\t" + maxCopy + "\n")
-                              writer.write("manually_curated" + separator + "file_copy_number\t" + file._3 + "\n")
-                              writer.write("manually_curated" + separator + "file_name_replaced\ttrue\n")
-                            }
-                            writer.close()
-                          }
-
-
-                          //metadata renaming. (standardizing of the metadata values should happen here also.
-                          if ( /*!metadataRenaming.isEmpty &&*/ changeMetadataKeys(metadataRenaming, fileTransformationPath))
-                            modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
-                          totalTransformedFiles = totalTransformedFiles + 1
-                        }
-                        //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
-                        else {
-                          /*val dataUrl = FileDatabase.getFileDetails(fileId)._4*/
-                          /*val metaUrl = if (dataset.parameters.exists(_._1 == "spreadsheet_url"))
-                            dataset.parameters.filter(_._1 == "region_sorting").head._2
-                          else ""
-                          val fw = new FileWriter(fileTransformationPath + ".meta", true)
-                          try {
-                            fw.write(metaUrl)
-                          }
-                          finally fw.close()*/
-                          val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
-                          val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
-                          if (modifiedAndSchema._1)
-                            modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
-                          if (!modifiedAndSchema._2)
-                            wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
-                          totalTransformedFiles = totalTransformedFiles + 1
-                          if (!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
-                            if (Try(regionFileSort(fileTransformationPath)).isFailure)
-                              logger.warn(s"fail to sort $fileTransformationPath")
-                            else
-                              logger.debug(s"$fileTransformationPath successfully sorted")
-                        }
-                        //standardization of the region data should be here.
-                        FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
-                      }
-                      else
-                        FileDatabase.markAsFailed(fileId)
-                      //                }
-                    }
-                  }
+                val files = candidates.map(candidateName => {
+                  (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName))
                 })
-                if (parallelExecution) {
-                  for (t <- fileTransformThreads) {
-                    //Im handling the Thread pool here without locking it, have to make it secure for synchronization
-                    while (runningThreads > 10) {
-                      Thread.sleep(1000)
-                      runningThreads += 0
+
+                files.map((_, file))
+              }.sortBy(_._1._1)
+
+              logger.info("-------------------------")
+              candidates.foreach(t => logger.info(s"all candidates: $t"))
+
+              filesToTransform = filesToTransform + candidates.length
+
+              candidates.foreach { case ((candidateName, fileId), file) =>
+                val originalFileName =
+                  if (file._3 == 1) file._2
+                  else file._2.replaceFirst("\\.", "_" + file._3 + ".")
+
+                val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
+                val name =
+                  if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
+                  else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
+                val originDetails = FileDatabase.getFileDetails(file._1)
+
+                //I always transform, so the boolean checkIfUpdate is not used here.
+                FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
+                val transformed = Class
+                  .forName(source.transformer)
+                  .newInstance.asInstanceOf[GMQLTransformer]
+                  .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
+                val fileTransformationPath = transformationsFolder + File.separator + name
+                //add copy numbers if needed.
+                if (transformed) {
+                  if (name.endsWith(".meta")) {
+                    val separator =
+                      if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
+                        source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+                      else
+                        "__"
+
+
+                    // enrich metadata file
+                    {
+                      val regionFileId = candidates.find {
+                        case ((candidateNameTemp, _), _) => candidateName.substring(0, candidateName.length - 5) == candidateNameTemp
+                      }.map(_._2._1).getOrElse(file._1)
+
+                      val fileDetailsOption = FileDatabase.getFileAllDetails(regionFileId)
+
+
+                      val (fileSize, md5) = {
+                        val regionFileName = fileTransformationPath.substring(0, fileTransformationPath.length - 5)
+                        val file = new File(regionFileName)
+                        val fileSize = file.length()
+                        val fis = new FileInputStream(file)
+                        val md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis)
+                        fis.close()
+                        (fileSize, md5)
+                      }
+
+                      val writer = new FileWriter(fileTransformationPath, true)
+                      writer.write("manually_curated" + separator + "local_file_size\t" + fileSize + "\n")
+                      writer.write("manually_curated" + separator + "local_md5\t" + md5 + "\n")
+
+
+                      if (fileDetailsOption.isDefined) {
+                        val fileDetails = fileDetailsOption.get
+                        if (fileDetails.lastUpdate.nonEmpty)
+                          writer.write("manually_curated" + separator + "download_date\t" + fileDetails.lastUpdate + "\n")
+                        if (fileDetails.hash.nonEmpty)
+                          writer.write("manually_curated" + separator + "origin_md5\t" + fileDetails.hash + "\n")
+                        if (fileDetails.originLastUpdate.nonEmpty)
+                          writer.write("manually_curated" + separator + "origin_last_modified_date\t" + fileDetails.originLastUpdate + "\n")
+                        if (fileDetails.originSize.nonEmpty)
+                          writer.write("manually_curated" + separator + "origin_file_size\t" + fileDetails.originSize + "\n")
+                      }
+
+
+                      val maxCopy = FileDatabase.getMaxCopyNumber(datasetId, file._2, STAGE.DOWNLOAD)
+                      if (maxCopy > 1) {
+                        writer.write("manually_curated" + separator + "file_copy_total_count\t" + maxCopy + "\n")
+                        writer.write("manually_curated" + separator + "file_copy_number\t" + file._3 + "\n")
+                        writer.write("manually_curated" + separator + "file_name_replaced\ttrue\n")
+                      }
+                      writer.close()
                     }
-                    t.start()
-                    runningThreads = runningThreads + 1
+
+
+                    //metadata renaming. (standardizing of the metadata values should happen here also.
+                    if ( /*!metadataRenaming.isEmpty &&*/ changeMetadataKeys(metadataRenaming, fileTransformationPath))
+                      modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
+                    totalTransformedFiles = totalTransformedFiles + 1
                   }
-                  for (t <- fileTransformThreads)
-                    t.join()
-                }
-                else {
-                  for (t <- fileTransformThreads) {
-                    t.start()
-                    t.join()
+                  //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
+                  else {
+                    /*val dataUrl = FileDatabase.getFileDetails(fileId)._4*/
+                    /*val metaUrl = if (dataset.parameters.exists(_._1 == "spreadsheet_url"))
+                      dataset.parameters.filter(_._1 == "region_sorting").head._2
+                    else ""
+                    val fw = new FileWriter(fileTransformationPath + ".meta", true)
+                    try {
+                      fw.write(metaUrl)
+                    }
+                    finally fw.close()*/
+                    val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
+                    val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
+                    if (modifiedAndSchema._1)
+                      modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
+                    if (!modifiedAndSchema._2)
+                      wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
+                    totalTransformedFiles = totalTransformedFiles + 1
+                    if (!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
+                      if (Try(regionFileSort(fileTransformationPath)).isFailure)
+                        logger.warn(s"fail to sort $fileTransformationPath")
+                      else
+                        logger.debug(s"$fileTransformationPath successfully sorted")
                   }
+                  //standardization of the region data should be here.
+                  FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
                 }
-              })
+                else
+                  FileDatabase.markAsFailed(fileId)
+
+              }
               FileDatabase.markAsOutdated(datasetId, STAGE.TRANSFORM)
               //          FileDatabase.markAsProcessed(datasetId, STAGE.DOWNLOAD)
               FileDatabase.runDatasetTransformAppend(datasetId, dataset, filesToTransform, totalTransformedFiles)
