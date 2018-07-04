@@ -23,6 +23,7 @@ case class GMQLDataset(
                         downloadEnabled: Boolean,
                         transformEnabled: Boolean,
                         loadEnabled: Boolean,
+                      //first: key second: value
                         parameters: Seq[(String,String,String,String)]
                       ) {
 }

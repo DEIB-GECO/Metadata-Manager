@@ -39,6 +39,14 @@
                             <key>loading_description</key>
                             <value>Pippo description</value>
                         </parameter>
+                        <parameter>
+                            <key>file_filter</key>
+                            <value>narrowPeak</value>
+                        </parameter>
+                        <parameter>
+                            <key>file_filter</key>
+                            <value>data_information</value>
+                        </parameter>
 
                         <parameter>
                             <key>file_full_path</key>
