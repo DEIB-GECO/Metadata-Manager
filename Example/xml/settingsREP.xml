@@ -2,6 +2,10 @@
 <root>
     <table name="DONORS">
         <mapping>
+            <source_key>epi__donor_id</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="CHECKPREC">
             <source_key>epi__donor_id__X</source_key>
             <global_key>sourceId</global_key>
         </mapping>
@@ -10,6 +14,10 @@
             <global_key>species</global_key>
         </mapping>
         <mapping method="WEEKSTODAYS">
+            <source_key>epi__age_weeks</source_key>
+            <global_key>age</global_key>
+        </mapping>
+        <mapping method="CHECKPREC-WEEKSTODAYS">
             <source_key>epi__age_weeks__X</source_key>
             <global_key>age</global_key>
         </mapping>
@@ -18,6 +26,10 @@
             <global_key>gender</global_key>
         </mapping>
         <mapping>
+            <source_key>epi__ethnicity</source_key>
+            <global_key>ethnicity</global_key>
+        </mapping>
+        <mapping method="CHECKPREC">
             <source_key>epi__ethnicity__X</source_key>
             <global_key>ethnicity</global_key>
         </mapping>
@@ -117,8 +129,8 @@
             <source_key>manually_curated__format</source_key>
             <global_key>name</global_key>
         </mapping>
-        <mapping>
-            <source_key>manually_curated__region_type</source_key>
+        <mapping method="MANUALLY">
+            <source_key>null</source_key>
             <global_key>dataType</global_key>
         </mapping>
         <mapping>

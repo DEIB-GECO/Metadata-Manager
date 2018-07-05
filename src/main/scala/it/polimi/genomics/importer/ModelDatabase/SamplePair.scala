@@ -17,13 +17,6 @@ class SamplePair extends Table{
 
   override def setParameter(param: String, dest: String, insertMethod: (String, String) => String): Unit = ???
 
-  override def update(): Int = ???
-
-  override def setForeignKeys(table: Table): Unit = ???
-
-
-
-
   override def checkInsert(): Boolean = {
     dbHandler.checkInsertPair(itemId,key,value)
   }
@@ -31,6 +24,20 @@ class SamplePair extends Table{
   override def insert(): Int = {
     dbHandler.insertPair(itemId,key,value)
   }
+
+  override def update(): Int = {
+    dbHandler.updatePair(this.itemId,this.key,this.value)
+  }
+
+  override def setForeignKeys(table: Table): Unit = ???
+
+
+
+
+
+
+
+
 
 
 

@@ -11,43 +11,40 @@ import org.apache.log4j._
 import it.polimi.genomics.importer.GMQLImporter.schemaValidator
 import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, ReplicateList}
 import it.polimi.genomics.importer.ModelDatabase.Encode.{EncodeTableId, EncodeTables}
+import it.polimi.genomics.importer.ModelDatabase.REP.{REPTableId, REPTables}
 import it.polimi.genomics.importer.ModelDatabase.TCGA.TCGATables
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
+import scala.collection.mutable
 import scala.io.Source
 
 
 object main {
   val logger: Logger = Logger.getLogger(this.getClass)
   private val regexBedMetaJson = ".*.bed.meta.json".r
-  private val regexBedMeta = ".*.bed.meta\\z".r
-  private val regexBedMetaTCGA = ".*.bed.meta".r
+  //private val regexBedMeta = ".*.bed.meta\\z".r
+  private val regexBedMeta = ".*.bed.meta".r
+  private val regexMeta = ".*.meta".r
 
   private val exportRegexENCODE = "bed.meta.json".r
   private val exportRegexTCGA = "bed.meta".r
-
-/*  private val encodeString = "ENCODE"
-  private val tcgaString = "TCGA"
-  private val roadmapString = "REP"
-  private val tadsString = "TADS"
-  private val gencodeString = "GENCODE"
-  private val refseqString = "REFSEQ"
-  */
 
   object SourceString extends Enumeration {
     type SourceString = Value
 
     val encodeString = Value("ENCODE")
-    val tcgaString =  Value("TCGA")
+    val tcgaString = Value("TCGA")
     val roadmapString = Value("REP")
 
     def isSourceString(s: String) = values.exists(_.toString == s)
 
     override def toString: String = {
       var toPrint: String = ""
-      for(s <- values){ toPrint = s + ", " + toPrint}
-      toPrint.substring(0,toPrint.size-2)
+      for (s <- values) {
+        toPrint = s + ", " + toPrint
+      }
+      toPrint.substring(0, toPrint.size - 2)
     }
 
   }
@@ -58,7 +55,7 @@ object main {
   val conf = ConfigFactory.load()
 
   def main(args: Array[String]): Unit = {
-    val console = new ConsoleAppender() //create appender
+    //val console = new ConsoleAppender() //create appender
     //configure the appender
     val PATTERN = "%d [%p|%c|%C{1}] %m%n"
     /*console.setLayout(new PatternLayout(PATTERN))
@@ -66,24 +63,24 @@ object main {
     console.activateOptions()
     //add appender to any Logger (here is root)
     Logger.getRootLogger.addAppender(console)*/
-    val console2 = new ConsoleAppender()
+    val consoleINFO = new ConsoleAppender()
 
     //configure the appender
-    console2.setLayout(new PatternLayout(PATTERN))
-    console2.setThreshold(Level.INFO)
-    console2.activateOptions()
-    Logger.getLogger("it.polimi.genomics.importer").addAppender(console2)
+    consoleINFO.setLayout(new PatternLayout(PATTERN))
+    consoleINFO.setThreshold(Level.INFO)
+    consoleINFO.activateOptions()
+    Logger.getLogger("it.polimi.genomics.importer").addAppender(consoleINFO)
 
     //configure the appender
-    val console3 = new ConsoleAppender()
-    console3.setLayout(new PatternLayout(PATTERN))
-    console3.setThreshold(Level.WARN)
-    console3.activateOptions()
-    Logger.getLogger("slick").addAppender(console3)
+    val consoleWARN = new ConsoleAppender()
+    consoleWARN.setLayout(new PatternLayout(PATTERN))
+    consoleWARN.setThreshold(Level.WARN)
+    consoleWARN.activateOptions()
+    Logger.getLogger("slick").addAppender(consoleWARN)
 
     //BasicConfigurator.configure()
 
-    var states = collection.mutable.Map[String, String]()
+    //var states = collection.mutable.Map[String, String]()
 
 
     //set connection and create the tables if not exists
@@ -150,10 +147,13 @@ object main {
       val t0: Long = System.nanoTime()
       repositoryRef.toUpperCase() match {
         case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => analyzeFileEncode(path.toString, pathXML))
-        case "REP" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
-        case _ => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => analyzeFileTCGA(path.toString, pathXML))
-        // case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => analyzeFileTCGA(path.toString, pathXML))
-       // case _ => logger.error(s"Incorrect repository")
+        case "REP" => {
+          val tutti_file = ListFiles.recursiveListFiles(new File(pathGMQL))
+          val alcuni_file = tutti_file.filter(f => regexMeta.findFirstIn(f.getName).isDefined)
+          alcuni_file.map(path => analyzeFileRep(path.toString, pathXML))}
+        case _ => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileTCGA(path.toString, pathXML))
+        // case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileTCGA(path.toString, pathXML))
+        // case _ => logger.error(s"Incorrect repository")
       }
       val t1 = System.nanoTime()
       logger.info(s"Total time to insert data in DB ${getTotalTimeFormatted(t0, t1)}")
@@ -200,7 +200,7 @@ object main {
         })
       }
       case "TCGA" => {
-        ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaTCGA.findFirstIn(f.getName).isDefined).map(path => {
+        ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => {
           val tables = new TCGATables().getListOfTables()
           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
           fromDbToTsv.run(path.getAbsolutePath, exportRegexTCGA)
@@ -226,52 +226,52 @@ object main {
       val lines = Source.fromFile(path).getLines.toArray
       filePath = path
       val encodesTableId = new EncodeTableId
-      val bioSampleList = new BioSampleList(lines, encodesTableId)
+      val bioSampleList = new BioSampleList(lines, encodesTableId) // setting field _biosampleArray with the numbers of replicates present in the item
       val replicateList = new ReplicateList(lines, bioSampleList)
       encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
       encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
       encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
-      var tables = new EncodeTables(encodesTableId)
-      tables.filePath_:(path)
+      val tables = new EncodeTables(encodesTableId)
+      tables.setFilePath(path)
       tables.setPathOnTables()
 
-      var states: collection.mutable.Map[String, String] = createMapper(lines)
+      val states: collection.mutable.Map[String, String] = createMapper(lines)
 
-      var status: String = "archived"
-      var analizeFileBool: Boolean = false
-      if (states.contains("file__status")) {
-        if (states("file__status").equals("released")) {
-          status = "released"
-          analizeFileBool = true
-        }
-      }
-      if (analizeFileBool) {
-        Statistics.released += 1
-        logger.info(s"File status released, start populating table")
-        val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
-        val operationsList = xml.operationsList
-        val t1: Long = System.nanoTime()
-        Statistics.incrementExtractTime(t1 - t0)
-        operationsList.map(x => {
-          try {
-            populateTable(x, tables.selectTableByName(x.head), states.toMap)
-          } catch {
-            case e: NoSuchElementException => {
-              tables.nextPosition(x.head, x(2), x(3));
-              logger.warn(s"SourceKey doesn't find for $x")
-            }
+      /*  var status: String = "archived"
+        var analizeFileBool: Boolean = false
+        if (states.contains("file__status")) {
+          if (states("file__status").equals("released")) {
+            status = "released"
+            analizeFileBool = true
           }
-        })
-        val t2: Long = System.nanoTime()
-        Statistics.incrementTrasformTime((t2 - t1))
-        tables.insertTables(states)
-        val t3: Long = System.nanoTime()
-        Statistics.incrementLoadTime((t3 - t2))
-      }
-      else {
-        Statistics.archived += 1
-        logger.info(s"File status $status, go to next file")
-      }
+        }
+        if (analizeFileBool) {*/
+      Statistics.released += 1
+      logger.info(s"File status released, start populating table")
+      val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
+      val operationsList = xml.operationsList
+      val t1: Long = System.nanoTime()
+      Statistics.incrementExtractTime(t1 - t0)
+      operationsList.map(x => {
+        try {
+          populateTable(x, tables.selectTableByName(x.head), states.toMap)
+        } catch {
+          case e: NoSuchElementException => {
+            tables.nextPosition(x.head, x(2), x(3));
+            logger.warn(s"SourceKey doesn't find for $x")
+          }
+        }
+      })
+      val t2: Long = System.nanoTime()
+      Statistics.incrementTrasformTime((t2 - t1))
+      tables.insertTables(states, createPairs(lines))
+      val t3: Long = System.nanoTime()
+      Statistics.incrementLoadTime((t3 - t2))
+      // }
+      // else {
+      //   Statistics.archived += 1
+      //   logger.info(s"File status $status, go to next file")
+      // }
     } catch {
       case aioobe: ArrayIndexOutOfBoundsException => {
         logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
@@ -291,53 +291,41 @@ object main {
     try {
       val lines = Source.fromFile(path).getLines.toArray
       filePath = path
-      val encodesTableId = new EncodeTableId
-      val bioSampleList = new BioSampleList(lines, encodesTableId)
-      val replicateList = new ReplicateList(lines, bioSampleList)
-      encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
-      encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
-      encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
-      var tables = new EncodeTables(encodesTableId)
-      tables.filePath_:(path)
+      val repTableId = new REPTableId
+      val bioSampleList = new REP.Utils.BioSampleList(lines, repTableId)
+      val replicateList = new REP.Utils.ReplicateList(lines, bioSampleList)
+      repTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
+      repTableId.setQuantityTechReplicate(replicateList.UuidList.length)
+      repTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
+      val tables = new REPTables(repTableId)
+      tables.setFilePath(path)
       tables.setPathOnTables()
 
-      var states: collection.mutable.Map[String, String] = createMapper(lines)
+      //key,value pairs (multiple values are concatenated with comma)
+      val states: mutable.Map[String, String] = createMapper(lines)
 
-      var status: String = "archived"
-      var analizeFileBool: Boolean = false
-      if (states.contains("file__status")) {
-        if (states("file__status").equals("released")) {
-          status = "released"
-          analizeFileBool = true
+      Statistics.released += 1
+      logger.info(s"File status released, start populating table")
+      val xml = new XMLReaderREP(pathXML, replicateList, bioSampleList, states)
+      val operationsList: List[List[String]] = xml.operationsList
+      val t1: Long = System.nanoTime()
+      Statistics.incrementExtractTime(t1 - t0)
+      operationsList.foreach { (operations: List[String]) =>
+        try {
+          populateTable(operations, tables.selectTableByName(operations.head), states.toMap)
+        } catch {
+          case e: NoSuchElementException => {
+            tables.nextPosition(operations.head, operations(2), operations(3));
+            logger.warn(s"SourceKey not found for $operations")
+          }
         }
       }
-      if (analizeFileBool) {
-        Statistics.released += 1
-        logger.info(s"File status released, start populating table")
-        val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
-        val operationsList = xml.operationsList
-        val t1: Long = System.nanoTime()
-        Statistics.incrementExtractTime(t1 - t0)
-        operationsList.map(x => {
-          try {
-            populateTable(x, tables.selectTableByName(x.head), states.toMap)
-          } catch {
-            case e: NoSuchElementException => {
-              tables.nextPosition(x.head, x(2), x(3));
-              logger.warn(s"SourceKey doesn't find for $x")
-            }
-          }
-        })
-        val t2: Long = System.nanoTime()
-        Statistics.incrementTrasformTime((t2 - t1))
-        tables.insertTables(states)
-        val t3: Long = System.nanoTime()
-        Statistics.incrementLoadTime((t3 - t2))
-      }
-      else {
-        Statistics.archived += 1
-        logger.info(s"File status $status, go to next file")
-      }
+      val t2: Long = System.nanoTime()
+      Statistics.incrementTrasformTime((t2 - t1))
+      tables.insertTables(states, createPairs(lines))
+      val t3: Long = System.nanoTime()
+      Statistics.incrementLoadTime((t3 - t2))
+
     } catch {
       case aioobe: ArrayIndexOutOfBoundsException => {
         logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
@@ -356,20 +344,24 @@ object main {
     logger.info(s"Start to read $path")
     try {
       val lines = Source.fromFile(path).getLines.toArray
-      var states = collection.mutable.Map[String, String]()
+      //var states = collection.mutable.Map[String, String]()
 
       filePath = path
-      var tables = new TCGATables
+      val tables = new TCGATables
 
-      for (l <- lines) {
-        val first = l.split("\t", 2)
-        if (first.size == 2)
-          states += (first(0) -> first(1))
-        else {
-          logger.warn(s"Malformation in line ${first(0)}")
-          Statistics.malformedInput += 1
-        }
-      }
+      /* for (l <- lines) {
+         val first = l.split("\t", 2)
+         if (first.size == 2)
+           states += (first(0) -> first(1))
+         else {
+           logger.warn(s"Malformation in line ${first(0)}")
+           Statistics.malformedInput += 1
+         }
+       }*/
+
+      //key,value pairs (multiple values are concatenated with comma)
+      val states: mutable.Map[String, String] = createMapper(lines)
+
       Statistics.released += 1
       logger.info(s"File status released, start populating table")
       val xml = new XMLReaderTCGA(pathXML)
@@ -385,7 +377,7 @@ object main {
         })
       val t2: Long = System.nanoTime()
       Statistics.incrementTrasformTime((t2 - t1))
-      tables.insertTables(states)
+      tables.insertTables(states, createPairs(lines))
       val t3: Long = System.nanoTime()
       Statistics.incrementLoadTime((t3 - t2))
     } catch {
@@ -427,10 +419,13 @@ object main {
     for (l <- lines) {
       val first = l.split("\t", 2)
       if (first.size == 2) {
-        if (states.contains(first(0)))
-          states += (first(0) -> states(first(0)).concat(conf.getString("import.multiple_value_concatenation") + first(1)))
-        else
-          states += (first(0) -> first(1))
+        if (!(first(0).contains("age_weeks") && first(1) == "unknown")) {
+          if (states.contains(first(0)))
+            states += (first(0) -> states(first(0)).concat(conf.getString("import.multiple_value_concatenation") + first(1)))
+          else
+            states += (first(0) -> first(1))
+        }
+        else{ logger.warn(s"Ignoring unknown age_weeks for roadmap epigenomics") }
       }
       else {
         logger.warn(s"Malformation in line ${first(0)}")
@@ -438,6 +433,21 @@ object main {
       }
     }
     states
+  }
+
+  def createPairs(lines: Array[String]): List[(String, String)] = {
+    var pairs = List[(String, String)]()
+    for (l <- lines) {
+      val first = l.split("\t", 2)
+      if (first.size == 2) {
+        pairs = pairs ::: List((first(0), first(1)))
+      }
+      else {
+        logger.warn(s"Malformation in line ${first(0)}")
+        Statistics.malformedInput += 1
+      }
+    }
+    pairs
   }
 
 }

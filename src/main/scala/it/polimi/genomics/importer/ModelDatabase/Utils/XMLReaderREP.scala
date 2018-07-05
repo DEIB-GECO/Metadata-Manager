@@ -1,13 +1,13 @@
 package it.polimi.genomics.importer.ModelDatabase.Utils
 
-import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.{BioSampleList, ReplicateList}
+import it.polimi.genomics.importer.ModelDatabase.REP.Utils.{BioSampleList, ReplicateList}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable.ListBuffer
 import scala.xml.XML
 
 
-class XMLReaderRoadmap(val path: String, val replicates: ReplicateList, val biosamples: BioSampleList, var states: collection.mutable.Map[String, String]) {
+class XMLReaderREP(val path: String, val replicates: ReplicateList, val biosamples: BioSampleList, var states: collection.mutable.Map[String, String]) {
   private val xml = XML.loadFile(path)
 
   private val default: String = "DEFAULT"
@@ -20,11 +20,11 @@ class XMLReaderRoadmap(val path: String, val replicates: ReplicateList, val bios
   private var operations = new ListBuffer[List[String]]()
   for (x <- xml \\ "table") {
     try {
-      for(xi <- x \ "mapping") {
-        if((x \ "@name").toString() != "REPLICATES" && (x \ "@name").toString() != "BIOSAMPLES" && (x \ "@name").toString() != "DONORS"){
+      for (xi <- x \ "mapping") {
+        if ((x \ "@name").toString() != "REPLICATES" && (x \ "@name").toString() != "BIOSAMPLES" && (x \ "@name").toString() != "DONORS") {
           var app = new ListBuffer[String]()
           app += ((x \ "@name").toString())
-          app += ((xi \ "source_key").text).replaceAll("X",biosamples.BiosampleList.head)
+          app += ((xi \ "source_key").text).replaceAll("X", biosamples.BiosampleList.head)
           app += ((xi \ "global_key").text)
           /*if((xi \ "@method").toString()!="")
             app += ((xi \ "@method").toString())
@@ -37,13 +37,16 @@ class XMLReaderRoadmap(val path: String, val replicates: ReplicateList, val bios
           app += settingRetriver.getRemCharacter(xi)
 
           operations += app.toList
-        }else if((x \ "@name").toString() == "BIOSAMPLES" || (x \ "@name").toString() == "DONORS"){
+        } else if ((x \ "@name").toString() == "BIOSAMPLES" || (x \ "@name").toString() == "DONORS") {
+
+
+          //      }else if((x \ "@name").toString() == "BIOSAMPLES" || ((x \ "@name").toString() == "DONORS" && ((xi \ "source_key").text) != "epi__donor_id")){
           //var position: Int = 0
           //var arrayList = new Array[ListBuffer[List[String]]](biosamples.bioSampleQuantity)
-          biosamples.BiosampleList.map(number =>{
+          biosamples.BiosampleList.map(number => {
             var app = new ListBuffer[String]()
             app += ((x \ "@name").toString())
-            app += ((xi \ "source_key").text).replaceAll("X",number)
+            app += ((xi \ "source_key").text).replaceAll("X", number)
             app += ((xi \ "global_key").text)
             app += settingRetriver.getMethod(xi)
             app += settingRetriver.getConcatCharacter(xi)
@@ -56,12 +59,12 @@ class XMLReaderRoadmap(val path: String, val replicates: ReplicateList, val bios
             operations += app.toList
           })
         }
-        else{
-          for( position <- 0 to replicates.UuidList.length-1){
-
+        else {
+          //for( position <- 0 to replicates.UuidList.length-1){
+          biosamples.BiosampleList.map(number => {
             var app = new ListBuffer[String]()
             app += ((x \ "@name").toString())
-            app += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position))
+            app += ((xi \ "source_key").text).replaceAll("X", number)
             app += ((xi \ "global_key").text)
             app += settingRetriver.getMethod(xi)
             app += settingRetriver.getConcatCharacter(xi)
@@ -69,14 +72,15 @@ class XMLReaderRoadmap(val path: String, val replicates: ReplicateList, val bios
             app += settingRetriver.getNewCharacter(xi)
             app += settingRetriver.getRemCharacter(xi)
 
-            if((xi \ "source_key").text == "replicates__X__uuid")
-              states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.UuidList(position)
-            if((xi \ "source_key").text == "replicates__X__biological_replicate_number")
-              states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.BiologicalReplicateNumberList(position)
-            if((xi \ "source_key").text == "replicates__X__technical_replicate_number")
-              states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.TechnicalReplicateNumberList(position)
+            //if((xi \ "source_key").text == "epi__sample_alias__X")
+            //  states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.UuidList(position)
+            //if((xi \ "source_key").text == "replicates__X__biological_replicate_number")
+            //  states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.BiologicalReplicateNumberList(position)
+            //if((xi \ "source_key").text == "replicates__X__technical_replicate_number")
+            //  states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.TechnicalReplicateNumberList(position)
+
             operations += app.toList
-          }
+          })
         }
       }
     } catch {

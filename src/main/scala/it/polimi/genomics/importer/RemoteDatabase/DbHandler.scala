@@ -479,6 +479,7 @@ object DbHandler {
     Await.result(execution, Duration.Inf)
   }
 
+  //TODO batch execution
   def insertPair(itemId: Int, key: String, value: String): Int ={
     val insertActions = DBIO.seq(
       pairs += (itemId,key,value)
@@ -1107,7 +1108,7 @@ object DbHandler {
 
     def value =  column[String]("value")
 
-    def pk = ("item_id_key_value",(itemId,key,value))
+    def pk = primaryKey("item_id_key_value",(itemId,key,value))
 
     def itemIdFK= foreignKey("items_item_id_fk", itemId, items)(
       _.itemId,

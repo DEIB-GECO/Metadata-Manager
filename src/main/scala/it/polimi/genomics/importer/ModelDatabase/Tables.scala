@@ -33,13 +33,13 @@ trait Tables extends Enumeration {
     return List(Donors, BioSamples, Replicates, ExperimentsType, Projects, Datasets, Cases, Items, CasesItems, ReplicatesItems)
   }
 
-  def insertTables(states: collection.mutable.Map[String, String]): Unit = {
+  def insertTables(states: collection.mutable.Map[String, String], pairs: List[(String,String)]): Unit = {
 
     val conf = ConfigFactory.load()
     val constraintsSatisfacted = this.checkTablesConstraintsSatisfaction()
     if (!conf.getBoolean("import.constraints_activated") || constraintsSatisfacted) {
       var insert = true
-      getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach((table: Table) => {
+      getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach { (table: Table) =>
         if (table.hasForeignKeys) {
           table.foreignKeysTables.map(t => this.selectTableByName(t)).map(t => table.setForeignKeys(t))
         }
@@ -49,24 +49,21 @@ trait Tables extends Enumeration {
           Statistics.releasedItemNotInserted += 1
         }
         if (insert) {
-          if (!table.isInstanceOf[Item])
-            table.insertRow()
-          else {
-            val insertedId = table.insertRow()
+          val insertedId = table.insertRow()
+          if (table.isInstanceOf[Item]) {
             println("Now I insert pairs for item" + insertedId)
-
-            for (p <- states) {
-              val pairTable: SamplePair = this.selectTableByName("PAIRS").asInstanceOf[SamplePair]
-              pairTable.itemId = insertedId
-              pairTable.key = p._1
-              pairTable.value = p._2
-              pairTable.insert()
+            if (conf.getBoolean("import.import_pairs")) {
+              for (p <- pairs) {
+                val pairTable: SamplePair = this.selectTableByName("PAIRS").asInstanceOf[SamplePair]
+                pairTable.itemId = insertedId
+                pairTable.key = p._1
+                pairTable.value = p._2
+                pairTable.insertRow()
+              }
             }
-
           }
         }
       }
-      )
     }
 
 
@@ -90,7 +87,7 @@ trait Tables extends Enumeration {
 
   def filePath: String = _filePath
 
-  def filePath_:(filePath: String): Unit = this._filePath = filePath
+  def setFilePath(filePath: String): Unit = this._filePath = filePath
 
   def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item)
 
