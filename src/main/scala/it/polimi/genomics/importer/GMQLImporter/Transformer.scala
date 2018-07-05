@@ -58,6 +58,12 @@ object Transformer {
         new Thread {
           override def run(): Unit = {
             if (dataset.transformEnabled) {
+
+
+              val transformationClass = Class
+                .forName(source.transformer)
+                .newInstance.asInstanceOf[GMQLTransformer]
+
               val t0Dataset: Long = System.nanoTime()
               var modifiedRegionFilesDataset = 0
               var modifiedMetadataFilesDataset = 0
@@ -99,10 +105,7 @@ object Transformer {
                   else file._2.replaceFirst("\\.", "_" + file._3 + ".")
 
                 val fileDownloadPath = downloadsFolder + File.separator + originalFileName
-                val candidates = Class
-                  .forName(source.transformer)
-                  .newInstance.asInstanceOf[GMQLTransformer]
-                  .getCandidateNames(originalFileName, dataset, source)
+                val candidates = transformationClass.getCandidateNames(originalFileName, dataset, source)
                 logger.info(s"candidates: $originalFileName, $candidates")
 
                 val files = candidates.map(candidateName => {
@@ -130,10 +133,7 @@ object Transformer {
 
                 //I always transform, so the boolean checkIfUpdate is not used here.
                 FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-                val transformed = Class
-                  .forName(source.transformer)
-                  .newInstance.asInstanceOf[GMQLTransformer]
-                  .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
+                val transformed = transformationClass.transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
                 val fileTransformationPath = transformationsFolder + File.separator + name
                 //add copy numbers if needed.
                 if (transformed) {
