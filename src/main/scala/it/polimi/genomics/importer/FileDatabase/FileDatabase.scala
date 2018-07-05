@@ -257,6 +257,16 @@ object FileDatabase {
   }
 
   /**
+    * returns hash, size and last update.
+    * @param fileId identifier of the file.
+    * @return hash, size and last update.
+    */
+  def getFileAllDetails(fileId: Int) ={
+    db.getFileAllDetail(fileId)
+  }
+
+
+  /**
     * indicates which is the maximum copy number for the same filename inside the same dataset.
     * @param datasetId datast where the file belongs
     * @param fileName original file name

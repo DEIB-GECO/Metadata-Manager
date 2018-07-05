@@ -24,7 +24,8 @@ object Transformer {
     * Transforms the data and metadata into GDM friendly formats using the transformers.
     * Normalizes the metadata key names as indicated in the settings.
     * Puts the schema file into the transformations folders.
-    * @param source source to be integrated.
+    *
+    * @param source            source to be integrated.
     * @param parallelExecution defines if the execution is in parallel or sequential
     */
   def integrate(source: GMQLSource, parallelExecution: Boolean): Unit = {
@@ -70,7 +71,7 @@ object Transformer {
 
 
               val folder = new File(transformationsFolder)
-              if(folder.exists()){
+              if (folder.exists()) {
                 deleteFolder(folder)
               }
 
@@ -92,112 +93,141 @@ object Transformer {
               FileDatabase.markToCompare(datasetId, STAGE.TRANSFORM)
               //id, filename, copy number.
               var filesToTransform = 0
-              FileDatabase.getFilesToProcess(datasetId, STAGE.DOWNLOAD).foreach(file => {
+              val candidates = FileDatabase.getFilesToProcess(datasetId, STAGE.DOWNLOAD).flatMap { file =>
                 val originalFileName =
                   if (file._3 == 1) file._2
                   else file._2.replaceFirst("\\.", "_" + file._3 + ".")
 
                 val fileDownloadPath = downloadsFolder + File.separator + originalFileName
-                val files = Class
+                val candidates = Class
                   .forName(source.transformer)
                   .newInstance.asInstanceOf[GMQLTransformer]
                   .getCandidateNames(originalFileName, dataset, source)
-                  .map(candidateName => {
-                    FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName)
-                  })
-                filesToTransform = filesToTransform + files.length
-                var runningThreads = 0
-                val fileTransformThreads = files.map(fileId => {
-                  new Thread {
-                    override def run(): Unit = {
+                logger.info(s"candidates: $originalFileName, $candidates")
 
-                      val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
-                      val name =
-                        if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
-                        else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
-                      val originDetails = FileDatabase.getFileDetails(file._1)
-
-                      //I always transform, so the boolean checkIfUpdate is not used here.
-                      FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-                      val transformed = Class
-                        .forName(source.transformer)
-                        .newInstance.asInstanceOf[GMQLTransformer]
-                        .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
-                      val fileTransformationPath = transformationsFolder + File.separator + name
-                      //add copy numbers if needed.
-                      if (transformed) {
-                        if (name.endsWith(".meta")) {
-                          val separator =
-                            if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
-                              source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
-                            else
-                              "__"
-                          val maxCopy = FileDatabase.getMaxCopyNumber(datasetId, file._2, STAGE.DOWNLOAD)
-                          if (maxCopy > 1) {
-                            val writer = new FileWriter(fileTransformationPath, true)
-                            writer.write("manually_curated" + separator + "file_copy_total_count\t" + maxCopy + "\n")
-                            writer.write("manually_curated" + separator + "file_copy_number\t" + file._3 + "\n")
-                            writer.write("manually_curated" + separator + "file_name_replaced\ttrue\n")
-                            writer.close()
-                          }
-                          //metadata renaming. (standardizing of the metadata values should happen here also.
-                          if (/*!metadataRenaming.isEmpty &&*/ changeMetadataKeys(metadataRenaming, fileTransformationPath))
-                            modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
-                          totalTransformedFiles = totalTransformedFiles + 1
-                        }
-                        //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
-                        else {
-                          /*val dataUrl = FileDatabase.getFileDetails(fileId)._4*/
-                          /*val metaUrl = if (dataset.parameters.exists(_._1 == "spreadsheet_url"))
-                            dataset.parameters.filter(_._1 == "region_sorting").head._2
-                          else ""
-                          val fw = new FileWriter(fileTransformationPath + ".meta", true)
-                          try {
-                            fw.write(metaUrl)
-                          }
-                          finally fw.close()*/
-                          val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
-                          val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
-                          if (modifiedAndSchema._1)
-                            modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
-                          if (!modifiedAndSchema._2)
-                            wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
-                          totalTransformedFiles = totalTransformedFiles + 1
-                          if(!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
-                            if (Try(regionFileSort(fileTransformationPath)).isFailure)
-                              logger.warn(s"fail to sort $fileTransformationPath")
-                            else
-                              logger.debug(s"$fileTransformationPath successfully sorted")
-                        }
-                        //standardization of the region data should be here.
-                        FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
-                      }
-                      else
-                        FileDatabase.markAsFailed(fileId)
-                      //                }
-                    }
-                  }
+                val files = candidates.map(candidateName => {
+                  (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, STAGE.TRANSFORM, candidateName))
                 })
-                if (parallelExecution) {
-                  for (t <- fileTransformThreads) {
-                    //Im handling the Thread pool here without locking it, have to make it secure for synchronization
-                    while (runningThreads > 10) {
-                      Thread.sleep(1000)
-                      runningThreads += 0
+
+                files.map((_, file))
+              }.sortBy(_._1._1)
+
+              logger.info("-------------------------")
+              candidates.foreach(t => logger.info(s"all candidates: $t"))
+
+              filesToTransform = filesToTransform + candidates.length
+
+              candidates.foreach { case ((candidateName, fileId), file) =>
+                val originalFileName =
+                  if (file._3 == 1) file._2
+                  else file._2.replaceFirst("\\.", "_" + file._3 + ".")
+
+                val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
+                val name =
+                  if (fileNameAndCopyNumber._2 == 1) fileNameAndCopyNumber._1
+                  else fileNameAndCopyNumber._1.replaceFirst("\\.", "_" + fileNameAndCopyNumber._2 + ".")
+                val originDetails = FileDatabase.getFileDetails(file._1)
+
+                //I always transform, so the boolean checkIfUpdate is not used here.
+                FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
+                val transformed = Class
+                  .forName(source.transformer)
+                  .newInstance.asInstanceOf[GMQLTransformer]
+                  .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
+                val fileTransformationPath = transformationsFolder + File.separator + name
+                //add copy numbers if needed.
+                if (transformed) {
+                  if (name.endsWith(".meta")) {
+                    val separator =
+                      if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
+                        source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+                      else
+                        "__"
+
+
+                    // enrich metadata file
+                    {
+                      val regionFileId = candidates.find {
+                        case ((candidateNameTemp, _), _) => candidateName.substring(0, candidateName.length - 5) == candidateNameTemp
+                      }.map(_._2._1).getOrElse(file._1)
+
+                      val fileDetailsOption = FileDatabase.getFileAllDetails(regionFileId)
+
+
+                      val (fileSize, md5) = {
+                        val regionFileName = fileTransformationPath.substring(0, fileTransformationPath.length - 5)
+                        val file = new File(regionFileName)
+                        val fileSize = file.length()
+                        val fis = new FileInputStream(file)
+                        val md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis)
+                        fis.close()
+                        (fileSize, md5)
+                      }
+
+                      val writer = new FileWriter(fileTransformationPath, true)
+                      writer.write("manually_curated" + separator + "local_file_size\t" + fileSize + "\n")
+                      writer.write("manually_curated" + separator + "local_md5\t" + md5 + "\n")
+
+
+                      if (fileDetailsOption.isDefined) {
+                        val fileDetails = fileDetailsOption.get
+                        if (fileDetails.lastUpdate.nonEmpty)
+                          writer.write("manually_curated" + separator + "download_date\t" + fileDetails.lastUpdate + "\n")
+                        if (fileDetails.hash.nonEmpty)
+                          writer.write("manually_curated" + separator + "origin_md5\t" + fileDetails.hash + "\n")
+                        if (fileDetails.originLastUpdate.nonEmpty)
+                          writer.write("manually_curated" + separator + "origin_last_modified_date\t" + fileDetails.originLastUpdate + "\n")
+                        if (fileDetails.originSize.nonEmpty)
+                          writer.write("manually_curated" + separator + "origin_file_size\t" + fileDetails.originSize + "\n")
+                      }
+
+
+                      val maxCopy = FileDatabase.getMaxCopyNumber(datasetId, file._2, STAGE.DOWNLOAD)
+                      if (maxCopy > 1) {
+                        writer.write("manually_curated" + separator + "file_copy_total_count\t" + maxCopy + "\n")
+                        writer.write("manually_curated" + separator + "file_copy_number\t" + file._3 + "\n")
+                        writer.write("manually_curated" + separator + "file_name_replaced\ttrue\n")
+                      }
+                      writer.close()
                     }
-                    t.start()
-                    runningThreads = runningThreads + 1
+
+
+                    //metadata renaming. (standardizing of the metadata values should happen here also.
+                    if ( /*!metadataRenaming.isEmpty &&*/ changeMetadataKeys(metadataRenaming, fileTransformationPath))
+                      modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
+                    totalTransformedFiles = totalTransformedFiles + 1
                   }
-                  for (t <- fileTransformThreads)
-                    t.join()
-                }
-                else {
-                  for (t <- fileTransformThreads) {
-                    t.start()
-                    t.join()
+                  //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
+                  else {
+                    /*val dataUrl = FileDatabase.getFileDetails(fileId)._4*/
+                    /*val metaUrl = if (dataset.parameters.exists(_._1 == "spreadsheet_url"))
+                      dataset.parameters.filter(_._1 == "region_sorting").head._2
+                    else ""
+                    val fw = new FileWriter(fileTransformationPath + ".meta", true)
+                    try {
+                      fw.write(metaUrl)
+                    }
+                    finally fw.close()*/
+                    val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
+                    val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
+                    if (modifiedAndSchema._1)
+                      modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
+                    if (!modifiedAndSchema._2)
+                      wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
+                    totalTransformedFiles = totalTransformedFiles + 1
+                    if (!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
+                      if (Try(regionFileSort(fileTransformationPath)).isFailure)
+                        logger.warn(s"fail to sort $fileTransformationPath")
+                      else
+                        logger.debug(s"$fileTransformationPath successfully sorted")
                   }
+                  //standardization of the region data should be here.
+                  FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
                 }
-              })
+                else
+                  FileDatabase.markAsFailed(fileId)
+
+              }
               FileDatabase.markAsOutdated(datasetId, STAGE.TRANSFORM)
               //          FileDatabase.markAsProcessed(datasetId, STAGE.DOWNLOAD)
               FileDatabase.runDatasetTransformAppend(datasetId, dataset, filesToTransform, totalTransformedFiles)
@@ -208,12 +238,12 @@ object Transformer {
               logger.info(modifiedMetadataFilesDataset + " metadata files modified in dataset: " + dataset.name)
               logger.info(wrongSchemaFilesDataset + " region data files do not respect the schema in dataset: " + dataset.name)
               val t1Dataset = System.nanoTime()
-              logger.info(s"Total time for transformation dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
+              logger.info(s"Total time for transformation dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset, t1Dataset)}")
             }
           }
         }
       })
-      if(parallelExecution) {
+      if (parallelExecution) {
         integrateThreads.foreach(_.start())
         integrateThreads.foreach(_.join())
       }
@@ -233,7 +263,8 @@ object Transformer {
   /**
     * Checks the region data file has the columns corresponding to the schema, tries to parse the data
     * according to the schema types and normalizes values in the region data fields.
-    * @param dataFilePath path of the region data file.
+    *
+    * @param dataFilePath   path of the region data file.
     * @param schemaFilePath path of the schema file.
     * @return if the file was correctly modified and if it fits the schema.
     */
@@ -290,7 +321,7 @@ object Transformer {
           val regAttributes = if (schemaType == "gtf") {
             //check if there are all the mandatory attribute
             val optionalValues = ListBuffer[String]()
-            if (splitLine.length != 9){
+            if (splitLine.length != 9) {
               gtfMandatoryMissing += 1
               isRemoved = true
             }
@@ -298,7 +329,7 @@ object Transformer {
               //check if the last mandatory attribute containing the optional attributes is in the correct format
               val optionalAttributes = splitLine(8).split("; |;")
               //check if there are all the optional attribute
-              if (optionalAttributes.length + splitLine.length -1 != fields.length) {
+              if (optionalAttributes.length + splitLine.length - 1 != fields.length) {
                 gtfOptionalMissing += 1
                 isRemoved = true
               }
@@ -307,21 +338,21 @@ object Transformer {
                 if (optAttribute.matches(""".+ ".*"""")) {
                   val optAttributeSplit = optAttribute.split(" ")
                   //check the optional attribute name
-                  if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) +8 )._1)
-                    gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) +8) += 1
+                  if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) + 8)._1)
+                    gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) + 8) += 1
                   optionalValues += optAttributeSplit(1).dropRight(1).drop(1)
                 }
                 else if (optAttribute.matches(""".+ (^["].*^["]|^["])?""")) {
                   val optAttributeSplit = optAttribute.split(" ")
-                  if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) +8 )._1)
-                    gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) +8) += 1
+                  if (optAttributeSplit(0) != fields(optionalAttributes.indexOf(optAttribute) + 8)._1)
+                    gtfOptionalWrongName(optionalAttributes.indexOf(optAttribute) + 8) += 1
                   if (optAttributeSplit.length > 1)
                     optionalValues += optAttributeSplit(1)
                   else
                     optionalValues += ""
                 }
                 else {
-                  gtfOptionalWrongFormt(optionalValues.indexOf(optAttribute) +8) += 1
+                  gtfOptionalWrongFormt(optionalValues.indexOf(optAttribute) + 8) += 1
                   optionalValues += ""
                 }
               })
@@ -329,7 +360,7 @@ object Transformer {
             splitLine.dropRight(1) ++ optionalValues
           }
           else {
-            if(splitLine.length != fields.length) {
+            if (splitLine.length != fields.length) {
               wrongAttNumCount += 1
               isRemoved = true
             }
@@ -407,8 +438,8 @@ object Transformer {
 
               //write region on temp file
               writeLine = writeLine + (if (i == 0) regAttributes(i)
-              else if (i>=8 && schemaType == "gtf")
-                if(i==8) s"""\t${fields(i)._1} "${regAttributes(i)}"""" else s"""; ${fields(i)._1} "${regAttributes(i)}""""
+              else if (i >= 8 && schemaType == "gtf")
+                if (i == 8) s"""\t${fields(i)._1} "${regAttributes(i)}"""" else s"""; ${fields(i)._1} "${regAttributes(i)}""""
               else
                 "\t" + regAttributes(i))
             }
@@ -472,51 +503,52 @@ object Transformer {
   /**
     * changes the name of key attribute in metadata.
     * replaces all parts of the key value that matches a regular expression.
-    * @param changeKeys pair regex, replacement. uses regex.replaceAll(_1,_2)
+    *
+    * @param changeKeys       pair regex, replacement. uses regex.replaceAll(_1,_2)
     * @param metadataFilePath origin file of metadata.
     */
-  def changeMetadataKeys(changeKeys: Seq[(Regex,String)], metadataFilePath: String): Boolean ={
+  def changeMetadataKeys(changeKeys: Seq[(Regex, String)], metadataFilePath: String): Boolean = {
     var replaced = false
-    if(new File(metadataFilePath).exists()){
-      var metadataList: Seq[(String, String)] = Seq[(String,String)]()
+    if (new File(metadataFilePath).exists()) {
+      var metadataList: Seq[(String, String)] = Seq[(String, String)]()
       val reader = Source.fromFile(metadataFilePath)
-      reader.getLines().foreach(line=>{
+      reader.getLines().foreach(line => {
         val split = line.split("\t", -1)
-        if(split.length==2) {
+        if (split.length == 2) {
           var metadataKey = split(0)
           val metadataValue = split(1)
-          changeKeys.filter(change => change._1.findFirstIn(metadataKey).isDefined).foreach(change =>{
+          changeKeys.filter(change => change._1.findFirstIn(metadataKey).isDefined).foreach(change => {
             replaced = true
             metadataKey = change._1.replaceFirstIn(metadataKey, change._2)
           })
           //this is already handled in metadataReplacementTcga.xml
-          if(metadataKey.contains(" ")){
+          if (metadataKey.contains(" ")) {
             logger.debug(s"$metadataKey replaced to ${metadataKey.replace(" ", "_")}")
             metadataKey = metadataKey.replace(" ", "_")
           }
-          if(metadataKey.contains("|")) {
+          if (metadataKey.contains("|")) {
             logger.debug(s"$metadataKey replaced to ${metadataKey.replace("|", "__")}")
             metadataKey = metadataKey.replace("|", "__")
           }
           //Ensure metadata keys are in lowercase perche vogliamo cosi -- mm
           metadataKey = metadataKey.toLowerCase
-          if(!isValidJavaIdentifier(metadataKey)){
+          if (!isValidJavaIdentifier(metadataKey)) {
             logger.debug(s"$metadataKey replaced to ${transformToValidJavaIdentifier(metadataKey)}")
             metadataKey = transformToValidJavaIdentifier(metadataKey)
           }
-          if(!metadataList.contains((metadataKey,metadataValue))) {
+          if (!metadataList.contains((metadataKey, metadataValue))) {
             metadataList = metadataList :+ (metadataKey, metadataValue)
           }
         }
-        else{
-          logger.warn("file: "+metadataFilePath+" should have 2 columns. Check this line that was excluded: "+line)
+        else {
+          logger.warn("file: " + metadataFilePath + " should have 2 columns. Check this line that was excluded: " + line)
         }
       })
       reader.close()
 
-      val tempFile = metadataFilePath+".temp"
+      val tempFile = metadataFilePath + ".temp"
       val writer = new PrintWriter(tempFile)
-      metadataList.sortWith((A,B) => A._1.compare(B._1)<0).foreach(metadata =>{
+      metadataList.sortWith((A, B) => A._1.compare(B._1) < 0).foreach(metadata => {
         writer.write(metadata._1 + "\t" + metadata._2 + "\n")
       })
       writer.close()
@@ -537,19 +569,22 @@ object Transformer {
 
   /**
     * gets the time between 2 timestamps in hh:mm:ss format
+    *
     * @param t0 start time
     * @param t1 end time
     * @return hh:mm:ss as string
     */
-  def getTotalTimeFormatted(t0:Long, t1:Long): String = {
+  def getTotalTimeFormatted(t0: Long, t1: Long): String = {
 
-    val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
-    val minutes = Integer.parseInt(""+((t1-t0)/1000000000/60-hours*60))
-    val seconds = Integer.parseInt(""+((t1-t0)/1000000000-hours*60*60-minutes*60))
+    val hours = Integer.parseInt("" + (t1 - t0) / 1000000000 / 60 / 60)
+    val minutes = Integer.parseInt("" + ((t1 - t0) / 1000000000 / 60 - hours * 60))
+    val seconds = Integer.parseInt("" + ((t1 - t0) / 1000000000 - hours * 60 * 60 - minutes * 60))
     s"$hours:$minutes:$seconds"
   }
+
   /**
     * Traverses a string checking all characters are valid to be java identifiers.
+    *
     * @param s candidate name for identifier
     * @return whethers the candidate name is valid or not.
     */
@@ -569,21 +604,23 @@ object Transformer {
 
   /**
     * makes sure the name of a metadata attribute is valid for java instantiation
+    *
     * @param s candidate name for attribute.
     * @return name corrected if needed.
     */
-  def transformToValidJavaIdentifier(s:String): String ={
-    var output = s.map{c => if(Character.isJavaIdentifierPart(c)) c else '_'}
-    if(!Character.isJavaIdentifierStart(output.head))
+  def transformToValidJavaIdentifier(s: String): String = {
+    var output = s.map { c => if (Character.isJavaIdentifierPart(c)) c else '_' }
+    if (!Character.isJavaIdentifierStart(output.head))
       output = output.replaceFirst(output.head.toString, "_")
     output
   }
 
   /**
     * deletes folder recursively
+    *
     * @param path base folder path
     */
-  def deleteFolder(path: File): Unit ={
+  def deleteFolder(path: File): Unit = {
     try {
       if (path.exists()) {
         try {
@@ -618,7 +655,7 @@ object Transformer {
   /**
     * sort region by chrom, start and stop coordinates
     *
-    * @param filePath              file to sort
+    * @param filePath file to sort
     */
   def regionFileSort(filePath: String): Unit = {
     var tempMap: TreeMap[(String, Long, Long), mutable.Queue[String]] = new TreeMap[(String, Long, Long), mutable.Queue[String]]
@@ -633,14 +670,19 @@ object Transformer {
     }
     reader.close()
     using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("result"))))) {
-      writer => { tempMap.foreach( pair =>
-        while (pair._2.nonEmpty) writer.write(pair._2.dequeue() + "\n"))
+      writer => {
+        tempMap.foreach(pair =>
+          while (pair._2.nonEmpty) writer.write(pair._2.dequeue() + "\n"))
       }
     }
   }
 
   def using[T <: Closeable, R](resource: T)(block: T => R): R = {
-    try { block(resource) }
-    finally { resource.close() }
+    try {
+      block(resource)
+    }
+    finally {
+      resource.close()
+    }
   }
 }
