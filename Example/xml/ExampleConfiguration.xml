@@ -491,6 +491,11 @@
                     <key>Assembly</key>
                     <value>hg19</value>
                 </parameter>
+                <parameter>
+                    <description>Cleaner definition rule base file</description>
+                    <key>rule_base</key>
+                    <value>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example/rules.txt</value>
+                </parameter>
             </parameter_list>
             <dataset_list>
                 <dataset name="broadPeak">
