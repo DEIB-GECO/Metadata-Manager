@@ -44,7 +44,7 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
       }
       this.primaryKeys_(id)
       val replicateKey: String = bioReplicateNumList(this.actualPosition).toString() + "_" + techReplicateNumList(this.actualPosition).toString()
-      encodeTableId.replicateMap_(replicateKey,id)
+      repTableId.replicateMap_(replicateKey,id)
     })
   }*/
 

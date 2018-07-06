@@ -33,7 +33,7 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
 
   var insertPosition: Int = 0
 
-  var sourceIdInsertPosition: Int = 0
+  var sInsertPosition: Int = 0
 
   var typesInsertPosition: Int = 0
 
@@ -84,6 +84,9 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
 
   override def nextPosition(globalKey: String, method: String): Unit = {
     globalKey.toUpperCase match {
+      //case "SOURCEID" => {
+      //  this.sInsertPosition = resetPosition(sInsertPosition, quantity)
+     // }
       case "TYPES" => {
         this.typesInsertPosition = resetPosition(typesInsertPosition, quantity)
       }

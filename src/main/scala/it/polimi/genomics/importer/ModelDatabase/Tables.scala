@@ -51,7 +51,7 @@ trait Tables extends Enumeration {
         if (insert) {
           val insertedId = table.insertRow()
           if (table.isInstanceOf[Item]) {
-            println("Now I insert pairs for item" + insertedId)
+            logger.info(s"Inserting pairs for item_id $insertedId")
             if (conf.getBoolean("import.import_pairs")) {
               for (p <- pairs) {
                 val pairTable: SamplePair = this.selectTableByName("PAIRS").asInstanceOf[SamplePair]

@@ -24,7 +24,7 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
   override def insert(): Int = {
 //    this.definePlatformRetriver()
     val id = dbHandler.insertItem(experimentTypeId, datasetId,this.sourceId, this.size, this.platform, this.pipeline, this.sourceUrl)
- //   this.retriveDerivedItems(id) //TODO comment
+ //   this.retriveDerivedItems(id)
  //   this.retrievePairs(id)
     Statistics.itemInserted += 1
     id
@@ -63,7 +63,7 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
   }*/
 
 //  private def definePlatformRetriver(): Unit = {
-//      platformRetriver = new PlatformRetriver(this.filePath, this.sourceId, this.encodeTableId)
+//      platformRetriver = new PlatformRetriver(this.filePath, this.sourceId, this.repTableId)
 //      val temp = platformRetriver.getPipelineAndPlatformHelper(this.sourceId)
 //      this.pipeline = temp(0)
 //      this.platform = temp(1)
@@ -72,7 +72,7 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
 //TODO comment
 /*    private def retriveDerivedItems(id: Int): Unit = {
     if (conf.getBoolean("import.derived_item")) {
-      platformRetriver.getItems(id, this.experimentTypeId, this.encodeTableId.caseId)
+      platformRetriver.getItems(id, this.experimentTypeId, this.repTableId.caseId)
     }
   }
 */
@@ -80,14 +80,14 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
  /* private def retrievePairs(id: Int): Unit = {
     for()
     //    if (conf.getBoolean("import.derived_item")) {
-    //      platformRetriver.getItems(id, this.experimentTypeId, this.encodeTableId.caseId)
+    //      platformRetriver.getItems(id, this.experimentTypeId, this.repTableId.caseId)
     //    }
     //  }
-    val pair = new SamplePair(encodeTableId)
+    val pair = new SamplePair(repTableId)
   }*/
 
-/*  def defineDerivedFrom(file: JsonNode, initialItemId: Int, finalItemId: Int, precDescription: String): DerivedFromEncode = {
-      val derivedFrom = new DerivedFromEncode(encodesTableId)
+/*  def defineDerivedFrom(file: JsonNode, initialItemId: Int, finalItemId: Int, precDescription: String): DerivedFromREP = {
+      val derivedFrom = new DerivedFromREP(encodesTableId)
       derivedFrom.initialItemId = initialItemId
       derivedFrom.finalItemId = finalItemId
       derivedFrom.description = precDescription

@@ -28,7 +28,6 @@ class TCGATables extends Tables{
   }
 
   override def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item) = {
-    val encodeTableId: EncodeTableId = new EncodeTableId
     return (new DonorTCGA(), new BioSampleTCGA(), new ReplicateTCGA(), new CaseTCGA(),
       new DatasetTCGA(), new ExperimentTypeTCGA(), new ProjectTCGA(), new ItemTCGA())
   }

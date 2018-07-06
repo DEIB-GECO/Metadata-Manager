@@ -58,17 +58,17 @@ trait BioSample extends Table{
     try {
       table match {
         case bioSample: BioSample => {
-          if (bioSample.types.equals("tissue") && bioSample.tissue == null) {
+          if (bioSample.types != null && bioSample.types.equals("tissue") && bioSample.tissue == null) {
             Statistics.constraintsViolated += 1
             this.logger.warn("Biosample tissue constraints violated")
             false
           }
-          else if (bioSample.types.equals("cellLine") && bioSample.tissue == null) {
+          else if (bioSample.types != null && bioSample.types.equals("cellLine") && bioSample.tissue == null) {
             Statistics.constraintsViolated += 1
             this.logger.warn("Biosample cellLine constraints violated")
             false
           }
-          else if (bioSample.isHealthy && bioSample.disease != null) {
+          else if (bioSample.isHealthy != null && bioSample.isHealthy && bioSample.disease != null) {
             Statistics.constraintsViolated += 1
             this.logger.warn("Biosample isHealty constraints violated")
             false

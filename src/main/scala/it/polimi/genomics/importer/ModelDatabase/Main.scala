@@ -36,6 +36,7 @@ object main {
     val encodeString = Value("ENCODE")
     val tcgaString = Value("TCGA")
     val roadmapString = Value("REP")
+    val annotationString = Value("ANN")
 
     def isSourceString(s: String) = values.exists(_.toString == s)
 
@@ -55,14 +56,8 @@ object main {
   val conf = ConfigFactory.load()
 
   def main(args: Array[String]): Unit = {
-    //val console = new ConsoleAppender() //create appender
-    //configure the appender
+
     val PATTERN = "%d [%p|%c|%C{1}] %m%n"
-    /*console.setLayout(new PatternLayout(PATTERN))
-    console.setThreshold(Level.ERROR)
-    console.activateOptions()
-    //add appender to any Logger (here is root)
-    Logger.getRootLogger.addAppender(console)*/
     val consoleINFO = new ConsoleAppender()
 
     //configure the appender
@@ -77,11 +72,6 @@ object main {
     consoleWARN.setThreshold(Level.WARN)
     consoleWARN.activateOptions()
     Logger.getLogger("slick").addAppender(consoleWARN)
-
-    //BasicConfigurator.configure()
-
-    //var states = collection.mutable.Map[String, String]()
-
 
     //set connection and create the tables if not exists
     DbHandler.setDatabase()
@@ -147,13 +137,12 @@ object main {
       val t0: Long = System.nanoTime()
       repositoryRef.toUpperCase() match {
         case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => analyzeFileEncode(path.toString, pathXML))
-        case "REP" => {
-          val tutti_file = ListFiles.recursiveListFiles(new File(pathGMQL))
-          val alcuni_file = tutti_file.filter(f => regexMeta.findFirstIn(f.getName).isDefined)
-          alcuni_file.map(path => analyzeFileRep(path.toString, pathXML))}
-        case _ => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileTCGA(path.toString, pathXML))
-        // case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileTCGA(path.toString, pathXML))
-        // case _ => logger.error(s"Incorrect repository")
+        case "REP" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
+        case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML, false))
+        case "ANN" => ListFiles.recursiveListFiles(new File(pathGMQL))
+          .filter(f => regexMeta.findFirstIn(f.getName).isDefined)
+          .map(path => analyzeFileRegular(path.toString, pathXML, true))
+        case _ => logger.error(s"Incorrectly specified repository")
       }
       val t1 = System.nanoTime()
       logger.info(s"Total time to insert data in DB ${getTotalTimeFormatted(t0, t1)}")
@@ -179,6 +168,8 @@ object main {
 
 
     }
+    else
+      logger.info("Xml file is NOT valid for the schema, please check it for next runs")
   }
 
   def exportMode(repositoryRef: String, pathGMQL: String): Unit = {
@@ -252,13 +243,14 @@ object main {
       val operationsList = xml.operationsList
       val t1: Long = System.nanoTime()
       Statistics.incrementExtractTime(t1 - t0)
-      operationsList.map(x => {
+      operationsList.map(operations => {
         try {
-          populateTable(x, tables.selectTableByName(x.head), states.toMap)
+          populateTable(operations, tables.selectTableByName(operations.head), states.toMap)
         } catch {
           case e: NoSuchElementException => {
-            tables.nextPosition(x.head, x(2), x(3));
-            logger.warn(s"SourceKey doesn't find for $x")
+            tables.nextPosition(operations.head, operations(2), operations(3));
+            logger.warn(s"Source key: ${operations(1)} was not found for Table: ${operations(0)}, Global key: ${operations(2)}")
+            //logger.warn(s"SourceKey not found for $x")
           }
         }
       })
@@ -267,20 +259,13 @@ object main {
       tables.insertTables(states, createPairs(lines))
       val t3: Long = System.nanoTime()
       Statistics.incrementLoadTime((t3 - t2))
-      // }
-      // else {
-      //   Statistics.archived += 1
-      //   logger.info(s"File status $status, go to next file")
-      // }
+
     } catch {
       case aioobe: ArrayIndexOutOfBoundsException => {
         logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
         Statistics.indexOutOfBoundsException += 1
       }
-      /*case e: Exception => {
-        logger.error(s"Unknown File input Exception file with path ${path}")
-        Statistics.anotherInputException += 1
-      }*/
+
     }
   }
 
@@ -289,11 +274,19 @@ object main {
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
     try {
-      val lines = Source.fromFile(path).getLines.toArray
+      val old_lines = Source.fromFile(path).getLines.toArray
       filePath = path
       val repTableId = new REPTableId
-      val bioSampleList = new REP.Utils.BioSampleList(lines, repTableId)
+
+      //computes number of samples in the file
+      val bioSampleList = new REP.Utils.BioSampleList(old_lines, repTableId)
+
+      //in files with simple epi__donor_id, it adds the keys epi__donor_id__X for each biosample present (same for other attributes)
+      val lines = enrichLinesREP(old_lines, bioSampleList)
+
+      //prepares ficticious replicate tuples (id=biosample_id, bio/tech replicate number = 1)
       val replicateList = new REP.Utils.ReplicateList(lines, bioSampleList)
+
       repTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
       repTableId.setQuantityTechReplicate(replicateList.UuidList.length)
       repTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
@@ -316,7 +309,7 @@ object main {
         } catch {
           case e: NoSuchElementException => {
             tables.nextPosition(operations.head, operations(2), operations(3));
-            logger.warn(s"SourceKey not found for $operations")
+            logger.warn(s"Source key: ${operations(2)} was not found for Table: ${operations(1)}, Global key: ${operations(3)}")
           }
         }
       }
@@ -331,33 +324,22 @@ object main {
         logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
         Statistics.indexOutOfBoundsException += 1
       }
-      /*case e: Exception => {
-        logger.error(s"Unknown File input Exception file with path ${path}")
-        Statistics.anotherInputException += 1
-      }*/
     }
   }
 
-  def analyzeFileTCGA(path: String, pathXML: String): Unit = {
+  def analyzeFileRegular(path: String, pathXML: String, metadata_id_needed: Boolean): Unit = {
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
     logger.info(s"Start to read $path")
     try {
-      val lines = Source.fromFile(path).getLines.toArray
-      //var states = collection.mutable.Map[String, String]()
+      val old_lines = Source.fromFile(path).getLines.toArray
 
       filePath = path
       val tables = new TCGATables
 
-      /* for (l <- lines) {
-         val first = l.split("\t", 2)
-         if (first.size == 2)
-           states += (first(0) -> first(1))
-         else {
-           logger.warn(s"Malformation in line ${first(0)}")
-           Statistics.malformedInput += 1
-         }
-       }*/
+      var lines = old_lines
+      if (metadata_id_needed)
+        lines = enrichLinesAnn(old_lines)
 
       //key,value pairs (multiple values are concatenated with comma)
       val states: mutable.Map[String, String] = createMapper(lines)
@@ -368,12 +350,14 @@ object main {
       val operationsList = xml.operationsList
       val t1: Long = System.nanoTime()
       Statistics.incrementExtractTime(t1 - t0)
-      operationsList.map(x =>
+      operationsList.map(operations =>
         try {
-          populateTable(x, tables.selectTableByName(x.head), states.toMap)
+          populateTable(operations, tables.selectTableByName(operations.head), states.toMap)
 
         } catch {
-          case e: NoSuchElementException => logger.warn(s"SourceKey not found for $x")
+          case e: NoSuchElementException =>
+            //logger.warn(s"SourceKey not found for $x")
+            logger.warn(s"Source key: ${operations(1)} was not found for Table: ${operations(0)}, Global key: ${operations(2)}")
         })
       val t2: Long = System.nanoTime()
       Statistics.incrementTrasformTime((t2 - t1))
@@ -419,13 +403,10 @@ object main {
     for (l <- lines) {
       val first = l.split("\t", 2)
       if (first.size == 2) {
-        if (!(first(0).contains("age_weeks") && first(1) == "unknown")) {
-          if (states.contains(first(0)))
-            states += (first(0) -> states(first(0)).concat(conf.getString("import.multiple_value_concatenation") + first(1)))
-          else
-            states += (first(0) -> first(1))
-        }
-        else{ logger.warn(s"Ignoring unknown age_weeks for roadmap epigenomics") }
+        if (states.contains(first(0)))
+          states += (first(0) -> states(first(0)).concat(conf.getString("import.multiple_value_concatenation") + first(1)))
+        else
+          states += (first(0) -> first(1))
       }
       else {
         logger.warn(s"Malformation in line ${first(0)}")
@@ -435,6 +416,64 @@ object main {
     states
   }
 
+  def enrichLinesREP(lines: Array[String], bioSampleList: REP.Utils.BioSampleList): Array[String] = {
+    val bioNumbers = 1 to bioSampleList.BiosampleList.length toList
+    var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
+    for (l <- linesFromSet) {
+      val pair = l.split("\t", 2)
+      if (pair.length == 2) {
+
+        if (pair(0).contains("age_weeks") && pair(1) == "unknown") {
+          linesFromSet -= l
+          logger.warn(s"Ignoring unknown age_weeks for roadmap epigenomics")
+        }
+        if (pair(0) == "epi__donor_id") {
+          linesFromSet -= l
+          for (b <- bioNumbers) {
+            linesFromSet += "epi__donor_id__" + b + "\t" + pair(1)
+          }
+        }
+        if (pair(0) == "epi__age_weeks") {
+          linesFromSet -= l
+          for (b <- bioNumbers) {
+            linesFromSet += "epi__age_weeks__" + b + "\t" + pair(1)
+          }
+        }
+        if (pair(0) == "epi__ethnicity") {
+          linesFromSet -= l
+          for (b <- bioNumbers) {
+            linesFromSet += "epi__ethnicity__" + b + "\t" + pair(1)
+          }
+        }
+        if (pair(0) == "epi__sample_alias") {
+          linesFromSet -= l
+          for (b <- bioNumbers) {
+            linesFromSet += "epi__sample_alias__" + b + "\t" + pair(1)
+          }
+        }
+      }
+      else {
+        logger.warn(s"Malformation in line ${pair(0)}")
+        Statistics.malformedInput += 1
+      }
+    }
+    linesFromSet.toArray
+  }
+
+  def enrichLinesAnn(lines: Array[String]): Array[String] = {
+    var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
+
+
+    linesFromSet += "file_name\t" + filePath.split("/").last
+    linesFromSet += "donor_id\t" + filePath.split("/").last
+    linesFromSet += "biosample_id\t" + filePath.split("/").last
+    linesFromSet += "replicate_id\t" + filePath.split("/").last
+    linesFromSet += "case_id\t" + filePath.split("/").last
+
+    linesFromSet.toArray
+  }
+
+
   def createPairs(lines: Array[String]): List[(String, String)] = {
     var pairs = List[(String, String)]()
     for (l <- lines) {
@@ -443,7 +482,9 @@ object main {
         pairs = pairs ::: List((first(0), first(1)))
       }
       else {
-        logger.warn(s"Malformation in line ${first(0)}")
+        logger.warn(s"Malformation in line ${
+          first(0)
+        }")
         Statistics.malformedInput += 1
       }
     }

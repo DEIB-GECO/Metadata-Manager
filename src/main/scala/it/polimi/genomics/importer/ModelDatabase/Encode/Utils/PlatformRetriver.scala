@@ -3,7 +3,7 @@
 //import java.io.File
 //
 //import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
-//import it.polimi.genomics.importer.ModelDatabase.Encode.Table.{CaseItemEncode, DerivedFromEncode, ItemEncode, ReplicateItemEncode}
+//import it.polimi.genomics.importer.ModelDatabase.Encode.Table.{CaseItemREP, DerivedFromREP, ItemREP, ReplicateItemREP}
 //import org.apache.log4j.Logger
 //import org.codehaus.jackson.map.MappingJsonFactory
 //import org.codehaus.jackson.{JsonNode, JsonParser}
@@ -130,8 +130,8 @@
 //    result.toList
 //  }
 //
-//  def defineItem(file: JsonNode): ItemEncode = {
-//    val item = new ItemEncode(encodesTableId)
+//  def defineItem(file: JsonNode): ItemREP = {
+//    val item = new ItemREP(encodesTableId)
 //    item.experimentTypeId = experimentTypeId
 //    item.sourceId = file.get("accession").asText()
 //    item.dataType = file.get("output_type").asText()
@@ -161,8 +161,8 @@
 //  }
 //
 //
-//  def defineDerivedFrom(file: JsonNode, initialItemId: Int, finalItemId: Int, precDescription: String): DerivedFromEncode = {
-//    val derivedFrom = new DerivedFromEncode(encodesTableId)
+//  def defineDerivedFrom(file: JsonNode, initialItemId: Int, finalItemId: Int, precDescription: String): DerivedFromREP = {
+//    val derivedFrom = new DerivedFromREP(encodesTableId)
 //    derivedFrom.initialItemId = initialItemId
 //    derivedFrom.finalItemId = finalItemId
 //    derivedFrom.description = precDescription
@@ -184,7 +184,7 @@
 //    }
 //  }
 //
-//  def insertOrUpdateDerivedFrom(derivedFrom: DerivedFromEncode): Unit = {
+//  def insertOrUpdateDerivedFrom(derivedFrom: DerivedFromREP): Unit = {
 //    if (derivedFrom.checkInsert())
 //      derivedFrom.insert()
 //    else
@@ -192,7 +192,7 @@
 //  }
 //
 //  def insertCaseItem(itemId: Int):Unit = {
-//    val caseItem = new CaseItemEncode(encodesTableId)
+//    val caseItem = new CaseItemREP(encodesTableId)
 //    caseItem.itemId = itemId
 //    caseItem.caseId = caseId
 //    caseItem.insertRow()
@@ -209,7 +209,7 @@
 //  }
 //
 //  def insertReplicateItem(itemId: Int, key: String): Unit ={
-//    val replicateItem = new ReplicateItemEncode(encodesTableId)
+//    val replicateItem = new ReplicateItemREP(encodesTableId)
 //    replicateItem.itemId = itemId
 //    replicateItem.repId = encodesTableId.replicateMap(key)
 //    replicateItem.insRow()

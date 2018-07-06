@@ -56,7 +56,7 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
             operations += app.toList
           })
         }
-        else{
+        else{ //REPLICATES
           for( position <- 0 to replicates.UuidList.length-1){
 
             var app = new ListBuffer[String]()

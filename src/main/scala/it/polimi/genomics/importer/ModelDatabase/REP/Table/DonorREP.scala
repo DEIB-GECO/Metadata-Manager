@@ -58,9 +58,6 @@ class DonorREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTableI
 
   override def nextPosition(globalKey: String, method: String): Unit = {
     globalKey.toUpperCase match {
-      case "SOURCEID" =>{
-        this.sourceIdInsertPosition = resetPosition(sourceIdInsertPosition, quantity)
-      }
       case "SPECIES" => {
         this.speciesInsertPosition = resetPosition(speciesInsertPosition, quantity)
       }
