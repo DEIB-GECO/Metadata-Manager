@@ -1,18 +1,11 @@
 <?xml version="1.0" ?>
 <root>
     <table name="DATASETS">
-        <mapping method="SUB" sub_character=" " new_character="_" concat_character="_">
-            <source_key>file__assembly</source_key>
+        <mapping method="PREDEFINED">
+            <source_key>dataset_name</source_key>
             <global_key>name</global_key>
         </mapping>
-        <mapping method="SUB-CONCAT" sub_character=" " new_character="_" concat_character="_">
-            <source_key>award__project</source_key>
-            <global_key>name</global_key>
-        </mapping>
-        <mapping method="SUB-REMOVE-CONCAT" rem_character="Peak" sub_character=" " new_character="_" concat_character="_">
-            <source_key>file__file_format_type</source_key>
-            <global_key>name</global_key>
-        </mapping>
+
         <mapping>
             <source_key>file__file_format_type</source_key>
             <global_key>dataType</global_key>
@@ -33,6 +26,8 @@
             <source_key>null</source_key>
             <global_key>annotation</global_key>
         </mapping>
+
+
     </table>
     <table name="DONORS">
         <mapping>
@@ -172,5 +167,24 @@
             <source_key>file__href</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
+
+
+        <!--<mapping method="MANUALLY">-->
+        <!--<source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>-->
+        <!--<global_key>sourceUrl</global_key>-->
+    <!--</mapping>-->
+        <!--<mapping method="PREDEFINED-CONCAT" concat_character="">-->
+            <!--<source_key>dataset_name</source_key>-->
+            <!--<global_key>sourceUrl</global_key>-->
+        <!--</mapping>-->
+        <!--<mapping method="CONCAT" concat_character="/">-->
+            <!--<source_key>file__accession</source_key>-->
+            <!--<global_key>sourceUrl</global_key>-->
+        <!--</mapping>-->
+        <!--<mapping method="MANUALLY-CONCAT" concat_character="">-->
+            <!--<source_key>/region</source_key>-->
+            <!--<global_key>sourceUrl</global_key>-->
+        <!--</mapping>-->
+
     </table>
   </root>

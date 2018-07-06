@@ -124,7 +124,14 @@ object main {
   }
 
 
-  def importMode(repositoryRef: String, pathGMQL: String, pathXML: String): Unit = {
+  def importMode(repositoryRef: String, pathGMQLIn: String, pathXML: String): Unit = {
+    val datasetFileName = pathGMQLIn + File.separator + "dataset_name.txt"
+    val datasetName = Source.fromFile(datasetFileName).mkString
+    Predefined.map += "dataset_name" -> datasetName
+
+    val pathGMQL = pathGMQLIn + File.separator + "Transformations" + File.separator
+
+
     val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico_merged/Example/xml/setting.xsd"
     if (schemaValidator.validate(pathXML, schemaUrl)) {
       logger.info("Xml file is valid for the schema")
@@ -381,7 +388,7 @@ object main {
     //val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3), list(4), list(5), list(6), list(7))
     val insertMethod = InsertMethodNew.selectInsertionMethod(list(1), list(2), list(3), list(4), list(5), list(6), list(7))
 
-    if (list(3).contains("MANUALLY"))
+    if (list(3).contains("MANUALLY") || list(3).contains("PREDEFINED"))
       table.setParameter(list(1), list(2), insertMethod)
     else
       table.setParameter(states(list(1)), list(2), insertMethod)

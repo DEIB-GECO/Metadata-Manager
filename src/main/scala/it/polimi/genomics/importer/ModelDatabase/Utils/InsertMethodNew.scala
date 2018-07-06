@@ -1,6 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase.Utils
 
 import com.typesafe.config.ConfigFactory
+import it.polimi.genomics.importer.ModelDatabase.Predefined
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import org.apache.log4j.Logger
 
@@ -22,10 +23,19 @@ object InsertMethodNew {
         case "UPPERCASE" => acc.toUpperCase()
         case "LOWERCASE" => acc.toLowerCase()
         case "DATETODAYS" => this.selectDayByParam(newParam)
-        case "WEEKSTODAYS" => if(this.weeksToDays(newParam) != null) this.weeksToDays(newParam) else null
+        case "WEEKSTODAYS" => if (this.weeksToDays(newParam) != null) this.weeksToDays(newParam) else null
         case "ONTOLOGY" => sourceKey + '*' + acc
+        case "PREDEFINED" => Predefined.map.get(sourceKey) match {
+          case Some(x) =>
+            x
+          case None =>
+            logger.error("Method PREDEFINED failed for sourceKey: " + sourceKey)
+            actualParam
+        }
+
         case _ => {
-          logger.error("Method " + method + " not found"); actualParam
+          logger.error("Method " + method + " not found");
+          actualParam
         }
       }
     }
@@ -58,16 +68,16 @@ object InsertMethodNew {
     val values = param.split(" ")(0)
     param.split(" ")(1).toUpperCase match {
       case "YEAR" => {
-        (average(toArrayInt(values.split("-")))*365).toInt.toString
+        (average(toArrayInt(values.split("-"))) * 365).toInt.toString
       }
       case "MONTH" => {
-        (average(toArrayInt(values.split("-")))*30).toInt.toString
+        (average(toArrayInt(values.split("-"))) * 30).toInt.toString
       }
       case "DAY" => {
         average(toArrayInt(values.split("-"))).toInt.toString
       }
       case "WEEK" => {
-        (average(toArrayInt(values.split("-")))*7).toInt.toString
+        (average(toArrayInt(values.split("-"))) * 7).toInt.toString
       }
       case _ => {
         logger.error(s"Invalid argument Exception ${param.split(" ")(0)}")
@@ -77,11 +87,11 @@ object InsertMethodNew {
   }
 
   private def weeksToDays(param: String): String = {
-    try{
+    try {
       (param.toInt * 7).toString
     }
-    catch{
-      case e: NumberFormatException =>{
+    catch {
+      case e: NumberFormatException => {
         logger.error(s"NumberFormatException: ${param}")
         null
       }
@@ -89,6 +99,7 @@ object InsertMethodNew {
   }
 
   private def toArrayInt(list: Array[String]): Array[Float] = list.map(_.toFloat)
+
   private def average(list: Array[Float]): Float = list.sum / list.length
 
 }
