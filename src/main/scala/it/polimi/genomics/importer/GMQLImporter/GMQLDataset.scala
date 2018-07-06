@@ -1,5 +1,7 @@
 package it.polimi.genomics.importer.GMQLImporter
 
+import java.io.File
+
 import it.polimi.genomics.importer.GMQLImporter.utils.SCHEMA_LOCATION
 
 /**
@@ -23,6 +25,9 @@ case class GMQLDataset(
                         downloadEnabled: Boolean,
                         transformEnabled: Boolean,
                         loadEnabled: Boolean,
-                        parameters: Seq[(String,String,String,String)]
+                        parameters: Seq[(String,String,String,String)],
+                        var source: GMQLSource = null
                       ) {
+  //TODO change this anyplace that calculates output folder
+  def fullDatasetOutputFolder = source.outputFolder + File.separator + this.outputFolder
 }

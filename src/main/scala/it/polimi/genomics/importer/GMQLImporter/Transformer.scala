@@ -4,6 +4,7 @@ import java.io._
 
 import it.polimi.genomics.importer.DefaultImporter.schemaFinder
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
+import it.polimi.genomics.importer.GMQLImporter.utils.DatasetName
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.immutable.TreeMap
@@ -54,7 +55,7 @@ object Transformer {
       var modifiedMetadataFilesSource = 0
       var wrongSchemaFilesSource = 0
       //integration process for each dataset contained in the source.
-      val integrateThreads = source.datasets.map(dataset => {
+      val integrateThreads = source.datasets.map((dataset: GMQLDataset) => {
         new Thread {
           override def run(): Unit = {
             if (dataset.transformEnabled) {
@@ -65,7 +66,7 @@ object Transformer {
               var totalTransformedFiles = 0
               val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
 
-              val datasetOutputFolder = source.outputFolder + File.separator + dataset.outputFolder
+              val datasetOutputFolder = dataset.fullDatasetOutputFolder
               val downloadsFolder = datasetOutputFolder + File.separator + "Downloads"
               val transformationsFolder = datasetOutputFolder + File.separator + "Transformations"
 
@@ -239,6 +240,9 @@ object Transformer {
               logger.info(wrongSchemaFilesDataset + " region data files do not respect the schema in dataset: " + dataset.name)
               val t1Dataset = System.nanoTime()
               logger.info(s"Total time for transformation dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset, t1Dataset)}")
+
+              DatasetName.saveDatasetName(dataset)
+
             }
           }
         }
@@ -259,6 +263,9 @@ object Transformer {
       logger.info(s"Source ${source.name} transformation finished")
     }
   }
+
+
+
 
   /**
     * Checks the region data file has the columns corresponding to the schema, tries to parse the data
