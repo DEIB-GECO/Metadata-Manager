@@ -33,7 +33,14 @@ trait Tables extends Enumeration {
     return List(Donors, BioSamples, Replicates, ExperimentsType, Projects, Datasets, Cases, Items, CasesItems, ReplicatesItems)
   }
 
-  def insertTables(states: collection.mutable.Map[String, String], pairs: List[(String,String)]): Unit = {
+
+  /**
+    * Insert the metadata information into the related tables
+    *
+    * @param states is a map of key -> concatanation of all values
+    * @param pairs  is a list of key value pairs
+    */
+  def insertTables(states: collection.mutable.Map[String, String], pairs: List[(String, String)]): Unit = {
 
     val conf = ConfigFactory.load()
     val constraintsSatisfacted = this.checkTablesConstraintsSatisfaction()
@@ -53,13 +60,25 @@ trait Tables extends Enumeration {
           if (table.isInstanceOf[Item]) {
             logger.info(s"Inserting pairs for item_id $insertedId")
             if (conf.getBoolean("import.import_pairs")) {
-              for (p <- pairs) {
-                val pairTable: SamplePair = this.selectTableByName("PAIRS").asInstanceOf[SamplePair]
-                pairTable.itemId = insertedId
-                pairTable.key = p._1
-                pairTable.value = p._2
-                pairTable.insertRow()
-              }
+              val pairTable: Pair = this.selectTableByName("PAIRS").asInstanceOf[Pair]
+              val pairsSet = pairs.toSet
+              val oldPairs = pairTable.getPairs(insertedId).toSet
+
+              val itemToInsert = pairsSet.diff(oldPairs)
+              val itemToDelete = oldPairs.diff(pairsSet)
+
+              logger.info(s"Inserting pairs for item_id $insertedId itemToInsert ${itemToInsert.size}")
+              logger.info(s"Inserting pairs for item_id $insertedId itemToDelete ${itemToDelete.size}")
+
+
+              logger.info("DELETE")
+              if(itemToDelete.nonEmpty)
+                logger.info("DELETED: " + pairTable.deleteBatch(insertedId, itemToDelete.toList))
+
+              logger.info("INSERT")
+
+              if(itemToInsert.nonEmpty)
+                logger.info("INSERTED: " + pairTable.insertBatch(insertedId, itemToInsert.toList))
             }
           }
         }

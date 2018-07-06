@@ -1,7 +1,7 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Table
 
 import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
-import it.polimi.genomics.importer.ModelDatabase.SamplePair
+import it.polimi.genomics.importer.ModelDatabase.Pair
 //import it.polimi.genomics.importer.ModelDatabase.Encode.Utils.PlatformRetriver
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
 import it.polimi.genomics.importer.ModelDatabase.Item

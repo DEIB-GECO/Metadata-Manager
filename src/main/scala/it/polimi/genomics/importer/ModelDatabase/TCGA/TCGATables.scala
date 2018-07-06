@@ -1,12 +1,11 @@
 package it.polimi.genomics.importer.ModelDatabase.TCGA
 
 import exceptions.NoTableNameException
-import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
 import it.polimi.genomics.importer.ModelDatabase.TCGA.Table._
-import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Dataset, Donor, ExperimentType, Item, Project, Replicate, SamplePair, Table, Tables}
+import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Dataset, Donor, ExperimentType, Item, Pair, Project, Replicate, Table, Tables}
 import org.apache.log4j.Logger
 
-class TCGATables extends Tables{
+class TCGATables extends Tables {
 
   this.logger = Logger.getLogger(this.getClass)
 
@@ -22,7 +21,7 @@ class TCGATables extends Tables{
       case Items => new ItemTCGA
       case CasesItems => new CaseItemTCGA
       case ReplicatesItems => new ReplicateItemTCGA
-      case Pairs => return new SamplePair
+      case Pairs => return new Pair
       case _ => throw new NoTableNameException(value.toString)
     }
   }

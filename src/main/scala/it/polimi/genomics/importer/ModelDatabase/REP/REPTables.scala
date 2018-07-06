@@ -28,7 +28,7 @@ class REPTables(repTableId: REPTableId) extends Tables{
       case Items => return new ItemREP(repTableId)
       case CasesItems => return new CaseItemREP(repTableId)
       case ReplicatesItems => return new ReplicateItemREP(repTableId)
-      case Pairs => return new SamplePair
+      case Pairs => return new Pair
       case _ => throw new NoTableNameException(value.toString)
     }
   }

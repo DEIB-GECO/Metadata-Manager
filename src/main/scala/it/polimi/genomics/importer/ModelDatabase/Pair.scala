@@ -5,7 +5,7 @@ import it.polimi.genomics.importer.RemoteDatabase.DbHandler.{database, ontologyT
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-class SamplePair extends Table{
+class Pair extends Table {
 
   var itemId: Int = _
 
@@ -18,27 +18,27 @@ class SamplePair extends Table{
   override def setParameter(param: String, dest: String, insertMethod: (String, String) => String): Unit = ???
 
   override def checkInsert(): Boolean = {
-    dbHandler.checkInsertPair(itemId,key,value)
+    dbHandler.checkInsertPair(itemId, key, value)
   }
 
   override def insert(): Int = {
-    dbHandler.insertPair(itemId,key,value)
+    dbHandler.insertPair(itemId, key, value)
   }
 
-  override def update(): Int = {
-    dbHandler.updatePair(this.itemId,this.key,this.value)
-  }
+  override def update(): Int = ???
 
   override def setForeignKeys(table: Table): Unit = ???
 
+  def getPairs(itemId: Int): Seq[(String, String)] = dbHandler.getPairs(itemId)
 
 
+  def insertBatch(itemId: Int, insertPairs: List[(String, String)]): Int = {
+    dbHandler.insertPairBatch(itemId, insertPairs)
+  }
 
-
-
-
-
-
+  def deleteBatch(itemId: Int, deletePairs: List[(String, String)]): Int = {
+    dbHandler.deletePairBatch(itemId, deletePairs)
+  }
 
 
 }

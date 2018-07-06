@@ -136,7 +136,7 @@ object main {
 
       val t0: Long = System.nanoTime()
       repositoryRef.toUpperCase() match {
-        case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => analyzeFileEncode(path.toString, pathXML))
+        case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileEncode(path.toString, pathXML))
         case "REP" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
         case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML, false))
         case "ANN" => ListFiles.recursiveListFiles(new File(pathGMQL))
