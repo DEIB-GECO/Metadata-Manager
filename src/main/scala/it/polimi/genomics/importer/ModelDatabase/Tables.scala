@@ -67,18 +67,17 @@ trait Tables extends Enumeration {
               val itemToInsert = pairsSet.diff(oldPairs)
               val itemToDelete = oldPairs.diff(pairsSet)
 
-              logger.info(s"Inserting pairs for item_id $insertedId itemToInsert ${itemToInsert.size}")
-              logger.info(s"Inserting pairs for item_id $insertedId itemToDelete ${itemToDelete.size}")
+           //   logger.info(s"Inserting pairs for item_id $insertedId itemToInsert ${itemToInsert.size}")
+           //   logger.info(s"Inserting pairs for item_id $insertedId itemToDelete ${itemToDelete.size}")
 
 
-              logger.info("DELETE")
-              if(itemToDelete.nonEmpty)
-                logger.info("DELETED: " + pairTable.deleteBatch(insertedId, itemToDelete.toList))
+           //   logger.info("DELETE")
+           //   if(itemToDelete.nonEmpty)
+           //     logger.info("DELETED: " + pairTable.deleteBatch(insertedId, itemToDelete.toList))
 
-              logger.info("INSERT")
-
-              if(itemToInsert.nonEmpty)
-                logger.info("INSERTED: " + pairTable.insertBatch(insertedId, itemToInsert.toList))
+           //   logger.info("INSERT")
+           //   if(itemToInsert.nonEmpty)
+           //     logger.info("INSERTED: " + pairTable.insertBatch(insertedId, itemToInsert.toList))
             }
           }
         }

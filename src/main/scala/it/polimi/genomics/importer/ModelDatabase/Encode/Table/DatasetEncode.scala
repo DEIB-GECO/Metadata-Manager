@@ -13,7 +13,6 @@ class DatasetEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTabl
     case "ASSEMBLY" => this.assembly = insertMethod(this.assembly,param)
     case "ISANN" => this.isAnn = if(insertMethod(this.isAnn.toString,param).equals("true")) true else false
     case "ANNOTATION" => this.annotation = insertMethod(this.annotation,param)
-    case "LOCALURL" => this.localUrl = {insertMethod(this.localUrl,param)}
     case _ => noMatching(dest)
   }
 

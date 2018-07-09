@@ -16,8 +16,6 @@ trait Dataset extends Table{
 
   var annotation: String = _
 
-  var localUrl: String = _
-
   _hasForeignKeys = false
 
 //  _foreignKeysTables = List("PROJECTS")
@@ -27,15 +25,15 @@ trait Dataset extends Table{
   _dependenciesTables = List("DATASETS", "DONORS")
 
   override def insert() : Int ={
-    dbHandler.insertDataset(this.name,this.dataType,this.format,this.assembly,this.isAnn,this.annotation,this.localUrl)
+    dbHandler.insertDataset(this.name,this.dataType,this.format,this.assembly,this.isAnn,this.annotation)
   }
 
   override def update() : Int ={
-    dbHandler.updateDataset(this.name,this.dataType,this.format,this.assembly,this.isAnn,this.annotation,this.localUrl)
+    dbHandler.updateDataset(this.name,this.dataType,this.format,this.assembly,this.isAnn,this.annotation)
   }
 
   override def updateById() : Unit ={
-    dbHandler.updateDatasetById(primaryKey,this.name,this.dataType,this.format,this.assembly,this.isAnn,this.annotation,this.localUrl)
+    dbHandler.updateDatasetById(primaryKey,this.name,this.dataType,this.format,this.assembly,this.isAnn,this.annotation)
   }
 
   /*override def setForeignKeys(table: Table): Unit = {
@@ -43,11 +41,11 @@ trait Dataset extends Table{
   }*/
 
   override def checkInsert(): Boolean ={
-    dbHandler.checkInsertDataset(this.dataType,this.format,this.assembly,this.annotation)
+    dbHandler.checkInsertDataset(this.name)
   }
 
   override def getId(): Int = {
-    dbHandler.getDatasetId(this.dataType,this.format,this.assembly,this.annotation)
+    dbHandler.getDatasetId(this.name)
   }
 
   override def checkConsistency(): Boolean = {
@@ -83,7 +81,7 @@ trait Dataset extends Table{
     }
   }
 
-  def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Option[Boolean], Option[String], Option[String])]): Unit = {
+  def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Option[Boolean], Option[String])]): Unit = {
     if(values.length > 1)
       logger.error(s"Too many values: ${values.length}")
     else {
@@ -95,7 +93,6 @@ trait Dataset extends Table{
       if(value._5.isDefined) this.assembly = value._5.get
       if(value._6.isDefined) this.isAnn = value._6.get
       if(value._7.isDefined) this.annotation = value._7.get
-      if(value._8.isDefined) this.localUrl = value._8.get
     }
   }
 
@@ -108,7 +105,6 @@ trait Dataset extends Table{
     if(this.assembly != null) write.append(getMessage(tableName, "assembly", this.assembly))
     write.append(getMessage(tableName, "is_ann", this.isAnn))
     if(this.annotation != null) write.append(getMessage(tableName, "annotation", this.annotation))
-    if(this.localUrl != null) write.append(getMessage(tableName, "local_url", this.localUrl))
     flushAndClose(write)
   }
 }
