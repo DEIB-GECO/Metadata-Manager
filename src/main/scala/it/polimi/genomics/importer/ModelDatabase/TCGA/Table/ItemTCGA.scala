@@ -7,8 +7,8 @@ class ItemTCGA extends TCGATable with Item{
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = dest.toUpperCase() match {
     case "SOURCEID" => this.sourceId = insertMethod(this.sourceId,param)
     case "SIZE" => this.size = insertMethod(this.size.toString,param).toLong
-  //  case "DATE" => this.size = insertMethod(this.size.toString,param).toLong
-  //  case "MD5" => this.size = insertMethod(this.size.toString,param).toLong
+    case "DATE" => this.date = insertMethod(this.size.toString,param)
+    case "MD5" => this.md5 = insertMethod(this.size.toString,param)
     case "PLATFORM" => this.platform = insertMethod(this.platform, param)
     case "PIPELINE" => this.pipeline = insertMethod(this.pipeline,param)
     case "SOURCEURL" => this.sourceUrl = insertMethod(this.sourceUrl,param)

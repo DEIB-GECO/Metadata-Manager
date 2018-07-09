@@ -12,6 +12,8 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = dest.toUpperCase() match {
     case "SOURCEID" => this.sourceId = insertMethod(this.sourceId,param)
     case "SIZE" => this.size = insertMethod(this.size.toString,param).toLong
+    case "DATE" => this.date = insertMethod(this.size.toString,param)
+    case "MD5" => this.md5 = insertMethod(this.size.toString,param)
     case "PLATFORM" => this.platform = insertMethod(this.platform, param)
     case "PIPELINE" => this.pipeline = insertMethod(this.pipeline,param)
     case "SOURCEURL" => this.sourceUrl = insertMethod(this.sourceUrl,param)
@@ -20,21 +22,20 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
   }
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(experimentTypeId, datasetId,this.sourceId, this.size, this.platform, this.pipeline, this.sourceUrl, this.localUrl)
+    val id = dbHandler.insertItem(experimentTypeId, datasetId,this.sourceId, this.size, this.date, this.md5, this.platform, this.pipeline, this.sourceUrl, this.localUrl)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl, this.localUrl)
+    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.md5,this.platform,this.pipeline,this.sourceUrl, this.localUrl)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl, this.localUrl)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.md5,this.platform,this.pipeline,this.sourceUrl, this.localUrl)
     Statistics.itemUpdated += 1
-    id
   }
 
 }

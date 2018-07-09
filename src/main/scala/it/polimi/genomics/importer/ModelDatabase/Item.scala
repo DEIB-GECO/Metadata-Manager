@@ -18,6 +18,10 @@ trait Item extends Table{
 
   var size : Long = _
 
+  var date : String = _
+
+  var md5 : String = _
+
   var pipeline : String = _
 
   var platform : String =_
@@ -36,21 +40,20 @@ trait Item extends Table{
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.md5,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.md5,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.md5,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemUpdated += 1
-    return id
   }
 
   override def setForeignKeys(table: Table): Unit = {
