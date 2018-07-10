@@ -13,44 +13,44 @@
             <source_key>not_existing</source_key><!-->TRICK!<-->
             <global_key>age</global_key>
         </mapping>
-        <mapping method="MANUALLY">
-            <source_key>null</source_key>
-            <global_key>gender</global_key>
-        </mapping>
-        <mapping method="MANUALLY">
-            <source_key>null</source_key>
-            <global_key>ethnicity</global_key>
-        </mapping>
-    </table>
-    <table name="BIOSAMPLES">
-        <mapping>
-            <source_key>biosample_id</source_key><!--><-->
+        <!-- <mapping method="MANUALLY">
+             <source_key>null</source_key>
+             <global_key>gender</global_key>
+         </mapping>-->
+         <!--   <mapping method="MANUALLY">
+                <source_key>null</source_key>
+                <global_key>ethnicity</global_key>
+            </mapping>-->
+       </table>
+       <table name="BIOSAMPLES">
+           <mapping>
+               <source_key>biosample_id</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping method="MANUALLY">
-            <source_key>null</source_key>
-            <global_key>types</global_key>
-        </mapping>
-       <!-- <mapping method="MANUALLY">
-            <source_key>null</source_key>
-            <global_key>tissue</global_key>
-        </mapping>-->
-        <mapping method="MANUALLY">
-            <source_key>null</source_key>
-            <global_key>cellLine</global_key>
-        </mapping>
-        <mapping method="MANUALLY">
-            <source_key>null</source_key>
-            <global_key>isHealthy</global_key>
-        </mapping>
-        <mapping method="MANUALLY">
-            <source_key>null</source_key>
-            <global_key>disease</global_key>
-        </mapping>
-    </table>
-    <table name="REPLICATES">
-        <mapping>
-            <source_key>replicate_id</source_key><!--><-->
+        <!--   <mapping method="MANUALLY">
+               <source_key>null</source_key>
+               <global_key>types</global_key>
+           </mapping>-->
+          <!-- <mapping method="MANUALLY">
+               <source_key>null</source_key>
+               <global_key>tissue</global_key>
+           </mapping>-->
+        <!--  <mapping method="MANUALLY">
+              <source_key>null</source_key>
+              <global_key>cellLine</global_key>
+          </mapping>-->
+          <!--  <mapping method="MANUALLY">
+                <source_key>null</source_key>
+                <global_key>isHealthy</global_key>
+            </mapping>-->
+          <!--  <mapping method="MANUALLY">
+                <source_key>null</source_key>
+                <global_key>disease</global_key>
+            </mapping>-->
+        </table>
+        <table name="REPLICATES">
+            <mapping>
+                <source_key>replicate_id</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="MANUALLY">
@@ -67,32 +67,32 @@
             <source_key>provider</source_key>
             <global_key>technique</global_key>
         </mapping>
-        <mapping method="MANUALLY"><!--><-->
-            <source_key>null</source_key>
-            <global_key>feature</global_key>
-        </mapping>
-        <mapping method="MANUALLY"><!--><-->
+        <!--   <mapping method="MANUALLY">
+              <source_key>null</source_key>
+              <global_key>feature</global_key>
+          </mapping>-->
+        <!--   <mapping method="MANUALLY">
             <source_key>null</source_key>
             <global_key>target</global_key>
-        </mapping>
-        <mapping method="MANUALLY">
-            <source_key>null</source_key>
-            <global_key>antibody</global_key>
-        </mapping>
-    </table>
-    <table name="PROJECTS">
-        <mapping>
-            <source_key>full_name</source_key>
-            <global_key>projectName</global_key>
-        </mapping>
-        <mapping>
-            <source_key>provider</source_key>
-            <global_key>programName</global_key>
-        </mapping>
-    </table>
-    <table name="CASES">
-        <mapping>
-            <source_key>case_id</source_key><!--><-->
+        </mapping>-->
+        <!--   <mapping method="MANUALLY">
+              <source_key>null</source_key>
+              <global_key>antibody</global_key>
+          </mapping>-->
+      </table>
+      <table name="PROJECTS">
+          <mapping>
+              <source_key>full_name</source_key>
+              <global_key>projectName</global_key>
+          </mapping>
+          <mapping>
+              <source_key>provider</source_key>
+              <global_key>programName</global_key>
+          </mapping>
+      </table>
+      <table name="CASES">
+          <mapping>
+              <source_key>case_id</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
@@ -105,22 +105,14 @@
         </mapping>
     </table>
     <table name="DATASETS">
-        <mapping>
-            <source_key>assembly</source_key>
+        <mapping method="PREDEFINED">
+            <source_key>dataset_name</source_key>
             <global_key>name</global_key>
         </mapping>
-        <mapping method="MANUALLY-CONCAT" concat_character="_">
-            <source_key>ANNOTATION</source_key>
-            <global_key>name</global_key>
-        </mapping>
-        <mapping method="CONCAT" concat_character="_">
-            <source_key>provider</source_key>
-            <global_key>name</global_key>
-        </mapping>
-        <mapping method="MANUALLY">
+       <!-- <mapping method="MANUALLY">
             <source_key>null</source_key>
             <global_key>dataType</global_key>
-        </mapping>
+        </mapping>-->
         <mapping>
             <source_key>original_format</source_key>
             <global_key>format</global_key>
@@ -151,13 +143,30 @@
             <source_key>download_link</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
-        <mapping method="MANUALLY">
+     <!--   <mapping method="MANUALLY">
             <source_key>null</source_key>
             <global_key>platform</global_key>
-        </mapping>
-        <mapping method="MANUALLY">
+        </mapping> -->
+      <!--   <mapping method="MANUALLY">
             <source_key>null</source_key>
             <global_key>pipeline</global_key>
+        </mapping>-->
+
+        <mapping method="MANUALLY">
+            <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="PREDEFINED-CONCAT" concat_character="">
+            <source_key>dataset_name</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="/">
+            <source_key>file__accession</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="MANUALLY-CONCAT" concat_character="">
+            <source_key>/region</source_key>
+            <global_key>localUrl</global_key>
         </mapping>
     </table>
 </root>
