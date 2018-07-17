@@ -116,6 +116,12 @@
                     <value>GRCh38</value>
                 </parameter>
                 <parameter>
+                    <description>to exclude files without biological replicates</description>
+                    <type>exclusion</type>
+                    <key>Biological replicate(s)</key>
+                    <value></value>
+                </parameter>
+                <parameter>
                     <key>multiple_comma_separated</key>
                     <value>Audit WARNING</value>
                 </parameter>
@@ -325,6 +331,12 @@
                     <type>exclusion</type>
                     <key>Assembly</key>
                     <value>hg19</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude files without biological replicates</description>
+                    <type>exclusion</type>
+                    <key>Biological replicate(s)</key>
+                    <value></value>
                 </parameter>
                 <parameter>
                     <key>multiple_comma_separated</key>
