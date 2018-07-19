@@ -89,7 +89,7 @@
                 <parameter>
                     <description>metadata extraction method tsv or json.</description>
                     <key>metadata_extraction</key>
-                    <value>json_tsv</value>
+                    <value>json</value>
                 </parameter>
                 <parameter>
                     <description>to exclude archived files</description>
@@ -306,7 +306,7 @@
                 <parameter>
                     <description>metadata extraction method tsv or json.</description>
                     <key>metadata_extraction</key>
-                    <value>json_tsv</value>
+                    <value>json</value>
                 </parameter>
 				<parameter>
                     <description>to exclude archived files</description>
