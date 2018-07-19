@@ -72,12 +72,15 @@ trait Tables extends Enumeration {
 
 
            //   logger.info("DELETE")
-           //   if(itemToDelete.nonEmpty)
-           //     logger.info("DELETED: " + pairTable.deleteBatch(insertedId, itemToDelete.toList))
-
+              if(itemToDelete.nonEmpty) {
+                val count = pairTable.deleteBatch(insertedId, itemToDelete.toList)
+                //logger.info("DELETED: " + count)
+              }
            //   logger.info("INSERT")
-           //   if(itemToInsert.nonEmpty)
-           //     logger.info("INSERTED: " + pairTable.insertBatch(insertedId, itemToInsert.toList))
+              if(itemToInsert.nonEmpty) {
+                val count = pairTable.insertBatch(insertedId, itemToInsert.toList)
+                //logger.info("INSERTED: " + count)
+              }
             }
           }
         }
