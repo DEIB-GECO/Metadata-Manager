@@ -317,6 +317,7 @@ object program {
                 val t0Source = System.nanoTime()
                 logger.info(s"Starting transformation for ${source.name}")
                 Transformer.integrate(source, parallelExecution)
+                Cleaner.clean(source, parallelExecution)
                 logger.info(s"Transformation for ${source.name} Finished")
                 val t1Source = System.nanoTime()
                 logger.info(s"Total time transform source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")

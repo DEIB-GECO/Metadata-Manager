@@ -7,12 +7,55 @@ import scala.io.Source
 import scala.util.control.Breaks.{break, breakable}
 
 
-
 import it.polimi.genomics.importer.cleaner.IOManager._
 
 import it.polimi.genomics.importer.cleaner.Rule.simulateRule
 
+class RuleBase(rules_file: String) {
+  val rulesList = readRules(rules_file)
 
+  def applyRBFile(fileIn: String, fileOut: String): Unit = {
+    val input_file = new File(fileIn)
+
+    try {
+      val current_file = input_file
+      var output_file_lines = ListBuffer[String]()
+      val bufferedSource = Source.fromFile(current_file.getAbsolutePath)
+      //for all the lines of the file
+      for (line <- bufferedSource.getLines.toList) {
+        //extract pair
+        var (key, value): (String, String) = Utils.extractPair(line)
+        //apply first available rule to key
+        for (rule <- rulesList) {
+          val temp_key: Option[String] = simulateRule(key, rule)
+          if (temp_key.isDefined) {
+            println(temp_key, key, value)
+            key = temp_key.get
+          }
+        }
+        //write new pair on new set
+        output_file_lines += s"$key\t$value"
+      }
+      bufferedSource.close
+
+      output_file_lines.toList.sorted
+
+      val out_file: File = new File(fileOut)
+      val bw = new BufferedWriter(new FileWriter(out_file))
+      for (s <- output_file_lines.toList.sorted) {
+        bw.write(s + "\n")
+      }
+      bw.close()
+    } catch {
+      case e: FileNotFoundException => println("Couldn't find that file.")
+      case e: IOException => println("Got an IOException!")
+        e.printStackTrace()
+    }
+
+  }
+
+
+}
 
 object RuleBase {
 
@@ -73,9 +116,9 @@ object RuleBase {
           //visualization of new rule application simulation
           if (temp_keys_new_rule.nonEmpty) {
             println("The proposed rule applies to the following " + temp_keys_new_rule.size + " keys: ")
-            println("%70s\t%70s\t%50s\n".format("Key before","Key after","Applied rule"))
+            println("%70s\t%70s\t%50s\n".format("Key before", "Key after", "Applied rule"))
             for (t <- temp_keys_new_rule) {
-              println("%70s\t%70s\t%50s\n".format(t._1,t._2,t._3))
+              println("%70s\t%70s\t%50s\n".format(t._1, t._2, t._3))
             }
             print("\nPress y (yes) to accept rule, n (no) to reject it: ")
 

@@ -3,7 +3,7 @@ package it.polimi.genomics.importer.cleaner
 
 
 
-object Cleaner extends App{
+object RuleBaseGenerator extends App{
 
   /*val input_directory_path = "/Users/abernasconi/Documents/gitProjects/importer_data/input_files"
   val output_directory_path = "/Users/abernasconi/Documents/gitProjects/importer_data/cleaned_files/"

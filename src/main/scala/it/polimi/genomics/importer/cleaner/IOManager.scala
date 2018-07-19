@@ -4,9 +4,7 @@ import java.io._
 
 import scala.collection.mutable.LinkedHashSet
 import scala.io.Source
-
-
-import it.polimi.genomics.importer.cleaner.Cleaner._
+import it.polimi.genomics.importer.cleaner.RuleBaseGenerator._
 
 
 object IOManager {
@@ -40,13 +38,13 @@ object IOManager {
     bw.close()
   }
 
-  def writeSeenKeys(file_name: String, set: LinkedHashSet[(String,String,Rule)]): Unit = {
+  def writeSeenKeys(file_name: String, set: LinkedHashSet[(String, String, Rule)]): Unit = {
     val base_file: File = new File(output_directory_path + file_name)
     val bw = new BufferedWriter(new FileWriter(base_file))
-    bw.write("%70s\t%70s\t%50s\n".format("Key before","Key after","Applied rule"))
+    bw.write("%70s\t%70s\t%50s\n".format("Key before", "Key after", "Applied rule"))
     for (s <- set) {
       //bw.write("Key before: " + s._1 + "\tKey after: " + s._2 + "\tApplied rule: " + s._3 + "\n")
-      bw.write("%70s\t%70s\t%50s\n".format(s._1,s._2,s._3))
+      bw.write("%70s\t%70s\t%50s\n".format(s._1, s._2, s._3))
     }
     bw.close()
   }
@@ -60,14 +58,14 @@ object IOManager {
     bw.close()
   }
 
-  def readSeenKeys(file_name: String): LinkedHashSet[(String,String,Rule)] = {
-    val output_file_lines = new LinkedHashSet[(String,String,Rule)]()
+  def readSeenKeys(file_name: String): LinkedHashSet[(String, String, Rule)] = {
+    val output_file_lines = new LinkedHashSet[(String, String, Rule)]()
     try {
       val bufferedSource = Source.fromFile(output_directory_path + file_name)
       val rule_pattern = "(.*)\\t(.*)\\t(.*)=>(.*)"
 
       for (line <- bufferedSource.getLines) {
-        val line_ns = line.replaceAll("\\t\\s*","\\t")
+        val line_ns = line.replaceAll("\\t\\s*", "\\t")
         output_file_lines += ((line_ns.replaceFirst(rule_pattern, "$1"), line_ns.replaceFirst(rule_pattern, "$2"), new Rule(line_ns.replaceFirst(rule_pattern, "$3"), line_ns.replaceFirst(rule_pattern, "$4"))))
       }
       bufferedSource.close
@@ -81,7 +79,11 @@ object IOManager {
   def readRules(file_name: String): List[Rule] = {
     var rulesList = List[Rule]()
     try {
-      val bufferedSource = Source.fromFile(output_directory_path + file_name)
+      val bufferedSource =
+        if (new File(file_name).exists)
+          Source.fromFile(file_name)
+        else
+          Source.fromFile(output_directory_path + file_name)
       for (line <- bufferedSource.getLines) {
         rulesList = rulesList ::: List(Rule.StringToRule(line))
       }
@@ -143,7 +145,7 @@ object IOManager {
     }
   }
 
-  def updateFiles(ruleList: List[Rule], unseen_keys: LinkedHashSet[String], seen_keys: LinkedHashSet[(String,String,Rule)]): Unit = {
+  def updateFiles(ruleList: List[Rule], unseen_keys: LinkedHashSet[String], seen_keys: LinkedHashSet[(String, String, Rule)]): Unit = {
     writeRules(rules_file, ruleList)
     writeKeys(unseen_keys_file, unseen_keys)
     writeSeenKeys(seen_keys_file, seen_keys)
