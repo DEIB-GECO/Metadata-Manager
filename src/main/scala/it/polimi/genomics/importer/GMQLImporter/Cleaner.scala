@@ -73,7 +73,7 @@ object Cleaner {
               }
               logger.info("Cleaner for dataset: " + dataset.name)
 
-              FileDatabase.markToCompare(datasetId, STAGE.CLEAN)
+              FileDatabase.delete(datasetId, STAGE.CLEAN)
               //id, filename, copy number.
               var filesToTransform = 0
 

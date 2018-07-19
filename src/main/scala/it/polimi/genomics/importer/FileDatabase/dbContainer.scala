@@ -745,6 +745,19 @@ case class dbContainer() {
   }
 
   /**
+    * delete all files of given datasetId and the stage.
+    *
+    * @param datasetId identifier for the dataset.
+    * @param stage     indicates whether refers to download or transformed files.
+    */
+  def delete(datasetId: Int, stage: STAGE.Value): Unit = {
+    val query = files.filter(f => f.datasetId === datasetId && f.stage === stage.toString)
+    val action = query.delete
+    val execution = database.run(action)
+    Await.result(execution, Duration.Inf)
+  }
+
+  /**
     * Gives the current status of a file
     *
     * @param datasetId dataset where the file belongs to

@@ -347,6 +347,16 @@ object FileDatabase {
   }
 
   /**
+    * mark all the files with status NOTHING into status COMPARE
+    * meant to be used to check which files have been deleted from the source.
+    * @param datasetId identifier for the dataset.
+    * @param stage indicates whether refers to download or transformed files.
+    */
+  def delete(datasetId: Int, stage: STAGE.Value): Unit ={
+    db.delete(datasetId, stage)
+  }
+
+  /**
     * Gives the current status of a file
     * @param datasetId dataset where the file belongs to
     * @param url origin url for the file

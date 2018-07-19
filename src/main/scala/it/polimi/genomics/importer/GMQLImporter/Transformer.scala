@@ -91,7 +91,7 @@ object Transformer {
               }
               logger.info("Transformation for dataset: " + dataset.name)
 
-              FileDatabase.markToCompare(datasetId, STAGE.TRANSFORM)
+              FileDatabase.delete(datasetId, STAGE.TRANSFORM)
               //id, filename, copy number.
               var filesToTransform = 0
               val candidates = FileDatabase.getFilesToProcess(datasetId, STAGE.DOWNLOAD).flatMap { file =>
