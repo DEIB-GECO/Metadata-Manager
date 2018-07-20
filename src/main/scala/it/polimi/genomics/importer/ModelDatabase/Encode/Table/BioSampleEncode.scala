@@ -19,7 +19,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   var cellLineArray: Array[String] = new Array[String](quantity)
 
-  var isHealthyArray: Array[Boolean] = new Array[Boolean](quantity)
+  var isHealthyArray: Array[Option[Boolean]] = new Array[Option[Boolean]](quantity)
 
   var diseaseArray: Array[String] = new Array[String](quantity)
 
@@ -73,15 +73,27 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
         this.cellLineInsertPosition = resetPosition(this.cellLineInsertPosition, quantity)
       }
       case "ISHEALTHY" => {
-        if(param.contains("healthy")) this.isHealthyArray(isHealthyInsertPosition) = true else this.isHealthyArray(isHealthyInsertPosition) = false
+        if(param.toLowerCase.startsWith("healthy") ||
+          param.toLowerCase.equals("control") ||
+          param.toLowerCase.contains("normal") ||
+          param.toLowerCase.startsWith("negative for"))
+          this.isHealthyArray(isHealthyInsertPosition) = Some(true)
+        else if(param.toLowerCase.equals("unknown"))
+          this.isHealthyArray(isHealthyInsertPosition) = None
+        else
+          this.isHealthyArray(isHealthyInsertPosition) = Some(false)
         this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
       }
       case "DISEASE" => {
-        if(conf.getBoolean("import.rules.is_healthy")) {
-          this.diseaseArray(diseaseInsertPosition) = if (!this.isHealthyArray(diseaseInsertPosition)) insertMethod(this.diseaseArray(diseaseInsertPosition), param) else null
-        } else {
+
+        if(param.toLowerCase.startsWith("healthy") ||
+          param.toLowerCase.equals("control") ||
+          param.toLowerCase.contains("normal") ||
+          param.toLowerCase.startsWith("negative for") ||
+          param.toLowerCase.equals("unknown"))
+          this.diseaseArray(diseaseInsertPosition) = null
+        else
           this.diseaseArray(diseaseInsertPosition) = insertMethod(this.diseaseArray(diseaseInsertPosition), param)
-        }
         this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
       }
       case "ONTOLOGICALCODE" => {
@@ -161,7 +173,8 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
               this.logger.warn("Biosample cellLine constraints violated")
               res = false
             }
-            else if (bioSamples.isHealthyArray(position) && bioSamples.diseaseArray(position) != null) {
+            //TODO remove
+            else if (bioSamples.isHealthyArray(position).getOrElse(false) && bioSamples.diseaseArray(position) != null) {
               Statistics.constraintsViolated += 1
               this.logger.warn("Biosample tissue constraints violated")
               res = false

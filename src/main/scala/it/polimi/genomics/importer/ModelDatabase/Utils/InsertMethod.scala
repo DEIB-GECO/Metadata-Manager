@@ -5,7 +5,7 @@ import it.polimi.genomics.importer.ModelDatabase.Predefined
 import it.polimi.genomics.importer.RemoteDatabase.DbHandler
 import org.apache.log4j.Logger
 
-object InsertMethodNew {
+object InsertMethod {
   private val logger: Logger = Logger.getLogger(this.getClass)
   private val conf = ConfigFactory.load()
   private val characterSeparation = conf.getString("import.method_character_separation")

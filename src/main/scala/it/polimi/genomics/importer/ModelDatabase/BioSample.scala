@@ -14,7 +14,7 @@ trait BioSample extends Table{
 
   var cellLine: String = _
 
-  var isHealthy: Boolean = _
+  var isHealthy: Option[Boolean] = _
 
   var disease: String = _
 
@@ -27,11 +27,11 @@ trait BioSample extends Table{
   _dependenciesTables = List("BIOSAMPLES")
 
   override def insert(): Int ={
-    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealthy,this.disease)
+    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine, this.isHealthy,this.disease)
   }
 
   override def update(): Int = {
-    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealthy,this.disease)
+    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine, this.isHealthy,this.disease)
   }
 
   override def updateById(): Unit = {
@@ -68,11 +68,11 @@ trait BioSample extends Table{
             this.logger.warn("Biosample cellLine constraints violated")
             false
           }
-          else if (bioSample.isHealthy != null && bioSample.isHealthy && bioSample.disease != null) {
+/*          else if (bioSample.isHealthy != null && bioSample.isHealthy.getOrElse(false) && bioSample.disease != null) {
             Statistics.constraintsViolated += 1
             this.logger.warn("Biosample isHealty constraints violated")
             false
-          }
+          }*/
           else
             true
         }
@@ -96,7 +96,7 @@ trait BioSample extends Table{
       if(value._3.isDefined) this.types = value._3.get
       if(value._4.isDefined) this.tissue = value._4.get
       if(value._5.isDefined) this.cellLine = value._5.get
-      if(value._6.isDefined) this.isHealthy = value._6.get
+      if(value._6.isDefined) this.isHealthy = Option(value._6.get) //check if correct putting Option around value._6.get
       if(value._7.isDefined) this.disease = value._7.get
     }
   }

@@ -26,7 +26,13 @@ class BioSampleTCGA extends TCGATable with BioSample {
         }
       }
       case "ISHEALTHY" => {
-        if (param == "null") this.isHealthy = false
+        if (param == "normal")
+          this.isHealthy = Some(true)
+        else if (param == "tumoral")
+          this.isHealthy = Some(false)
+        else
+          this.isHealthy = None
+        /*if (param == "null") this.isHealthy = false
         else
           param.toUpperCase match {
             case "ADDITIONAL - NEW PRIMARY" => this.isHealthy = false
@@ -35,14 +41,14 @@ class BioSampleTCGA extends TCGATable with BioSample {
             case "METASTATIC" => this.isHealthy = false
             case "BLOOD DERIVED NORMAL" => this.isHealthy = true
             case _ => logger.warn(s"Param ${param} not found in TCGA ISHEALTHY mapping")
-          }
+          }*/
       }
       case "DISEASE" => {
-        if (conf.getBoolean("import.rules.is_healthy")) {
-          this.disease = if (!this.isHealthy) insertMethod(this.disease, param) else null
-        } else {
+      //  if (conf.getBoolean("import.rules.is_healthy")) {
+      //    this.disease = if (!this.isHealthy) insertMethod(this.disease, param) else null
+      //  } else {
           this.disease = insertMethod(this.disease, param)
-        }
+      //  }
       }
       case _ => noMatching(dest)
     }

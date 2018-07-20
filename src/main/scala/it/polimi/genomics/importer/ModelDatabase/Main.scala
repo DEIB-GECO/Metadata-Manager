@@ -154,22 +154,23 @@ object main {
       val t1 = System.nanoTime()
       logger.info(s"Total time to insert data in DB ${getTotalTimeFormatted(t0, t1)}")
       logger.info(s"Total analyzed files ${Statistics.fileNumber}")
-      logger.info(s"Total file released ${Statistics.released}")
-      logger.info(s"File status (and other metadata) are missing ${Statistics.archived}")
-      logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
+      logger.info(s"Total considered files ${Statistics.released}")
+      logger.info(s"Total discarded files ${Statistics.discarded}")
+      //logger.info(s"Total not-considered files ${Statistics.archived}")
+      //logger.info(s"Total file released but not inserted ${Statistics.releasedItemNotInserted}")
       logger.info(s"Total Item inserted ${Statistics.itemInserted}")
       logger.info(s"Total Item updated ${Statistics.itemUpdated}")
       logger.info(s"Constraints violated ${Statistics.constraintsViolated}")
       logger.info(s"Total malformation found  ${Statistics.malformedInput}")
       logger.info(s"ArrayIndexOutOfBoundsException file input  ${Statistics.indexOutOfBoundsException}")
       logger.info(s"UnknownInputException file input  ${Statistics.anotherInputException}")
-      logger.info(s"Extracted Time  ${Statistics.getTimeFormatted(Statistics.extractTimeAcc)}")
-      logger.info(s"Transform Time  ${Statistics.getTimeFormatted(Statistics.transformTimeAcc)}")
-      logger.info(s"Load Time  ${Statistics.getTimeFormatted(Statistics.loadTimeAcc)}")
+      logger.info(s"Time to extract information from files  ${Statistics.getTimeFormatted(Statistics.extractTimeAcc)}")
+      logger.info(s"Time to convert information into relational tuples  ${Statistics.getTimeFormatted(Statistics.transformTimeAcc)}")
+      logger.info(s"Time to load information into tables  ${Statistics.getTimeFormatted(Statistics.loadTimeAcc)}")
       if (repositoryRef.toUpperCase.equals("ENCODE")) {
-        logger.info(s"Total Donor inserted or updated ${Statistics.donorInsertedOrUpdated}")
-        logger.info(s"Total Biosample inserted or updated ${Statistics.biosampleInsertedOrUpdated}")
-        logger.info(s"Total Replicate inserted or updated ${Statistics.replicateInsertedOrUpdated}")
+        logger.info(s"Total Donors inserted or updated ${Statistics.donorInsertedOrUpdated}")
+        logger.info(s"Total Biosamples inserted or updated ${Statistics.biosampleInsertedOrUpdated}")
+        logger.info(s"Total Replicates inserted or updated ${Statistics.replicateInsertedOrUpdated}")
 
       }
 
@@ -219,53 +220,54 @@ object main {
   def analyzeFileEncode(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
-    logger.info(s"Start to read $path")
+    logger.info(s"Start reading $path")
     try {
       val lines = Source.fromFile(path).getLines.toArray
       filePath = path
       val encodesTableId = new EncodeTableId
-      val bioSampleList = new BioSampleList(lines, encodesTableId) // setting field _biosampleArray with the numbers of replicates present in the item
+      // setting field _biosampleArray with the numbers of replicates present in the item
+      val bioSampleList = new BioSampleList(lines, encodesTableId)
       val replicateList = new ReplicateList(lines, bioSampleList)
-      encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
-      encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
-      encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
-      val tables = new EncodeTables(encodesTableId)
-      tables.setFilePath(path)
-      tables.setPathOnTables()
 
-      val states: collection.mutable.Map[String, String] = createMapper(lines)
+      //if replicateList is empty print a log and don't import file
+      if (replicateList.UuidList.isEmpty) {
+        Statistics.discarded += 1
+        logger.warn(s"File ${path.split("/").last} is missing biological replicates. It is ignored...")
+      }
+      else {
 
-      /*  var status: String = "archived"
-        var analizeFileBool: Boolean = false
-        if (states.contains("file__status")) {
-          if (states("file__status").equals("released")) {
-            status = "released"
-            analizeFileBool = true
+        encodesTableId.bioSampleQuantity(bioSampleList.BiosampleList.length)
+        encodesTableId.setQuantityTechReplicate(replicateList.UuidList.length)
+        encodesTableId.techReplicateArray(replicateList.BiologicalReplicateNumberList.toArray)
+        val tables = new EncodeTables(encodesTableId)
+        tables.setFilePath(path)
+        tables.setPathOnTables()
+
+        val states: collection.mutable.Map[String, String] = createMapper(lines)
+
+        Statistics.released += 1
+        logger.info(s"Start populating tables for file ${path.split("/").last}")
+        //reads XML file and substitutes X with number of replicates
+        val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
+        val operationsList = xml.operationsList
+        val t1: Long = System.nanoTime()
+        Statistics.incrementExtractTime(t1 - t0)
+        operationsList.map(operations => {
+          try {
+            populateTable(operations, tables.selectTableByName(operations.head), states.toMap)
+          } catch {
+            case e: NoSuchElementException => {
+              tables.nextPosition(operations.head, operations(2), operations(3));
+              logger.warn(s"Source key: ${operations(1)} not found for Table: ${operations(0)}, Global key: ${operations(2)}")
+            }
           }
-        }
-        if (analizeFileBool) {*/
-      Statistics.released += 1
-      logger.info(s"File status released, start populating table")
-      val xml = new XMLReaderEncode(pathXML, replicateList, bioSampleList, states)
-      val operationsList = xml.operationsList
-      val t1: Long = System.nanoTime()
-      Statistics.incrementExtractTime(t1 - t0)
-      operationsList.map(operations => {
-        try {
-          populateTable(operations, tables.selectTableByName(operations.head), states.toMap)
-        } catch {
-          case e: NoSuchElementException => {
-            tables.nextPosition(operations.head, operations(2), operations(3));
-            logger.warn(s"Source key: ${operations(1)} was not found for Table: ${operations(0)}, Global key: ${operations(2)}")
-            //logger.warn(s"SourceKey not found for $x")
-          }
-        }
-      })
-      val t2: Long = System.nanoTime()
-      Statistics.incrementTrasformTime((t2 - t1))
-      tables.insertTables(states, createPairs(lines))
-      val t3: Long = System.nanoTime()
-      Statistics.incrementLoadTime((t3 - t2))
+        })
+        val t2: Long = System.nanoTime()
+        Statistics.incrementTrasformTime((t2 - t1))
+        tables.insertTables(states, createPairs(lines))
+        val t3: Long = System.nanoTime()
+        Statistics.incrementLoadTime((t3 - t2))
+      }
 
     } catch {
       case aioobe: ArrayIndexOutOfBoundsException => {
@@ -279,7 +281,7 @@ object main {
   def analyzeFileRep(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
-    logger.info(s"Start to read $path")
+    logger.info(s"Start reading $path")
     try {
       val old_lines = Source.fromFile(path).getLines.toArray
       filePath = path
@@ -316,7 +318,7 @@ object main {
         } catch {
           case e: NoSuchElementException => {
             tables.nextPosition(operations.head, operations(2), operations(3));
-            logger.warn(s"Source key: ${operations(2)} was not found for Table: ${operations(1)}, Global key: ${operations(3)}")
+            logger.warn(s"Source key: ${operations(2)} not found for Table: ${operations(1)}, Global key: ${operations(3)}")
           }
         }
       }
@@ -337,7 +339,7 @@ object main {
   def analyzeFileRegular(path: String, pathXML: String, metadata_id_needed: Boolean): Unit = {
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
-    logger.info(s"Start to read $path")
+    logger.info(s"Start reading $path")
     try {
       val old_lines = Source.fromFile(path).getLines.toArray
 
@@ -364,7 +366,7 @@ object main {
         } catch {
           case e: NoSuchElementException =>
             //logger.warn(s"SourceKey not found for $x")
-            logger.warn(s"Source key: ${operations(1)} was not found for Table: ${operations(0)}, Global key: ${operations(2)}")
+            logger.warn(s"Source key: ${operations(1)} not found for Table: ${operations(0)}, Global key: ${operations(2)}")
         })
       val t2: Long = System.nanoTime()
       Statistics.incrementTrasformTime((t2 - t1))
@@ -385,13 +387,14 @@ object main {
   }
 
   def populateTable(list: List[String], table: Table, states: Map[String, String]): Unit = {
-    //val insertMethod = InsertMethod.selectInsertionMethod(list(1),list(2),list(3), list(4), list(5), list(6), list(7))
-    val insertMethod = InsertMethodNew.selectInsertionMethod(list(1), list(2), list(3), list(4), list(5), list(6), list(7))
+
+    val insertMethod = InsertMethod.selectInsertionMethod(list(1), list(2), list(3), list(4), list(5), list(6), list(7))
 
     if (list(3).contains("MANUALLY") || list(3).contains("PREDEFINED"))
       table.setParameter(list(1), list(2), insertMethod)
     else
       table.setParameter(states(list(1)), list(2), insertMethod)
+    
   }
 
   def defineFileAppenderSetting(logName: String): Unit = {

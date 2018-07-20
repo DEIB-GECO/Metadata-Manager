@@ -19,7 +19,7 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
 
   var cellLineArray: Array[String] = new Array[String](quantity)
 
-  var isHealthyArray: Array[Boolean] = new Array[Boolean](quantity)
+  var isHealthyArray: Array[Option[Boolean]] = new Array[Option[Boolean]](quantity)
 
   var diseaseArray: Array[String] = new Array[String](quantity)
 
@@ -50,32 +50,35 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
   override def setParameter(param: String, dest: String, insertMethod: (String, String) => String): Unit = {
     dest.toUpperCase match {
       case "SOURCEID" => {
-        this.sourceIdArray(insertPosition) = insertMethod(this.sourceIdArray(insertPosition), param);
+        this.sourceIdArray(insertPosition) = insertMethod(this.sourceIdArray(insertPosition), param)
         this.insertPosition = resetPosition(this.insertPosition, quantity)
       }
       case "TYPES" => {
-        this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), param);
-        this.typesInsertPosition = resetPosition(this.typesInsertPosition, quantity);
+        this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), param)
+        this.typesInsertPosition = resetPosition(this.typesInsertPosition, quantity)
       }
       case "TISSUE" => {
-        this.tissueArray(tissueInsertPosition) = insertMethod(this.tissueArray(tissueInsertPosition), param);
-        this.tissueInsertPosition = resetPosition(this.tissueInsertPosition, quantity);
+        if (typesArray(tissueInsertPosition).toLowerCase.contains("tissue"))
+          this.tissueArray(tissueInsertPosition) = insertMethod(this.tissueArray(tissueInsertPosition), param)
+        else
+          this.tissueArray(tissueInsertPosition) = null
+        this.tissueInsertPosition = resetPosition(this.tissueInsertPosition, quantity)
       }
       case "CELLLINE" => {
-        this.cellLineArray(cellLineInsertPosition) = insertMethod(this.cellLineArray(cellLineInsertPosition), param);
-        this.cellLineInsertPosition = resetPosition(this.cellLineInsertPosition, quantity);
+        if (typesArray(tissueInsertPosition).toLowerCase.contains("tissue"))
+          this.cellLineArray(cellLineInsertPosition) = null
+        else
+          this.cellLineArray(cellLineInsertPosition) = insertMethod(this.cellLineArray(cellLineInsertPosition), param)
+        this.cellLineInsertPosition = resetPosition(this.cellLineInsertPosition, quantity)
       }
       case "ISHEALTHY" => {
-        if (param.contains("healthy")) this.isHealthyArray(isHealthyInsertPosition) = true else this.isHealthyArray(isHealthyInsertPosition) = false
+        this.isHealthyArray(isHealthyInsertPosition) = null
         this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
       }
       case "DISEASE" => {
-        if (conf.getBoolean("import.rules.is_healthy")) {
-          this.diseaseArray(diseaseInsertPosition) = if (!this.isHealthyArray(diseaseInsertPosition)) insertMethod(this.diseaseArray(diseaseInsertPosition), param) else null
-        } else {
-          this.diseaseArray(diseaseInsertPosition) = insertMethod(this.diseaseArray(diseaseInsertPosition), param)
-        }
+        this.diseaseArray(diseaseInsertPosition) = insertMethod(this.diseaseArray(diseaseInsertPosition), param)
         this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
+
       }
       case _ => noMatching(dest)
     }
@@ -84,9 +87,6 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
 
   override def nextPosition(globalKey: String, method: String): Unit = {
     globalKey.toUpperCase match {
-      //case "SOURCEID" => {
-      //  this.sInsertPosition = resetPosition(sInsertPosition, quantity)
-     // }
       case "TYPES" => {
         this.typesInsertPosition = resetPosition(typesInsertPosition, quantity)
       }
@@ -153,11 +153,11 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
               this.logger.warn("Biosample cellLine constraints violated")
               res = false
             }
-            else if (bioSamples.isHealthyArray(position) && bioSamples.diseaseArray(position) != null) {
-              Statistics.constraintsViolated += 1
-              this.logger.warn("Biosample tissue constraints violated")
-              res = false
-            }
+            //else if (bioSamples.isHealthyArray(position) && bioSamples.diseaseArray(position) != null) {
+            //  Statistics.constraintsViolated += 1
+            //  this.logger.warn("Biosample tissue constraints violated")
+            //  res = false
+            //}
           })
           res
         }

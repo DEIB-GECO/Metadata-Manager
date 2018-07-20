@@ -84,7 +84,7 @@ class XMLReaderREP(val path: String, val replicates: ReplicateList, val biosampl
         }
       }
     } catch {
-      case e: Exception => logger.warn(s"Source Key ${((x \ "mapping" \ "source_key").text)} doesn't find for table ${((x \ "@name").toString())}")
+      case e: Exception => logger.warn(s"Source Key ${((x \ "mapping" \ "source_key").text)} not found for table ${((x \ "@name").toString())}")
     }
   }
 
