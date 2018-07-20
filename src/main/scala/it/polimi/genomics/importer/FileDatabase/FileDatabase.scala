@@ -257,6 +257,16 @@ object FileDatabase {
   }
 
   /**
+    * returns hash, size and last update.
+    * @param fileId identifier of the file.
+    * @return hash, size and last update.
+    */
+  def getFileAllDetails(fileId: Int) ={
+    db.getFileAllDetail(fileId)
+  }
+
+
+  /**
     * indicates which is the maximum copy number for the same filename inside the same dataset.
     * @param datasetId datast where the file belongs
     * @param fileName original file name
@@ -334,6 +344,16 @@ object FileDatabase {
     */
   def markToCompare(datasetId: Int, stage: STAGE.Value): Unit ={
     db.markToCompare(datasetId, stage)
+  }
+
+  /**
+    * mark all the files with status NOTHING into status COMPARE
+    * meant to be used to check which files have been deleted from the source.
+    * @param datasetId identifier for the dataset.
+    * @param stage indicates whether refers to download or transformed files.
+    */
+  def delete(datasetId: Int, stage: STAGE.Value): Unit ={
+    db.delete(datasetId, stage)
   }
 
   /**

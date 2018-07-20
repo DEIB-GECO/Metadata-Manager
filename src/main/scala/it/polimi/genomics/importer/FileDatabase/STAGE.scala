@@ -8,4 +8,5 @@ object STAGE extends Enumeration {
   type STAGE = Value
   val DOWNLOAD = Value("DOWNLOAD")
   val TRANSFORM = Value("TRANSFORM")
+  val CLEAN = Value("CLEAN")
 }

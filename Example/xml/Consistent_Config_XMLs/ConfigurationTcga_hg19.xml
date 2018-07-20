@@ -17,9 +17,9 @@
             <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
             <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
             <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
-            <download_enabled>false</download_enabled>
-            <transform_enabled>false</transform_enabled>
-            <load_enabled>false</load_enabled>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <load_enabled>true</load_enabled>
             <parameter_list>
                 <parameter>
                     <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>

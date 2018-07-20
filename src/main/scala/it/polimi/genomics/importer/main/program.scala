@@ -25,6 +25,7 @@ object program {
     *
     * depending on the arguments, can run download/transform/load procedure or
     * delete transformed folder.
+    *
     * @param args arguments for GMQLImporter (help for more information)
     */
   def main(args: Array[String]): Unit = {
@@ -75,12 +76,16 @@ object program {
         if (xmlPath.endsWith(".xml") && new File(gmqlConfPath).isDirectory) {
           if (args.contains("log")) {
             val runs =
-              if(args.exists(arg => {arg.contains("--")}))
-                args.filter(arg => {arg.contains("--")}).head.replace("--","")
+              if (args.exists(arg => {
+                arg.contains("--")
+              }))
+                args.filter(arg => {
+                  arg.contains("--")
+                }).head.replace("--", "")
               else
                 "0"
-            try{
-              for(run <- runs.split(",")) {
+            try {
+              for (run <- runs.split(",")) {
                 val runId = Integer.parseInt(run)
                 showDatabaseLog(args.head, args.drop(1).head.toString, runId)
               }
@@ -92,9 +97,9 @@ object program {
           }
           else {
             val t0: Long = System.nanoTime()
-            runGMQLImporter(args.head, args.drop(1).head.toString,args.contains("-retry"))
+            runGMQLImporter(args.head, args.drop(1).head.toString, args.contains("-retry"))
             val t1 = System.nanoTime()
-            logger.info(s"Total time for the run ${getTotalTimeFormatted(t0,t1)}")
+            logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
           }
         }
         else
@@ -105,25 +110,27 @@ object program {
 
   /**
     * gets the time between 2 timestamps in hh:mm:ss format
+    *
     * @param t0 start time
     * @param t1 end time
     * @return hh:mm:ss as string
     */
-  def getTotalTimeFormatted(t0:Long, t1:Long): String = {
+  def getTotalTimeFormatted(t0: Long, t1: Long): String = {
 
-    val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
-    val minutes = Integer.parseInt(""+((t1-t0)/1000000000/60-hours*60))
-    val seconds = Integer.parseInt(""+((t1-t0)/1000000000-hours*60*60-minutes*60))
+    val hours = Integer.parseInt("" + (t1 - t0) / 1000000000 / 60 / 60)
+    val minutes = Integer.parseInt("" + ((t1 - t0) / 1000000000 / 60 - hours * 60))
+    val seconds = Integer.parseInt("" + ((t1 - t0) / 1000000000 - hours * 60 * 60 - minutes * 60))
     s"$hours:$minutes:$seconds"
   }
 
   /**
     * Shows the log of past runs for download and transformations.
-    * @param xmlConfigPath path to xml configuration file containing the sources and general configuration.
+    *
+    * @param xmlConfigPath  path to xml configuration file containing the sources and general configuration.
     * @param gmqlConfigPath path to gmql_config folder.
-    * @param runId identifier of the run to show the run, for showing all of them enter 0.
+    * @param runId          identifier of the run to show the run, for showing all of them enter 0.
     */
-  def showDatabaseLog(xmlConfigPath: String, gmqlConfigPath: String,runId : Int): Unit = {
+  def showDatabaseLog(xmlConfigPath: String, gmqlConfigPath: String, runId: Int): Unit = {
     Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
     //general settings
     if (new File(xmlConfigPath).exists()) {
@@ -137,7 +144,7 @@ object program {
         //start database
         FileDatabase.setDatabase(outputFolder)
         var run = FileDatabase.getMaxRunNumber
-        if(runId <= run) {
+        if (runId <= run) {
           for (i <- 1 until runId)
             run = FileDatabase.getPreviousRunNumber(run)
           if (run > 0 && runId != 0) {
@@ -180,12 +187,14 @@ object program {
     else
       logger.warn(xmlConfigPath + " does not exist")
   }
+
   /**
     * by having a configuration xml file runs downloaders/transformers/loader for the sources and their
     * datasets if defined to.
-    * @param xmlConfigPath xml configuration file location
+    *
+    * @param xmlConfigPath  xml configuration file location
     * @param gmqlConfigPath path to the gmql_conf folder
-    * @param retryDownload defines if the execution is only for retrying failed files or normal execution
+    * @param retryDownload  defines if the execution is only for retrying failed files or normal execution
     */
   def runGMQLImporter(xmlConfigPath: String, gmqlConfigPath: String, retryDownload: Boolean): Unit = {
     Utilities.confFolder = new File(gmqlConfigPath).getAbsolutePath
@@ -207,7 +216,7 @@ object program {
           if ("true".equalsIgnoreCase((file \\ "settings" \ "load_enabled").text)) true else false
         val parallelExecution =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "parallel_execution").text)) true else false
-          if(loadEnabled){
+        if (loadEnabled) {
 
         }
         //start database
@@ -219,7 +228,7 @@ object program {
           downloadEnabled.toString, transformEnabled.toString, loadEnabled.toString, outputFolder)
 
         //creation of the file log
-        val logName = "run_"+runId+"_"+DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd_HH_mm_ss_SSS"))+".log"
+        val logName = "run_" + runId + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd_HH_mm_ss_SSS")) + ".log"
 
 
         val fa2 = new FileAppender()
@@ -231,7 +240,7 @@ object program {
         fa2.activateOptions()
         Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
         //to continue consistency of xml configuration is needed.
-        if(checkConsistencyConfigurationXml(sources,loadEnabled,transformEnabled)) {
+        if (checkConsistencyConfigurationXml(sources, loadEnabled, transformEnabled)) {
           //start DTL
           sources.foreach(source => {
             val sourceId = FileDatabase.sourceId(source.name)
@@ -268,7 +277,7 @@ object program {
             })
           })
 
-          val downloadThreads = sources.filter(_.downloadEnabled && downloadEnabled ).map( source =>{
+          val downloadThreads = sources.filter(_.downloadEnabled && downloadEnabled).map(source => {
             new Thread {
               override def run(): Unit = {
                 val t0Source = System.nanoTime()
@@ -288,7 +297,7 @@ object program {
             }
           })
           val t0: Long = System.nanoTime()
-          if(parallelExecution) {
+          if (parallelExecution) {
             downloadThreads.foreach(_.start())
             downloadThreads.foreach(_.join())
           }
@@ -298,16 +307,17 @@ object program {
               thread.join()
             })
           val t1 = System.nanoTime()
-          if(downloadEnabled)
-            logger.info(s"Total time for downloads: ${getTotalTimeFormatted(t0,t1)}")
+          if (downloadEnabled)
+            logger.info(s"Total time for downloads: ${getTotalTimeFormatted(t0, t1)}")
 
 
-          val integrateThreads = sources.filter(_.transformEnabled && transformEnabled).map( source =>{
+          val integrateThreads = sources.filter(_.transformEnabled && transformEnabled).map(source => {
             new Thread {
               override def run(): Unit = {
                 val t0Source = System.nanoTime()
                 logger.info(s"Starting transformation for ${source.name}")
                 Transformer.integrate(source, parallelExecution)
+                Cleaner.clean(source, parallelExecution)
                 logger.info(s"Transformation for ${source.name} Finished")
                 val t1Source = System.nanoTime()
                 logger.info(s"Total time transform source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
@@ -315,7 +325,7 @@ object program {
             }
           })
           val t2: Long = System.nanoTime()
-          if(parallelExecution) {
+          if (parallelExecution) {
             integrateThreads.foreach(_.start())
             integrateThreads.foreach(_.join())
           }
@@ -325,20 +335,20 @@ object program {
               thread.join()
             })
           val t3 = System.nanoTime()
-          if(transformEnabled)
-            logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2,t3)}")
+          if (transformEnabled)
+            logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2, t3)}")
 
           sources.filter(_.loadEnabled && loadEnabled).foreach(source => {
-              logger.info(s"Starting load for ${source.name}")
-              Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
-              logger.info(s"Loading for ${source.name} Finished")
+            logger.info(s"Starting load for ${source.name}")
+            Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
+            logger.info(s"Loading for ${source.name} Finished")
           })
           val t4: Long = System.nanoTime()
           sources.foreach(source => {
             val t0Source = System.nanoTime()
             val sourceId = FileDatabase.sourceId(source.name)
-            if(source.loadEnabled || source.transformEnabled || source.downloadEnabled)
-            logger.info(s"Statistics for source: ${source.name}")
+            if (source.loadEnabled || source.transformEnabled || source.downloadEnabled)
+              logger.info(s"Statistics for source: ${source.name}")
             source.datasets.foreach(dataset => {
               val t0Dataset = System.nanoTime()
 
@@ -355,25 +365,25 @@ object program {
               )
               if (runDatasetId != -1) {
                 if (downloadEnabled && source.downloadEnabled && dataset.downloadEnabled) {
-                  FileDatabase.printRunDatasetDownloadLog(runDatasetId,datasetId,runId)
+                  FileDatabase.printRunDatasetDownloadLog(runDatasetId, datasetId, runId)
                 }
                 if (transformEnabled && source.transformEnabled && dataset.transformEnabled) {
                   FileDatabase.printRunDatasetTransformLog(runDatasetId)
                 }
               }
               val t1Dataset = System.nanoTime()
-              if(dataset.loadEnabled && source.loadEnabled && loadEnabled)
-                logger.info(s"Total time load dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
+              if (dataset.loadEnabled && source.loadEnabled && loadEnabled)
+                logger.info(s"Total time load dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset, t1Dataset)}")
             })
             val t1Source = System.nanoTime()
-            if(source.loadEnabled && loadEnabled)
-              logger.info(s"Total time load source ${source.name}: ${getTotalTimeFormatted(t0Source,t1Source)}")
+            if (source.loadEnabled && loadEnabled)
+              logger.info(s"Total time load source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
           })
           val t5 = System.nanoTime()
-          if(loadEnabled)
-            logger.info(s"Total time for loads: ${getTotalTimeFormatted(t4,t5)}")
+          if (loadEnabled)
+            logger.info(s"Total time for loads: ${getTotalTimeFormatted(t4, t5)}")
         }
-        else{
+        else {
           logger.info("The user has canceled the run")
         }
         //end DTL
@@ -394,56 +404,58 @@ object program {
   /**
     * Checks consistency warnings in the xml configuration file and the metadata replacement.
     * asks the user if continue or not with the execution.
-    * @param sources sequence of sources to be checked
-    * @param loadEnabled indicates if load is enables on the root level of xmlConfigurationFile
+    *
+    * @param sources          sequence of sources to be checked
+    * @param loadEnabled      indicates if load is enables on the root level of xmlConfigurationFile
     * @param transformEnabled indicates if transformation is enabled on the root level of xmlConfigurationFile
     * @return true means to follow the execution.
     */
-  def checkConsistencyConfigurationXml(sources: Seq[GMQLSource], loadEnabled:Boolean, transformEnabled: Boolean): Boolean ={
+  def checkConsistencyConfigurationXml(sources: Seq[GMQLSource], loadEnabled: Boolean, transformEnabled: Boolean): Boolean = {
     //check metadata replacement
-    if(transformEnabled)
-    sources.foreach(source =>{
-      if(source.transformEnabled && source.parameters.exists(_._1=="metadata_replacement"))
+    if (transformEnabled)
+      sources.foreach(source => {
+        if (source.transformEnabled && source.parameters.exists(_._1 == "metadata_replacement"))
         //They are already forbidding to create new dataset with the same name.
-          source.parameters.filter(_._1=="metadata_replacement").foreach(file =>{
-          val replacements = (XML.loadFile(source.rootOutputFolder+File.separator+file._2)\\"replace").map(_.text.replace(' ','_').toLowerCase)
-          replacements.map(replacement => {
-            (replacement,replacements.count(_==replacement))
-          }).filter(_._2>1).foreach(fail =>{
-            logger.warn(file._2+" has "+fail._2+" replacements that have the same output: "+fail._1+
-              ".\nWould you like to continue anyway? (Y/n):")
-            // readLine lets you prompt the user and read their input as a String
-            scala.Console.flush()
-            val input = scala.Console.in.readLine()
-//            val input = scala.io.StdIn.readLine()
-            if(input.toLowerCase == "n")
-              return false
+          source.parameters.filter(_._1 == "metadata_replacement").foreach(file => {
+            val replacements = (XML.loadFile(source.rootOutputFolder + File.separator + file._2) \\ "replace").map(_.text.replace(' ', '_').toLowerCase)
+            replacements.map(replacement => {
+              (replacement, replacements.count(_ == replacement))
+            }).filter(_._2 > 1).foreach(fail => {
+              logger.warn(file._2 + " has " + fail._2 + " replacements that have the same output: " + fail._1 +
+                ".\nWould you like to continue anyway? (Y/n):")
+              // readLine lets you prompt the user and read their input as a String
+              scala.Console.flush()
+              val input = scala.Console.in.readLine()
+              //            val input = scala.io.StdIn.readLine()
+              if (input.toLowerCase == "n")
+                return false
+            })
           })
-        })
-      if(loadEnabled)
-      source.datasets.filter(_.loadEnabled && source.loadEnabled).foreach(dataset =>{
-        val datasetName =
-          if(dataset.parameters.exists(_._1=="loading_name"))
-            dataset.parameters.filter(_._1=="loading_name").head._2
-          else
-            source.name + "_" + dataset.name
+        if (loadEnabled)
+          source.datasets.filter(_.loadEnabled && source.loadEnabled).foreach(dataset => {
+            val datasetName =
+              if (dataset.parameters.exists(_._1 == "loading_name"))
+                dataset.parameters.filter(_._1 == "loading_name").head._2
+              else
+                source.name + "_" + dataset.name
+          })
       })
-    })
     true
   }
 
   /**
     * from xmlConfigPath loads the sources there defined. All folder paths defined inside sources and
     * datasets are referred from the base root output folder (working directory).
+    *
     * @param xmlConfigPath xml configuration file location
     * @return Seq of sources with their respective datasets and settings.
     */
-  def loadSources(xmlConfigPath: String): Seq[GMQLSource]={
+  def loadSources(xmlConfigPath: String): Seq[GMQLSource] = {
     val file: Elem = XML.loadFile(xmlConfigPath)
     val outputFolder = (file \\ "settings" \ "base_working_directory").text
     //load sources
-    val sources = (file \\ "source_list" \ "source").map(source => {
-      GMQLSource(
+    val sources = (file \\ "source_list" \ "source").map { source =>
+      val gmqlSource = GMQLSource(
         (source \ "@name").text,
         (source \ "url").text,
         outputFolder + File.separator + (source \ "source_working_directory").text,
@@ -455,7 +467,7 @@ object program {
         if ((source \ "load_enabled").text.toLowerCase == "true") true else false,
         (source \ "loader").text,
         (source \ "parameter_list" \ "parameter").map(parameter => {
-          ((parameter \ "key").text, (parameter \ "value").text,(parameter \ "description").text, (parameter \ "type").text)
+          ((parameter \ "key").text, (parameter \ "value").text, (parameter \ "description").text, (parameter \ "type").text)
         }),
         (source \ "dataset_list" \ "dataset").map(dataset => {
           GMQLDataset(
@@ -467,12 +479,14 @@ object program {
             if ((dataset \ "transform_enabled").text.toLowerCase == "true") true else false,
             if ((dataset \ "load_enabled").text.toLowerCase == "true") true else false,
             (dataset \ "parameter_list" \ "parameter").map(parameter => {
-              ((parameter \ "key").text, (parameter \ "value").text,(parameter \ "description").text , (parameter \ "type").text)
+              ((parameter \ "key").text, (parameter \ "value").text, (parameter \ "description").text, (parameter \ "type").text)
             })
           )
         })
       )
-    })
+      gmqlSource.datasets.foreach(_.source = gmqlSource)
+      gmqlSource
+    }
     sources
   }
 }

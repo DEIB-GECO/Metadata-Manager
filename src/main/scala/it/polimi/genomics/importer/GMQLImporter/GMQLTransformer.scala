@@ -23,6 +23,7 @@ trait GMQLTransformer {
 
   /**
     * by receiving an original filename returns the new GDM candidate name(s).
+    * The region file must be before than related meta file
     * @param filename original filename
     * @param dataset dataset where the file belongs to
     * @param source source where the files belong to.

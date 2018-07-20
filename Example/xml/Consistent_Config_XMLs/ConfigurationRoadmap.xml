@@ -3,7 +3,7 @@
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/home/hduser/gmql_importer/</base_working_directory>
-        <download_enabled>true</download_enabled>
+        <download_enabled>false</download_enabled>
         <transform_enabled>true</transform_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
