@@ -89,7 +89,7 @@ object Cleaner {
                 val fileId = FileDatabase.fileId(datasetId, inputFilePath, STAGE.CLEAN, originalFileName)
 
                 if (inputFilePath.endsWith(".meta") && ruleBasePathOpt.isDefined) {
-                  ruleBasePathOpt.get.applyRBFile(inputFilePath, outFilePath)
+                  ruleBasePathOpt.get.applyRBToFile(inputFilePath, outFilePath)
                 } else {
                   createSymbolicLink(inputFilePath, outFilePath)
                 }

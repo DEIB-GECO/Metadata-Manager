@@ -14,7 +14,7 @@ import it.polimi.genomics.importer.cleaner.Rule.simulateRule
 class RuleBase(rules_file: String) {
   val rulesList = readRules(rules_file)
 
-  def applyRBFile(fileIn: String, fileOut: String): Unit = {
+  def applyRBToFile(fileIn: String, fileOut: String): Unit = {
     val input_file = new File(fileIn)
 
     try {
@@ -116,9 +116,11 @@ object RuleBase {
           //visualization of new rule application simulation
           if (temp_keys_new_rule.nonEmpty) {
             println("The proposed rule applies to the following " + temp_keys_new_rule.size + " keys: ")
-            println("%70s\t%70s\t%50s\n".format("Key before", "Key after", "Applied rule"))
+            //println("%70s\t%70s\t%50s\n".format("Key before", "Key after", "Applied rule"))
             for (t <- temp_keys_new_rule) {
-              println("%70s\t%70s\t%50s\n".format(t._1, t._2, t._3))
+              //println("%70s\t%70s\t%50s\n".format(t._1, t._2, t._3))
+              println(getSeenKeysLine(t))
+              //print("Key before: " + t._1 + ",\tKey after: " + t._2 + ",\tApplied rule: " + t._3 + "\n")
             }
             print("\nPress y (yes) to accept rule, n (no) to reject it: ")
 
@@ -175,7 +177,8 @@ object RuleBase {
     (temp_keys_rb, temp_keys_new_rule)
   }
 
-  def applyRB(rules_file: String, dirIn: String, dirOut: String): Unit = {
+  //not used anymore: old method applied to directories instead of single files
+  /*def applyRB(rules_file: String, dirIn: String, dirOut: String): Unit = {
 
     val rulesList = readRules(rules_file)
     val input_files = Utils.getListOfFiles(new File(dirIn))
@@ -215,7 +218,7 @@ object RuleBase {
         e.printStackTrace()
     }
 
-  }
+  }*/
 
 
 }

@@ -7,7 +7,7 @@ object Utils {
   def getListOfFiles(dir: File): Array[File] = {
     val filesList = dir.listFiles
     val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfFiles)
-    res.filter(_.getName.endsWith(".meta"))
+    res.filter(_.getName.contains(".bed.meta"))
   }
 
   def buildRulePair(input_string: String): (String, String) = {

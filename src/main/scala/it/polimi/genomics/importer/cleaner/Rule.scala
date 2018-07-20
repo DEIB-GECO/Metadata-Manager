@@ -56,13 +56,13 @@ object Rule {
 
     if (key.matches(r.antecedent)) {
       try {
-        if (r.consequent.equals("NULL"))
-          Some(key.replaceAll(r.antecedent, "NULL"))
+        if (r.consequent.equals(""))
+          Some(key.replaceAll(r.antecedent, ""))
         else
           Some(key.replaceAll(r.antecedent, r.consequent))
       }
       catch {
-        case e: Exception => println("it.polimi.rulebasegen.Rule has wrong syntax!"); throw e
+        case e: Exception => println("Rule has wrong syntax!"); throw e
       }
     }
     else
