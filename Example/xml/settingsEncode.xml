@@ -165,7 +165,7 @@
         </mapping>
         <mapping>
             <source_key>file__md5sum</source_key>
-            <global_key>md5</global_key>
+            <global_key>checksum</global_key>
         </mapping>
         <mapping method="MANUALLY">
             <source_key>https://www.encodeproject.org</source_key>
