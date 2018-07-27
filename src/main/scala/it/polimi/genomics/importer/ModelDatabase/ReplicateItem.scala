@@ -14,10 +14,11 @@ trait ReplicateItem extends Table{
 
   _foreignKeysTables = List("ITEMS","REPLICATES")
 
-  override def insertRow(): Unit ={
+  override def insertRow(): Int ={
     if(this.checkInsert()) {
       this.insert
     }
+    -100
   }
 
   override def insert() : Int ={

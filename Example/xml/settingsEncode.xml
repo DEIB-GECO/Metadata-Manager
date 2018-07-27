@@ -1,5 +1,34 @@
 <?xml version="1.0" ?>
 <root>
+    <table name="DATASETS">
+        <mapping method="PREDEFINED">
+            <source_key>dataset_name</source_key>
+            <global_key>name</global_key>
+        </mapping>
+
+        <mapping>
+            <source_key>file__output_type</source_key> <!--peaks-->
+            <global_key>dataType</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__file_format_type</source_key> <!--narrowPeak, broadPeak-->
+            <global_key>format</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__assembly</source_key>
+            <global_key>assembly</global_key>
+        </mapping>
+        <mapping method="MANUALLY">
+            <source_key>false</source_key>
+            <global_key>isAnn</global_key>
+        </mapping>
+        <mapping method="MANUALLY">
+            <source_key>null</source_key>
+            <global_key>annotation</global_key>
+        </mapping>
+
+
+    </table>
     <table name="DONORS">
         <mapping>
             <source_key>replicates__X__library__biosample__donor__accession</source_key>
@@ -9,7 +38,7 @@
             <source_key>replicates__X__library__biosample__donor__organism__scientific_name</source_key>
             <global_key>species</global_key>
         </mapping>
-        <mapping>
+        <mapping method="DATETODAYS">
             <source_key>replicates__X__library__biosample__age_display</source_key>
             <global_key>age</global_key>
         </mapping>
@@ -32,7 +61,7 @@
             <global_key>types</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__biosample_type</source_key>
+            <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
             <global_key>tissue</global_key>
         </mapping>
         <mapping>
@@ -75,7 +104,7 @@
             <source_key>file__replicate__experiment__target__investigated_as</source_key>
             <global_key>feature</global_key>
         </mapping>
-        <mapping method="CHECK-PREC">
+        <mapping method="CHECKPREC">
             <source_key>target__investigated_as</source_key>
             <global_key>feature</global_key>
         </mapping>
@@ -97,71 +126,46 @@
         </mapping>
     </table>
     <table name="PROJECTS">
-             <mapping method="MANUALLY">
-                <source_key>ENCODE</source_key>
-                <global_key>projectName</global_key>
-            </mapping>
-            <mapping>
-                <source_key>award__project</source_key>
-                <global_key>programName</global_key>
-            </mapping>
-        </table>
-        <table name="CASES">
-            <mapping>
-                <source_key>accession</source_key>
-                <global_key>sourceId</global_key>
-            </mapping>
-            <mapping method="REMOVE-SUB" sub_character="-" new_character=" " rem_character="/*labs">
-                <source_key>submitted_by__lab</source_key>
-                <global_key>sourceSite</global_key>
-            </mapping>
-            <mapping>
-                <source_key>dbxrefs</source_key>
-                <global_key>externalRef</global_key>
-            </mapping>
-        </table>
-        <table name="CONTAINERS">
-            <mapping method="SUB-CONCAT" sub_character=" " new_character="_" concat_character="_">
-                <source_key>file__assembly</source_key>
-                <global_key>name</global_key>
-            </mapping>
-            <mapping method="SUB-CONCAT" sub_character=" " new_character="_" concat_character="_">
-                <source_key>award__project</source_key>
-                <global_key>name</global_key>
-            </mapping>
-            <mapping method="SUB-REMOVE-CONCAT" rem_character="Peak" sub_character=" " new_character="_" concat_character="_">
-                <source_key>file__file_format_type</source_key>
-                <global_key>name</global_key>
-            </mapping>
-            <mapping>
-                <source_key>file__assembly</source_key>
-                <global_key>assembly</global_key>
-            </mapping>
-            <mapping method="MANUALLY">
-                <source_key>false</source_key>
-                <global_key>isAnn</global_key>
-            </mapping>
-            <mapping method="MANUALLY">
-                <source_key>null</source_key>
-                <global_key>annotation</global_key>
-            </mapping>
+        <mapping method="MANUALLY">
+            <source_key>ENCODE</source_key>
+            <global_key>projectName</global_key>
+        </mapping>
+        <mapping>
+            <source_key>award__project</source_key>
+            <global_key>programName</global_key>
+        </mapping>
     </table>
+    <table name="CASES">
+        <mapping>
+            <source_key>accession</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="REMOVE-SUB" sub_character="-" new_character=" " rem_character="/*labs">
+            <source_key>submitted_by__lab</source_key>
+            <global_key>sourceSite</global_key>
+        </mapping>
+        <mapping>
+            <source_key>dbxrefs</source_key>
+            <global_key>externalRef</global_key>
+        </mapping>
+    </table>
+
     <table name="ITEMS">
         <mapping>
             <source_key>file__accession</source_key>
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>file__output_type</source_key>
-            <global_key>dataType</global_key>
-        </mapping>
-        <mapping>
-            <source_key>file__file_format_type</source_key>
-            <global_key>format</global_key>
-        </mapping>
-        <mapping>
             <source_key>file__file_size</source_key>
             <global_key>size</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__date_created</source_key>
+            <global_key>date</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__md5sum</source_key>
+            <global_key>checksum</global_key>
         </mapping>
         <mapping method="MANUALLY">
             <source_key>https://www.encodeproject.org</source_key>
@@ -171,5 +175,23 @@
             <source_key>file__href</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
-      </table>
+
+        <mapping method="MANUALLY">
+            <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="PREDEFINED-CONCAT" concat_character="">
+            <source_key>dataset_name</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="/">
+            <source_key>file__accession</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="MANUALLY-CONCAT" concat_character="">
+            <source_key>/region</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+
+    </table>
   </root>

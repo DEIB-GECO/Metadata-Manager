@@ -49,9 +49,9 @@ trait Donor extends Table{
     try {
       table match {
         case bioSample: BioSample => {
-          if (bioSample.types.equals("tissue") && this.sourceId == null) {
+          if (bioSample.types != null && bioSample.types.equals("tissue") && this.sourceId == null) {
             Statistics.constraintsViolated += 1
-            this.logger.warn("Donor constrains violated")
+            this.logger.warn("Donor constraints violated")
             false
           }
           else

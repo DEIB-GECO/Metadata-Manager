@@ -3,7 +3,7 @@ package it.polimi.genomics.importer.ModelDatabase.Encode
 import exceptions.NoTableNameException
 import it.polimi.genomics.importer.ModelDatabase.Encode.Table._
 import it.polimi.genomics.importer.ModelDatabase.Utils.Statistics
-import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Dataset, Donor, ExperimentType, Item, Project, Replicate, Table, Tables}
+import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Dataset, Donor, ExperimentType, Item, Project, Replicate, Pair, Table, Tables}
 import org.apache.log4j.Logger
 
 
@@ -41,6 +41,7 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
       case Items => return new ItemEncode(encodeTableId)
       case CasesItems => return new CaseItemEncode(encodeTableId)
       case ReplicatesItems => return new ReplicateItemEncode(encodeTableId)
+      case Pairs => return new Pair
       case _ => throw new NoTableNameException(value.toString)
     }
   }

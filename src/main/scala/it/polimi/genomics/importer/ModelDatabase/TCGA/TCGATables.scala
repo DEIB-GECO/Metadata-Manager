@@ -1,12 +1,11 @@
 package it.polimi.genomics.importer.ModelDatabase.TCGA
 
 import exceptions.NoTableNameException
-import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
 import it.polimi.genomics.importer.ModelDatabase.TCGA.Table._
-import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Dataset, Donor, ExperimentType, Item, Project, Replicate, Table, Tables}
+import it.polimi.genomics.importer.ModelDatabase.{BioSample, Case, Dataset, Donor, ExperimentType, Item, Pair, Project, Replicate, Table, Tables}
 import org.apache.log4j.Logger
 
-class TCGATables extends Tables{
+class TCGATables extends Tables {
 
   this.logger = Logger.getLogger(this.getClass)
 
@@ -22,12 +21,12 @@ class TCGATables extends Tables{
       case Items => new ItemTCGA
       case CasesItems => new CaseItemTCGA
       case ReplicatesItems => new ReplicateItemTCGA
+      case Pairs => return new Pair
       case _ => throw new NoTableNameException(value.toString)
     }
   }
 
   override def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item) = {
-    val encodeTableId: EncodeTableId = new EncodeTableId
     return (new DonorTCGA(), new BioSampleTCGA(), new ReplicateTCGA(), new CaseTCGA(),
       new DatasetTCGA(), new ExperimentTypeTCGA(), new ProjectTCGA(), new ItemTCGA())
   }

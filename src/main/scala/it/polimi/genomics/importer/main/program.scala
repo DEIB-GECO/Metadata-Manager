@@ -3,14 +3,17 @@ package it.polimi.genomics.importer.main
 import java.io.File
 
 import it.polimi.genomics.importer.FileDatabase.FileDatabase
+import it.polimi.genomics.importer.GMQLImporter.ExecutionLevel.ExecutionLevel
 import it.polimi.genomics.importer.GMQLImporter._
-import it.polimi.genomics.importer.GMQLImporter.utils.SCHEMA_LOCATION
+import it.polimi.genomics.importer.GMQLImporter.utils.{ParameterUtil, SCHEMA_LOCATION}
 import it.polimi.genomics.repository.Utilities
 import org.apache.log4j._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
 import scala.xml.{Elem, XML}
+import ExecutionLevel._
+
 
 /**
   * Handles the execution of the GMQLImporter, gets the arguments and process them.
@@ -140,6 +143,7 @@ object program {
 
         val file: Elem = XML.loadFile(xmlConfigPath)
         val outputFolder = (file \\ "settings" \ "base_working_directory").text
+        ParameterUtil.gcmConfigFile = (file \\ "settings" \ "gcm_config_file").text
 
         //start database
         FileDatabase.setDatabase(outputFolder)
@@ -201,7 +205,7 @@ object program {
     //general settings
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
-        "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/master/Example/xml/configurationSchema.xsd"
+        "Example/xml/configurationSchema.xsd"
       if (schemaValidator.validate(xmlConfigPath, schemaUrl)) {
 
         logger.info("Xml file is valid for the schema")
@@ -212,6 +216,16 @@ object program {
           if ("true".equalsIgnoreCase((file \\ "settings" \ "download_enabled").text)) true else false
         val transformEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "transform_enabled").text)) true else false
+
+        val cleanerEnabled =
+          if ("true".equalsIgnoreCase((file \\ "settings" \ "cleaner_enabled").text)) true else false
+        val mapperEnabled =
+          if ("true".equalsIgnoreCase((file \\ "settings" \ "mapper_enabled").text)) true else false
+        val enricherEnabled =
+          if ("true".equalsIgnoreCase((file \\ "settings" \ "enricher_enabled").text)) true else false
+        val flattenerEnabled =
+          if ("true".equalsIgnoreCase((file \\ "settings" \ "flattener_enabled").text)) true else false
+
         val loadEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "load_enabled").text)) true else false
         val parallelExecution =
@@ -277,71 +291,22 @@ object program {
             })
           })
 
-          val downloadThreads = sources.filter(_.downloadEnabled && downloadEnabled).map(source => {
-            new Thread {
-              override def run(): Unit = {
-                val t0Source = System.nanoTime()
-                if (!retryDownload) {
-                  logger.info(s"Starting download for ${source.name}")
-                  Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source, parallelExecution)
-                  logger.info(s"Download for ${source.name} Finished")
-                }
-                else {
-                  logger.info(s"Retrying failed downloads for ${source.name}")
-                  Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source, parallelExecution)
-                  logger.info(s"Download for ${source.name} Finished")
-                }
-                val t1Source = System.nanoTime()
-                logger.info(s"Total time download source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
-              }
-            }
-          })
-          val t0: Long = System.nanoTime()
-          if (parallelExecution) {
-            downloadThreads.foreach(_.start())
-            downloadThreads.foreach(_.join())
-          }
-          else
-            downloadThreads.foreach(thread => {
-              thread.start()
-              thread.join()
-            })
-          val t1 = System.nanoTime()
+
           if (downloadEnabled)
-            logger.info(s"Total time for downloads: ${getTotalTimeFormatted(t0, t1)}")
-
-
-          val integrateThreads = sources.filter(_.transformEnabled && transformEnabled).map(source => {
-            new Thread {
-              override def run(): Unit = {
-                val t0Source = System.nanoTime()
-                logger.info(s"Starting transformation for ${source.name}")
-                Transformer.integrate(source, parallelExecution)
-                logger.info(s"Transformation for ${source.name} Finished")
-                val t1Source = System.nanoTime()
-                logger.info(s"Total time transform source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
-              }
-            }
-          })
-          val t2: Long = System.nanoTime()
-          if (parallelExecution) {
-            integrateThreads.foreach(_.start())
-            integrateThreads.foreach(_.join())
-          }
-          else
-            integrateThreads.foreach(thread => {
-              thread.start()
-              thread.join()
-            })
-          val t3 = System.nanoTime()
+            executeDownload(sources, parallelExecution, retryDownload)
           if (transformEnabled)
-            logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2, t3)}")
+            executeLevel(sources, Transform, parallelExecution)
+          if (cleanerEnabled)
+            executeLevel(sources, Clean, parallelExecution)
 
-          sources.filter(_.loadEnabled && loadEnabled).foreach(source => {
-            logger.info(s"Starting load for ${source.name}")
-            Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
-            logger.info(s"Loading for ${source.name} Finished")
-          })
+
+          if (loadEnabled) {
+            sources.filter(_.loadEnabled && loadEnabled).foreach(source => {
+              logger.info(s"Starting load for ${source.name}")
+              Class.forName(source.loader).newInstance.asInstanceOf[GMQLLoader].loadIntoGMQL(source)
+              logger.info(s"Loading for ${source.name} Finished")
+            })
+          }
           val t4: Long = System.nanoTime()
           sources.foreach(source => {
             val t0Source = System.nanoTime()
@@ -398,6 +363,69 @@ object program {
     }
     else
       logger.warn(xmlConfigPath + " does not exist")
+  }
+
+
+  def executeDownload(sources: Seq[GMQLSource], parallelExecution: Boolean, retryDownload: Boolean) = {
+    val downloadThreads = sources.filter(_.downloadEnabled).map(source => {
+      new Thread {
+        override def run(): Unit = {
+          val t0Source = System.nanoTime()
+          if (!retryDownload) {
+            logger.info(s"Starting download for ${source.name}")
+            Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].download(source, parallelExecution)
+            logger.info(s"Download for ${source.name} Finished")
+          }
+          else {
+            logger.info(s"Retrying failed downloads for ${source.name}")
+            Class.forName(source.downloader).newInstance.asInstanceOf[GMQLDownloader].downloadFailedFiles(source, parallelExecution)
+            logger.info(s"Download for ${source.name} Finished")
+          }
+          val t1Source = System.nanoTime()
+          logger.info(s"Total time download source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
+        }
+      }
+    })
+    val t0: Long = System.nanoTime()
+    if (parallelExecution) {
+      downloadThreads.foreach(_.start())
+      downloadThreads.foreach(_.join())
+    }
+    else
+      downloadThreads.foreach(thread => {
+        thread.start()
+        thread.join()
+      })
+    val t1 = System.nanoTime()
+    logger.info(s"Total time for downloads: ${getTotalTimeFormatted(t0, t1)}")
+
+  }
+
+  def executeLevel(sources: Seq[GMQLSource], level: ExecutionLevel, parallelExecution: Boolean): Unit = {
+    val integrateThreads = sources.filter(_.isEnabled(level)).map(source => {
+      new Thread {
+        override def run(): Unit = {
+          val t0Source = System.nanoTime()
+          logger.info(s"Starting $level for ${source.name}")
+          Executable.getLevelExecutable(level).execute(source, parallelExecution)
+          logger.info(s"$level for ${source.name} Finished")
+          val t1Source = System.nanoTime()
+          logger.info(s"Total time $level source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
+        }
+      }
+    })
+    val t2: Long = System.nanoTime()
+    if (parallelExecution) {
+      integrateThreads.foreach(_.start())
+      integrateThreads.foreach(_.join())
+    }
+    else
+      integrateThreads.foreach(thread => {
+        thread.start()
+        thread.join()
+      })
+    val t3 = System.nanoTime()
+    logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2, t3)}")
   }
 
   /**
@@ -481,7 +509,11 @@ object program {
               ((parameter \ "key").text, (parameter \ "value").text, (parameter \ "description").text, (parameter \ "type").text)
             })
           )
-        })
+        }),
+        if ((source \ "cleaner_enabled").text.toLowerCase == "true") true else false,
+        if ((source \ "mapper_enabled").text.toLowerCase == "true") true else false,
+        if ((source \ "enricher_enabled").text.toLowerCase == "true") true else false,
+        if ((source \ "flattener_enabled").text.toLowerCase == "true") true else false
       )
       gmqlSource.datasets.foreach(_.source = gmqlSource)
       gmqlSource

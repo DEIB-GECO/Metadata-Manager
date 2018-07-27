@@ -44,11 +44,12 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
       }
       this.primaryKeys_(id)
       val replicateKey: String = bioReplicateNumList(this.actualPosition).toString() + "_" + techReplicateNumList(this.actualPosition).toString()
-      encodeTableId.replicateMap_(replicateKey,id)
+      repTableId.replicateMap_(replicateKey,id)
     })
   }*/
 
-  override def insertRow(): Unit ={
+  override def insertRow(): Int ={
+    var id: Int = 0
     this.sourceIdList.map(source=>{
       Statistics.replicateInsertedOrUpdated += 1
       this.actualPosition = sourceIdList.indexOf(source)
@@ -63,6 +64,7 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
       val replicateKey: String = bioReplicateNumList(this.actualPosition).toString() + "_" + techReplicateNumList(this.actualPosition).toString()
       encodeTableId.replicateMap_(replicateKey,id)
     })
+    id
   }
 
   override def insert(): Int = {

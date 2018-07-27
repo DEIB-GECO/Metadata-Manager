@@ -21,12 +21,13 @@ class ReplicateItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(enco
   }
 
 
-  override def insertRow(): Unit ={
+  override def insertRow(): Int = {
     this.replicateIdList.map(replicate=>{
       this.actualPosition = replicateIdList.indexOf(replicate)
       if(this.checkInsert()) {
         this.insert()
       }})
+    -100
   }
 
   def insRow(): Unit = {

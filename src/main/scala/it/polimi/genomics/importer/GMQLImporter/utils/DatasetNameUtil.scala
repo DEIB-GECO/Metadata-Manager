@@ -6,7 +6,7 @@ import it.polimi.genomics.importer.GMQLImporter.GMQLDataset
 
 import scala.io.Source
 
-object DatasetName {
+object DatasetNameUtil {
 
   def datasetFile(dataset: GMQLDataset) = dataset.fullDatasetOutputFolder + File.separator + "dataset_name.txt"
 

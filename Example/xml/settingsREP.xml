@@ -1,0 +1,176 @@
+<?xml version="1.0" ?>
+<root>
+    <table name="DONORS">
+        <mapping>
+            <source_key>epi__donor_id__X</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="MANUALLY">
+            <source_key>Homo sapiens</source_key>
+            <global_key>species</global_key>
+        </mapping>
+        <mapping method="WEEKSTODAYS">
+            <source_key>epi__age_weeks__X</source_key>
+            <global_key>age</global_key>
+        </mapping>
+        <mapping>
+            <source_key>epi__sex</source_key>
+            <global_key>gender</global_key>
+        </mapping>
+        <mapping>
+            <source_key>epi__ethnicity__X</source_key>
+            <global_key>ethnicity</global_key>
+        </mapping>
+    </table>
+    <table name="BIOSAMPLES">
+        <mapping>
+            <source_key>epi__sample_alias__X</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>epi__type</source_key>
+            <global_key>types</global_key>
+        </mapping>
+        <mapping>
+            <source_key>epi__standardized_epigenome_name</source_key>
+            <global_key>cellLine</global_key>
+        </mapping>
+        <mapping>
+            <source_key>epi__standardized_epigenome_name</source_key>
+            <global_key>tissue</global_key>
+        </mapping>
+
+    <!--    <mapping method="MANUALLY">
+            <source_key>null</source_key>
+            <global_key>isHealthy</global_key>
+        </mapping> -->
+   <!--     <mapping method="MANUALLY">
+            <source_key>null</source_key>
+            <global_key>disease</global_key>
+        </mapping>-->
+    </table>
+    <table name="REPLICATES">
+        <mapping>
+            <source_key>epi__sample_alias__X</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="MANUALLY">
+            <source_key>1</source_key>
+            <global_key>bioReplicateNum</global_key>
+        </mapping>
+        <mapping method="MANUALLY">
+            <source_key>1</source_key>
+            <global_key>techReplicateNum</global_key>
+        </mapping>
+    </table>
+    <table name="EXPERIMENTSTYPE">
+        <mapping>
+            <source_key>manually_curated__data_type</source_key>
+            <global_key>technique</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__feature</source_key>
+            <global_key>feature</global_key>
+        </mapping>
+        <mapping>
+            <source_key>exp__mark</source_key>
+            <global_key>target</global_key>
+        </mapping>
+    <!--    <mapping method="MANUALLY">
+            <source_key>null</source_key>
+            <global_key>antibody</global_key>
+        </mapping>-->
+    </table>
+    <table name="PROJECTS">
+        <mapping method="MANUALLY">
+            <source_key>Consolidated Epigenome</source_key>
+            <global_key>projectName</global_key>
+        </mapping>
+        <mapping method="MANUALLY">
+            <source_key>Roadmap Epigenomics</source_key>
+            <global_key>programName</global_key>
+        </mapping>
+    </table>
+    <table name="CASES">
+        <mapping>
+            <source_key>manually_curated__file_id</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>epi__lab</source_key>
+            <global_key>sourceSite</global_key>
+        </mapping>
+        <mapping method="MANUALLY">
+            <source_key>https://www.nature.com/articles/nature14248</source_key>
+            <global_key>externalRef</global_key>
+        </mapping>
+    </table>
+    <table name="DATASETS">
+        <mapping method="PREDEFINED">
+            <source_key>dataset_name</source_key>
+            <global_key>name</global_key>
+        </mapping>
+        <!--    <mapping method="MANUALLY">
+                <source_key>null</source_key>
+                <global_key>dataType</global_key>
+            </mapping>-->
+            <mapping>
+                <source_key>manually_curated__format</source_key>
+                <global_key>format</global_key>
+            </mapping>
+            <mapping>
+                <source_key>manually_curated__assembly</source_key>
+                <global_key>assembly</global_key>
+            </mapping>
+            <mapping method="MANUALLY">
+                <source_key>false</source_key>
+                <global_key>isAnn</global_key>
+            </mapping>
+        <!--      <mapping method="MANUALLY">
+                  <source_key>null</source_key>
+                  <global_key>annotation</global_key>
+              </mapping> -->
+          </table>
+          <table name="ITEMS">
+              <mapping>
+                  <source_key>manually_curated__file_id</source_key>
+                  <global_key>sourceId</global_key>
+              </mapping>
+              <mapping>
+                  <source_key>manually_curated__file_size</source_key>
+                  <global_key>size</global_key>
+              </mapping>
+
+          <!--    <mapping method="MANUALLY">
+                  <source_key>null</source_key>
+                  <global_key>platform</global_key>
+              </mapping> -->
+              <mapping>
+                  <source_key>manually_curated__peak_caller</source_key>
+                  <global_key>pipeline</global_key>
+              </mapping>
+
+              <mapping>
+                  <source_key>manually_curated__data_url</source_key>
+                  <global_key>sourceUrl</global_key>
+              </mapping>
+
+              <mapping method="MANUALLY">
+                  <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
+                  <global_key>localUrl</global_key>
+              </mapping>
+              <mapping method="PREDEFINED-CONCAT" concat_character="">
+                  <source_key>dataset_name</source_key>
+                  <global_key>localUrl</global_key>
+              </mapping>
+              <mapping method="CONCAT" concat_character="/">
+                  <source_key>manually_curated__file_id</source_key>
+                  <global_key>localUrl</global_key>
+              </mapping>
+              <mapping method="MANUALLY-CONCAT" concat_character="">
+                  <source_key>/region</source_key>
+                  <global_key>localUrl</global_key>
+              </mapping>
+
+          </table>
+      </root>

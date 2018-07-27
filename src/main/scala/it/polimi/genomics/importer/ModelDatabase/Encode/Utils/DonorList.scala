@@ -1,12 +1,14 @@
 package it.polimi.genomics.importer.ModelDatabase.Encode.Utils
 
 import it.polimi.genomics.importer.ModelDatabase.Encode.EncodeTableId
+import it.polimi.genomics.importer.RemoteDatabase.DbHandler.conf
 
 import scala.collection.mutable.ListBuffer
 
 class DonorList(lines: Array[String], encodesTableId: EncodeTableId){
 
-  private val r = "replicates__(\\d)+__library__biosample__accession".r
+  private val r = conf.getString("import.encode_biosample_accession_pattern").r
+  //private val r = "replicates__(\\d)+__library__biosample__accession".r
 
   private var _list = new ListBuffer[String]()
 

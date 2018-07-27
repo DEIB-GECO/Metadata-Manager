@@ -166,6 +166,14 @@
         </dependency>
 
 
+        <!-- https://mvnrepository.com/artifact/com.github.tototoshi/scala-csv -->
+        <dependency>
+            <groupId>dk.brics.automaton</groupId>
+            <artifactId>automaton</artifactId>
+            <version>1.11-8</version>
+        </dependency>
+
+
 
         <!--<dependency>-->
             <!--<groupId>org.scala-lang</groupId>-->

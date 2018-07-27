@@ -18,13 +18,17 @@ trait Item extends Table{
 
   var size : Long = _
 
+  var date : String = _
+
+  var checksum : String = _
+
   var pipeline : String = _
 
   var platform : String =_
 
   var sourceUrl : String = _
 
-//  var localUrl : String = _
+  var localUrl : String = _
 
   _hasForeignKeys = true
 
@@ -36,21 +40,20 @@ trait Item extends Table{
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.platform,this.pipeline,this.sourceUrl)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
     Statistics.itemUpdated += 1
-    return id
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -103,7 +106,7 @@ trait Item extends Table{
 //    }
 //  }
 
-  def convertTo(values: Seq[(Int, Int, Int, String, Option[Long], Option[String], Option[String], Option[String])]): Unit = {
+  def convertTo(values: Seq[(Int, Int, Int, String, Option[Long], Option[String], Option[String], Option[String], Option[String])]): Unit = {
     try {
       this.checkValueLength(values)
       if (values.length > 1)
@@ -118,6 +121,7 @@ trait Item extends Table{
         if (value._6.isDefined) this.pipeline = value._6.get
         if (value._7.isDefined) this.platform = value._7.get
         if (value._8.isDefined) this.sourceUrl = value._8.get
+        if (value._9.isDefined) this.localUrl = value._9.get
       }
     } catch {
       case notTuple: NoTupleInDatabaseException => logger.error(s"Item: ${notTuple.message}")
@@ -133,6 +137,7 @@ trait Item extends Table{
     if(this.pipeline != null) write.append(getMessage(tableName, "pipeline", this.pipeline))
     if(this.platform != null) write.append(getMessage(tableName, "platform", this.platform))
     if(this.sourceUrl != null) write.append(getMessage(tableName, "source_url", this.sourceUrl))
+    if(this.localUrl != null) write.append(getMessage(tableName, "source_url", this.localUrl))
     flushAndClose(write)
   }
 

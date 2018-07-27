@@ -56,7 +56,7 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
             operations += app.toList
           })
         }
-        else{
+        else{ //REPLICATES
           for( position <- 0 to replicates.UuidList.length-1){
 
             var app = new ListBuffer[String]()
@@ -80,7 +80,7 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
         }
       }
     } catch {
-      case e: Exception => logger.warn(s"Source Key ${((x \ "mapping" \ "source_key").text)} doesn't find for table ${((x \ "@name").toString())}")
+      case e: Exception => logger.warn(s"Source Key ${((x \ "mapping" \ "source_key").text)} not found for table ${((x \ "@name").toString())}")
     }
   }
 

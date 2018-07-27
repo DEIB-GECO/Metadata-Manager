@@ -1,0 +1,51 @@
+epi__anatomy	ESC
+epi__auto_use_train	1
+epi__class	Class 1
+epi__color	#924965
+epi__core_plus_ac_plus_dnase_plus_13_class1_marks	1
+epi__core_plus_ac_plus_dnase_plus_9_class1_marks	1
+epi__donor_id	H9-01
+epi__epigenome_id	E008
+epi__epigenome_mnemonic	ESC.H9
+epi__epigenome_name_edacc_9	H9_Cell_Line
+epi__group	ESC
+epi__has_k27ac	1
+epi__lab	UCSD
+epi__manual_use_train	1
+epi__nreads_36bp_50m	50000000
+epi__order	3
+epi__pool_filenames_h4k5ac	UCSD.H9.H4K5ac.YL240.bed.gz;UCSD.H9.H4K5ac.SK282.bed.gz
+epi__quality_rating	1
+epi__sample_alias__1	H9-01
+epi__sample_alias__2	H9-02
+epi__sample_alias__3	H9-04
+epi__sex	Female
+epi__single_donor_or_composite	SD
+epi__standardized_epigenome_name	H9 Cells
+epi__train_core_plus_k27ac	0
+epi__type	PrimaryCulture
+epi__under_seq	1
+exp__correlation_of_imputed_with_observed	0.584
+exp__fcc	0.3956208485
+exp__findpeaks	0.04
+exp__fname	E008-H4K5ac.*
+exp__fraglen	100
+exp__mark	H4K5ac
+exp__mark_class	Class1
+exp__mincc	0.3722388
+exp__minlen	1500
+exp__perc_of_imputed_top_1_perc_in_observed_top_1_perc	24.9
+exp__poisson	0.31
+exp__rcc	0.3910983
+exp__rlen	30
+exp__spot	0.15
+manually_curated__assembly	hg19
+manually_curated__data_type	ChIP-seq
+manually_curated__data_url	http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/E008-H4K5ac.narrowPeak.gz
+manually_curated__feature	histone modification
+manually_curated__file_id	E008_H4K5ac.narrowPeak
+manually_curated__file_size	9188964
+manually_curated__format	narrowPeak
+manually_curated__life_stage	cell line
+manually_curated__metadata_url	https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
+manually_curated__peak_caller	MACS2

@@ -13,7 +13,6 @@ class DatasetEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTabl
     case "ASSEMBLY" => this.assembly = insertMethod(this.assembly,param)
     case "ISANN" => this.isAnn = if(insertMethod(this.isAnn.toString,param).equals("true")) true else false
     case "ANNOTATION" => this.annotation = insertMethod(this.annotation,param)
-    case "LOCALURL" => this.localUrl = {insertMethod(this.localUrl,param)}
     case _ => noMatching(dest)
   }
 
@@ -25,7 +24,7 @@ class DatasetEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTabl
           donorEncode.speciesArray.filter(donorSpecies => donorSpecies != null).foreach(donorSpecies =>{
             if(donorSpecies.toUpperCase().equals("HOMO SAPIENS") && !(this.assembly.equals("hg19") || this.assembly.equals("GRCh38"))) {
               Statistics.constraintsViolated += 1
-              this.logger.warn("Dataset species constrains violated")
+              this.logger.warn("Dataset species constraints violated")
               res = false
             }
           })

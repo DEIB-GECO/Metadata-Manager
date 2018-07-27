@@ -2,12 +2,16 @@ package it.polimi.genomics.importer.GMQLImporter
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
-import javax.xml.validation.{Validator=>JValidator}
+import javax.xml.validation.{Validator => JValidator}
+import org.apache.log4j.Logger
 import org.xml.sax.SAXException
 /**
   * Created by Nacho on 12/14/16.
   */
 object schemaValidator {
+  val logger: Logger = Logger.getLogger(this.getClass)
+
+
   /**
     * Checks with the corresponding schema the input xml file.
     * @param xmlFile Configuration xml file.
@@ -24,8 +28,12 @@ object schemaValidator {
       validator.validate(new StreamSource(xmlFile))
       true
     } catch {
-      case ex: SAXException =>  false
-      case ex: Exception =>  false
+      case ex: SAXException =>
+        logger.warn("SAXException", ex)
+        false
+      case ex: Exception =>
+        logger.warn("Exception", ex)
+        false
     }
   }
 }

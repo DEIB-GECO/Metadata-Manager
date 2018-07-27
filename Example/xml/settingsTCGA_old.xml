@@ -5,7 +5,7 @@
             <source_key>clinical__shared__bcr_patient_uuid</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping method="CHECK-PREC">
+        <mapping method="CHECKPREC">
             <source_key>biospecimen__shared__bcr_patient_uuid</source_key>
             <global_key>sourceId</global_key>
         </mapping>

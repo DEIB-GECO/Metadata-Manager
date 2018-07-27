@@ -1,5 +1,8 @@
 package it.polimi.genomics.importer.GMQLImporter
 
+import ExecutionLevel._
+
+
 /**
   * Created by Nacho on 10/13/16.
   * Information is a container for the info stored in the xml config
@@ -29,6 +32,24 @@ case class GMQLSource(
                         loadEnabled: Boolean,
                         loader:String,
                         parameters: Seq[(String,String,String,String)],
-                        datasets:Seq[GMQLDataset]
-                      ) {
+                        datasets:Seq[GMQLDataset],
+                        cleanerEnabled: Boolean,
+                        mapperEnabled: Boolean,
+                        enricherEnabled: Boolean,
+                        flattenerEnabled: Boolean
+                     ) {
+
+  def isEnabled(key:ExecutionLevel): Boolean = key match {
+    case Download => downloadEnabled
+    case Transform => transformEnabled
+    case Load => loadEnabled
+    case Clean => cleanerEnabled
+    case Map => mapperEnabled
+    case Enrich => enricherEnabled
+    case Flatten => flattenerEnabled
+    case _ => false
+  }
+
+
+
 }

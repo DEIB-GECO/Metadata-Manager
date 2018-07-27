@@ -1,0 +1,274 @@
+file__notes	{"software_versions": [{"version": "1.3.4", "software": "mawk"}, {"version": {"dnase-call-hotspots-alt": "2.0.2"}, "software": "DX applet"}, {"version": "v1", "software": "dnase_hotspot.sh"}, {"version": "v4", "software": "bedGraphToBigWig"}, {"version": "2.0", "software": "hotspot2"}, {"version": "2.4.19", "software": "bedops"}, {"version": "4.0.2", "software": "gawk"}, {"version": "1.2", "software": "samtools"}, {"version": "unversioned 0f4e1818", "software": "modwt"}, {"version": "2.6", "software": "bedToBigBed"}], "dx_project_name": "GRCh38/mm10 Production - Jason", "notes_version": "5", "dx-id": "file-F678fK80FPXQbjqY2VJbXZkk", "dx-createdBy": {"job": "job-F66xbVj0fF4V9x7j3f8B7fkV", "executable": "applet-F5fXx1j0fF4v9Z2x08kGPY49", "user": "user-jahilton"}, "dx_cost": "$1.12", "dx_project_id": "project-Bzq98Zj0fF4kbpBBV5ZFbPzg", "dx_analysis_id": "analysis-F66xbV80fF4V9x7j3f8B7fjp"}
+file__status	released
+file__output_category	annotation
+file__submitted_file_name	/DNase-seq/runs/GRCh38/ENCSR582IPV/reps1_1.2/ENCSR582IPV_rep1_2_rep1_1_se_bwa_biorep_filtered_hotspots.bed.gz
+file__no_file_available	false
+file__step_run	/analysis-step-runs/4a1ece89-5632-4496-afcb-15e64c60a8c7/
+file__title	ENCFF994EOL
+file__file_size	2388533
+file__date_created	2017-08-24T17:00:38.364787+00:00
+file__lab__title	ENCODE Processing Pipeline
+file__lab__uuid	a558111b-4c50-4b2e-9de8-73fd8fd3a67d
+file__lab__name	encode-processing-pipeline
+file__lab__awards	/awards/U41HG007000/
+file__lab__awards	/awards/U41HG006992/
+file__lab__country	USA
+file__lab__status	current
+file__lab__pi	/users/8b1f8780-b5d6-4fb7-a5a2-ddcec9054288/
+file__lab__schema_version	5
+file__lab__@id	/labs/encode-processing-pipeline/
+file__lab__@type	Lab
+file__lab__@type	Item
+file__file_format_specifications	/documents/f4e14cde-9ce2-49cf-a7aa-341d7811a463/
+file__@id	/files/ENCFF994EOL/
+file__content_md5sum	b70dd3b44e4dd19ae7bbb56ffc731bd4
+file__href	/files/ENCFF994EOL/@@download/ENCFF994EOL.bed.gz
+file__award	/awards/U41HG006992/
+file__md5sum	5ae226e2fd2d6384d5103f08b31282be
+file__uuid	358c2aeb-e7c6-4648-bd84-21d7d79f003a
+file__technical_replicates	1_1
+file__technical_replicates	1_2
+file__accession	ENCFF994EOL
+file__file_format	bed
+file__dataset	/experiments/ENCSR582IPV/
+file__schema_version	11
+file__file_format_type	broadPeak
+file__quality_metrics	/hotspot-quality-metrics/954565db-f419-4ff3-a592-8753c52ed0a1/
+file__assembly	GRCh38
+file__file_type	bed broadPeak
+file__submitted_by__lab	/labs/j-michael-cherry/
+file__submitted_by__@id	/users/332d0e03-a907-4f53-8358-bb00118277c8/
+file__submitted_by__title	Jason Hilton
+file__submitted_by__uuid	332d0e03-a907-4f53-8358-bb00118277c8
+file__submitted_by__@type	User
+file__submitted_by__@type	Item
+file__aliases	dnanexus:file-F678fK80FPXQbjqY2VJbXZkk
+file__biological_replicates	1
+file__output_type	hotspots
+file__@type	File
+file__@type	Item
+replicates__1__notes	{}
+replicates__1__aliases	john-stamatoyannopoulos:ENCSR582IPV-1-1
+replicates__1__library__notes	deep sequenced library
+replicates__1__library__nucleic_acid_term_id	SO:0000352
+replicates__1__library__status	released
+replicates__1__library__uuid	e7759b2f-dd8b-46ab-ba98-3034e1d8b9ae
+replicates__1__library__award	/awards/U54HG007010/
+replicates__1__library__accession	ENCLB099YIO
+replicates__1__library__dbxrefs	GEO:GSM2400403
+replicates__1__library__nucleic_acid_term_name	DNA
+replicates__1__library__date_created	2014-07-02T06:08:20.259634+00:00
+replicates__1__library__biosample__donor__uuid	e79a2cf9-5fe7-4047-a33f-8c9288621dfb
+replicates__1__library__biosample__donor__age_units	day
+replicates__1__library__biosample__donor__date_created	2014-04-03T17:30:24.599519+00:00
+replicates__1__library__biosample__donor__status	released
+replicates__1__library__biosample__donor__schema_version	11
+replicates__1__library__biosample__donor__external_ids	GEO:SAMN06044821
+replicates__1__library__biosample__donor__lab	/labs/john-stamatoyannopoulos/
+replicates__1__library__biosample__donor__@id	/human-donors/ENCDO662IIE/
+replicates__1__library__biosample__donor__sex	unknown
+replicates__1__library__biosample__donor__age	80
+replicates__1__library__biosample__donor__award	/awards/U54HG007010/
+replicates__1__library__biosample__donor__accession	ENCDO662IIE
+replicates__1__library__biosample__donor__life_stage	embryonic
+replicates__1__library__biosample__donor__organism__status	current
+replicates__1__library__biosample__donor__organism__taxon_id	9606
+replicates__1__library__biosample__donor__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicates__1__library__biosample__donor__organism__@id	/organisms/human/
+replicates__1__library__biosample__donor__organism__name	human
+replicates__1__library__biosample__donor__organism__scientific_name	Homo sapiens
+replicates__1__library__biosample__donor__organism__schema_version	4
+replicates__1__library__biosample__donor__organism__@type	Organism
+replicates__1__library__biosample__donor__organism__@type	Item
+replicates__1__library__biosample__donor__submitted_by	/users/d730c730-c7fa-4c98-a916-850edfad52a2/
+replicates__1__library__biosample__donor__aliases	roadmap-epigenomics:H-25386
+replicates__1__library__biosample__donor__aliases	john-stamatoyannopoulos:DI_H25386
+replicates__1__library__biosample__donor__@type	HumanDonor
+replicates__1__library__biosample__donor__@type	Donor
+replicates__1__library__biosample__donor__@type	Item
+replicates__1__library__biosample__source__uuid	29209a90-f26d-4982-b78a-0fe91357f594
+replicates__1__library__biosample__source__title	BDRL
+replicates__1__library__biosample__source__schema_version	5
+replicates__1__library__biosample__source__status	current
+replicates__1__library__biosample__source__@id	/sources/bdrl/
+replicates__1__library__biosample__source__name	bdrl
+replicates__1__library__biosample__source__description	Birth Defect Research Laboratory
+replicates__1__library__biosample__source__@type	Source
+replicates__1__library__biosample__source__@type	Item
+replicates__1__library__biosample__uuid	5b63de94-7c73-425e-af39-25c2945c76ca
+replicates__1__library__biosample__biosample_synonyms	pulmo
+replicates__1__library__biosample__biosample_synonyms	Entire lung
+replicates__1__library__biosample__organ_slims	lung
+replicates__1__library__biosample__documents	/documents/c6ceebb6-9a7a-4277-b7be-4a3c1ce1cfc6/
+replicates__1__library__biosample__date_created	2014-02-10T17:30:36.390416+00:00
+replicates__1__library__biosample__status	released
+replicates__1__library__biosample__schema_version	19
+replicates__1__library__biosample__sex	unknown
+replicates__1__library__biosample__lab	/labs/john-stamatoyannopoulos/
+replicates__1__library__biosample__biosample_term_name	lung
+replicates__1__library__biosample__@id	/biosamples/ENCBS964WZC/
+replicates__1__library__biosample__developmental_slims	endoderm
+replicates__1__library__biosample__age	80
+replicates__1__library__biosample__summary	Homo sapiens lung tissue embryo (80 days)
+replicates__1__library__biosample__award	/awards/U54HG007010/
+replicates__1__library__biosample__age_units	day
+replicates__1__library__biosample__biosample_term_id	UBERON:0002048
+replicates__1__library__biosample__accession	ENCBS964WZC
+replicates__1__library__biosample__life_stage	embryonic
+replicates__1__library__biosample__organism__status	current
+replicates__1__library__biosample__organism__taxon_id	9606
+replicates__1__library__biosample__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicates__1__library__biosample__organism__@id	/organisms/human/
+replicates__1__library__biosample__organism__name	human
+replicates__1__library__biosample__organism__scientific_name	Homo sapiens
+replicates__1__library__biosample__organism__schema_version	4
+replicates__1__library__biosample__organism__@type	Organism
+replicates__1__library__biosample__organism__@type	Item
+replicates__1__library__biosample__biosample_type	tissue
+replicates__1__library__biosample__system_slims	respiratory system
+replicates__1__library__biosample__age_display	80 day
+replicates__1__library__biosample__submitted_by__lab	/labs/john-stamatoyannopoulos/
+replicates__1__library__biosample__submitted_by__@id	/users/d730c730-c7fa-4c98-a916-850edfad52a2/
+replicates__1__library__biosample__submitted_by__title	Michael Buckley
+replicates__1__library__biosample__submitted_by__uuid	d730c730-c7fa-4c98-a916-850edfad52a2
+replicates__1__library__biosample__submitted_by__@type	User
+replicates__1__library__biosample__submitted_by__@type	Item
+replicates__1__library__biosample__aliases	john-stamatoyannopoulos:DS23983C
+replicates__1__library__biosample__dbxrefs	GEO:SAMN06044532
+replicates__1__library__biosample__@type	Biosample
+replicates__1__library__biosample__@type	Item
+replicates__1__library__lab	/labs/john-stamatoyannopoulos/
+replicates__1__library__schema_version	8
+replicates__1__library__strand_specificity	false
+replicates__1__library__@id	/libraries/ENCLB099YIO/
+replicates__1__library__submitted_by	/users/d730c730-c7fa-4c98-a916-850edfad52a2/
+replicates__1__library__@type	Library
+replicates__1__library__@type	Item
+replicates__1__uuid	e52c8238-069d-47b6-8ce9-900fb9cd5fbb
+replicates__1__schema_version	9
+replicates__1__status	released
+replicates__1__date_created	2014-08-14T17:39:54.478196+00:00
+replicates__1__biological_replicate_number	1
+replicates__1__submitted_by	/users/d730c730-c7fa-4c98-a916-850edfad52a2/
+replicates__1__@id	/replicates/e52c8238-069d-47b6-8ce9-900fb9cd5fbb/
+replicates__1__experiment	/experiments/ENCSR582IPV/
+replicates__1__technical_replicate_number	1
+replicates__1__@type	Replicate
+replicates__1__@type	Item
+replicates__1__aliases	john-stamatoyannopoulos:ENCSR582IPV-1-2
+replicates__1__uuid	899a410c-2fdb-4d32-a3c3-7086ce4742ea
+replicates__1__date_created	2014-08-14T17:39:54.751120+00:00
+replicates__1__@id	/replicates/899a410c-2fdb-4d32-a3c3-7086ce4742ea/
+replicates__1__technical_replicate_number	2
+assay_slims	DNA accessibility
+internal_tags	cre_inputv10
+internal_tags	ENCYCLOPEDIAv4
+date_created	2014-06-20T23:17:12.513532+00:00
+biosample_summary	lung embryo (80 days) and male embryo (76 days)
+biosample_term_name	lung
+internal_status	release ready
+@id	/experiments/ENCSR582IPV/
+hub	/experiments/ENCSR582IPV/@@hub/hub.txt
+award__viewing_group	ENCODE3
+award__url	http://projectreporter.nih.gov/project_info_details.cfm?aid=8402670
+award__title	A COMPREHENSIVE CATALOG OF DNASEI HYPERSENSITIVE SITES
+award__status	current
+award__uuid	ea1f650d-43d3-41f0-a96a-f8a2463d332f
+award__name	U54HG007010
+award__schema_version	5
+award__project	ENCODE
+award__start_date	2012-09-21
+award__description	The overall aim of this proposal is to establish a comprehensive, high-quality, high-resolution catalogues of human and mouse DNasel hypersensitive sites (DHSs) spanning all major tissue lineages. Building on the prior success of the UW ENCODE center, we plan to localize DNasel hypersensitive sites, to define the locations of DNasel footprints therein, and to continue to provide relevant synergistic annotations including RNA-seq, histone modifications, and CTCF, as well as DNA methylation. The overriding focus of our production effort has been on data quality. Accordingly, samples will be rigorously screened in a pipeline fashion, with only a select set advancing to whole-genome data collection. To ensure the broadest possible coverage of both unique and non-unique genomic territories, we will employ a higher resolution, higher coverage sequencing strategy than the prior project period, significantly enhancing the information content of the data. This proposal integrates the UW-FHCRC Mouse ENCODE Center, which will be closely aligned with the human project to generate a comparative catalogue of regulatory DNA in carefully matched cells and tissues, providing an unparalleled resource. Since DNasel hypersensitive sites are generic markers of a broad spectrum of human cis-regulatory sequences, the utility of the catalogue will be greatly enhanced by the classification of DHSs into major functional categories including promoters, distal elements (enhancers, LCRs), and insulators. We plan to systematically connect distal DHSs with their cognate promoters and to perform in vivo validation of these connections using nuclease-mediated knockouts of distal DHSs in somatic cells.
+award__pi__lab__institute_label	UW
+award__pi__lab__address1	Department of Genome Sciences and Medicine
+award__pi__lab__title	John Stamatoyannopoulos, UW
+award__pi__lab__fax	206-267-1094
+award__pi__lab__uuid	ea0352a9-8c9b-4987-934e-c1688a17cbcd
+award__pi__lab__institute_name	University of Washington
+award__pi__lab__state	WA
+award__pi__lab__name	john-stamatoyannopoulos
+award__pi__lab__awards	/awards/RC2HG005654/
+award__pi__lab__awards	/awards/U54HG007010/
+award__pi__lab__awards	/awards/U01ES017156/
+award__pi__lab__awards	/awards/UM1HG009444/
+award__pi__lab__country	USA
+award__pi__lab__city	Seattle
+award__pi__lab__status	current
+award__pi__lab__pi	/users/ec729133-c5f3-4c53-be5b-a5ea73a367dd/
+award__pi__lab__schema_version	5
+award__pi__lab__address2	3720 15th Ave. NE, Foege Bldg. Rm. S310
+award__pi__lab__@id	/labs/john-stamatoyannopoulos/
+award__pi__lab__postal_code	98195
+award__pi__lab__phone1	206-685-2672
+award__pi__lab__phone2	206-267-1098
+award__pi__lab__@type	Lab
+award__pi__lab__@type	Item
+award__pi__@id	/users/ec729133-c5f3-4c53-be5b-a5ea73a367dd/
+award__pi__title	John Stamatoyannopoulos
+award__pi__uuid	ec729133-c5f3-4c53-be5b-a5ea73a367dd
+award__pi__@type	User
+award__pi__@type	Item
+award__rfa	ENCODE3
+award__end_date	2014-07-31
+award__@id	/awards/U54HG007010/
+award__@type	Award
+award__@type	Item
+month_released	September, 2016
+date_released	2016-09-22
+assay_title	DNase-seq
+category_slims	protein and DNA interaction
+alternate_accessions	ENCSR376LUC
+alternate_accessions	ENCSR022SJZ
+@type	Experiment
+@type	Dataset
+@type	Item
+biosample_synonyms	pulmo
+biosample_synonyms	Entire lung
+assay_term_name	DNase-seq
+uuid	03f3af6e-9e25-4dcd-bc23-f60c667e4204
+organ_slims	lung
+documents	/documents/926174f5-d14c-4e77-bc52-5517b56daac0/
+submitted_by__lab	/labs/john-stamatoyannopoulos/
+submitted_by__@id	/users/d730c730-c7fa-4c98-a916-850edfad52a2/
+submitted_by__title	Michael Buckley
+submitted_by__uuid	d730c730-c7fa-4c98-a916-850edfad52a2
+submitted_by__@type	User
+submitted_by__@type	Item
+replication_type	anisogenic
+date_submitted	2014-07-03
+lab__institute_label	UW
+lab__address1	Department of Genome Sciences and Medicine
+lab__title	John Stamatoyannopoulos, UW
+lab__fax	206-267-1094
+lab__uuid	ea0352a9-8c9b-4987-934e-c1688a17cbcd
+lab__institute_name	University of Washington
+lab__state	WA
+lab__name	john-stamatoyannopoulos
+lab__awards	/awards/RC2HG005654/
+lab__awards	/awards/U54HG007010/
+lab__awards	/awards/U01ES017156/
+lab__awards	/awards/UM1HG009444/
+lab__country	USA
+lab__city	Seattle
+lab__status	current
+lab__pi	/users/ec729133-c5f3-4c53-be5b-a5ea73a367dd/
+lab__schema_version	5
+lab__address2	3720 15th Ave. NE, Foege Bldg. Rm. S310
+lab__@id	/labs/john-stamatoyannopoulos/
+lab__postal_code	98195
+lab__phone1	206-685-2672
+lab__phone2	206-267-1098
+lab__@type	Lab
+lab__@type	Item
+objective_slims	protein and DNA interaction identification objective
+developmental_slims	endoderm
+biosample_term_id	UBERON:0002048
+accession	ENCSR582IPV
+schema_version	14
+biosample_type	tissue
+assay_term_id	OBI:0001853
+system_slims	respiratory system
+status	released
+dbxrefs	GEO:GSE90364
+assembly	GRCh38
+assembly	hg19

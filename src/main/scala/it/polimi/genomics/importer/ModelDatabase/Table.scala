@@ -48,34 +48,42 @@ trait Table {
 
   def checkInsert():Boolean
   def insert(): Int
+  //def insert(states: collection.mutable.Map[String, String]): Int
   def update(): Int
   def updateById(): Unit = {}
 
   def setForeignKeys(table: Table): Unit
 
-  /*def insertRow(): Unit ={
+  def insertRow(): Int ={
     if(this.checkInsert()) {
       val id = this.insert
       this.primaryKey_(id)
+      return id
     }
     else {
       //val id = this.getId
       val id = this.update
       this.primaryKey_(id)
+      return id
     }
-  }*/
+  }
 
-  def insertRow(): Unit = {
+ /*def insertRow(states: collection.mutable.Map[String, String]): Unit = {
     val id = this.getId
+    var newId: Int = -1
     if(id == -1) {
-      val newId = this.insert
+      if(this.isInstanceOf[Item]){
+        newId = this.insert(states)
+      }else {
+        newId = this.insert()
+      }
       this.primaryKey_(newId)
     } else {
       this.primaryKey_(id)
       this.updateById()
     }
 
-  }
+  }*/
 
   def checkConsistency(): Boolean = {
     true

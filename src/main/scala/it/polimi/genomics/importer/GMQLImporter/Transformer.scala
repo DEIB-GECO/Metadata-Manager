@@ -4,7 +4,7 @@ import java.io._
 
 import it.polimi.genomics.importer.DefaultImporter.schemaFinder
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import it.polimi.genomics.importer.GMQLImporter.utils.DatasetName
+import it.polimi.genomics.importer.GMQLImporter.utils.DatasetNameUtil
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.immutable.TreeMap
@@ -18,7 +18,7 @@ import scala.xml.XML
 /**
   * Created by Nacho on 12/6/16.
   */
-object Transformer {
+object Transformer extends Executable {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   /**
@@ -29,7 +29,7 @@ object Transformer {
     * @param source            source to be integrated.
     * @param parallelExecution defines if the execution is in parallel or sequential
     */
-  def integrate(source: GMQLSource, parallelExecution: Boolean): Unit = {
+  override def execute(source: GMQLSource, parallelExecution: Boolean): Unit = {
     if (source.transformEnabled) {
 
       logger.info("Starting integration for: " + source.outputFolder)
@@ -91,7 +91,7 @@ object Transformer {
               }
               logger.info("Transformation for dataset: " + dataset.name)
 
-              FileDatabase.markToCompare(datasetId, STAGE.TRANSFORM)
+              FileDatabase.delete(datasetId, STAGE.TRANSFORM)
               //id, filename, copy number.
               var filesToTransform = 0
               val candidates = FileDatabase.getFilesToProcess(datasetId, STAGE.DOWNLOAD).flatMap { file =>
@@ -241,7 +241,7 @@ object Transformer {
               val t1Dataset = System.nanoTime()
               logger.info(s"Total time for transformation dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset, t1Dataset)}")
 
-              DatasetName.saveDatasetName(dataset)
+              DatasetNameUtil.saveDatasetName(dataset)
 
             }
           }

@@ -6,6 +6,7 @@ object Statistics {
   var fileNumber: Int = _
   var archived: Int = _
   var released: Int = _
+  var discarded: Int = _
   var releasedItemNotInserted: Int =_
   var itemInserted: Int = _
   var itemUpdated: Int = _
