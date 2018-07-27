@@ -7,11 +7,11 @@
         </mapping>
 
         <mapping>
-            <source_key>file__file_format_type</source_key>
+            <source_key>file__output_type</source_key> <!--peaks-->
             <global_key>dataType</global_key>
         </mapping>
         <mapping>
-            <source_key>file__file_format</source_key>
+            <source_key>file__file_format_type</source_key> <!--narrowPeak, broadPeak-->
             <global_key>format</global_key>
         </mapping>
         <mapping>
