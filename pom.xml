@@ -23,7 +23,7 @@
         <dependency>
             <groupId>it.polimi.genomics</groupId>
             <artifactId>GMQL-Repository</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>5.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>it.polimi.genomics</groupId>
             <artifactId>GMQL-SManager</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>5.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
