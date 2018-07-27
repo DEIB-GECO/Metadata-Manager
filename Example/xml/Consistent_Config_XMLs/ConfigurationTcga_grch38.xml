@@ -15,9 +15,9 @@
             <!--url is the host in the FTPDownloader-->
             <url>bioinformatics.iasi.cnr.it</url>
             <source_working_directory>GRCh38_TCGA</source_working_directory>
-            <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
-            <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
-            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.default.FtpDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.default.NullTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
             <transform_enabled>true</transform_enabled>
             <load_enabled>true</load_enabled>

@@ -14,9 +14,9 @@
         <source name="HG19_TCGA">
             <url>bioinf.iasi.cnr.it</url>
             <source_working_directory>HG19_TCGA</source_working_directory>
-            <downloader>it.polimi.genomics.importer.DefaultImporter.FTPDownloader</downloader>
-            <transformer>it.polimi.genomics.importer.DefaultImporter.NULLTransformer</transformer>
-            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.default.FtpDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.default.NullTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>false</download_enabled>
             <transform_enabled>false</transform_enabled>
             <load_enabled>false</load_enabled>
@@ -402,9 +402,9 @@
         <source name="HG19_ENCODE">
             <url>https://www.encodeproject.org/</url>
             <source_working_directory>HG19_ENCODE</source_working_directory>
-            <downloader>it.polimi.genomics.importer.ENCODEImporter.ENCODEDownloader</downloader>
-            <transformer>it.polimi.genomics.importer.ENCODEImporter.ENCODETransformer</transformer>
-            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>false</download_enabled>
             <transform_enabled>true</transform_enabled>
             <load_enabled>false</load_enabled>
@@ -614,9 +614,9 @@
         <source name="GRCh38_ENCODE">
             <url>https://www.encodeproject.org/</url>
             <source_working_directory>GRCh38_ENCODE</source_working_directory>
-            <downloader>it.polimi.genomics.importer.ENCODEImporter.ENCODEDownloader</downloader>
-            <transformer>it.polimi.genomics.importer.ENCODEImporter.ENCODETransformer</transformer>
-            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>false</download_enabled>
             <transform_enabled>true</transform_enabled>
             <load_enabled>false</load_enabled>

@@ -19,9 +19,9 @@
         <source name="ENCODE">
             <url>https://www.encodeproject.org/</url>
             <source_working_directory>ENCODE</source_working_directory>
-            <downloader>it.polimi.genomics.importer.ENCODEImporter.ENCODEDownloader</downloader>
-            <transformer>it.polimi.genomics.importer.ENCODEImporter.ENCODETransformer</transformer>
-            <loader>it.polimi.genomics.importer.GMQLImporter.GMQLLoader</loader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
             <transform_enabled>true</transform_enabled>
             <cleaner_enabled>true</cleaner_enabled>
@@ -133,7 +133,7 @@
                 <parameter>
                     <description>Cleaner definition rule base file</description>
                     <key>rule_base</key>
-                    <value>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example/example_rules.txt</value>
+                    <value>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example/example_for_cleaner/rules.txt</value>
                 </parameter>
                 <parameter>
                     <description>Mappings </description>
