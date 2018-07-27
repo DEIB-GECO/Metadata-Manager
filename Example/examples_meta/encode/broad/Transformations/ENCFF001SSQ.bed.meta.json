@@ -1,0 +1,321 @@
+file__content_md5sum	f21e7669273b98da8d34f6ab997f2681
+file__award	/awards/U54HG004570/
+file__uuid	cc939eb8-4687-4daa-a8df-bf64ed524573
+file__output_type	peaks
+file__status	released
+file__submitted_file_name	hg19/wgEncodeBroadHistone/wgEncodeBroadHistoneA549H2azEtoh02Pk.broadPeak.gz
+file__file_type	bed broadPeak
+file__assembly	hg19
+file__title	ENCFF001SSQ
+file__md5sum	109520de0aeb44b96b0be38b9d872167
+file__lab__awards	/awards/U01ES017155/
+file__lab__awards	/awards/U54HG004570/
+file__lab__awards	/awards/U54HG006991/
+file__lab__awards	/awards/UM1HG009390/
+file__lab__uuid	b83215c3-3960-4085-b220-614a122eea01
+file__lab__postal_code	2114
+file__lab__phone1	617-726-6906
+file__lab__city	Boston
+file__lab__fax	617-643-3566
+file__lab__@type	Lab
+file__lab__@type	Item
+file__lab__status	current
+file__lab__address1	Massachusetts General Hospital Simches Research Building, CPZN 8234
+file__lab__state	MA
+file__lab__institute_name	Broad Institute
+file__lab__name	bradley-bernstein
+file__lab__title	Bradley Bernstein, Broad
+file__lab__institute_label	Broad
+file__lab__country	USA
+file__lab__address2	185 Cambridge St.
+file__lab__pi	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+file__lab__@id	/labs/bradley-bernstein/
+file__lab__schema_version	5
+file__no_file_available	false
+file__dataset	/experiments/ENCSR000AUH/
+file__file_format	bed
+file__file_format_type	broadPeak
+file__submitted_by__uuid	f1843c60-e027-4b18-8582-64d3f3eae45b
+file__submitted_by__title	Noam Shoresh
+file__submitted_by__@id	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+file__submitted_by__@type	User
+file__submitted_by__@type	Item
+file__submitted_by__lab	/labs/bradley-bernstein/
+file__file_size	1493802
+file__date_created	2010-11-16T00:00:00.000000+00:00
+file__output_category	annotation
+file__href	/files/ENCFF001SSQ/@@download/ENCFF001SSQ.bed.gz
+file__accession	ENCFF001SSQ
+file__@id	/files/ENCFF001SSQ/
+file__@type	File
+file__@type	Item
+file__schema_version	11
+award__url	http://projectreporter.nih.gov/project_info_details.cfm?aid=8321257
+award__@id	/awards/U54HG004570/
+award__status	disabled
+award__project	ENCODE
+award__@type	Award
+award__@type	Item
+award__start_date	2007-09-28
+award__viewing_group	ENCODE3
+award__name	U54HG004570
+award__title	HIGH-THROUGHPUT SEQUENCING OF CHROMATIN REGULATORY ELEMENTS
+award__end_date	2013-06-30
+award__pi__uuid	aa57ecb5-3d0e-4b1f-9608-665785270ad7
+award__pi__title	Bradley Bernstein
+award__pi__@id	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+award__pi__@type	User
+award__pi__@type	Item
+award__pi__lab__awards	/awards/U01ES017155/
+award__pi__lab__awards	/awards/U54HG004570/
+award__pi__lab__awards	/awards/U54HG006991/
+award__pi__lab__awards	/awards/UM1HG009390/
+award__pi__lab__uuid	b83215c3-3960-4085-b220-614a122eea01
+award__pi__lab__postal_code	2114
+award__pi__lab__phone1	617-726-6906
+award__pi__lab__city	Boston
+award__pi__lab__fax	617-643-3566
+award__pi__lab__@type	Lab
+award__pi__lab__@type	Item
+award__pi__lab__status	current
+award__pi__lab__address1	Massachusetts General Hospital Simches Research Building, CPZN 8234
+award__pi__lab__state	MA
+award__pi__lab__institute_name	Broad Institute
+award__pi__lab__name	bradley-bernstein
+award__pi__lab__title	Bradley Bernstein, Broad
+award__pi__lab__institute_label	Broad
+award__pi__lab__country	USA
+award__pi__lab__address2	185 Cambridge St.
+award__pi__lab__pi	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+award__pi__lab__@id	/labs/bradley-bernstein/
+award__pi__lab__schema_version	5
+award__uuid	1f3cffd4-457f-4105-9b3c-3e9119abfcf0
+award__description	A key goal in characterizing the human genome is to acquire a complete catalog of chromatin regulatory elements and sequence determinants of chromatin state. In this application, we propose to undertake a large-scale project to map the genomewide locations of >35 histone modifications and related proteins in >20 human cell types by coupling chromatin IP with massive-throughput sequencing on the Solexa platform. Our preliminary data demonstrate that this approach is highly accurate and a major advance over existing technologies in terms of cell requirements, genome coverage, throughput and cost-effectiveness. A sequencing pipeline will be applied to generate more than 500 genomewide datasets of chromatin structure by sequencing >1000 samples. A computational pipeline will then convert the sequencing reads into high resolution, genomewide maps that can be visualized in genome browsers and used for downstream analysis. Comparative genomic analysis and motif-finding tools will be applied to classify genomic sites based on associated chromatin structures and to identify underlying sequence determinants. Cell and molecular biology methods will be used to validate inferred functions for a representative subset of discovered elements. Chromatin regulation is extensively implicated in many aspects of human development and disease. In particular, cancer cells may universally exhibit aberrant chromatin states. The proposed systematic identification and characterization of chromatin regulatory elements in the human genome will offer unprecedented insight into the structure and function of chromatin, and provide an invaluable resource for investigators in chromatin, genomics, cancer and many other fields of research. All data collected in the context of the proposed project will be made available pre-publication to the greater scientific community once reliability has been confirmed.
+award__rfa	ENCODE2
+award__schema_version	5
+@id	/experiments/ENCSR000AUH/
+internal_status	pipeline completed
+assay_slims	DNA binding
+description	H2AFZ ChIP-seq on human A549 treated with 0.02% ethanol
+type_slims	immunoprecipitation assay
+hub	/experiments/ENCSR000AUH/@@hub/hub.txt
+assay_term_id	OBI:0000716
+date_created	2013-11-07T22:16:05.584806+00:00
+assay_title	ChIP-seq
+possible_controls__award	/awards/U54HG004570/
+possible_controls__@id	/experiments/ENCSR000ASS/
+possible_controls__internal_status	pipeline completed
+possible_controls__assay_slims	DNA binding
+possible_controls__description	Control ChIP-seq on human A549 treated with 0.02% ethanol
+possible_controls__contributing_files	/files/ENCFF454YOX/
+possible_controls__contributing_files	/files/ENCFF643CGH/
+possible_controls__contributing_files	/files/ENCFF807MUK/
+possible_controls__type_slims	immunoprecipitation assay
+possible_controls__assay_term_id	OBI:0000716
+possible_controls__date_created	2013-11-07T22:16:28.561457+00:00
+possible_controls__assay_title	ChIP-seq
+possible_controls__objective_slims	epigenetic modification identification objective
+possible_controls__objective_slims	protein and DNA interaction identification objective
+possible_controls__biosample_term_name	A549
+possible_controls__accession	ENCSR000ASS
+possible_controls__biosample_summary	A549 treated with ethanol
+possible_controls__schema_version	12
+possible_controls__biosample_type	immortalized cell line
+possible_controls__uuid	eea51642-334a-4430-88d1-120c637f1365
+possible_controls__status	released
+possible_controls__@type	Experiment
+possible_controls__@type	Dataset
+possible_controls__@type	Item
+possible_controls__aliases	bradley-bernstein:Project Element 2266
+possible_controls__alternate_accessions	ENCSR676HTU
+possible_controls__lab	/labs/bradley-bernstein/
+possible_controls__original_files	/files/ENCFF000AHC/
+possible_controls__original_files	/files/ENCFF000AHD/
+possible_controls__original_files	/files/ENCFF000AHF/
+possible_controls__original_files	/files/ENCFF000AHM/
+possible_controls__original_files	/files/ENCFF000AHV/
+possible_controls__original_files	/files/ENCFF948UNV/
+possible_controls__original_files	/files/ENCFF482SGU/
+possible_controls__original_files	/files/ENCFF043PUQ/
+possible_controls__original_files	/files/ENCFF114ODP/
+possible_controls__original_files	/files/ENCFF408NTN/
+possible_controls__original_files	/files/ENCFF987CPC/
+possible_controls__original_files	/files/ENCFF957AOI/
+possible_controls__original_files	/files/ENCFF502CGT/
+possible_controls__original_files	/files/ENCFF271TLF/
+possible_controls__original_files	/files/ENCFF122PEM/
+possible_controls__original_files	/files/ENCFF719NBM/
+possible_controls__original_files	/files/ENCFF550UKJ/
+possible_controls__original_files	/files/ENCFF824LNT/
+possible_controls__assay_term_name	ChIP-seq
+possible_controls__replication_type	isogenic
+possible_controls__biosample_synonyms	A549 cell
+possible_controls__biosample_synonyms	A-549
+possible_controls__biosample_term_id	EFO:0001086
+possible_controls__related_series	/reference-epigenomes/ENCSR706RZK/
+possible_controls__related_series	/reference-epigenomes/ENCSR797CXN/
+possible_controls__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+possible_controls__target	/targets/Control-human/
+possible_controls__date_released	2012-08-06
+possible_controls__month_released	August, 2012
+possible_controls__dbxrefs	GEO:GSM1003541
+possible_controls__dbxrefs	UCSC-ENCODE-hg19:wgEncodeEH003076
+possible_controls__category_slims	protein and DNA interaction
+objective_slims	epigenetic modification identification objective
+objective_slims	protein and DNA interaction identification objective
+biosample_term_name	A549
+accession	ENCSR000AUH
+biosample_summary	A549 treated with ethanol
+schema_version	12
+biosample_type	immortalized cell line
+uuid	6db62cdf-aa30-42af-8982-11f26105ce7a
+status	released
+@type	Experiment
+@type	Dataset
+@type	Item
+lab__awards	/awards/U01ES017155/
+lab__awards	/awards/U54HG004570/
+lab__awards	/awards/U54HG006991/
+lab__awards	/awards/UM1HG009390/
+lab__uuid	b83215c3-3960-4085-b220-614a122eea01
+lab__postal_code	2114
+lab__phone1	617-726-6906
+lab__city	Boston
+lab__fax	617-643-3566
+lab__@type	Lab
+lab__@type	Item
+lab__status	current
+lab__address1	Massachusetts General Hospital Simches Research Building, CPZN 8234
+lab__state	MA
+lab__institute_name	Broad Institute
+lab__name	bradley-bernstein
+lab__title	Bradley Bernstein, Broad
+lab__institute_label	Broad
+lab__country	USA
+lab__address2	185 Cambridge St.
+lab__pi	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+lab__@id	/labs/bradley-bernstein/
+lab__schema_version	5
+assay_term_name	ChIP-seq
+replication_type	isogenic
+biosample_synonyms	A549 cell
+biosample_synonyms	A-549
+biosample_term_id	EFO:0001086
+related_series__award	/awards/U01DA025956/
+related_series__biosample_type	immortalized cell line
+related_series__@type	ReferenceEpigenome
+related_series__@type	Series
+related_series__@type	Dataset
+related_series__@type	Item
+related_series__aliases	roadmap-epigenomics:E114
+related_series__target	/targets/H4K20me1-human/
+related_series__target	/targets/H3K9ac-human/
+related_series__target	/targets/H2AFZ-human/
+related_series__target	/targets/H3K4me1-human/
+related_series__target	/targets/Control-human/
+related_series__target	/targets/H3K36me3-human/
+related_series__target	/targets/H3K4me2-human/
+related_series__target	/targets/H3K79me2-human/
+related_series__target	/targets/H3K27ac-human/
+related_series__target	/targets/H3K9me3-human/
+related_series__target	/targets/H3K4me3-human/
+related_series__target	/targets/H3K27me3-human/
+related_series__hub	/reference-epigenomes/ENCSR706RZK/@@hub/hub.txt
+related_series__uuid	5c798e28-6e1f-46de-bcee-b7bdc1cb47cd
+related_series__assay_term_id	OBI:0001271
+related_series__assay_term_id	OBI:0000716
+related_series__assay_term_id	OBI:0001862
+related_series__assay_term_id	OBI:0001853
+related_series__date_created	2016-01-06T19:37:35.378307+00:00
+related_series__notes	ENCBS161AAA - missing RNAseq, bisulfiteseq.. DNAseSeq used UW samples= ENCBS163AAA, ENCBS858LUL (these two are NOT EtOH 2% treated!)
+related_series__lab	/labs/anshul-kundaje/
+related_series__original_files	/files/ENCFF227EYD/
+related_series__original_files	/files/ENCFF493KVS/
+related_series__original_files	/files/ENCFF497BVI/
+related_series__original_files	/files/ENCFF400KZZ/
+related_series__original_files	/files/ENCFF213UXS/
+related_series__assembly	hg19
+related_series__assembly	GRCh38
+related_series__assay_term_name	DNase-seq
+related_series__assay_term_name	RRBS
+related_series__assay_term_name	ChIP-seq
+related_series__assay_term_name	RNA-seq
+related_series__assay_synonyms	RNA-seq assay
+related_series__assay_synonyms	reduced representation bisulfite-seq
+related_series__assay_synonyms	RRBS
+related_series__assay_synonyms	ChIP-seq assay
+related_series__assay_synonyms	DNase-seq
+related_series__assay_synonyms	transcription profiling by high throughput sequencing
+related_series__assay_synonyms	DNase-seq assay
+related_series__assay_synonyms	reduced representation bisulfite sequencing assay
+related_series__assay_synonyms	RRBS assay
+related_series__assay_synonyms	DNase I hypersensitive sites sequencing assay
+related_series__assay_synonyms	chromatin immunoprecipitation sequencing assay
+related_series__biosample_synonyms	A549 cell
+related_series__biosample_synonyms	A-549
+related_series__biosample_term_id	EFO:0001086
+related_series__status	archived
+related_series__submitted_by	/users/81a6cc12-2847-4e2e-8f2c-f566699eb29e/
+related_series__biosample_term_name	A549
+related_series__related_datasets	/experiments/ENCSR000ASS/
+related_series__related_datasets	/experiments/ENCSR000AUM/
+related_series__related_datasets	/experiments/ENCSR000AUL/
+related_series__related_datasets	/experiments/ENCSR000AUN/
+related_series__related_datasets	/experiments/ENCSR000AUI/
+related_series__related_datasets	/experiments/ENCSR000ASH/
+related_series__related_datasets	/experiments/ENCSR000AUK/
+related_series__related_datasets	/experiments/ENCSR000ASV/
+related_series__related_datasets	/experiments/ENCSR000AVI/
+related_series__related_datasets	/experiments/ENCSR000AUO/
+related_series__related_datasets	/experiments/ENCSR000ATP/
+related_series__related_datasets	/experiments/ENCSR000AUH/
+related_series__related_datasets	/experiments/ENCSR000ELW/
+related_series__related_datasets	/experiments/ENCSR000CON/
+related_series__related_datasets	/experiments/ENCSR000DDI/
+related_series__date_released	2013-07-31
+related_series__organism	/organisms/human/
+related_series__month_released	July, 2013
+related_series__accession	ENCSR706RZK
+related_series__treatment_term_name	ethanol
+related_series__treatment_term_name	dimethyl sulfoxide
+related_series__@id	/reference-epigenomes/ENCSR706RZK/
+related_series__description	REMC Epigenome (ENCODE) for A549 EtOH 0.02pct Lung Carcinoma Cell Line using donors/samples:A549
+related_series__schema_version	12
+submitted_by__uuid	f1843c60-e027-4b18-8582-64d3f3eae45b
+submitted_by__title	Noam Shoresh
+submitted_by__@id	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+submitted_by__@type	User
+submitted_by__@type	Item
+submitted_by__lab	/labs/bradley-bernstein/
+target__investigated_as	histone
+target__investigated_as	histone modification
+target__investigated_as	narrow histone mark
+target__status	current
+target__@type	Target
+target__@type	Item
+target__name	H2AFZ-human
+target__title	H2AFZ (Homo sapiens)
+target__organism__taxon_id	9606
+target__organism__name	human
+target__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+target__organism__scientific_name	Homo sapiens
+target__organism__status	current
+target__organism__@type	Organism
+target__organism__@type	Item
+target__organism__@id	/organisms/human/
+target__organism__schema_version	4
+target__label	H2AFZ
+target__dbxref	UniProtKB:P0C0S5
+target__dbxref	HGNC:H2AZ
+target__dbxref	GeneID:3015
+target__dbxref	HGNC:H2A.Z
+target__gene_name	H2AFZ
+target__@id	/targets/H2AFZ-human/
+target__uuid	c21f310f-fb91-4505-b62c-c8c707696827
+target__schema_version	5
+date_released	2012-08-06
+internal_tags	ENCYCLOPEDIAv4
+month_released	August, 2012
+dbxrefs	UCSC-ENCODE-hg19:wgEncodeEH003117
+dbxrefs	GEO:GSM1003546
+category_slims	protein and DNA interaction

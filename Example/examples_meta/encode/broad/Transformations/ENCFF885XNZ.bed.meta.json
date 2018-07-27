@@ -1,5 +1,5 @@
 file__dataset	/experiments/ENCSR809LCE/
-file__file_format_type	broadPeak22
+file__file_format_type	broadPeak
 file__@type	File
 file__@type	Item
 file__output_category	annotation

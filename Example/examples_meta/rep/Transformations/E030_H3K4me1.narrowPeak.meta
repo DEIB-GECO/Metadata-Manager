@@ -1,0 +1,54 @@
+epi__age_weeks	unknown
+epi__anatomy	BLOOD
+epi__auto_use_train	0
+epi__class	Class 5
+epi__color	#678C69
+epi__core_plus_ac_plus_dnase_plus_13_class1_marks	0
+epi__core_plus_ac_plus_dnase_plus_9_class1_marks	0
+epi__donor_id	23
+epi__epigenome_id	E030
+epi__epigenome_mnemonic	BLD.CD15.PC
+epi__epigenome_name_edacc_9	CD15_Primary_Cells
+epi__ethnicity	Unknown
+epi__group	HSC & B-cell
+epi__has_k27ac	0
+epi__lab	BI
+epi__manual_use_train	0
+epi__nreads_36bp_30m_h3k4me1	30000000
+epi__nsc_signal_to_noise_h3k4me1	1.17756
+epi__order	46
+epi__pool_filenames_h3k4me1	BI.CD15_Primary_Cells.H3K4me1.23.filt.*
+epi__quality_rating	1
+epi__rsc_phantom_peak_h3k4me1	1.138271
+epi__sample_alias	23
+epi__sex	Male
+epi__single_donor_or_composite	SD
+epi__solid_or_liquid	LIQUID
+epi__standardized_epigenome_name	Primary neutrophils from peripheral blood
+epi__train_core_plus_k27ac	0
+epi__type	PrimaryCell
+epi__under_seq	-1
+exp__correlation_of_imputed_with_observed	0.695
+exp__fcc	0.396378753
+exp__findpeaks	0.529
+exp__fname	E030-H3K4me1.*
+exp__fraglen	205
+exp__mark	H3K4me1
+exp__mark_class	Core
+exp__mincc	0.3366102
+exp__minlen	1500
+exp__perc_of_imputed_top_1_perc_in_observed_top_1_perc	51.8
+exp__poisson	0.58
+exp__rcc	0.3891184
+exp__rlen	35
+exp__spot	0.501
+manually_curated__assembly	hg19
+manually_curated__data_type	ChIP-seq
+manually_curated__data_url	http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/E030-H3K4me1.narrowPeak.gz
+manually_curated__feature	histone modification
+manually_curated__file_id	E030_H3K4me1.narrowPeak
+manually_curated__file_size	8141814
+manually_curated__format	narrowPeak
+manually_curated__life_stage	fetal
+manually_curated__metadata_url	https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
+manually_curated__peak_caller	MACS2

@@ -163,4 +163,4 @@ manually_curated__file_size	50206
 manually_curated__opengdc_id	ffde17b2-e2e0-434e-b694-d9dbe7a67b4d-meq
 manually_curated__platform	Illumina
 manually_curated__source_data_format	TSV
-manually_curated__tissue_status	tumoral
+manually_curated__tissue_status	normal

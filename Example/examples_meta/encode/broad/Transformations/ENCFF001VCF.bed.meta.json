@@ -1,0 +1,222 @@
+file__file_format	bed
+file__submitted_by__title	Scott Tenenbaum
+file__submitted_by__lab	/labs/scott-tenenbaum/
+file__submitted_by__@type	User
+file__submitted_by__@type	Item
+file__submitted_by__@id	/users/178014f7-0e8f-4a01-a3d9-1088d2b86e7f/
+file__submitted_by__uuid	178014f7-0e8f-4a01-a3d9-1088d2b86e7f
+file__date_created	2011-01-20T00:00:00.000000+00:00
+file__@id	/files/ENCFF001VCF/
+file__schema_version	11
+file__accession	ENCFF001VCF
+file__no_file_available	false
+file__file_format_type	broadPeak
+file__assembly	hg19
+file__content_md5sum	2342d202ac0e5f1660d652ff803735ec
+file__output_type	peaks
+file__title	ENCFF001VCF
+file__submitted_file_name	hg19/wgEncodeSunyRipSeq/wgEncodeSunyRipSeqGm12878Elavl1Pk.broadPeak.gz
+file__md5sum	17c56dd022ace9785367ebceb76ff581
+file__href	/files/ENCFF001VCF/@@download/ENCFF001VCF.bed.gz
+file__dataset	/experiments/ENCSR000CWW/
+file__lab__institute_label	SUNY-Albany
+file__lab__city	Albany
+file__lab__pi	/users/178014f7-0e8f-4a01-a3d9-1088d2b86e7f/
+file__lab__state	NY
+file__lab__@id	/labs/scott-tenenbaum/
+file__lab__schema_version	5
+file__lab__uuid	de78d41a-fe08-43ae-9b8f-d2bd4ae1a95d
+file__lab__phone1	518-437-8871
+file__lab__status	current
+file__lab__title	Scott Tenenbaum, SUNY-Albany
+file__lab__address1	College of Nanoscale Science and Engineering
+file__lab__@type	Lab
+file__lab__@type	Item
+file__lab__postal_code	12222
+file__lab__institute_name	State University of New York at Albany
+file__lab__phone2	518-442-3300
+file__lab__name	scott-tenenbaum
+file__lab__country	USA
+file__lab__awards	/awards/U01HG004571/
+file__lab__address2	1400 Washington Ave.
+file__award	/awards/U01HG004571/
+file__status	released
+file__@type	File
+file__@type	Item
+file__uuid	6f84ea00-915e-4d17-965c-9fd11c62fa19
+file__file_size	578483
+file__output_category	annotation
+file__file_type	bed broadPeak
+submitted_by__title	Scott Tenenbaum
+submitted_by__lab	/labs/scott-tenenbaum/
+submitted_by__@type	User
+submitted_by__@type	Item
+submitted_by__@id	/users/178014f7-0e8f-4a01-a3d9-1088d2b86e7f/
+submitted_by__uuid	178014f7-0e8f-4a01-a3d9-1088d2b86e7f
+biosample_type	immortalized cell line
+date_created	2013-09-13T16:53:27.247569-08:00
+dbxrefs	UCSC-ENCODE-hg19:wgEncodeEH000796
+dbxrefs	GEO:GSM944520
+uuid	762a0217-8b09-4fa4-8bc7-93e42dc248e4
+internal_status	unreviewed
+assay_slims	RNA binding
+date_released	2011-08-29
+category_slims	protein and RNA interaction
+award__end_date	2012-12-31
+award__pi__title	Scott Tenenbaum
+award__pi__lab__institute_label	SUNY-Albany
+award__pi__lab__city	Albany
+award__pi__lab__pi	/users/178014f7-0e8f-4a01-a3d9-1088d2b86e7f/
+award__pi__lab__state	NY
+award__pi__lab__@id	/labs/scott-tenenbaum/
+award__pi__lab__schema_version	5
+award__pi__lab__uuid	de78d41a-fe08-43ae-9b8f-d2bd4ae1a95d
+award__pi__lab__phone1	518-437-8871
+award__pi__lab__status	current
+award__pi__lab__title	Scott Tenenbaum, SUNY-Albany
+award__pi__lab__address1	College of Nanoscale Science and Engineering
+award__pi__lab__@type	Lab
+award__pi__lab__@type	Item
+award__pi__lab__postal_code	12222
+award__pi__lab__institute_name	State University of New York at Albany
+award__pi__lab__phone2	518-442-3300
+award__pi__lab__name	scott-tenenbaum
+award__pi__lab__country	USA
+award__pi__lab__awards	/awards/U01HG004571/
+award__pi__lab__address2	1400 Washington Ave.
+award__pi__@type	User
+award__pi__@type	Item
+award__pi__@id	/users/178014f7-0e8f-4a01-a3d9-1088d2b86e7f/
+award__pi__uuid	178014f7-0e8f-4a01-a3d9-1088d2b86e7f
+award__rfa	ENCODE2
+award__start_date	2007-09-27
+award__schema_version	5
+award__@type	Award
+award__@type	Item
+award__name	U01HG004571
+award__status	current
+award__viewing_group	ENCODE3
+award__description	Our understanding of post-transcriptional regulation is comparatively poor, with only a handful of regulatory elements that direct post-transcriptional control being experimentally characterized. Eukaryotic organisms depend on the actions of RNA-binding proteins (RBPs) for successful post-transcriptional control gene expression and they provide the link between transcriptional and translational regulation, playing essential roles in many regulatory processes including transcription, splicing, export, stability and translation. The comprehensive identification of cis-regulatory elements residing in expressed RNA is fundamental to the NIH/NHGRI ENCODE project but is extremely limited at the present time. Previously we developed methods for purifying endogenous RBP-RNA complexes and identifying the associated RNA targets using whole genome expression array technologies (termed ribonomics). This advance enabled the large-scale identification of many mRNA targets of RBPs and provided new insight into the principles governing posttranscriptional gene regulation. Our studies demonstrated that, analogous to transcriptional regulation, groups of functionally related RNAs are coordinately regulated in a combinatorial manner by distinct classes of RBPs by targeting related cis-regulatory elements located in the transcripts. As part of an earlier ENCODE technology grant, we improved our technology by developing a RIP-Chip tiling-array based assay that incorporates a digestion step to facilitate the identification of targeted cis-regulatory elements/RBPbinding sites. Using this method, the objective of this project is to comprehensively catalog the cis regulatory elements/RBP-binding sites CREBS present in expressed ENCODE mRNA using the five ENCODE cell lines and several cellular perturbations. This will be accomplished by (1) characterizing the genome-wide associations of expressed mRNA with a set of representative set of RBPs using ribonomic profiling and whole-genome expression arrays; (2) identifying the CREBS of the subset of ENCODE expressed mRNAs using tiling-array based RIP-Chip; (3) verifying and further increasing the resolution of predicted ENCODE cis-regulatory elements/RBP-binding sites using bioinformatics followed by quantitative Real-Time PCR and (4) biologically validating the function and RBP-binding activity of identified CREBS using a reporter assay. ln summary, we will use RNA-binding proteins to identify RNA based cis-regulatory elements / RBP-binding sites in the ENCODE sequence of the human genome.
+award__url	http://projectreporter.nih.gov/project_info_details.cfm?aid=8321262
+award__uuid	2f35506f-0b00-4b56-9d65-6c0be5f304b2
+award__project	ENCODE
+award__title	COMPREHENSIVE IDENTIFICATION OF ENCODE RNA BASED CIS-REGULATORY ELEMENTS
+award__@id	/awards/U01HG004571/
+replication_type	isogenic
+accession	ENCSR000CWW
+hub	/experiments/ENCSR000CWW/@@hub/hub.txt
+biosample_term_name	GM12878
+objective_slims	protein and RNA interaction identification objective
+assay_title	RIP-seq
+schema_version	12
+biosample_summary	GM12878
+description	SunyAlbany human GM12878 ELAVL1 RIP-seq
+assay_term_name	RIP-seq
+biosample_term_id	EFO:0002784
+@id	/experiments/ENCSR000CWW/
+lab__institute_label	SUNY-Albany
+lab__city	Albany
+lab__pi	/users/178014f7-0e8f-4a01-a3d9-1088d2b86e7f/
+lab__state	NY
+lab__@id	/labs/scott-tenenbaum/
+lab__schema_version	5
+lab__uuid	de78d41a-fe08-43ae-9b8f-d2bd4ae1a95d
+lab__phone1	518-437-8871
+lab__status	current
+lab__title	Scott Tenenbaum, SUNY-Albany
+lab__address1	College of Nanoscale Science and Engineering
+lab__@type	Lab
+lab__@type	Item
+lab__postal_code	12222
+lab__institute_name	State University of New York at Albany
+lab__phone2	518-442-3300
+lab__name	scott-tenenbaum
+lab__country	USA
+lab__awards	/awards/U01HG004571/
+lab__address2	1400 Washington Ave.
+possible_controls__submitted_by	/users/178014f7-0e8f-4a01-a3d9-1088d2b86e7f/
+possible_controls__biosample_type	immortalized cell line
+possible_controls__date_created	2013-09-13T16:53:28.332492-08:00
+possible_controls__dbxrefs	UCSC-ENCODE-hg19:wgEncodeEH000799
+possible_controls__dbxrefs	GEO:GSM944524
+possible_controls__uuid	9b8d459c-3fd9-4c77-a8c3-80d8b8ab382a
+possible_controls__internal_status	unreviewed
+possible_controls__assay_slims	RNA binding
+possible_controls__date_released	2011-08-29
+possible_controls__category_slims	protein and RNA interaction
+possible_controls__award	/awards/U01HG004571/
+possible_controls__replication_type	isogenic
+possible_controls__accession	ENCSR000CWT
+possible_controls__hub	/experiments/ENCSR000CWT/@@hub/hub.txt
+possible_controls__biosample_term_name	GM12878
+possible_controls__objective_slims	protein and RNA interaction identification objective
+possible_controls__original_files	/files/ENCFF000VAW/
+possible_controls__original_files	/files/ENCFF000VAX/
+possible_controls__original_files	/files/ENCFF000VAY/
+possible_controls__original_files	/files/ENCFF000VAZ/
+possible_controls__original_files	/files/ENCFF000VBH/
+possible_controls__original_files	/files/ENCFF000VBI/
+possible_controls__assay_title	RIP-seq
+possible_controls__schema_version	12
+possible_controls__biosample_summary	GM12878
+possible_controls__description	SunyAlbany human GM12878 Control RIP-seq
+possible_controls__assay_term_name	RIP-seq
+possible_controls__biosample_term_id	EFO:0002784
+possible_controls__@id	/experiments/ENCSR000CWT/
+possible_controls__lab	/labs/scott-tenenbaum/
+possible_controls__month_released	August, 2011
+possible_controls__assay_term_id	OBI:0001857
+possible_controls__@type	Experiment
+possible_controls__@type	Dataset
+possible_controls__@type	Item
+possible_controls__status	released
+possible_controls__target	/targets/T7-control-human/
+possible_controls__assembly	hg19
+possible_controls__date_created	2013-09-13T16:53:28.535663-08:00
+possible_controls__dbxrefs	UCSC-ENCODE-hg19:wgEncodeEH000798
+possible_controls__dbxrefs	GEO:GSM944525
+possible_controls__uuid	97ce9f45-8017-41b4-b808-5daa23d26a16
+possible_controls__accession	ENCSR000CWU
+possible_controls__hub	/experiments/ENCSR000CWU/@@hub/hub.txt
+possible_controls__original_files	/files/ENCFF000VAP/
+possible_controls__original_files	/files/ENCFF000VAQ/
+possible_controls__original_files	/files/ENCFF000VAR/
+possible_controls__original_files	/files/ENCFF000VAS/
+possible_controls__original_files	/files/ENCFF000VAT/
+possible_controls__original_files	/files/ENCFF000VBA/
+possible_controls__original_files	/files/ENCFF000VBB/
+possible_controls__original_files	/files/ENCFF001VCH/
+possible_controls__@id	/experiments/ENCSR000CWU/
+possible_controls__target	/targets/Control-human/
+month_released	August, 2011
+assay_term_id	OBI:0001857
+@type	Experiment
+@type	Dataset
+@type	Item
+status	released
+target__organism__status	current
+target__organism__taxon_id	9606
+target__organism__@type	Organism
+target__organism__@type	Item
+target__organism__@id	/organisms/human/
+target__organism__scientific_name	Homo sapiens
+target__organism__name	human
+target__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+target__organism__schema_version	4
+target__dbxref	HGNC:MelG
+target__dbxref	HGNC:Hua
+target__dbxref	HGNC:HuR
+target__dbxref	GeneID:1994
+target__dbxref	UniProtKB:Q15717
+target__dbxref	HGNC:HUR
+target__investigated_as	RNA binding protein
+target__@id	/targets/ELAVL1-human/
+target__schema_version	5
+target__@type	Target
+target__@type	Item
+target__name	ELAVL1-human
+target__status	current
+target__uuid	d3b3bd4f-dbb8-4c10-8eb4-57df56271dd8
+target__gene_name	ELAVL1
+target__title	ELAVL1 (Homo sapiens)
+target__label	ELAVL1

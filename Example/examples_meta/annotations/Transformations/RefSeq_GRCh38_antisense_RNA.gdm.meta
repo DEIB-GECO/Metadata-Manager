@@ -1,0 +1,12 @@
+annotation_type	antisense_RNA
+assembly	GRCh38
+data_format_description	http://biomirror.aarnet.edu.au/biomirror/ncbigenomes/README_GFF3.txt
+download_link	ftp://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.gff.gz
+full_name	RefSeq Reference Genome Annotation
+genome_build	GRCh38.p10
+genome_build_accession	GCF_000001405.36
+original_format	gff
+original_url	https://www.ncbi.nlm.nih.gov/projects/genome/guide/human/index.shtml
+provider	RefSeq
+release_date	2017-01-06
+release_version	10

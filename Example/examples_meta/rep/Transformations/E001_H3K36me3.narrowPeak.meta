@@ -1,0 +1,63 @@
+epi__anatomy	ESC
+epi__auto_use_train	1
+epi__class	Class 4
+epi__color	#924965
+epi__comments	Bad Methylation dataset. This epigenome is NOT to be used for DNA methylation analysis. All other data types are fine to use.
+epi__core_plus_ac_plus_dnase_plus_13_class1_marks	0
+epi__core_plus_ac_plus_dnase_plus_9_class1_marks	0
+epi__donor_id	60
+epi__epigenome_id	E001
+epi__epigenome_mnemonic	ESC.I3
+epi__epigenome_name_edacc_9	ES-I3_Cell_Line
+epi__group	ESC
+epi__has_k27ac	0
+epi__lab	BI
+epi__manual_use_train	1
+epi__nreads_36bp_30m_h3k36me3	20540560
+epi__nsc_signal_to_noise_h3k36me3	1.056173
+epi__order	4
+epi__pool_filenames_h3k36me3	BI.ES-I3.H3K36me3.Solexa-15381.filt.*;BI.ES-I3.H3K36me3.Solexa-16493.filt.*
+epi__quality_rating	1
+epi__rsc_phantom_peak_h3k36me3	1.159956
+epi__sample_alias__1	60
+epi__sample_alias__10	40585
+epi__sample_alias__11	40586
+epi__sample_alias__12	42133
+epi__sample_alias__2	31436
+epi__sample_alias__3	35589
+epi__sample_alias__4	35592
+epi__sample_alias__5	35593
+epi__sample_alias__6	35594
+epi__sample_alias__7	40338
+epi__sample_alias__8	40339
+epi__sample_alias__9	40340
+epi__sex	Female
+epi__single_donor_or_composite	SD
+epi__standardized_epigenome_name	ES-I3 Cells
+epi__train_core_plus_k27ac	0
+epi__type	PrimaryCulture
+epi__under_seq	0
+exp__correlation_of_imputed_with_observed	0.636
+exp__fcc	0.2334021299
+exp__findpeaks	0.052
+exp__fname	E001-H3K36me3.*
+exp__fraglen	180
+exp__mark	H3K36me3
+exp__mark_class	Core
+exp__mincc	0.2209885
+exp__minlen	1500
+exp__perc_of_imputed_top_1_perc_in_observed_top_1_perc	42
+exp__poisson	0.309
+exp__rcc	0.2316903
+exp__rlen	35
+exp__spot	0.116
+manually_curated__assembly	hg19
+manually_curated__data_type	ChIP-seq
+manually_curated__data_url	http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/E001-H3K36me3.narrowPeak.gz
+manually_curated__feature	histone modification
+manually_curated__file_id	E001_H3K36me3.narrowPeak
+manually_curated__file_size	12761770
+manually_curated__format	narrowPeak
+manually_curated__life_stage	cell line
+manually_curated__metadata_url	https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
+manually_curated__peak_caller	MACS2

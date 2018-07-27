@@ -1,0 +1,13 @@
+annotation_type	CDS
+assembly	GRCh38
+contact	gencode@sanger.ac.uk
+data_format_description	https://www.gencodegenes.org/data_format.html
+description	evidence-based annotation of the human genome (GRCh38), version 22 (Ensembl 79)
+download_link	ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_22/gencode.v22.annotation.gtf.gz
+full_name	Comprehensive gene annotation CHR
+genome_build	GRCh38.p2
+original_format	gtf
+original_url	https://www.gencodegenes.org/releases/22.html
+provider	GENCODE
+release_date	2015-03-06
+release_version	22

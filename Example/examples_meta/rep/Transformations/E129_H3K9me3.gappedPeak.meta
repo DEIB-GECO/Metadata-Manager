@@ -41,10 +41,10 @@ exp__rlen	35
 exp__spot	0.033
 manually_curated__assembly	hg19
 manually_curated__data_type	ChIP-seq
-manually_curated__data_url	http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/E129-H3K9me3.narrowPeak.gz
+manually_curated__data_url	http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/gappedPeak/E129-H3K9me3.gappedPeak.gz
 manually_curated__feature	histone modification
-manually_curated__file_id	E129_H3K9me3.narrowPeak
-manually_curated__file_size	12178743
-manually_curated__format	narrowPeak
+manually_curated__file_id	E129_H3K9me3.gappedPeak
+manually_curated__file_size	10501072
+manually_curated__format	gappedPeak
 manually_curated__metadata_url	https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
 manually_curated__peak_caller	MACS2

@@ -42,7 +42,6 @@ biospecimen__bio__weight	30.00
 biospecimen__bio__year_of_creation	2011
 biospecimen__bio__year_of_shipment	2011
 biospecimen__shared__bcr_patient_barcode	TCGA-EM-A22Q
-biospecimen__shared__bcr_patient_uuid	8492820D-B619-4A74-95D3-EB574067F3F3
 biospecimen__shared__gender	MALE
 biospecimen__shared__patient_id	A22Q
 biospecimen__shared__tissue_source_site	EM
