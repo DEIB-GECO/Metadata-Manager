@@ -6,7 +6,7 @@ import java.util
 import it.polimi.genomics.core.DataStructures.IRDataSet
 import it.polimi.genomics.core.GDMSUserClass
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import it.polimi.genomics.importer.GMQLImporter.utils.DatasetName
+import it.polimi.genomics.importer.GMQLImporter.utils.DatasetNameUtil
 import it.polimi.genomics.manager.ProfilerLauncher
 import it.polimi.genomics.repository.{GMQLRepository, GMQLSample, Utilities}
 import org.slf4j.LoggerFactory
@@ -60,7 +60,7 @@ class GMQLLoader {
 
         if (listAdd.size() > 0) {
           logger.info("Trying to add " + dataset.name + " to user: " + gmqlUser)
-          val datasetName = DatasetName.loadDatasetName(dataset)
+          val datasetName = DatasetNameUtil.loadDatasetName(dataset)
 
           //if repo exists I do DELETE THEN ADD
           if (dsExists(gmqlUser, datasetName))

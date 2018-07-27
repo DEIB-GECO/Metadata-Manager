@@ -5,23 +5,16 @@ import java.nio.file.{Files, Paths}
 
 import it.polimi.genomics.importer.DefaultImporter.schemaFinder
 import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import it.polimi.genomics.importer.GMQLImporter.utils.DatasetName
+import it.polimi.genomics.importer.GMQLImporter.utils.{DatasetNameUtil, DirectoryNamingUtil, ParameterUtil}
 import it.polimi.genomics.importer.cleaner.RuleBase
 import org.slf4j.{Logger, LoggerFactory}
 
 
-object Cleaner {
+object Cleaner extends Executable {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  /**
-    * Transforms the data and metadata into GDM friendly formats using the transformers.
-    * Normalizes the metadata key names as indicated in the settings.
-    * Puts the schema file into the transformations folders.
-    *
-    * @param source            source to be integrated.
-    * @param parallelExecution defines if the execution is in parallel or sequential
-    */
-  def clean(source: GMQLSource, parallelExecution: Boolean): Unit = {
+
+  override def execute(source: GMQLSource, parallelExecution: Boolean): Unit = {
     if (source.transformEnabled) {
 
       logger.info("Starting cleaner for: " + source.outputFolder)
@@ -35,7 +28,7 @@ object Cleaner {
       val integrateThreads = source.datasets.map((dataset: GMQLDataset) => {
         new Thread {
           override def run(): Unit = {
-            val rulePathOpt = dataset.parameters.filter(_._1 == "region_sorting").headOption.map(_._2)
+            val rulePathOpt = ParameterUtil.getParameter(dataset, "rule_base")
             if (dataset.transformEnabled) {
               val ruleBasePathOpt = rulePathOpt.map(new RuleBase(_))
 
@@ -49,8 +42,8 @@ object Cleaner {
 
               val datasetOutputFolder = dataset.fullDatasetOutputFolder
               //              val downloadsFolder = datasetOutputFolder + File.separator + "Downloads"
-              val transformations2Folder = datasetOutputFolder + File.separator + "Transformations"
-              val cleanerFolder = datasetOutputFolder + File.separator + "Cleaned"
+              val transformations2Folder = datasetOutputFolder + File.separator + DirectoryNamingUtil.transformFolderName
+              val cleanerFolder = datasetOutputFolder + File.separator + DirectoryNamingUtil.cleanFolderName
 
 
               val folder = new File(cleanerFolder)
@@ -112,7 +105,7 @@ object Cleaner {
               //              val t1Dataset = System.nanoTime()
               //              logger.info(s"Total time for transformation dataset ${dataset.name}: ${Transformer.getTotalTimeFormatted(t0Dataset, t1Dataset)}")
 
-              DatasetName.saveDatasetName(dataset)
+              DatasetNameUtil.saveDatasetName(dataset)
 
             }
           }

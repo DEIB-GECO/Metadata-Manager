@@ -13,6 +13,8 @@ import scala.concurrent.{Await, Future}
 
 
 object DbHandler {
+//  val parsedConfig: Config = ConfigFactory.parseFile(new File("src/main/scala/Config/application.conf"))
+//  val conf: Config = ConfigFactory.load(parsedConfig)
   val conf = ConfigFactory.load()
 
   private val DONOR_TABLE_NAME = "donor"

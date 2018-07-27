@@ -20,7 +20,7 @@ import scala.collection.mutable
 import scala.io.Source
 
 
-object main {
+object MapperMain {
   val logger: Logger = Logger.getLogger(this.getClass)
   private val regexBedMetaJson = ".*.bed.meta.json".r
   //private val regexBedMeta = ".*.bed.meta\\z".r
@@ -74,7 +74,6 @@ object main {
     Logger.getLogger("slick").addAppender(consoleWARN)
 
     //set connection and create the tables if not exists
-    DbHandler.setDatabase()
 
 
     if (args.length == 0) {
@@ -109,6 +108,11 @@ object main {
         logger.info("Please select among the following: " + SourceString.toString)
         return
       }
+
+      val logName = "IMPORT_" + args(1).toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z")) + ".log"
+
+      defineFileAppenderSetting(logName)
+
       importMode(args(1), args(2), args(3))
     } else {
       if (args.length != 3) {
@@ -118,13 +122,18 @@ object main {
         )
         return
       }
+
+      val logName = "EXPORT_" + args(1).toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z")) + ".log"
+
+      defineFileAppenderSetting(logName)
       exportMode(args(1), args(2))
     }
-    DbHandler.closeDatabase()
   }
 
 
   def importMode(repositoryRef: String, pathGMQLIn: String, pathXML: String): Unit = {
+    DbHandler.setDatabase()
+
     val datasetFileName = pathGMQLIn + File.separator + "dataset_name.txt"
     val datasetName = Source.fromFile(datasetFileName).mkString
     Predefined.map += "dataset_name" -> datasetName
@@ -137,9 +146,6 @@ object main {
       logger.info("Xml file is valid for the schema")
       DbHandler.setDatabase()
 
-      val logName = "IMPORT_" + repositoryRef.toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z")) + ".log"
-
-      defineFileAppenderSetting(logName)
 
       val t0: Long = System.nanoTime()
       repositoryRef.toUpperCase() match {
@@ -178,13 +184,12 @@ object main {
     }
     else
       logger.info("Xml file is NOT valid for the schema, please check it for next runs")
+    DbHandler.closeDatabase()
+
   }
 
   def exportMode(repositoryRef: String, pathGMQL: String): Unit = {
-
-    val logName = "EXPORT_" + repositoryRef.toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z")) + ".log"
-
-    defineFileAppenderSetting(logName)
+    DbHandler.setDatabase()
 
     logger.info(s"Start to write TSV file")
     val t2: Long = System.nanoTime()
@@ -214,6 +219,8 @@ object main {
     logger.info(s"Total file analized ${Statistics.tsvFile}")
     logger.info(s"File correctly exported ${Statistics.correctExportedFile}")
     logger.info(s"File exported with Error ${Statistics.errorExportedFile}")
+
+    DbHandler.closeDatabase()
 
   }
 
