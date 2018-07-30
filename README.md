@@ -11,8 +11,8 @@ The configuration and usage manuals are available in the [wiki](https://github.c
 
 ## Repository Structure
 There are two main folders for the project. 
-- `src`:  it contains the source code of the project and the structure definition is available in the [link](https://github.com/DEIB-GECO/GMQL-Importer/tree/master/src/main/scala/it/polimi/genomics/importer). 
-- `Example`: folder contains multiple testing scenarios for the configuration files needed to run the framework.
+- `src`:  contains the source code of the project; the structure definition is available at this [link](https://github.com/DEIB-GECO/GMQL-Importer/tree/master/src/main/scala/it/polimi/genomics/importer). 
+- `Example`: contains test configuration files needed to run the framework in multiple testing scenarios.
 
 
 
@@ -22,7 +22,7 @@ There are two main folders for the project.
 |-----------|----------------------------------------------------|---------------------------------------------------|
 |<img src="https://avatars.githubusercontent.com/acanakoglu"      height="50px" title="Arif Canakoglu"/>        | [`@acanakoglu`](https://github.com/acanakoglu)           | Supervisor for the design and development of the project, main developer |
 |<img src="https://avatars.githubusercontent.com/sunbrn"      height="50px" title="Anna Bernasconi"/>        | [`@sunbrn`](https://github.com/sunbrn)           | Designer of the process, developer of the Cleaner module |
-|<img src="https://avatars.githubusercontent.com/nachodox"      height="50px" title="Nacho Vera"/>        | [`@NachoVera`](https://github.com/nachodox)           | Designer and developer of the Downloader Transformer and Loader modules |
+|<img src="https://avatars.githubusercontent.com/nachodox"      height="50px" title="Nacho Vera"/>        | [`@NachoVera`](https://github.com/nachodox)           | Designer and developer of the Downloader, Transformer and Loader modules |
 |<img src="https://avatars.githubusercontent.com/federicogatti"      height="50px" title="Federico Gatti"/>        | [`@federicogatti`](https://github.com/federicogatti)           | Designer and developer of the Mapper module |
 |<img src="https://avatars.githubusercontent.com/riccardomologni"      height="50px" title="Riccardo Mologni"/>        | [`@riccardomologni`](https://github.com/riccardomologni)           | Developer of the Roadmap Epigenomic package |
 |<img src="https://avatars.githubusercontent.com/AndreaColombo"      height="50px" title="Andrea Colombo"/>        | [`@AndreaColombo`](https://github.com/AndreaColombo)           | Designer and developer of the Enricher module  |
