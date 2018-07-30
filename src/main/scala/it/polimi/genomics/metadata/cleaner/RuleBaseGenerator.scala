@@ -22,6 +22,7 @@ object RuleBaseGenerator extends App {
       "(2) path of file containing rules,\n " +
       "(3) path of directory containing keys files:\n" +
       "this can contain file \"" + seen_keys_file + "\" containing keys seen until last run") //this directory will also be used for unseekkeys and all_keys (new File... .parent, non cercare in base a /)
+    System.exit(0)
   }
 
   val input_directory_path = args(0)
