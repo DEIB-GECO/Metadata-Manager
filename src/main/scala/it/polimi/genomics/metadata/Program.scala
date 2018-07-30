@@ -6,7 +6,7 @@ import it.polimi.genomics.metadata.downloader_transformer.Downloader
 import it.polimi.genomics.metadata.step.utils.ExecutionLevel.{ExecutionLevel, _}
 import it.polimi.genomics.metadata.step._
 import it.polimi.genomics.metadata.step.utils.{ParameterUtil, SchemaLocation, SchemaValidator}
-import it.polimi.genomics.metadata.downloader_transformer.database.FileDatabase
+import it.polimi.genomics.metadata.database.FileDatabase
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
 import it.polimi.genomics.repository.Utilities
 import org.apache.log4j._

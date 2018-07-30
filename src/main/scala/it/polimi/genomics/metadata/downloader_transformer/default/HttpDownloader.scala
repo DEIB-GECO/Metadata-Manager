@@ -3,7 +3,7 @@ import java.io.File
 import java.net.URL
 
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
-import it.polimi.genomics.metadata.downloader_transformer.database.{FileDatabase, Stage}
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.xml.Source
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

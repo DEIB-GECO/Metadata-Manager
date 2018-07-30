@@ -6,7 +6,7 @@ import java.nio.file.Paths
 
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.{CsvDownload, OAuth}
-import it.polimi.genomics.metadata.downloader_transformer.database.{FileDatabase, Stage}
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.xml.Source
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

@@ -5,7 +5,7 @@ import java.util
 
 import it.polimi.genomics.metadata.downloader_transformer.Transformer
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Unzipper
-import it.polimi.genomics.metadata.downloader_transformer.database.{FILE_STATUS, FileDatabase, Stage}
+import it.polimi.genomics.metadata.database.{FILE_STATUS, FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.step.xml
 import org.codehaus.jackson.map.MappingJsonFactory

@@ -3,7 +3,7 @@ package it.polimi.genomics.metadata.downloader_transformer.cistrome
 import java.io.File
 
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
-import it.polimi.genomics.metadata.downloader_transformer.database.{FileDatabase, Stage}
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.downloader_transformer
 import it.polimi.genomics.metadata.step.xml.Source
 import org.joda.time.DateTime

@@ -4,7 +4,7 @@ import java.io._
 
 import it.polimi.genomics.metadata.downloader_transformer.Transformer
 import it.polimi.genomics.metadata.downloader_transformer.default.SchemaFinder
-import it.polimi.genomics.metadata.downloader_transformer.database.{FileDatabase, Stage}
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.utils.DatasetNameUtil
 import it.polimi.genomics.metadata.step.xml.Dataset
 import org.slf4j.{Logger, LoggerFactory}

@@ -5,7 +5,7 @@ import java.util
 
 import it.polimi.genomics.core.DataStructures.IRDataSet
 import it.polimi.genomics.core.GDMSUserClass
-import it.polimi.genomics.metadata.downloader_transformer.database.{FileDatabase, Stage}
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.utils.DatasetNameUtil
 import it.polimi.genomics.manager.ProfilerLauncher
 import it.polimi.genomics.metadata.step.xml.Source

@@ -5,7 +5,7 @@ import java.net.URL
 import java.security.{DigestInputStream, MessageDigest}
 
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
-import it.polimi.genomics.metadata.downloader_transformer.database.{FileDatabase, Stage}
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.step.xml
 import org.joda.time.DateTime

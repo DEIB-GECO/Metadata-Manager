@@ -1,4 +1,4 @@
-package it.polimi.genomics.metadata.downloader_transformer.database
+package it.polimi.genomics.metadata.database
 
 /**
   * Created by Nacho

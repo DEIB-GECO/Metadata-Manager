@@ -1,4 +1,4 @@
-package it.polimi.genomics.metadata.downloader_transformer.database
+package it.polimi.genomics.metadata.database
 
 import org.joda.time.DateTime
 import org.slf4j.{Logger, LoggerFactory}

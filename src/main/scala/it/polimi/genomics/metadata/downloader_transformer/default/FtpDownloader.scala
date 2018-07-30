@@ -5,7 +5,7 @@ import java.security.{DigestInputStream, MessageDigest}
 
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Ftp
-import it.polimi.genomics.metadata.downloader_transformer.database.{FileDatabase, Stage}
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.xml
 import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.LoggerFactory

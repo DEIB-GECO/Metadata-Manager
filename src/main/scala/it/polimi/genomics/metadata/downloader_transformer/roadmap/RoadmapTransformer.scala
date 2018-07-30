@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 import com.github.tototoshi.csv.{CSVReader, CSVWriter, DefaultCSVFormat}
 import it.polimi.genomics.metadata.downloader_transformer.Transformer
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Unzipper
-import it.polimi.genomics.metadata.downloader_transformer.database.{FileDatabase, Stage}
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.step.xml
 import org.slf4j.{Logger, LoggerFactory}
