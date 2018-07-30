@@ -18,7 +18,9 @@ Download procedure depends more in the source than the dataset itself, therefore
   
 4. __Load__
 
-  This is the final step of the overall process, and it uses the interface from GMQLRepository to import data into GMQL to be queried. This part always loads GDM data files into GMQLRepository, and therefore is generic for every source or dataset.
+This is the final step of the overall process, and it uses the interface from GMQLRepository to import data into GMQL to be queried. This part always loads GDM data files into GMQLRepository, and therefore is generic for every source or dataset.
+
+Loading procedure in the development is by using the GMQLRepository interface provided by GMQL project, but any other repository could be used and that flexibility also has to be addressed.
 
 ## How to implement your own modules into GMQLImporter
 
