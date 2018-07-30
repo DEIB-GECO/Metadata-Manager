@@ -1,4 +1,4 @@
-# Metadata Manager [![Build Status](https://travis-ci.org/DEIB-GECO/Metadata-Manager.svg?branch=master)](https://travis-ci.org/DEIB-GECO/GMQL-Importer)
+# Metadata Manager [![Build Status](https://travis-ci.org/DEIB-GECO/Metadata-Manager.svg?branch=master)](https://travis-ci.org/DEIB-GECO/Metadata-Manager)
 
 
 
@@ -6,12 +6,12 @@ Metadata-Manager is a tool that integrates and enriches the heterogenous biologi
 
 
 ## Usage
-The configuration and usage manuals are available in the [wiki](https://github.com/DEIB-GECO/Metadata-Manager/wiki) pages of the project. 
+The configuration and usage manuals are available in the [wiki](./wiki) pages of the project. 
 
 
 ## Repository Structure
 There are two main folders for the project. 
-- `src`:  contains the source code of the project; the structure definition is available at this [link](https://github.com/DEIB-GECO/Metadata-Manager/tree/master/src/main/scala/it/polimi/genomics/metadata). 
+- `src`:  contains the source code of the project; the structure definition is available at this [link](./src/main/scala/it/polimi/genomics/metadata). 
 
 
 - `Example`: contains test configuration files needed to run the framework in multiple testing scenarios.
