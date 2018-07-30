@@ -6,7 +6,7 @@ Metadata-Manager is a tool that integrates and enriches the heterogenous biologi
 
 
 ## Usage
-The configuration and usage manuals are available in the [wiki](./wiki) pages of the project. 
+The configuration and usage manuals are available in the [wiki](https://github.com/DEIB-GECO/Metadata-Manager/wiki) pages of the project. 
 
 
 ## Repository Structure
