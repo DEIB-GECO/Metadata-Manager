@@ -5,7 +5,7 @@
 
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>GMQL-Importer</artifactId>
+    <artifactId>Metadata-Manager</artifactId>
     <groupId>it.polimi.genomics.metadata</groupId>
     <version>1.0-SNAPSHOT</version>
 
@@ -215,7 +215,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifestEntries>
-                            <Main-Class>it.polimi.genomics.metadata.main.Program</Main-Class>
+                            <Main-Class>it.polimi.genomics.metadata.Program</Main-Class>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -237,7 +237,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>it.polimi.genomics.metadata.main.Program</mainClass>
+                            <mainClass>it.polimi.genomics.metadata.Program</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
