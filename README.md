@@ -11,7 +11,9 @@ The configuration and usage manuals are available in the [wiki](https://github.c
 
 ## Repository Structure
 There are two main folders for the project. 
-- `src`:  contains the source code of the project; the structure definition is available at this [link](https://github.com/DEIB-GECO/GMQL-Importer/tree/master/src/main/scala/it/polimi/genomics/importer). 
+- `src`:  contains the source code of the project; the structure definition is available at this [link](https://github.com/DEIB-GECO/Metadata-Manager/tree/master/src/main/scala/it/polimi/genomics/metadata). 
+
+
 - `Example`: contains test configuration files needed to run the framework in multiple testing scenarios.
 
 
