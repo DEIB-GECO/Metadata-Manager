@@ -2,7 +2,8 @@ package it.polimi.genomics.importer.CistromeImporter
 
 import java.io._
 
-import it.polimi.genomics.importer.GMQLImporter.{GMQLDataset, GMQLSource, GMQLTransformer}
+import it.polimi.genomics.metadata.downloader_transformer.Transformer
+import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream}
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.io.IOUtils
@@ -13,7 +14,7 @@ import scala.io.BufferedSource
 /**
   * Created by nachon on 7/28/17.
   */
-class CistromeTransformer extends GMQLTransformer {
+class CistromeTransformer extends Transformer {
   val logger = LoggerFactory.getLogger(this.getClass)
 
   var metadataFileLines: Map[String, Array[String]] = _
@@ -28,7 +29,7 @@ class CistromeTransformer extends GMQLTransformer {
     * @param filename         name of the new file .meta/.bed
     * @return List(fileId, filename) for the transformed files.
     */
-  override def transform(source: GMQLSource, originPath: String, destinationPath: String, originalFilename: String, filename: String): Boolean = {
+  override def transform(source: Source, originPath: String, destinationPath: String, originalFilename: String, filename: String): Boolean = {
     val fileTransformationPath = destinationPath + File.separator + filename
     val fileDownloadPath = originPath + File.separator + originalFilename
 
@@ -62,7 +63,7 @@ class CistromeTransformer extends GMQLTransformer {
     * @param source   source where the files belong to.
     * @return candidate names for the files derived from the original filename.
     */
-  override def getCandidateNames(filename: String, dataset: GMQLDataset, source: GMQLSource): List[String] = {
+  override def getCandidateNames(filename: String, dataset: Dataset, source: Source): List[String] = {
     val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads" + File.separator + filename
     //    println("path:", path)
 

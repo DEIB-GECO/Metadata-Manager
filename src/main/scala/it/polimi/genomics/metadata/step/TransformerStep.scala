@@ -1,4 +1,4 @@
-package it.polimi.genomics.importer.GMQLImporter
+package it.polimi.genomics.metadata.step
 
 import java.io._
 
@@ -65,7 +65,7 @@ object TransformerStep extends Step {
 
               val transformationClass = Class
                 .forName(source.transformer)
-                .newInstance.asInstanceOf[GMQLTransformer]
+                .newInstance.asInstanceOf[Transformer]
 
               val t0Dataset: Long = System.nanoTime()
               var modifiedRegionFilesDataset = 0
@@ -138,7 +138,7 @@ object TransformerStep extends Step {
                 FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
                 val transformed = Class
                   .forName(source.transformer)
-                  .newInstance.asInstanceOf[GMQLTransformer]
+                  .newInstance.asInstanceOf[Transformer]
                   .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
                 val fileTransformationPath = transformationsFolder + File.separator + name
                 //add copy numbers if needed.

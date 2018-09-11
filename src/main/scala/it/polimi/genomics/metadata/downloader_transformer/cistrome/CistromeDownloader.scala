@@ -1,39 +1,21 @@
 package it.polimi.genomics.importer.CistromeImporter
 
-import it.polimi.genomics.importer.GMQLImporter.{GMQLDownloader, GMQLSource}
 import java.io.File
 import java.net.URL
 
-import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import it.polimi.genomics.importer.GMQLImporter.{GMQLDownloader, GMQLSource}
-import org.joda.time.DateTime
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
+import it.polimi.genomics.metadata.downloader_transformer.Downloader
+import it.polimi.genomics.metadata.step.xml.Source
 import org.slf4j.LoggerFactory
-
-import scala.util.Try
-
-
-
-
-import java.io.File
-import java.net.URL
-import java.nio.file.Paths
-
-import it.polimi.genomics.importer.DefaultImporter.utils.{OAuth, csvDownload}
-import it.polimi.genomics.importer.FileDatabase.{FileDatabase, STAGE}
-import it.polimi.genomics.importer.GMQLImporter.{GMQLDownloader, GMQLSource}
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.slf4j.{Logger, LoggerFactory}
 
 import scala.language.postfixOps
 import scala.sys.process._
-import scala.util.{Failure, Success, Try}
-import scala.collection.JavaConverters._
+import scala.util.Try
 
 /**
   * Created by nachon on 7/28/17.
   */
-class CistromeDownloader extends GMQLDownloader{
+class CistromeDownloader extends Downloader{
   val logger = LoggerFactory.getLogger( this.getClass )
 
   /**
@@ -62,7 +44,7 @@ class CistromeDownloader extends GMQLDownloader{
     */
 
 
-  override def download(source: GMQLSource, parallelExecution: Boolean): Unit = {
+  override def download(source: Source, parallelExecution: Boolean): Unit = {
     val sourceId = FileDatabase.sourceId(source.name)
 
 
@@ -85,7 +67,7 @@ class CistromeDownloader extends GMQLDownloader{
         val urlSource = scala.io.Source.fromURL(path)
         totalFiles += 1
 
-        val fileId = FileDatabase.fileId(datasetId, path, STAGE.DOWNLOAD, name)
+        val fileId = FileDatabase.fileId(datasetId, path, Stage.DOWNLOAD, name)
 
         val outputPath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
         if (!new java.io.File(outputPath).exists) {
@@ -131,7 +113,7 @@ class CistromeDownloader extends GMQLDownloader{
     * @param source            contains specific download and sorting info.
     * @param parallelExecution defines parallel or sequential execution
     */
-  override def downloadFailedFiles(source: GMQLSource, parallelExecution: Boolean): Unit = {
+  override def downloadFailedFiles(source: Source, parallelExecution: Boolean): Unit = {
 
   }
 }
