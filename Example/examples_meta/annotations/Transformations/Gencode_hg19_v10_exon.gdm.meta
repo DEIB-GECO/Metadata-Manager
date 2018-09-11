@@ -1,0 +1,13 @@
+annotation_type	exon
+assembly	hg19
+contact	gencode@sanger.ac.uk
+data_format_description	https://www.gencodegenes.org/data_format.html
+description	evidence-based annotation of the human genome (GRCh37), version 10 (Ensembl 65)
+download_link	ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_10/gencode.v10.annotation.gtf.gz
+full_name	Comprehensive gene annotation CHR
+genome_build	GRCh37
+original_format	gtf
+original_url	https://www.gencodegenes.org/releases/10.html
+provider	GENCODE
+release_date	2011-11-28
+release_version	10

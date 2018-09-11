@@ -5,8 +5,8 @@
 
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>GMQL-Importer</artifactId>
-    <groupId>it.polimi.genomics</groupId>
+    <artifactId>Metadata-Manager</artifactId>
+    <groupId>it.polimi.genomics.metadata</groupId>
     <version>1.0-SNAPSHOT</version>
 
     <repositories>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>it.polimi.genomics</groupId>
             <artifactId>GMQL-Repository</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>5.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>it.polimi.genomics</groupId>
             <artifactId>GMQL-SManager</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>5.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -166,6 +166,14 @@
         </dependency>
 
 
+        <!-- https://mvnrepository.com/artifact/com.github.tototoshi/scala-csv -->
+        <dependency>
+            <groupId>dk.brics.automaton</groupId>
+            <artifactId>automaton</artifactId>
+            <version>1.11-8</version>
+        </dependency>
+
+
 
         <!--<dependency>-->
             <!--<groupId>org.scala-lang</groupId>-->
@@ -207,7 +215,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifestEntries>
-                            <Main-Class>it.polimi.genomics.importer.main.program</Main-Class>
+                            <Main-Class>it.polimi.genomics.metadata.Program</Main-Class>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -229,7 +237,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>it.polimi.genomics.importer.main.program</mainClass>
+                            <mainClass>it.polimi.genomics.metadata.Program</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
