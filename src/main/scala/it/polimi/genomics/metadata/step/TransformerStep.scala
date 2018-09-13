@@ -104,7 +104,7 @@ object TransformerStep extends Step {
               var filesToTransform = 0
               val candidates = FileDatabase.getFilesToProcess(datasetId, Stage.DOWNLOAD).flatMap { file =>
                 val originalFileName =
-                  if (file._3 == 0) file._2
+                  if (file._3 == 1) file._2
                   else file._2.replaceFirst("\\.", "_" + file._3 + ".")
 
                 val fileDownloadPath = downloadsFolder + File.separator + originalFileName
@@ -136,10 +136,7 @@ object TransformerStep extends Step {
 
                 //I always transform, so the boolean checkIfUpdate is not used here.
                 FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-                val transformed = Class
-                  .forName(source.transformer)
-                  .newInstance.asInstanceOf[Transformer]
-                  .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
+                val transformed = transformationClass.transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
                 val fileTransformationPath = transformationsFolder + File.separator + name
                 //add copy numbers if needed.
                 if (transformed) {

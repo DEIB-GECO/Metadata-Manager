@@ -19,6 +19,11 @@ class CistromeTransformer extends Transformer {
 
   var metadataFileLines: Map[String, Array[String]] = _
 
+
+
+  val header2 = List("id", "geo_id", "organism", "cell_line", "organ", "tissue", "histone_mark", "name")
+  val header1 = List("geo_id", "term_id", "term_name", "term_url", "matched_text", "type", "name")
+
   /**
     * recieves .json and .bed.gz files and transform them to get metadata in .meta files and region in .bed files.
     *
@@ -37,9 +42,20 @@ class CistromeTransformer extends Transformer {
     if (new File(originPath + File.separator + originalFilename).exists()) {
       if (filename.endsWith(".meta")) {
         val line = metadataFileLines(filename)
+        val writer = new PrintWriter(fileTransformationPath)
 
+
+        val map =line.zip(header2).map(t=>(t._2,t._1)).toMap
+        map.foreach(t=>
+          writer.write(t._1 + "\t" + t._2 + "\n")
+        )
+
+        //TODO finish
+
+
+        writer.close()
         //correct this function and set as true
-        false
+        true
       }
       else {
         val inputStream = untarListRecursively(fileDownloadPath, Some(filename)).right.get
@@ -86,14 +102,17 @@ class CistromeTransformer extends Transformer {
       case _ => None
     }
 
+    // Read once if exists
+    val otherFilePathOpt = dataset.getParameter("other_file_path")
+    if(otherFilePathOpt.isDefined) {
+      val otherFilePath = otherFilePathOpt.get
+      if(new java.io.File(otherFilePath).exists)
+        scala.io.Source.fromFile(otherFilePath).getLines.map{_}
+        //TODO finish
+    }
 
-    relatedFiles
-      //      //TODO remove map
-      //      .map { x =>
-      //      println("output", x)
-      //      x
-      //      }
-      .toList
+
+    relatedFiles.toList
 
   }
 

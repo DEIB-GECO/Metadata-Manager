@@ -68,6 +68,7 @@ class CistromeDownloader extends Downloader{
         totalFiles += 1
 
         val fileId = FileDatabase.fileId(datasetId, path, Stage.DOWNLOAD, name)
+        FileDatabase.getFileNameAndCopyNumber(fileId)
 
         val outputPath = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"
         if (!new java.io.File(outputPath).exists) {
