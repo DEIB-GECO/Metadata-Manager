@@ -104,7 +104,7 @@ object TransformerStep extends Step {
               var filesToTransform = 0
               val candidates = FileDatabase.getFilesToProcess(datasetId, Stage.DOWNLOAD).flatMap { file =>
                 val originalFileName =
-                  if (file._3 == 1) file._2
+                  if (file._3 == 0) file._2
                   else file._2.replaceFirst("\\.", "_" + file._3 + ".")
 
                 val fileDownloadPath = downloadsFolder + File.separator + originalFileName

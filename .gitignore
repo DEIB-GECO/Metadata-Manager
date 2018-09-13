@@ -40,3 +40,4 @@ test-output
 #SHITTY output not in target directory
 build.log
 workingDirectory
+output/
