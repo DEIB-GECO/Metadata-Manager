@@ -103,13 +103,13 @@ class CistromeTransformer extends Transformer {
     }
 
     // Read once if exists
-    val otherFilePathOpt = dataset.getParameter("other_file_path")
-    if(otherFilePathOpt.isDefined) {
-      val otherFilePath = otherFilePathOpt.get
-      if(new java.io.File(otherFilePath).exists)
-        scala.io.Source.fromFile(otherFilePath).getLines.map{_}
+    val otherFilePath = dataset.getParameter("onassis_file").getOrElse("dummy")
+      if(new java.io.File(otherFilePath).exists) {
+        scala.io.Source.fromFile(otherFilePath).getLines
         //TODO finish
-    }
+      }
+      else
+        logger.warn("Onassis file is not available")
 
 
     relatedFiles.toList

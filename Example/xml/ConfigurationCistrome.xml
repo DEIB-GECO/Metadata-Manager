@@ -37,9 +37,9 @@
                 </parameter>
 
                 <parameter>
-                    <description>other_file_directory</description>
-                    <key>other_file_dir</key>
-                    <value>XXX/XXX</value>
+                    <description>onassis file path</description>
+                    <key>onassis_file</key>
+                    <value>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example/input/onassis.txt</value>
                 </parameter>
             </parameter_list>
             <dataset_list>
