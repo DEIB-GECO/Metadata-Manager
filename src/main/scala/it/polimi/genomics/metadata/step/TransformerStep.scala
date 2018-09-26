@@ -61,6 +61,12 @@ object TransformerStep extends Step {
         new Thread {
           override def run(): Unit = {
             if (dataset.transformEnabled) {
+
+
+              val transformationClass = Class
+                .forName(source.transformer)
+                .newInstance.asInstanceOf[Transformer]
+
               val t0Dataset: Long = System.nanoTime()
               var modifiedRegionFilesDataset = 0
               var modifiedMetadataFilesDataset = 0
@@ -102,10 +108,7 @@ object TransformerStep extends Step {
                   else file._2.replaceFirst("\\.", "_" + file._3 + ".")
 
                 val fileDownloadPath = downloadsFolder + File.separator + originalFileName
-                val candidates = Class
-                  .forName(source.transformer)
-                  .newInstance.asInstanceOf[Transformer]
-                  .getCandidateNames(originalFileName, dataset, source)
+                val candidates = transformationClass.getCandidateNames(originalFileName, dataset, source)
                 logger.info(s"candidates: $originalFileName, $candidates")
 
                 val files = candidates.map(candidateName => {
@@ -133,10 +136,7 @@ object TransformerStep extends Step {
 
                 //I always transform, so the boolean checkIfUpdate is not used here.
                 FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-                val transformed = Class
-                  .forName(source.transformer)
-                  .newInstance.asInstanceOf[Transformer]
-                  .transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
+                val transformed = transformationClass.transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
                 val fileTransformationPath = transformationsFolder + File.separator + name
                 //add copy numbers if needed.
                 if (transformed) {
