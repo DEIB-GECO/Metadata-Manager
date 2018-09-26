@@ -116,7 +116,7 @@ object TransformerStep extends Step {
               }.sortBy(_._1._1)
 
               logger.info("-------------------------")
-              candidates.foreach(t => logger.info(s"all candidates: $t"))
+              //              candidates.foreach(t => logger.info(s"all candidates: $t"))
 
               filesToTransform = filesToTransform + candidates.length
 
@@ -159,6 +159,7 @@ object TransformerStep extends Step {
 
                       val (fileSize, md5) = {
                         val regionFileName = fileTransformationPath.substring(0, fileTransformationPath.length - 5)
+                        println("regionFileName: [" + regionFileName + "]")
                         val file = new File(regionFileName)
                         val fileSize = file.length()
                         val fis = new FileInputStream(file)
@@ -255,8 +256,8 @@ object TransformerStep extends Step {
       }
       else {
         for (thread <- integrateThreads) {
-          thread.start()
-          thread.join()
+          thread.run()
+          //          thread.join()
         }
       }
       logger.info(modifiedRegionFilesSource + " region data files modified in source: " + source.name)
@@ -265,8 +266,6 @@ object TransformerStep extends Step {
       logger.info(s"Source ${source.name} transformation finished")
     }
   }
-
-
 
 
   /**
