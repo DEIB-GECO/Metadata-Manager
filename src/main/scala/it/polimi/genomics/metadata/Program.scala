@@ -197,7 +197,7 @@ object Program extends App {
     //general settings
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
-        "Example/xml/configurationSchema.xsd"
+        "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/master/Example/xml/configurationSchema.xsd"
       if (SchemaValidator.validate(xmlConfigPath, schemaUrl)) {
 
         logger.info("Xml file is valid for the schema")
