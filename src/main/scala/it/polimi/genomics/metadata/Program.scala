@@ -28,16 +28,16 @@ object Program extends App {
   val console = new ConsoleAppender() //create appender
   //configure the appender
   console.setLayout(new PatternLayout(PATTERN))
-  console.setThreshold(Level.DEBUG)
+  console.setThreshold(Level.WARN)
   console.activateOptions()
   //add appender to any Logger (here is root)
   Logger.getRootLogger.addAppender(console)
   val console2 = new ConsoleAppender()
   //configure the appenderN
   console2.setLayout(new PatternLayout(PATTERN))
-  console2.setThreshold(Level.INFO)
+  console2.setThreshold(Level.DEBUG)
   console2.activateOptions()
-  Logger.getLogger("it.polimi.genomics.importer").addAppender(console2)
+  Logger.getLogger("it.polimi.genomics").addAppender(console2)
 
   val console3 = new ConsoleAppender()
   //configure the appender

@@ -1,19 +1,29 @@
-package it.polimi.genomics.metadata.downloader_transformer.cistrome
+package it.polimi.genomics.importer.CistromeImporter
 
 import java.io._
-import java.util
 
 import it.polimi.genomics.metadata.downloader_transformer.Transformer
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream}
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
+
+import scala.io.BufferedSource
 
 /**
   * Created by nachon on 7/28/17.
   */
 class CistromeTransformer extends Transformer {
   val logger = LoggerFactory.getLogger(this.getClass)
+
+  var metadataFileLines: Map[String, Array[String]] = _
+
+
+
+  val header2 = List("id", "geo_id", "organism", "cell_line", "organ", "tissue", "histone_mark", "name")
+  val header1 = List("geo_id", "term_id", "term_name", "term_url", "matched_text", "type", "name")
+
   /**
     * recieves .json and .bed.gz files and transform them to get metadata in .meta files and region in .bed files.
     *
@@ -25,13 +35,42 @@ class CistromeTransformer extends Transformer {
     * @return List(fileId, filename) for the transformed files.
     */
   override def transform(source: Source, originPath: String, destinationPath: String, originalFilename: String, filename: String): Boolean = {
-    if(new File(originPath+File.separator+originalFilename).exists()) {
-      untarRecursively(originPath + File.separator + originalFilename, destinationPath+File.separator, filename)
-      true
+    val fileTransformationPath = destinationPath + File.separator + filename
+    val fileDownloadPath = originPath + File.separator + originalFilename
+
+
+    if (new File(originPath + File.separator + originalFilename).exists()) {
+      if (filename.endsWith(".meta")) {
+        val line = metadataFileLines(filename)
+        val writer = new PrintWriter(fileTransformationPath)
+
+
+        val map =line.zip(header2).map(t=>(t._2,t._1)).toMap
+        map.foreach(t=>
+          writer.write(t._1 + "\t" + t._2 + "\n")
+        )
+
+        //TODO finish
+
+
+        writer.close()
+        //correct this function and set as true
+        true
+      }
+      else {
+        val inputStream = untarListRecursively(fileDownloadPath, Some(filename)).right.get
+        IOUtils.copy(inputStream, new FileOutputStream(fileTransformationPath))
+        true
+      }
+
+
+
     }
     else
       false
   }
+
+
   /**
     * by receiving an original filename returns the new GDM candidate name(s).
     *
@@ -41,91 +80,117 @@ class CistromeTransformer extends Transformer {
     * @return candidate names for the files derived from the original filename.
     */
   override def getCandidateNames(filename: String, dataset: Dataset, source: Source): List[String] = {
-    val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads"+File.separator+filename
+    val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Downloads" + File.separator + filename
+    //    println("path:", path)
 
-    val list = new util.ArrayList[String]()
-    untarListRecursively(path,list)
+    val fileRegex = dataset.parameters.find(_._1 == "file_filter").map(_._2).getOrElse("ERROR").r
+    val metadataFileRegex = dataset.parameters.find(_._1 == "file_metadata").map(_._2).getOrElse("ERROR").r
 
-    fromJavaToScala(list)
-  }
+    val list = untarListRecursively(path).left.get
 
-  /**
-    * looks inside a tar.gz container for a file, if another tar.gz is inside, it will search inside recursively
-    * @param path tar.gz location
-    * @param outputFolder output folder for the extracted file
-    * @param filename name of the file to search
-    */
-  private def untarRecursively(path: String, outputFolder: String, filename: String): Unit ={
-    val fin = new FileInputStream(path)
-    val in = new BufferedInputStream(fin)
-    val gzIn = new GzipCompressorInputStream(in)
-    val tarIn = new TarArchiveInputStream(gzIn)
-    var entry = tarIn.getNextEntry
-    while (entry != null) {
-      if(entry.getName == filename) {
-        val data = new Array[Byte](2048)
-        val fos = new FileOutputStream(outputFolder + entry.getName)
-        val dest = new BufferedOutputStream(fos, 2048)
-        var count = tarIn.read(data, 0, 2048)
-        while (count != -1) {
-          dest.write(data, 0, count)
-          count = tarIn.read(data, 0, 2048)
-        }
-        dest.close()
-      }
-      else if(entry.getName.endsWith(".tar.gz")) {
-        val data = new Array[Byte](2048)
-        val fos = new FileOutputStream(outputFolder + entry.getName)
-        val dest = new BufferedOutputStream(fos, 2048)
-        var count = tarIn.read(data, 0, 2048)
-        while (count != -1) {
-          dest.write(data, 0, count)
-          count = tarIn.read(data, 0, 2048)
-        }
-        dest.close()
-        untarRecursively(outputFolder+entry.getName,outputFolder,filename)
-        new File(outputFolder+entry.getName).delete()
-      }
-      entry = tarIn.getNextEntry
+
+    val relatedFiles = list.flatMap {
+      case fileRegex(fileName) => Some(fileName)
+      case metadataFileRegex(metadataFileName) =>
+        val metadataStream = untarListRecursively(path, Some(metadataFileName)).right.get
+        val bs = new BufferedSource(metadataStream)
+        metadataFileLines = bs.getLines.map { line =>
+          val splitted = line.split('\t')
+          (splitted.last + ".meta", splitted)
+        }.toMap
+        metadataFileLines.keys
+      case _ => None
     }
+
+    // Read once if exists
+    val otherFilePath = dataset.getParameter("onassis_file").getOrElse("dummy")
+      if(new java.io.File(otherFilePath).exists) {
+        scala.io.Source.fromFile(otherFilePath).getLines
+        //TODO finish
+      }
+      else
+        logger.warn("Onassis file is not available")
+
+
+    relatedFiles.toList
+
   }
-  private def fromJavaToScala(list: util.ArrayList[String]): List[String] = {
-    var aux = ""
-    for(i <- 0 until list.size()){
-      aux += list.get(i)
-      aux += ","
-    }
-    aux.substring(0,aux.length-1).split(",").toList
+
+
+  def checkFileName(listFilename: List[String], filename: String): Boolean = listFilename.map(filename.contains(_)).fold(false)(_ || _)
+
+
+  private def untarListRecursively(path: String, unzipFileName: Option[String] = None): Either[Iterator[String], InputStream] = {
+    untarListRecursively(new FileInputStream(path), unzipFileName)
   }
+
+
   /**
     * extracts the files inside a tar container and returns a list of files
+    *
     * @return Java ArrayList of File
     */
-  private def untarListRecursively(path:String, list: util.ArrayList[String]): Unit ={
-    val fin = new FileInputStream(path)
-    val in = new BufferedInputStream(fin)
-    val gzIn = new GzipCompressorInputStream(in)
-    val tarIn = new TarArchiveInputStream(gzIn)
-    var entry = tarIn.getNextEntry
-    while (entry != null) {
-      if(entry.getName.endsWith(".tar.gz")) {
-        val data = new Array[Byte](2048)
-        val fos = new FileOutputStream(path + entry.getName)
-        val dest = new BufferedOutputStream(fos, 2048)
-        var count = tarIn.read(data, 0, 2048)
-        while (count != -1) {
-          dest.write(data, 0, count)
-          count = tarIn.read(data, 0, 2048)
-        }
-        dest.close()
-        untarListRecursively(path + entry.getName, list)
-        new File(path + entry.getName).delete()
-      }
-      else{
-        list.add(entry.getName)
-      }
-      entry = tarIn.getNextEntry
+  private def untarListRecursively(inputStream: InputStream, unzipFileName: Option[String]): Either[Iterator[String], InputStream] = {
+    val tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(inputStream))
+
+    val entries = getTarIterator(tarArchiveInputStream)
+
+
+    val resultList = entries.flatMap { entry =>
+      val fileName = entry.getName.split("/").last
+//      println(fileName)
+      if (unzipFileName.contains(fileName))
+        return Right(tarArchiveInputStream)
+
+      val innerResults: Iterator[String] =
+        if (entry.getName.endsWith(".tar.gz"))
+          untarListRecursively(tarArchiveInputStream, unzipFileName) match {
+            case Left(iterator) => iterator
+            case x => return x
+          }
+        else
+          Iterator.empty
+
+      getPrependIterator(fileName, innerResults)
     }
+
+    if (unzipFileName.isDefined) {
+      resultList.size //DO nothing
+      //cannot find yet
+      Left(Iterator.empty)
+    }
+    else
+      Left(resultList)
+  }
+
+  //it is a correct iterator, but it works with flatmap. I need to do as this, because I should not move the tarStream to the next entry
+  private def getTarIterator(tarArchiveInputStream: TarArchiveInputStream): Iterator[TarArchiveEntry] = new Iterator[TarArchiveEntry]() {
+
+    var curr: TarArchiveEntry = _
+
+    override def hasNext: Boolean = {
+      curr = tarArchiveInputStream.getNextTarEntry
+      curr != null
+    }
+
+    override def next() = curr
+
+  }
+
+  private def getPrependIterator[A](first: A, iterator: Iterator[A]): Iterator[A] = new Iterator[A]() {
+    var curr: A = first
+
+    override def hasNext: Boolean = curr != null
+
+    override def next(): A = {
+      val res = curr
+      if (iterator.hasNext)
+        curr = iterator.next()
+      else
+        curr = null.asInstanceOf[A]
+      res
+    }
+
   }
 
 }
