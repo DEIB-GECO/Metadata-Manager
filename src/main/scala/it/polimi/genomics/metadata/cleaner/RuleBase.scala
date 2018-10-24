@@ -29,7 +29,7 @@ class RuleBase(rules_file: String) {
         for (rule <- rulesList) {
           val temp_key: Option[String] = simulateRule(key, rule)
           if (temp_key.isDefined) {
-            println(temp_key, key, value)
+            //println(temp_key, key, value)
             key = temp_key.get
           }
         }
