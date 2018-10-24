@@ -181,7 +181,7 @@ object RuleBase {
   /*def applyRB(rules_file: String, dirIn: String, dirOut: String): Unit = {
 
     val rulesList = readRules(rules_file)
-    val input_files = Utils.getListOfFiles(new File(dirIn))
+    val input_files = Utils.getListOfMetaFiles(new File(dirIn))
 
     try {
       //for every file

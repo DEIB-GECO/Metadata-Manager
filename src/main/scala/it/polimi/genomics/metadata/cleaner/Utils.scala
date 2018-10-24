@@ -4,9 +4,9 @@ import java.io.File
 
 object Utils {
 
-  def getListOfFiles(dir: File): Array[File] = {
+  def getListOfMetaFiles(dir: File): Array[File] = {
     val filesList = dir.listFiles
-    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfFiles)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfMetaFiles)
     res.filter(_.getName.contains(".bed.meta"))
   }
 

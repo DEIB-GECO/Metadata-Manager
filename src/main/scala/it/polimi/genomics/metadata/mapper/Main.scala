@@ -20,7 +20,7 @@ import scala.collection.mutable
 import scala.io.Source
 
 
-object MapperMain {
+object MapperMain{
   val logger: Logger = Logger.getLogger(this.getClass)
   private val regexBedMetaJson = ".*.bed.meta.json".r
   //private val regexBedMeta = ".*.bed.meta\\z".r
@@ -64,7 +64,7 @@ object MapperMain {
     consoleINFO.setLayout(new PatternLayout(PATTERN))
     consoleINFO.setThreshold(Level.INFO)
     consoleINFO.activateOptions()
-    Logger.getLogger("it.polimi.genomics.importer").addAppender(consoleINFO)
+    Logger.getLogger("it.polimi.genomics.metadata.mapper").addAppender(consoleINFO)
 
     //configure the appender
     val consoleWARN = new ConsoleAppender()
@@ -141,7 +141,7 @@ object MapperMain {
     val pathGMQL = pathGMQLIn + File.separator + "Transformations" + File.separator
 
 
-    val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/federico_merged/Example/xml/setting.xsd"
+    val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/Metadata-Manager/master/Example/xml/setting.xsd"
     if (SchemaValidator.validate(pathXML, schemaUrl)) {
       logger.info("Xml file is valid for the schema")
       DbHandler.setDatabase()
@@ -179,7 +179,6 @@ object MapperMain {
         logger.info(s"Total Replicates inserted or updated ${Statistics.replicateInsertedOrUpdated}")
 
       }
-
 
     }
     else
@@ -412,7 +411,7 @@ object MapperMain {
     fa2.setThreshold(Level.DEBUG)
     fa2.setAppend(true)
     fa2.activateOptions()
-    Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
+    Logger.getLogger("it.polimi.genomics.metadata.mapper").addAppender(fa2)
   }
 
   def createMapper(lines: Array[String]): collection.mutable.Map[String, String] = {
@@ -489,7 +488,6 @@ object MapperMain {
 
     linesFromSet.toArray
   }
-
 
   def createPairs(lines: Array[String]): List[(String, String)] = {
     var pairs = List[(String, String)]()

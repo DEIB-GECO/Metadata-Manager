@@ -31,7 +31,7 @@ object CleanerStep extends Step {
           override def run(): Unit = {
             val rulePathOpt = ParameterUtil.getParameter(dataset, "rule_base")
             if (dataset.transformEnabled) {
-              val ruleBasePathOpt = rulePathOpt.map(new RuleBase(_))
+              val ruleBasePathOpt: Option[RuleBase] = rulePathOpt.map(new RuleBase(_))
 
 
               val t0Dataset: Long = System.nanoTime()
@@ -53,10 +53,10 @@ object CleanerStep extends Step {
               }
 
 
-              logger.info("Starting download for: " + dataset.name)
+              logger.info("Starting cleaner for: " + dataset.name)
               // puts the schema into the transformations folder.
               if (SchemaFinder.downloadSchema(source.rootOutputFolder, dataset, cleanerFolder, source))
-                logger.debug("Schema downloaded for: " + dataset.name)
+                logger.debug("Schema cleaned for: " + dataset.name)
               else
                 logger.warn("Schema not found for: " + dataset.name)
 

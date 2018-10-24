@@ -11,7 +11,7 @@ import it.polimi.genomics.metadata.cleaner.RuleBaseGenerator._
 object IOManager {
 
   def computeAllKeys(dir: String): LinkedHashSet[String] = {
-    val input_files = Utils.getListOfFiles(new File(dir))
+    val input_files = Utils.getListOfMetaFiles(new File(dir))
     val output_file_lines = new LinkedHashSet[String]()
 
     try {

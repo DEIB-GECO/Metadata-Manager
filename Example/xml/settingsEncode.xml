@@ -5,7 +5,6 @@
             <source_key>dataset_name</source_key>
             <global_key>name</global_key>
         </mapping>
-
         <mapping>
             <source_key>file__output_type</source_key> <!--peaks-->
             <global_key>dataType</global_key>
@@ -26,8 +25,6 @@
             <source_key>null</source_key>
             <global_key>annotation</global_key>
         </mapping>
-
-
     </table>
     <table name="DONORS">
         <mapping>
@@ -149,7 +146,6 @@
             <global_key>externalRef</global_key>
         </mapping>
     </table>
-
     <table name="ITEMS">
         <mapping>
             <source_key>file__accession</source_key>
@@ -175,7 +171,6 @@
             <source_key>file__href</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
-
         <mapping method="MANUALLY">
             <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
             <global_key>localUrl</global_key>
@@ -192,6 +187,5 @@
             <source_key>/region</source_key>
             <global_key>localUrl</global_key>
         </mapping>
-
     </table>
   </root>
