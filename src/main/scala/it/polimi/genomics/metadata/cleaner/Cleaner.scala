@@ -17,6 +17,8 @@ object Cleaner extends App {
   val input_directory_path = args(0)
   val output_directory_path = args(1)
 
+  val out_dir = new File(output_directory_path)
+
   var rules_file: Option[String] = None
 
   if(args.length > 2){
@@ -31,11 +33,12 @@ object Cleaner extends App {
     else None
   }
 
-  input_files.foreach({ inputFile =>
+  input_files.foreach({ inputFile: File =>
 
     val inputPath = inputFile.getAbsolutePath
 
-    val outputPath = inputPath.replace("Transformations/" + inputFile.getName, "") + "Cleaned/" + inputFile.getName
+    val outputPath = new File(out_dir, inputFile.getName).getAbsolutePath
+
 
     if (ruleBasePathOpt.isDefined) {
       ruleBasePathOpt.get.applyRBToFile(inputPath, outputPath)
