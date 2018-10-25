@@ -71,7 +71,7 @@ object RuleBase {
 
     val unseen_keys: LinkedHashSet[String] = all_keys.filter(!seen_ant.contains(_))
 
-    val unseen_keys_path = RuleBaseGenerator.files_path + RuleBaseGenerator.unseen_keys_file
+    val unseen_keys_path = RuleBaseGenerator.base_path + RuleBaseGenerator.source + "_" + RuleBaseGenerator.unseen_keys_file
     val pu = Paths.get(unseen_keys_path)
     if(!Files.exists(pu)) Files.createFile(pu)
     writeKeys(unseen_keys_path, unseen_keys)

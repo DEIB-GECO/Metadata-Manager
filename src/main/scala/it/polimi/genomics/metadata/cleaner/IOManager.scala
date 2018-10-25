@@ -3,7 +3,7 @@ package it.polimi.genomics.metadata.cleaner
 import java.io._
 import java.nio.file.{Files, Paths}
 
-import scala.collection.mutable.LinkedHashSet
+import scala.collection.mutable.{ArrayBuffer, LinkedHashSet}
 import scala.io.Source
 import scala.io.StdIn.readLine
 import it.polimi.genomics.metadata.cleaner.RuleBaseGenerator._
@@ -11,8 +11,23 @@ import it.polimi.genomics.metadata.cleaner.RuleBaseGenerator._
 
 object IOManager {
 
-  def computeAllKeys(dir: String): LinkedHashSet[String] = {
-    val input_files = Utils.getListOfMetaFiles(new File(dir))
+  def computeAllKeys(dir: String, source: String): LinkedHashSet[String] = {
+
+    var input_files = ArrayBuffer[File]()
+    val folders = Utils.getListOfSubDirectories(dir)
+    for (folder: String <- folders) {
+      val f = new File(dir + folder)
+      if (f.getName.toLowerCase.contains(source.toLowerCase)) {
+        val datasets = Utils.getListOfSubDirectories(dir + folder)
+        for (dataset: String <- datasets) {
+          val d = new File(dir + folder + "/" + dataset + "/Transformations")
+          val files = Utils.getListOfMetaFiles(d)
+          for(i<-files)
+            input_files += i
+        }
+      }
+    }
+
     val output_file_lines = new LinkedHashSet[String]()
 
     try {
@@ -66,24 +81,24 @@ object IOManager {
   }
 
   //to print seen_keys file formatted nicely as a table (but not working properly!)
- /* def readSeenKeys(file_name: String): LinkedHashSet[(String, String, Rule)] = {
-    val output_file_lines = new LinkedHashSet[(String, String, Rule)]()
-    try {
-      val bufferedSource = Source.fromFile(file_name)
-      val rule_pattern = "(.*)\\t(.*)\\t(.*)=>(.*)"
+  /* def readSeenKeys(file_name: String): LinkedHashSet[(String, String, Rule)] = {
+     val output_file_lines = new LinkedHashSet[(String, String, Rule)]()
+     try {
+       val bufferedSource = Source.fromFile(file_name)
+       val rule_pattern = "(.*)\\t(.*)\\t(.*)=>(.*)"
 
-      for (line <- bufferedSource.getLines) {
-        val line_ns = line.replaceAll("\\t\\s*", "\\t")
-        output_file_lines += ((line_ns.replaceFirst(rule_pattern, "$1"), line_ns.replaceFirst(rule_pattern, "$2"), new Rule(line_ns.replaceFirst(rule_pattern, "$3"), line_ns.replaceFirst(rule_pattern, "$4"))))
-      }
-      bufferedSource.close
-    } catch {
-      case e: FileNotFoundException => println("Couldn't find file " + file_name)
-      case e: IOException => println("Got an IOException!")
-    }
-    output_file_lines
-  }
-  */
+       for (line <- bufferedSource.getLines) {
+         val line_ns = line.replaceAll("\\t\\s*", "\\t")
+         output_file_lines += ((line_ns.replaceFirst(rule_pattern, "$1"), line_ns.replaceFirst(rule_pattern, "$2"), new Rule(line_ns.replaceFirst(rule_pattern, "$3"), line_ns.replaceFirst(rule_pattern, "$4"))))
+       }
+       bufferedSource.close
+     } catch {
+       case e: FileNotFoundException => println("Couldn't find file " + file_name)
+       case e: IOException => println("Got an IOException!")
+     }
+     output_file_lines
+   }
+   */
 
   def readSeenKeys(file_name: String): LinkedHashSet[(String, String, Rule)] = {
     val output_file_lines = new LinkedHashSet[(String, String, Rule)]()
@@ -92,7 +107,7 @@ object IOManager {
       val line_pattern = "Key before: (.*),\tKey after: (.*),\tApplied rule: (.*)=>(.*)"
 
       for (line <- bufferedSource.getLines) {
-       // val line_ns = line.replaceAll("\\t\\s*", "\\t")
+        // val line_ns = line.replaceAll("\\t\\s*", "\\t")
         output_file_lines += ((line.replaceFirst(line_pattern, "$1"), line.replaceFirst(line_pattern, "$2"), new Rule(line.replaceFirst(line_pattern, "$3"), line.replaceFirst(line_pattern, "$4"))))
       }
       bufferedSource.close
@@ -174,14 +189,14 @@ object IOManager {
 
   def updateFiles(ruleList: List[Rule], unseen_keys: LinkedHashSet[String], seen_keys: LinkedHashSet[(String, String, Rule)]): Unit = {
     val pr = Paths.get(rule_list_path)
-    if(!Files.exists(pr)) Files.createFile(pr)
+    if (!Files.exists(pr)) Files.createFile(pr)
     writeRules(rule_list_path, ruleList)
 
     val ps = Paths.get(seen_keys_path)
-    if(!Files.exists(ps)) Files.createFile(ps)
+    if (!Files.exists(ps)) Files.createFile(ps)
     writeSeenKeys(seen_keys_path, seen_keys)
 
-    writeKeys(files_path + unseen_keys_file, unseen_keys)
+    writeKeys(base_path + source + "_" + unseen_keys_file, unseen_keys)
   }
 
 }

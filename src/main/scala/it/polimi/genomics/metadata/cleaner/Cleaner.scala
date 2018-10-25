@@ -10,7 +10,7 @@ import it.polimi.genomics.metadata.step.CleanerStep.createSymbolicLink
 object Cleaner extends App {
 
   if (args.length < 2) {
-    println("This jar at least 2 parameters to be run: input_directory_path, output_directory_path. " +
+    println("This jar at least 2 parameters to be run: base_path, output_directory_path. " +
       "Additionally you may specify a third file: rules_list_file")
     System.exit(0)
   }

@@ -4,8 +4,15 @@ import java.io.File
 
 object Utils {
 
+  def getListOfSubDirectories(directoryName: String): Array[String] = {
+    (new File(directoryName))
+      .listFiles
+      .filter(_.isDirectory)
+      .map(_.getName)
+  }
+
   def getListOfMetaFiles(dir: File): Array[File] = {
-    val filesList = dir.listFiles
+    val filesList: Array[File] = dir.listFiles
     val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfMetaFiles)
     res.filter(_.getName.contains(".bed.meta"))
   }
