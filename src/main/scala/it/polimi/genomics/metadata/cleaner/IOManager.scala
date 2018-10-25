@@ -21,6 +21,7 @@ object IOManager {
         val datasets = Utils.getListOfSubDirectories(dir + folder)
         for (dataset: String <- datasets) {
           val d = new File(dir + folder + "/" + dataset + "/Transformations")
+          println("*****d="+d)
           val files = Utils.getListOfMetaFiles(d)
           for(i<-files)
             input_files += i

@@ -13,6 +13,7 @@ object Utils {
 
   def getListOfMetaFiles(dir: File): Array[File] = {
     val filesList: Array[File] = dir.listFiles
+    println(dir + "---------" + filesList)
     val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfMetaFiles)
     res.filter(_.getName.contains(".bed.meta"))
   }
