@@ -17,7 +17,7 @@ object IOManager {
     val folders = Utils.getListOfSubDirectories(dir)
     for (folder: String <- folders) {
       val f = new File(dir + folder)
-      if (f.getName.toLowerCase.contains(source.toLowerCase)) {
+      if (f.getName.toLowerCase.contains("_" + source.toLowerCase)) {
         val datasets = Utils.getListOfSubDirectories(dir + folder)
         for (dataset: String <- datasets) {
           val d = new File(dir + folder + "/" + dataset + "/Transformations")
