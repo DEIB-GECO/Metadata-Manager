@@ -1,6 +1,7 @@
 package it.polimi.genomics.metadata.cleaner
 
 import java.io._
+import java.nio.file.{Files, Paths}
 
 import scala.collection.mutable.LinkedHashSet
 import scala.io.Source
@@ -33,8 +34,8 @@ object IOManager {
   def writeKeys(file_name: String, set: LinkedHashSet[String]): Unit = {
     val base_file: File = new File(file_name)
     val bw = new BufferedWriter(new FileWriter(base_file))
-    val sortedset = collection.immutable.SortedSet[String]() ++ set
-    for (s <- sortedset) {
+    val sorted_set = collection.immutable.SortedSet[String]() ++ set
+    for (s <- sorted_set) {
       bw.write(s + "\n")
     }
     bw.close()
@@ -122,7 +123,7 @@ object IOManager {
   }
 
   def printWelcomeMsg(): Unit = {
-    println("\nPlease open the \"" + unseen_keys_file + "\" and \"" + rules_file_path + "\" files and get inspiration for new cleaning rules!")
+    println("\nPlease open the \"" + unseen_keys_file + "\" and \"" + rules_list_file + "\" files and get inspiration for new cleaning rules!")
   }
 
   def getRuleOrQuitChoice: String = {
@@ -141,7 +142,7 @@ object IOManager {
     val line = readLine()
     line match {
       case "n" | "N" => print("You chose to reject the specified rule! "); line
-      case "y" | "Y" => println("\nYou accepted the rule! Find the changes (if any) in \"" + seen_keys_file + "\" and \"" + rules_file_path + "\"\n"); line
+      case "y" | "Y" => println("\nYou accepted the rule! Find the changes (if any) in \"" + seen_keys_file + "\" and \"" + rules_list_file + "\"\n"); line
       case _ => println("Error, your choice is not valid."); getRejectOrAcceptChoice
     }
   }
@@ -172,9 +173,15 @@ object IOManager {
   }
 
   def updateFiles(ruleList: List[Rule], unseen_keys: LinkedHashSet[String], seen_keys: LinkedHashSet[(String, String, Rule)]): Unit = {
-    writeRules(rules_file_path, ruleList)
-    writeKeys(keys_dir_path + unseen_keys_file, unseen_keys)
-    writeSeenKeys(keys_dir_path + seen_keys_file, seen_keys)
+    val pr = Paths.get(rule_list_path)
+    if(!Files.exists(pr)) Files.createFile(pr)
+    writeRules(rule_list_path, ruleList)
+
+    val ps = Paths.get(seen_keys_path)
+    if(!Files.exists(ps)) Files.createFile(ps)
+    writeSeenKeys(seen_keys_path, seen_keys)
+
+    writeKeys(files_path + unseen_keys_file, unseen_keys)
   }
 
 }

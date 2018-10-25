@@ -11,7 +11,8 @@ object Cleaner extends App {
 
   if (args.length < 2) {
     println("This jar at least 2 parameters to be run: input_directory_path, output_directory_path. " +
-      "Additionally you may specify a third file: rules_file")
+      "Additionally you may specify a third file: rules_list_file")
+    System.exit(0)
   }
 
   val input_directory_path = args(0)
@@ -22,7 +23,7 @@ object Cleaner extends App {
   var rules_file: Option[String] = None
 
   if(args.length > 2){
-    rules_file = Option(args(2))
+    rules_file = Some(args(2))
   }
 
   val input_files = Utils.getListOfMetaFiles(new File(input_directory_path))
@@ -39,6 +40,8 @@ object Cleaner extends App {
 
     val outputPath = new File(out_dir, inputFile.getName).getAbsolutePath
 
+    println("inputPath: " + inputPath)
+    println("outputPath: " + outputPath)
 
     if (ruleBasePathOpt.isDefined) {
       ruleBasePathOpt.get.applyRBToFile(inputPath, outputPath)

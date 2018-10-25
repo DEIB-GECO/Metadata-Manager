@@ -1,15 +1,14 @@
 package it.polimi.genomics.metadata.cleaner
 
 import java.io._
+import java.nio.file.{Files, Paths}
 
 import scala.collection.mutable.{ArrayBuffer, LinkedHashSet, ListBuffer}
 import scala.io.Source
 import scala.util.control.Breaks.{break, breakable}
-
-
 import it.polimi.genomics.metadata.cleaner.IOManager._
-
 import it.polimi.genomics.metadata.cleaner.Rule.simulateRule
+import it.polimi.genomics.metadata.cleaner.RuleBaseGenerator.seen_keys_path
 
 class RuleBase(rules_file: String) {
   val rulesList = readRules(rules_file)
@@ -59,17 +58,30 @@ class RuleBase(rules_file: String) {
 
 object RuleBase {
 
-  def createRB(readRulesList: List[Rule], all_keys: LinkedHashSet[String], seen_keys: LinkedHashSet[(String, String, Rule)], unseen_keys_file: String): Unit = {
+  def createRB(readRulesList: Option[List[Rule]], all_keys: LinkedHashSet[String], seen_keys_opt: Option[LinkedHashSet[(String, String, Rule)]]): Unit = {
+
+    val seen_keys = seen_keys_opt.getOrElse(new LinkedHashSet[(String, String, Rule)])
 
     val seen_ant = new LinkedHashSet[String]
+
+
     for (x <- seen_keys) {
       seen_ant.add(x._1)
     }
 
     val unseen_keys: LinkedHashSet[String] = all_keys.filter(!seen_ant.contains(_))
-    writeKeys(unseen_keys_file, unseen_keys)
 
-    var ruleList = readRulesList
+    val unseen_keys_path = RuleBaseGenerator.files_path + RuleBaseGenerator.unseen_keys_file
+    val pu = Paths.get(unseen_keys_path)
+    if(!Files.exists(pu)) Files.createFile(pu)
+    writeKeys(unseen_keys_path, unseen_keys)
+
+
+    var ruleList = {
+      if(readRulesList.isDefined)
+        readRulesList.get
+      else List[Rule]()
+    }
     var preRL = List[Rule]()
 
     printWelcomeMsg
@@ -93,25 +105,6 @@ object RuleBase {
           val temp: (ArrayBuffer[(String, String, Rule)], ArrayBuffer[(String, String, Rule)]) = simulateRB(ruleList: List[Rule], simulated_rule: Rule, all_keys: LinkedHashSet[String])
           val temp_keys_rb = temp._1
           val temp_keys_new_rule = temp._2
-
-          /*val temp_keys_rb = new ArrayBuffer[(String, String, Rule)]
-          val temp_keys_new_rule = new ArrayBuffer[(String, String, Rule)]
-
-          //simulation of application of RB
-          for (key <- all_keys) {
-            breakable {
-              for (rule <- ruleList) {
-                val temp_key: Option[String] = simulateRule(key, rule)
-                if (temp_key.isDefined) {
-                  temp_keys_rb += ((key, temp_key.get, rule))
-                  if (rule == simulated_rule)
-                    temp_keys_new_rule += ((key, temp_key.get, rule))
-                  break
-                }
-
-              }
-            }
-          }*/
 
           //visualization of new rule application simulation
           if (temp_keys_new_rule.nonEmpty) {
@@ -178,9 +171,9 @@ object RuleBase {
   }
 
   //not used anymore: old method applied to directories instead of single files
-  /*def applyRB(rules_file: String, dirIn: String, dirOut: String): Unit = {
+  /*def applyRB(rules_list_file: String, dirIn: String, dirOut: String): Unit = {
 
-    val rulesList = readRules(rules_file)
+    val rulesList = readRules(rules_list_file)
     val input_files = Utils.getListOfMetaFiles(new File(dirIn))
 
     try {
