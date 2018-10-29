@@ -35,7 +35,7 @@ object IOManager {
       for (current_file <- input_files) {
         val bufferedSource = Source.fromFile(current_file)
         for (line <- bufferedSource.getLines.toList) {
-          output_file_lines += Utils.extractKey(line).replaceAll("__[0-9]*__", "__X__")
+          output_file_lines += Utils.extractKey(line)//.replaceAll("__[0-9]*__", "__X__")
         }
         bufferedSource.close
       }
