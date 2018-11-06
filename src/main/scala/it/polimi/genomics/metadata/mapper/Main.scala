@@ -64,7 +64,7 @@ object MapperMain{
     consoleINFO.setLayout(new PatternLayout(PATTERN))
     consoleINFO.setThreshold(Level.INFO)
     consoleINFO.activateOptions()
-    Logger.getLogger("it.polimi.genomics.metadata.mapper").addAppender(consoleINFO)
+    Logger.getLogger("it.polimi.genomics").addAppender(consoleINFO)
 
     //configure the appender
     val consoleWARN = new ConsoleAppender()
@@ -411,7 +411,7 @@ object MapperMain{
     fa2.setThreshold(Level.DEBUG)
     fa2.setAppend(true)
     fa2.activateOptions()
-    Logger.getLogger("it.polimi.genomics.metadata.mapper").addAppender(fa2)
+    Logger.getLogger("it.polimi.genomics").addAppender(fa2)
   }
 
   def createMapper(lines: Array[String]): collection.mutable.Map[String, String] = {

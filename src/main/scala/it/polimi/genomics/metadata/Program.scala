@@ -244,7 +244,7 @@ object Program extends App {
         fa2.setThreshold(Level.DEBUG)
         fa2.setAppend(true)
         fa2.activateOptions()
-        Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
+        Logger.getLogger("it.polimi.genomics").addAppender(fa2)
         //to continue consistency of xml configuration is needed.
         if (checkConsistencyConfigurationXml(sources, loadEnabled, transformEnabled)) {
           //start DTL
