@@ -19,9 +19,10 @@ object IOManager {
       val f = new File(dir + folder)
       if (f.getName.toLowerCase.contains("_" + source.toLowerCase)) {
         val datasets = Utils.getListOfSubDirectories(dir + folder)
+        println("Please be patient, compiling the file with all keys could take some time.")
         for (dataset: String <- datasets) {
           val d = new File(dir + folder + "/" + dataset + "/Transformations")
-          println("*****d="+d)
+          println("Collecting keys from path: "+d)
           val files = Utils.getListOfMetaFiles(d)
           for(i<-files)
             input_files += i
@@ -139,7 +140,7 @@ object IOManager {
   }
 
   def printWelcomeMsg(): Unit = {
-    println("\nPlease open the \"" + unseen_keys_file + "\" and \"" + rules_list_file + "\" files and get inspiration for new cleaning rules!")
+    println("\nPlease open the \"<source>_" + unseen_keys_file + "\" and \"<source>_" + rules_list_file + "\" files and get inspiration for new cleaning rules!")
   }
 
   def getRuleOrQuitChoice: String = {

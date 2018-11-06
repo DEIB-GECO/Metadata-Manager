@@ -13,7 +13,7 @@ object RuleBaseGenerator extends App {
 
   if (args.length < 2) {
     println("This application needs 3 parameters to be run:\n " +
-      "(1) path of directory of transformed .meta files,\n " +
+      "(1) path of datasets, inside of which the application will consider directories \"Transformations\",\n " +
       "(2) source (e.g., \"ENCODE\" or \"TCGA\")")
     // "(3) path of directory containing keys files and rules, may contain:\n" +
      // "- file \"" + seen_keys_file + "\" with keys seen until last run\n" +
