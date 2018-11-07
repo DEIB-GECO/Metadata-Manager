@@ -39,22 +39,33 @@ object Cleaner extends App {
   val output_directory = new File(base_path + "/Cleaned/")
 
 
-  val input_files: Array[File] = Utils.getListOfMetaFiles(input_directory)
+  val input_meta_files: Array[File] = Utils.getListOfMetaFiles(input_directory)
+  val input_reg_files: Array[File] = Utils.getListOfRegFiles(input_directory)
 
-  input_files.foreach({ inputFile: File =>
+  input_meta_files.foreach({ inputFile: File =>
 
     val inputPath = inputFile.getAbsolutePath
 
     val outputPath = new File(output_directory, inputFile.getName).getAbsolutePath
 
-    println("inputPath: " + inputPath)
-    println("outputPath: " + outputPath)
+    //println("inputPath: " + inputPath)
+    //println("outputPath: " + outputPath)
 
     if (ruleBasePathOpt.isDefined) {
       ruleBasePathOpt.get.applyRBToFile(inputPath, outputPath)
     } else {
       createSymbolicLink(inputPath, outputPath)
     }
+
+  })
+
+  input_reg_files.foreach({ inputFile: File =>
+
+    val inputPath = inputFile.getAbsolutePath
+
+    val outputPath = new File(output_directory, inputFile.getName).getAbsolutePath
+
+    createSymbolicLink(inputPath, outputPath)
 
   })
 

@@ -105,6 +105,7 @@ object Rule {
         //} else { //new rule is comparable with current or is less than
       }
     }
+    println("Rule is added ad the bottom of the list.\n")
     ruleList ::: List(newRule)
   }
 

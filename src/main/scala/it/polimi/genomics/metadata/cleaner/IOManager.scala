@@ -13,13 +13,14 @@ object IOManager {
 
   def computeAllKeys(dir: String, source: String): LinkedHashSet[String] = {
 
+    println("Please be patient, compiling the file with all keys could take some time.")
+
     var input_files = ArrayBuffer[File]()
     val folders = Utils.getListOfSubDirectories(dir)
     for (folder: String <- folders) {
       val f = new File(dir + folder)
       if (f.getName.toLowerCase.contains("_" + source.toLowerCase)) {
         val datasets = Utils.getListOfSubDirectories(dir + folder)
-        println("Please be patient, compiling the file with all keys could take some time.")
         for (dataset: String <- datasets) {
           val d = new File(dir + folder + "/" + dataset + "/Transformations")
           println("Collecting keys from path: "+d)

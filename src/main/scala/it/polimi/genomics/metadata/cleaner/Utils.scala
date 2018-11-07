@@ -18,6 +18,13 @@ object Utils {
     res.filter(_.getName.contains(".bed.meta"))
   }
 
+  def getListOfRegFiles(dir: File): Array[File] = {
+    val filesList: Array[File] = dir.listFiles
+    //println(dir + "---------" + filesList)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfMetaFiles)
+    res.filter(_.getName.endsWith(".bed"))
+  }
+
   def buildRulePair(input_string: String): (String, String) = {
     val rule_pattern = "(.*)=>(.*)"
     (input_string.replaceAll(rule_pattern, "$1"), input_string.replaceAll(rule_pattern, "$2"))
