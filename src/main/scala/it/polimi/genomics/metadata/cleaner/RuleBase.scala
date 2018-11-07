@@ -25,11 +25,14 @@ class RuleBase(rules_file: String) {
         //extract pair
         var (key, value): (String, String) = Utils.extractPair(line)
         //apply first available rule to key
-        for (rule <- rulesList) {
-          val temp_key: Option[String] = simulateRule(key, rule)
-          if (temp_key.isDefined) {
-            //println(temp_key, key, value)
-            key = temp_key.get
+        breakable{
+          for (rule <- rulesList) {
+            val temp_key: Option[String] = simulateRule(key, rule)
+            if (temp_key.isDefined) {
+              //println(temp_key, key, value)
+              key = temp_key.get
+              break
+            }
           }
         }
         //write new pair on new set
