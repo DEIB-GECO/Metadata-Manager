@@ -189,6 +189,24 @@ object IOManager {
     }
   }
 
+
+  def prioritizeNewRuleChoice(oldRule: Rule, newRule: Rule): Boolean = {
+
+    print("\nThe new rule antecedent matches with a set of keys which partially overlaps the set of an existing rule." +
+      "\nExisting (E): " + oldRule +
+      "\nNew (N): " + newRule +
+      "\nTo give priority to new rule press N, to continue search the right position press E: ")
+
+    val line = readLine()
+    line match {
+      case "n" | "N" => println("You chose to give priority to the new rule!\n"); true
+      case "e" | "E" => println("You chose to keep looking into the rule base!\n"); false
+      case _ => println("Error, your choice is not valid.\n"); keepNewRuleChoice(oldRule, newRule)
+    }
+
+  }
+
+
   def updateFiles(ruleList: List[Rule], unseen_keys: LinkedHashSet[String], seen_keys: LinkedHashSet[(String, String, Rule)]): Unit = {
     val pr = Paths.get(rule_list_path)
     if (!Files.exists(pr)) Files.createFile(pr)

@@ -3,7 +3,7 @@ package it.polimi.genomics.metadata.cleaner
 
 import dk.brics.automaton._
 
-import it.polimi.genomics.metadata.cleaner.IOManager.keepNewRuleChoice
+import it.polimi.genomics.metadata.cleaner.IOManager._
 
 
 
@@ -26,13 +26,22 @@ case class Rule(antecedent: String, consequent: String) extends PartiallyOrdered
       autoThat.expandSingleton()
       autoThat.determinize()
 
-      if (autoThis.equals(autoThat)) Some(0)
+      if (autoThis.equals(autoThat)) //intersection between L(a) and L(a') corresponds to L(a) and L(a')
+        Some(0)
       else {
         val inter = BasicOperations.intersection(autoThis, autoThat)
-        inter.determinize()
-        if (inter.equals(autoThat)) Some(1)
-        else if (inter.equals(autoThis)) Some(-1)
-        else None
+
+        if(inter.isEmpty) //intersection between L(a) and L(a') is empty -> incomparable
+          Some(-2)
+        else{
+          inter.determinize()
+          if (inter.equals(autoThat)) //L(a') is contained in L(a) (new is contained in existing)
+            Some(1)
+          else if (inter.equals(autoThis)) //L(a) is contained in L(a') (existing is contained in new)
+            Some(-1)
+          else //intersection between L(a) and L(a') is partial
+            Some(2)
+        }
       }
     } else None
 
@@ -80,6 +89,13 @@ object Rule {
           }
           else
             return ruleList //return same list
+        }
+        else if(rel.get == 2){ //new rule has overlap with already existing rule
+          if (prioritizeNewRuleChoice(rule,newRule)){
+            val tempOverlap = ruleList.splitAt(ruleList.indexOf(rule))
+            return tempOverlap._1 ::: List(newRule) ::: tempOverlap._2
+          }
+          else {}//keep browsing ruleList
         }
         else if (rule > newRule) { //the right position was passed; insert here
           val temp = ruleList.splitAt(ruleList.indexOf(rule))
