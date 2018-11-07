@@ -16,20 +16,17 @@ object Cleaner extends App {
       "(1) path of datasets, inside of which the application will consider:\n" +
       "- as input, directories \"Transformations\"\n " +
       "- as output, directories \"Cleaned\"\n " +
-      "(2) source (e.g., \"ENCODE\" or \"TCGA\")\n " +
-      "(3) optional parameter for file of rules to apply (otherwise Cleaned will contain symbolic links to Transformations)")
+      "(2) optional parameter for file of rules to apply (otherwise Cleaned will contain symbolic links to Transformations)")
     System.exit(0)
   }
 
   val base_path = args(0)
-  val source = args(1)
-
 
   //Default case, when there exists a rule file
   var rules_file: Option[String] = None
 
-  if(args.length > 2){
-    rules_file = Some(args(2))
+  if(args.length > 1){
+    rules_file = Some(args(1))
   }
 
   val ruleBasePathOpt: Option[RuleBase] = {
@@ -38,37 +35,28 @@ object Cleaner extends App {
     else None
   }
 
+  val input_directory = new File(base_path + "/Transformations/")
+  val output_directory = new File(base_path + "/Cleaned/")
 
-  val folders = Utils.getListOfSubDirectories(base_path)
-  for (folder: String <- folders) {
-    val f = new File(base_path + folder)
-    if (f.getName.toLowerCase.contains("_" + source.toLowerCase)) {
-      val datasets = Utils.getListOfSubDirectories(base_path + folder)
-      for (dataset: String <- datasets) {
-        val input_directory = new File(base_path + folder + "/" + dataset + "/Transformations/")
-        val output_directory = new File(base_path + folder + "/" + dataset + "/Cleaned/")
-        println("Considering folder: " + input_directory)
-        val input_files: Array[File] = Utils.getListOfMetaFiles(input_directory)
 
-        input_files.foreach({ inputFile: File =>
+  val input_files: Array[File] = Utils.getListOfMetaFiles(input_directory)
 
-          val inputPath = inputFile.getAbsolutePath
+  input_files.foreach({ inputFile: File =>
 
-          val outputPath = new File(output_directory, inputFile.getName).getAbsolutePath
+    val inputPath = inputFile.getAbsolutePath
 
-          println("inputPath: " + inputPath)
-          println("outputPath: " + outputPath)
+    val outputPath = new File(output_directory, inputFile.getName).getAbsolutePath
 
-          if (ruleBasePathOpt.isDefined) {
-            ruleBasePathOpt.get.applyRBToFile(inputPath, outputPath)
-          } else {
-            createSymbolicLink(inputPath, outputPath)
-          }
+    println("inputPath: " + inputPath)
+    println("outputPath: " + outputPath)
 
-        })
-      }
+    if (ruleBasePathOpt.isDefined) {
+      ruleBasePathOpt.get.applyRBToFile(inputPath, outputPath)
+    } else {
+      createSymbolicLink(inputPath, outputPath)
     }
-  }
+
+  })
 
 
 

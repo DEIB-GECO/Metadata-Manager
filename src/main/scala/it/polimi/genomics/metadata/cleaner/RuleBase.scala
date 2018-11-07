@@ -33,7 +33,8 @@ class RuleBase(rules_file: String) {
           }
         }
         //write new pair on new set
-        output_file_lines += s"$key\t$value"
+        if(!key.isEmpty)
+          output_file_lines += s"$key\t$value"
       }
       bufferedSource.close
 
