@@ -161,7 +161,7 @@ object IOManager {
     line match {
       case "n" | "N" => print("You chose to reject the specified rule! "); line
       case "y" | "Y" => println("\nYou accepted the rule! Find the changes (if any) in \"" + seen_keys_file + "\" and \"" + rules_list_file + "\"\n"); line
-      case _ => println("Error, your choice is not valid."); getRejectOrAcceptChoice
+      case _ => println("Error, your choice is not valid. Choose again."); getRejectOrAcceptChoice
     }
   }
 
@@ -186,7 +186,7 @@ object IOManager {
     line match {
       case "n" | "N" => println("You chose to change the rule!\n"); true
       case "o" | "O" => println("You chose to keep the old rule!\n"); false
-      case _ => println("Error, your choice is not valid.\n"); keepNewRuleChoice(oldRule, newRule)
+      case _ => println("Error, your choice is not valid. Choose again.\n"); keepNewRuleChoice(oldRule, newRule)
     }
   }
 
@@ -202,7 +202,7 @@ object IOManager {
     line match {
       case "n" | "N" => println("You chose to give priority to the new rule!\n"); true
       case "e" | "E" => println("You chose to keep looking into the rule base!\n"); false
-      case _ => println("Error, your choice is not valid.\n"); keepNewRuleChoice(oldRule, newRule)
+      case _ => println("Error, your choice is not valid. Choose again.\n"); keepNewRuleChoice(oldRule, newRule)
     }
 
   }
