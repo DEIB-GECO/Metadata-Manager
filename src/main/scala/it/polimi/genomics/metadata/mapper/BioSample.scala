@@ -104,7 +104,7 @@ trait BioSample extends Table{
   def writeInFile(path: String, biologicalReplicateNum: String = ""): Unit = {
     val write = getWriter(path)
     val tableName = "biosample"
-    write.append(getMessage(tableName, "source_id", this.sourceId))
+    write.append(getMessage(tableName, "biosample_source_id", this.sourceId))
     if(this.types != null) write.append(getMessage(tableName, "type", this.types))
     if(this.tissue != null) write.append(getMessage(tableName, "tissue", this.tissue))
     if(this.cellLine != null) write.append(getMessage(tableName, "cell_line", this.cellLine))

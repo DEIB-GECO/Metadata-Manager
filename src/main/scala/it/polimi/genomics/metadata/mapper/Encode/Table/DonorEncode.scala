@@ -158,7 +158,7 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
     val write = getWriter(path)
     val tableName = "donor"
 
-    write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "source_id"))
+    write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "donor_source_id"))
     if(this.species != null) write.append(getMessageMultipleAttribute(this.species, tableName, biologicalReplicateNum, "species"))
     if(this.age != 0) write.append(getMessageMultipleAttribute(this.age, tableName, biologicalReplicateNum, "age"))
     if(this.gender != null) write.append(getMessageMultipleAttribute(this.gender, tableName, biologicalReplicateNum, "gender"))

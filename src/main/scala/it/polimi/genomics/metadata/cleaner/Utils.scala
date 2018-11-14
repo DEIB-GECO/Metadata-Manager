@@ -15,7 +15,7 @@ object Utils {
     val filesList: Array[File] = dir.listFiles
     //println(dir + "---------" + filesList)
     val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfMetaFiles)
-    res.filter(_.getName.contains(".bed.meta"))
+    res.filter(_.getName.endsWith(".meta"))
   }
 
   def getListOfRegFiles(dir: File): Array[File] = {

@@ -110,7 +110,7 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
     this.sourceIdList.map(source=>{
       this.actualPosition = sourceIdList.indexOf(source)
       val tempBioReplicate: String = if(this.bioReplicateNumList(this.actualPosition) != 0) this.bioReplicateNumList(this.actualPosition).toString else ""
-      write.append(getMessageMultipleAttribute(this.sourceIdList(this.actualPosition), tableName, tempBioReplicate, "source_id"))
+      write.append(getMessageMultipleAttribute(this.sourceIdList(this.actualPosition), tableName, tempBioReplicate, "replicate_source_id"))
       if(this.bioReplicateNumList(this.actualPosition) != 0) write.append(getMessageMultipleAttribute(this.bioReplicateNumList(this.actualPosition), tableName, tempBioReplicate, "bio_replicate_num"))
       if(this.techReplicateNumList(this.actualPosition) != 0) write.append(getMessageMultipleAttribute(this.techReplicateNumList(this.actualPosition), tableName, tempBioReplicate, "tech_replicate_num"))
     })

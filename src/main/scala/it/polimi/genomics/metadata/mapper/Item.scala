@@ -131,7 +131,7 @@ trait Item extends Table{
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "item"
-    write.append(getMessage(tableName, "source_id", this.sourceId))
+    write.append(getMessage(tableName, "item_source_id", this.sourceId))
 
     if(this.size != 0) write.append(getMessage(tableName, "size", this.size))
     if(this.pipeline != null) write.append(getMessage(tableName, "pipeline", this.pipeline))

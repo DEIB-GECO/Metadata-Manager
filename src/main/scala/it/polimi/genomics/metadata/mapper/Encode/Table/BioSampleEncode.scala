@@ -233,7 +233,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
   override def writeInFile(path: String, biologicalReplicateNum: String = ""): Unit = {
     val write = getWriter(path)
     val tableName = "biosample"
-    write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "source_id"))
+    write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "biosample_source_id"))
     if(this.types != null) write.append(getMessageMultipleAttribute(this.types, tableName, biologicalReplicateNum, "type"))
     if(this.tissue != null) write.append(getMessageMultipleAttribute(this.tissue, tableName, biologicalReplicateNum, "tissue"))
     if(this.cellLine != null) write.append(getMessageMultipleAttribute(this.cellLine, tableName, biologicalReplicateNum, "cell_line"))

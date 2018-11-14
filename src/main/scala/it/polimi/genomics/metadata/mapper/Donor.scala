@@ -84,7 +84,7 @@ trait Donor extends Table{
     val write = getWriter(path)
     val tableName = "donor"
 
-    write.append(getMessage(tableName, "source_id", this.sourceId))
+    write.append(getMessage(tableName, "donor_source_id", this.sourceId))
     if(this.species != null) write.append(getMessage(tableName, "species", this.species))
     if(this.age != 0) write.append(getMessage(tableName, "age", this.age))
     if(this.gender != null) write.append(getMessage(tableName, "gender", this.gender))

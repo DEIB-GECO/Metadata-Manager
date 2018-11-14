@@ -815,7 +815,7 @@ object DbHandler {
     Table[(Option[Int], String, Option[String], Option[Int], Option[Int], Option[String], Option[String], Option[Int])](tag, DONOR_TABLE_NAME) {
     def donorId = column[Int]("donor_id", O.PrimaryKey, O.AutoInc)
 
-    def sourceId = column[String]("source_id", O.Unique)
+    def sourceId = column[String]("donor_source_id", O.Unique)
 
     def species = column[Option[String]]("species", O.Default(None))
 
@@ -840,7 +840,7 @@ object DbHandler {
 
     def donorId = column[Int]("donor_id")
 
-    def sourceId = column[String]("source_id", O.Unique)
+    def sourceId = column[String]("biosample_source_id", O.Unique)
 
     def types = column[Option[String]]("type", O.Default(None))
 
@@ -876,7 +876,7 @@ object DbHandler {
 
     def bioSampleId = column[Int]("biosample_id")
 
-    def sourceId = column[String]("source_id", O.Unique)
+    def sourceId = column[String]("replicate_source_id", O.Unique)
 
     def bioReplicateNum = column[Option[Int]]("bio_replicate_num", O.Default(None))
 
@@ -937,7 +937,7 @@ object DbHandler {
 
     def projectId = column[Int]("project_id")
 
-    def sourceId = column[String]("source_id", O.Unique)
+    def sourceId = column[String]("case_source_id", O.Unique)
 
     def sourceSite = column[Option[String]]("source_site", O.Default(None))
 
@@ -985,7 +985,7 @@ object DbHandler {
 
     def datasetId = column[Int]("dataset_id")
 
-    def sourceId = column[String]("source_id", O.Unique)
+    def sourceId = column[String]("item_source_id", O.Unique)
 
     def size = column[Option[Long]]("size", O.Default(None))
 
