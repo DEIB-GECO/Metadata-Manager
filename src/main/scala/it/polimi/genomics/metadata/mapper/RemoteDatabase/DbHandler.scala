@@ -1,20 +1,24 @@
 package it.polimi.genomics.metadata.mapper.RemoteDatabase
 
+import java.util
+import collection.JavaConverters._
+
 import com.typesafe.config.ConfigFactory
+import org.openqa.selenium.{By, WebElement}
+import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.slf4j.{Logger, LoggerFactory}
-
 import slick.driver.PostgresDriver.api._
-
 import slick.jdbc.meta.MTable
 import slick.lifted.Tag
 
+import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
 
 object DbHandler {
-//  val parsedConfig: Config = ConfigFactory.parseFile(new File("src/main/scala/Config/application.conf"))
-//  val conf: Config = ConfigFactory.load(parsedConfig)
+  //  val parsedConfig: Config = ConfigFactory.parseFile(new File("src/main/scala/Config/application.conf"))
+  //  val conf: Config = ConfigFactory.load(parsedConfig)
   val conf = ConfigFactory.load()
 
   private val DONOR_TABLE_NAME = "donor"
@@ -28,7 +32,7 @@ object DbHandler {
   private val DERIVEDFROM_TABLE_NAME = "derived_from"
   private val CASEITEM_TABLE_NAME = "case2item"
   private val REPLICATEITEM_TABLE_NAME = "replicate2item"
-  private val CASE_TCGA_MAPPING = "case_tcga_mapping"
+  //private val CASE_TCGA_MAPPING = "case_tcga_mapping"
   private val ONTOLOGY_TABLE = "ontology_table"
   private val PAIR_TABLE_NAME = "pair"
 
@@ -157,18 +161,18 @@ object DbHandler {
       logger.info("Table DERIVEDFROM created")
     }
 
-    if (!tables.exists(_.name.name == CASE_TCGA_MAPPING)) {
-      val queries = DBIO.seq(
-        caseTcgaMapping.schema.create
-      )
-      /*for (line <- Source.fromFile((getClass.getResource("/mapping.csv").getFile)).getLines) {
-        val cols = line.split(",").map(_.trim)
-        insertCaseTcgaMapping(cols(0),cols(1))
-      }*/
-      val setup = database.run(queries)
-      Await.result(setup, Duration.Inf)
-      logger.info("Table CASE TCGA MAPPING created")
-    }
+    /* if (!tables.exists(_.name.name == CASE_TCGA_MAPPING)) {
+       val queries = DBIO.seq(
+         caseTcgaMapping.schema.create
+       )
+       /*for (line <- Source.fromFile((getClass.getResource("/mapping.csv").getFile)).getLines) {
+         val cols = line.split(",").map(_.trim)
+         insertCaseTcgaMapping(cols(0),cols(1))
+       }*/
+       val setup = database.run(queries)
+       Await.result(setup, Duration.Inf)
+       logger.info("Table CASE TCGA MAPPING created")
+     }*/
 
     if (!tables.exists(_.name.name == ONTOLOGY_TABLE)) {
       val queries = DBIO.seq(
@@ -382,7 +386,7 @@ object DbHandler {
 
   def updateDataset(name: String, dataType: String, format: String, assembly: String, isAnn: Boolean, annotation: String): Int = {
     val query = for {dataset <- datasets if dataset.name === name}
-      yield (dataset.dataType, dataset.format, dataset.assembly, dataset.isAnn, dataset.annotation )
+      yield (dataset.dataType, dataset.format, dataset.assembly, dataset.isAnn, dataset.annotation)
     val updateAction = query.update(Option(dataType), Option(format), Option(assembly), Option(isAnn), Option(annotation))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
@@ -462,13 +466,13 @@ object DbHandler {
     id
   }
 
-  def insertCaseTcgaMapping(code: String, sourceSite: String): Int = {
-    val insertActions = DBIO.seq(
-      caseTcgaMapping += (code, sourceSite)
-    )
-    Await.result(database.run(insertActions), Duration.Inf)
-    1
-  }
+  /* def insertCaseTcgaMapping(code: String, sourceSite: String): Int = {
+     val insertActions = DBIO.seq(
+       caseTcgaMapping += (code, sourceSite)
+     )
+     Await.result(database.run(insertActions), Duration.Inf)
+     1
+   }*/
 
   def insertOntology(tableId: Int, tableName: String, tableColumn: String, originalKey: String, originalValue: String, ontologicalCode: String): Unit = {
     val idQuery = (ontologyTable returning ontologyTable) += (tableId, tableName, tableColumn, originalKey, originalValue, Option(ontologicalCode))
@@ -505,7 +509,7 @@ object DbHandler {
     1
   }
 
- //insertion of pairs with batch execution
+  //insertion of pairs with batch execution
   def insertPairBatch(itemId: Int, insertPairs: List[(String, String)]): Int = {
     val toBeInserted = insertPairs.map(p => pairs += (itemId, p._1, p._2))
     val inOneGo = DBIO.sequence(toBeInserted)
@@ -705,13 +709,14 @@ object DbHandler {
   }
 
 
-  def getSourceSiteByCode(code: String): String = {
+
+  /*def getSourceSiteByCode(code: String): String = {
     val idQuery = caseTcgaMapping.filter(_.code === code).map(_.sourceSite)
     val returnAction = idQuery.result
     val execution2 = database.run(returnAction)
     val sourceSite = Await.result(execution2, Duration.Inf)
     sourceSite.head
-  }
+  }*/
 
   /*def derivedFromId(initialItemId: Int, finalItemId: Int): Int = {
     val query = derivedFrom.filter(_.initialItemId === initialItemId).filter(_.finalItemId === finalItemId)
@@ -1098,18 +1103,18 @@ object DbHandler {
 
   val derivedFrom = TableQuery[DerivedFrom]
 
-  class CaseTCGAMapping(tag: Tag) extends
-    Table[(String, String)](tag, CASE_TCGA_MAPPING) {
+  /*  class CaseTCGAMapping(tag: Tag) extends
+      Table[(String, String)](tag, CASE_TCGA_MAPPING) {
 
-    def code = column[String]("tss_code", O.PrimaryKey)
+      def code = column[String]("tss_code", O.PrimaryKey)
 
-    def sourceSite = column[String]("source_site")
+      def sourceSite = column[String]("source_site")
 
-    def * = (code, sourceSite)
-  }
+      def * = (code, sourceSite)
+    }
 
-  val caseTcgaMapping = TableQuery[CaseTCGAMapping]
-
+    val caseTcgaMapping = TableQuery[CaseTCGAMapping]
+  */
 
   class OntologyTable(tag: Tag) extends
     Table[(Int, String, String, String, String, Option[String])](tag, ONTOLOGY_TABLE) {

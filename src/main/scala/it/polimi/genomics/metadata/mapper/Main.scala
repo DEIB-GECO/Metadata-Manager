@@ -3,6 +3,8 @@ package it.polimi.genomics.metadata.mapper
 
 import it.polimi.genomics.metadata.mapper.Utils._
 import java.io._
+import java.util
+import scala.collection.JavaConverters._
 
 import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler
@@ -15,12 +17,14 @@ import it.polimi.genomics.metadata.mapper.TCGA.TCGATables
 import it.polimi.genomics.metadata.step.utils.SchemaValidator
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
+import org.openqa.selenium.{By, WebElement}
+import org.openqa.selenium.htmlunit.HtmlUnitDriver
 
 import scala.collection.mutable
 import scala.io.Source
 
 
-object MapperMain{
+object MapperMain {
   val logger: Logger = Logger.getLogger(this.getClass)
   private val regexBedMetaJson = ".*.bed.meta.json".r
   //private val regexBedMeta = ".*.bed.meta\\z".r
@@ -54,6 +58,25 @@ object MapperMain{
   var filePath: String = _
 
   val conf = ConfigFactory.load()
+
+/*
+  def main(args: Array[String]): Unit = {
+    val driver = new HtmlUnitDriver
+    driver.get("https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tissue-source-site-codes")
+    val peers: util.List[WebElement] = driver.findElementsByXPath("//table")
+    val table: WebElement = peers.get(1)
+    val tr_elements: mutable.Seq[WebElement] = table.findElements(By.xpath("//tr")).asScala
+
+    val tss: mutable.Seq[WebElement] = tr_elements.slice(6, tr_elements.length)
+    val tss_map = collection.mutable.Map[String, (String, String, String)]()
+
+    for (e: WebElement <- tss) {
+      val one = e.findElements(By.xpath("td")).asScala
+      val tup = (one(0).getText, one(1).getText, one(2).getText, one(3).getText): Tuple4[String, String, String, String]
+      tss_map += (tup._1 -> (tup._2,tup._3,tup._4))
+    }
+  }
+*/
 
   def main(args: Array[String]): Unit = {
 
@@ -129,6 +152,8 @@ object MapperMain{
       exportMode(args(1), args(2))
     }
   }
+
+
 
 
   def importMode(repositoryRef: String, pathGMQLIn: String, pathXML: String): Unit = {
@@ -400,7 +425,7 @@ object MapperMain{
       table.setParameter(list(1), list(2), insertMethod)
     else
       table.setParameter(states(list(1)), list(2), insertMethod)
-    
+
   }
 
   def defineFileAppenderSetting(logName: String): Unit = {

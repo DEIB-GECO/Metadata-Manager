@@ -173,6 +173,18 @@
             <version>1.11-8</version>
         </dependency>
 
+        <!-- to parse html -->
+        <dependency>
+            <groupId>org.seleniumhq.webdriver</groupId>
+            <artifactId>webdriver-selenium</artifactId>
+            <version>0.9.7376</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.webdriver</groupId>
+            <artifactId>webdriver-htmlunit</artifactId>
+            <version>0.9.7376</version>
+        </dependency>
+
 
 
         <!--<dependency>-->
