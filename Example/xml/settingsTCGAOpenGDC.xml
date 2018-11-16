@@ -1,0 +1,183 @@
+<?xml version="1.0" ?>
+<root>
+    <table name="BIOSAMPLES">
+        <mapping>
+            <source_key>gdc__samples__sample_id</source_key><!-->ok<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="MANUAL"><!-->ok<-->
+            <source_key>tissue</source_key>
+            <global_key>types</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__primary_site</source_key><!-->ok<-->
+            <global_key>tissue</global_key>
+        </mapping>
+        <mapping method="MANUAL"><!-->ok<-->
+            <source_key>null</source_key>
+            <global_key>cellLine</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__tissue_status</source_key><!-->ok<-->
+            <global_key>isHealthy</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__project__disease_type</source_key><!-->ok<-->
+            <global_key>disease</global_key>
+        </mapping>
+    </table>
+    <table name="ITEMS">
+        <mapping>
+            <source_key>manually_curated__opengdc_id</source_key><!-->ok<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__opengdc_file_size</source_key><!-->ok<-->
+            <global_key>size</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__opengdc_download_date</source_key><!-->ok<-->
+            <global_key>date</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__opengdc_file_md5</source_key><!-->ok<-->
+            <global_key>checksum</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__platform</source_key><!-->ok<-->
+            <global_key>platform</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__analysis__workflow_type</source_key><!-->ok<-->
+            <global_key>pipeline</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__exp_data_bed_url</source_key><!-->ok<-->
+            <global_key>sourceUrl</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key><!-->ok<-->
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="PREDEFINED-CONCAT" concat_character=""><!-->ok<-->
+            <source_key>dataset_name</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="/">
+            <source_key>manually_curated__opengdc_id</source_key><!-->ok<-->
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="MANUALLY-CONCAT" concat_character=""><!-->ok<-->
+            <source_key>/region</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+    </table>
+    <table name="DONORS">
+        <mapping>
+            <source_key>gdc__case_id</source_key><!-->ok<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>Homo sapiens</source_key><!-->ok<-->
+            <global_key>species</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__diagnoses__age_at_diagnosis</source_key><!-->ok<-->
+            <global_key>age</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__demographic__gender</source_key><!-->ok<-->
+            <global_key>gender</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__demographic__race</source_key><!-->ok<-->
+            <global_key>ethnicity</global_key>
+        </mapping>
+    </table>
+    <table name="REPLICATES">
+        <mapping>
+            <source_key>gdc__samples__sample_id</source_key><!-->ok<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="MANUAL"><!-->ok<-->
+            <source_key>1</source_key>
+            <global_key>bioReplicateNum</global_key>
+        </mapping>
+        <mapping method="MANUAL"><!-->ok<-->
+            <source_key>1</source_key>
+            <global_key>techReplicateNum</global_key>
+        </mapping>
+    </table>
+    <table name="EXPERIMENTSTYPE">
+        <mapping>
+            <source_key>gdc__experimental_strategy</source_key><!-->ok<-->
+            <global_key>technique</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__data_category</source_key><!-->ok<-->
+            <global_key>feature</global_key>
+        </mapping>
+        <mapping method="MANUAL"><!-->ok<-->
+            <source_key>null</source_key>
+            <global_key>target</global_key>
+        </mapping>
+        <mapping method="MANUAL"><!-->ok<-->
+            <source_key>null</source_key>
+            <global_key>antibody</global_key>
+        </mapping>
+    </table>
+    <table name="PROJECTS">
+        <mapping>
+            <source_key>gdc__project__project_id</source_key><!-->ok<-->
+            <global_key>projectName</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__program__name</source_key><!-->ok<-->
+            <global_key>programName</global_key>
+        </mapping>
+    </table>
+    <table name="CASES">
+        <mapping>
+            <source_key>gdc__case_id</source_key><!-->ok<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__tissue_source_site__name</source_key><!-->ok<-->
+            <global_key>sourceSite</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>https://portal.gdc.cancer.gov/cases/</source_key><!-->ok<-->
+            <global_key>externalRef</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character=""><!-->ok<-->
+            <source_key>gdc__case_id</source_key>
+            <global_key>externalRef</global_key>
+        </mapping>
+    </table>
+    <table name="DATASETS">
+        <mapping method="PREDEFINED">
+            <source_key>dataset_name</source_key><!-->ok<-->
+            <global_key>name</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__data_type</source_key><!-->ok<-->
+            <global_key>dataType</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__data_format</source_key><!-->ok<-->
+            <global_key>format</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__genome_built</source_key><!-->ok<-->
+            <global_key>assembly</global_key>
+        </mapping>
+        <mapping method="MANUAL"><!-->ok<-->
+            <source_key>false</source_key>
+            <global_key>isAnn</global_key>
+        </mapping>
+        <mapping method="MANUAL"><!-->ok<-->
+            <source_key>null</source_key>
+            <global_key>annotation</global_key>
+        </mapping>
+    </table>
+</root>
