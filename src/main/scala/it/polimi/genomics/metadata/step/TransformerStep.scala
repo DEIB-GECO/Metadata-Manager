@@ -2,9 +2,9 @@ package it.polimi.genomics.metadata.step
 
 import java.io._
 
+import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.downloader_transformer.Transformer
 import it.polimi.genomics.metadata.downloader_transformer.default.SchemaFinder
-import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.utils.DatasetNameUtil
 import it.polimi.genomics.metadata.step.xml.Dataset
 import org.slf4j.{Logger, LoggerFactory}
@@ -101,27 +101,39 @@ object TransformerStep extends Step {
 
               FileDatabase.delete(datasetId, Stage.TRANSFORM)
               //id, filename, copy number.
-              var filesToTransform = 0
-              val candidates = FileDatabase.getFilesToProcess(datasetId, Stage.DOWNLOAD).flatMap { file =>
-                val originalFileName =
-                  if (file._3 == 1) file._2
-                  else file._2.replaceFirst("\\.", "_" + file._3 + ".")
+              val candidates = {
+                val tempCandidates: List[((String, Int), (Int, String, Int))] = FileDatabase.getFilesToProcess(datasetId, Stage.DOWNLOAD).toList.flatMap { file =>
+                  val originalFileName =
+                    if (file._3 == 1) file._2
+                    else file._2.replaceFirst("\\.", "_" + file._3 + ".")
 
-                val fileDownloadPath = downloadsFolder + File.separator + originalFileName
-                val candidates = transformationClass.getCandidateNames(originalFileName, dataset, source)
-                logger.info(s"candidates: $originalFileName, $candidates")
+                  val fileDownloadPath = downloadsFolder + File.separator + originalFileName
+                  val candidates = transformationClass.getCandidateNames(originalFileName, dataset, source)
 
-                val files = candidates.map(candidateName => {
-                  (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, Stage.TRANSFORM, candidateName))
-                })
+                  logger.info(s"candidates: $originalFileName, $candidates")
 
-                files.map((_, file))
+                  val files = candidates.map(candidateName => {
+                    (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, Stage.TRANSFORM, candidateName))
+                  })
+
+                  files.map((_, file))
+                }
+
+                //remove all candidate metadata which doesn't have corresponding region file:
+                val candidateNameSet = tempCandidates.map(_._1._1).toSet
+                tempCandidates.filterNot {
+                  case ((candidateName, _), _) =>
+                    candidateName.endsWith(".meta") && !candidateNameSet.contains(candidateName.substring(0, candidateName.length - 5))
+                }
               }.sortBy(_._1._1)
+
+//              candidates.foreach(t => println(t._1._1))
 
               logger.info("-------------------------")
               //              candidates.foreach(t => logger.info(s"all candidates: $t"))
 
-              filesToTransform = filesToTransform + candidates.length
+
+              val filesToTransform = candidates.length
 
               candidates.foreach { case ((candidateName, fileId), file) =>
                 val originalFileName =
