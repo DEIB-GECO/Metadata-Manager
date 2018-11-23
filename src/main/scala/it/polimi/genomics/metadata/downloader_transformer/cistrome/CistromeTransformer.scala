@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ListBuffer
 import scala.io.BufferedSource
-import scala.util.matching.Regex
 
 
 class CistromeTransformer extends Transformer {
@@ -86,7 +85,7 @@ class CistromeTransformer extends Transformer {
     val list = untarListRecursively(path).left.get
 
 
-    val relatedFiles = list.flatMap {
+    list.flatMap {
       case fileRegex(fileName) =>
         Some(fileName)
       case metadataFileRegex(metadataFileName) =>
@@ -97,7 +96,7 @@ class CistromeTransformer extends Transformer {
 
         val onassisFilePath = dataset.getParameter("onassis_file_path").getOrElse("dummy")
         metadataDictionary ++=
-          fillDictionary(lineList, onassisFilePath, fileRegex)
+          fillDictionary(lineList, onassisFilePath)
             //select only related peak type samples and then add ".meta" at the end
             .filter(t => fileRegex.findFirstMatchIn(t._1).isDefined)
             .map { t => (t._1 + ".meta", t._2) }
@@ -105,18 +104,12 @@ class CistromeTransformer extends Transformer {
         metadataDictionary.keys
       case _ =>
         None
-    }
-
-    relatedFiles
-      //      .map({ t => println(t); t })
-      //      .filter(_.contains("1028"))
-      .toList
-
+    }.toList
   }
 
   //Implemented by Michele Leone
-  def fillDictionary(metadataFileLines: Iterator[String], onassisFilePath: String, fileRegex: Regex) = {
-    val metadataDictionaryTemp = collection.mutable.Map.empty[String, ListBuffer[Tuple2[String, String]]]
+  def fillDictionary(metadataFileLines: Iterator[String], onassisFilePath: String) = {
+    val metadataDictionaryTemp = collection.mutable.Map.empty[String, ListBuffer[(String, String)]]
 
     for (line <- metadataFileLines) {
       val values2 = line.split("\t")
