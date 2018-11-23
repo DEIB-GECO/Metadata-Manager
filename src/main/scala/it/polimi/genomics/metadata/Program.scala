@@ -2,11 +2,11 @@ package it.polimi.genomics.metadata
 
 import java.io.File
 
-import it.polimi.genomics.metadata.downloader_transformer.Downloader
-import it.polimi.genomics.metadata.step.utils.ExecutionLevel.{ExecutionLevel, _}
-import it.polimi.genomics.metadata.step._
-import it.polimi.genomics.metadata.step.utils.{ParameterUtil, SchemaLocation, SchemaValidator}
 import it.polimi.genomics.metadata.database.FileDatabase
+import it.polimi.genomics.metadata.downloader_transformer.Downloader
+import it.polimi.genomics.metadata.step._
+import it.polimi.genomics.metadata.step.utils.ExecutionLevel.{ExecutionLevel, _}
+import it.polimi.genomics.metadata.step.utils.{ParameterUtil, SchemaLocation, SchemaValidator}
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
 import it.polimi.genomics.repository.Utilities
 import org.apache.log4j._
@@ -46,60 +46,67 @@ object Program extends App {
   console3.activateOptions()
   Logger.getLogger("slick").addAppender(console3)
 
-  //    BasicConfigurator.configure()
-  if (args.length == 0) {
-    logger.info("no arguments specified, run with help for more information")
-  }
-  else {
-    if (args.contains("help")) {
-      logger.info("GMQLImporter help:\n"
-        + "\t Run with configuration_xml_path and gmql_conf_folder as arguments\n"
-        + "\t\t -Will run whole process defined in xml file\n"
-        + "\t Add log\n"
-        + "\t\t-Shows how many runs the program has executed\n"
-        + "\t Add log -n\n"
-        + "\t\t-Shows log and statistics n-th last runs, 1 for last run and use comma as separator if multiple runs requested\n"
-        + "\t Add -retry\n"
-        + "\t\t-Tries to download failed files only for each dataset with download enabled\n"
-      )
+
+  try {
+    //    BasicConfigurator.configure()
+    if (args.length == 0) {
+      logger.info("no arguments specified, run with help for more information")
     }
-    else if (args.length > 1) {
-      val xmlPath = args.head
-      val gmqlConfPath = args.drop(1).head
-      logger.info(s"path for the xml file = $xmlPath")
-      logger.info(s"path for the gmql Configuration folder = $gmqlConfPath")
-      if (xmlPath.endsWith(".xml") && new File(gmqlConfPath).isDirectory) {
-        if (args.contains("log")) {
-          val runs =
-            if (args.exists(arg => {
-              arg.contains("--")
-            }))
-              args.filter(arg => {
+    else {
+      if (args.contains("help")) {
+        logger.info("GMQLImporter help:\n"
+          + "\t Run with configuration_xml_path and gmql_conf_folder as arguments\n"
+          + "\t\t -Will run whole process defined in xml file\n"
+          + "\t Add log\n"
+          + "\t\t-Shows how many runs the program has executed\n"
+          + "\t Add log -n\n"
+          + "\t\t-Shows log and statistics n-th last runs, 1 for last run and use comma as separator if multiple runs requested\n"
+          + "\t Add -retry\n"
+          + "\t\t-Tries to download failed files only for each dataset with download enabled\n"
+        )
+      }
+      else if (args.length > 1) {
+        val xmlPath = args.head
+        val gmqlConfPath = args.drop(1).head
+        logger.info(s"path for the xml file = $xmlPath")
+        logger.info(s"path for the gmql Configuration folder = $gmqlConfPath")
+        if (xmlPath.endsWith(".xml") && new File(gmqlConfPath).isDirectory) {
+          if (args.contains("log")) {
+            val runs =
+              if (args.exists(arg => {
                 arg.contains("--")
-              }).head.replace("--", "")
-            else
-              "0"
-          try {
-            for (run <- runs.split(",")) {
-              val runId = Integer.parseInt(run)
-              showDatabaseLog(args.head, args.drop(1).head.toString, runId)
+              }))
+                args.filter(arg => {
+                  arg.contains("--")
+                }).head.replace("--", "")
+              else
+                "0"
+            try {
+              for (run <- runs.split(",")) {
+                val runId = Integer.parseInt(run)
+                showDatabaseLog(args.head, args.drop(1).head.toString, runId)
+              }
+            }
+            catch {
+              case e: NumberFormatException =>
+                logger.warn("Defined run must be integer value.")
             }
           }
-          catch {
-            case e: NumberFormatException =>
-              logger.warn("Defined run must be integer value.")
+          else {
+            val t0: Long = System.nanoTime()
+            runGMQLImporter(args.head, args.drop(1).head.toString, args.contains("-retry"))
+            val t1 = System.nanoTime()
+            logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
           }
         }
-        else {
-          val t0: Long = System.nanoTime()
-          runGMQLImporter(args.head, args.drop(1).head.toString, args.contains("-retry"))
-          val t1 = System.nanoTime()
-          logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
-        }
+        else
+          logger.warn("No configuration file or gmql_conf folder specified")
       }
-      else
-        logger.warn("No configuration file or gmql_conf folder specified")
     }
+  }
+  catch {
+    case e: Exception =>
+      logger.error("Unknown error: ", e)
   }
 
 
@@ -362,6 +369,15 @@ object Program extends App {
     val downloadThreads = sources.filter(_.downloadEnabled).map(source => {
       new Thread {
         override def run(): Unit = {
+          try {
+            go()
+          } catch {
+            case e: Exception =>
+              logger.error("Unknown error in the thread: ", e)
+          }
+        }
+
+        def go(): Unit = {
           val t0Source = System.nanoTime()
           if (!retryDownload) {
             logger.info(s"Starting download for ${source.name}")
@@ -375,6 +391,7 @@ object Program extends App {
           }
           val t1Source = System.nanoTime()
           logger.info(s"Total time download source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
+
         }
       }
     })
@@ -384,10 +401,7 @@ object Program extends App {
       downloadThreads.foreach(_.join())
     }
     else
-      downloadThreads.foreach(thread => {
-        thread.start()
-        thread.join()
-      })
+      downloadThreads.foreach(_.go())
     val t1 = System.nanoTime()
     logger.info(s"Total time for downloads: ${getTotalTimeFormatted(t0, t1)}")
 
@@ -397,7 +411,15 @@ object Program extends App {
     val integrateThreads = sources.filter(_.isEnabled(level)).map(source => {
       new Thread {
         override def run(): Unit = {
-          val t0Source = System.nanoTime()
+          try {
+            go()
+          } catch {
+            case e: Exception =>
+              logger.error("Unknown error in the thread: ", e)
+          }
+        }
+
+        def go(): Unit = {          val t0Source = System.nanoTime()
           logger.info(s"Starting $level for ${source.name}")
           Step.getLevelExecutable(level).execute(source, parallelExecution)
           logger.info(s"$level for ${source.name} Finished")
@@ -412,10 +434,8 @@ object Program extends App {
       integrateThreads.foreach(_.join())
     }
     else
-      integrateThreads.foreach(thread => {
-        thread.start()
-        thread.join()
-      })
+      integrateThreads.foreach(_.go())
+
     val t3 = System.nanoTime()
     logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2, t3)}")
   }
