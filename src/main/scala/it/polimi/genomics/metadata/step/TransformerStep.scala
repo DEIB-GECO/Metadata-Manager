@@ -119,18 +119,20 @@ object TransformerStep extends Step {
                   files.map((_, file))
                 }
 
-                //remove all candidate metadata which doesn't have corresponding region file:
+                // select the candidates which has cooresponding candidate (region-> meta or meta->region
                 val candidateNameSet = tempCandidates.map(_._1._1).toSet
-                tempCandidates.filterNot {
-                  case ((candidateName, _), _) =>
-                    candidateName.endsWith(".meta") && !candidateNameSet.contains(candidateName.substring(0, candidateName.length - 5))
+                tempCandidates.filter { case ((candidateName, _), _) =>
+                  if (candidateName.endsWith(".meta"))
+                    candidateNameSet.contains(candidateName.substring(0, candidateName.length - 5))
+                  else
+                    candidateNameSet.contains(candidateName + ".meta")
                 }
               }.sortBy(_._1._1)
 
-//              candidates.foreach(t => println(t._1._1))
+              // candidates.foreach(t => println(t._1._1))
 
               logger.info("-------------------------")
-              //              candidates.foreach(t => logger.info(s"all candidates: $t"))
+              // candidates.foreach(t => logger.info(s"all candidates: $t"))
 
 
               val filesToTransform = candidates.length
