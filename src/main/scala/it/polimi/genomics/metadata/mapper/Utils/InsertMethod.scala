@@ -130,7 +130,7 @@ object InsertMethod {
         tss_map += (tup._1 -> (tup._2, tup._3, tup._4))
       }
 
-      tss_map.get(code).get._1
+      tss_map.get(code.toUpperCase).get._1
     }
     catch{
       case e: Exception =>

@@ -3,6 +3,7 @@ package it.polimi.genomics.metadata.mapper
 
 import it.polimi.genomics.metadata.mapper.Utils._
 import java.io._
+
 import java.util
 import scala.collection.JavaConverters._
 
@@ -23,6 +24,7 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import scala.collection.mutable
 import scala.io.Source
 
+import it.polimi.genomics.metadata.step.utils.DirectoryNamingUtil
 
 object MapperMain {
   val logger: Logger = Logger.getLogger(this.getClass)
@@ -41,6 +43,7 @@ object MapperMain {
     val tcgaString = Value("TCGA")
     val roadmapString = Value("REP")
     val annotationString = Value("ANN")
+    val tadsString = Value("TADS")
 
     def isSourceString(s: String) = values.exists(_.toString == s)
 
@@ -59,24 +62,24 @@ object MapperMain {
 
   val conf = ConfigFactory.load()
 
-/*
-  def main(args: Array[String]): Unit = {
-    val driver = new HtmlUnitDriver
-    driver.get("https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tissue-source-site-codes")
-    val peers: util.List[WebElement] = driver.findElementsByXPath("//table")
-    val table: WebElement = peers.get(1)
-    val tr_elements: mutable.Seq[WebElement] = table.findElements(By.xpath("//tr")).asScala
+  /*
+    def main(args: Array[String]): Unit = {
+      val driver = new HtmlUnitDriver
+      driver.get("https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tissue-source-site-codes")
+      val peers: util.List[WebElement] = driver.findElementsByXPath("//table")
+      val table: WebElement = peers.get(1)
+      val tr_elements: mutable.Seq[WebElement] = table.findElements(By.xpath("//tr")).asScala
 
-    val tss: mutable.Seq[WebElement] = tr_elements.slice(6, tr_elements.length)
-    val tss_map = collection.mutable.Map[String, (String, String, String)]()
+      val tss: mutable.Seq[WebElement] = tr_elements.slice(6, tr_elements.length)
+      val tss_map = collection.mutable.Map[String, (String, String, String)]()
 
-    for (e: WebElement <- tss) {
-      val one = e.findElements(By.xpath("td")).asScala
-      val tup = (one(0).getText, one(1).getText, one(2).getText, one(3).getText): Tuple4[String, String, String, String]
-      tss_map += (tup._1 -> (tup._2,tup._3,tup._4))
+      for (e: WebElement <- tss) {
+        val one = e.findElements(By.xpath("td")).asScala
+        val tup = (one(0).getText, one(1).getText, one(2).getText, one(3).getText): Tuple4[String, String, String, String]
+        tss_map += (tup._1 -> (tup._2,tup._3,tup._4))
+      }
     }
-  }
-*/
+  */
 
   def main(args: Array[String]): Unit = {
 
@@ -154,8 +157,6 @@ object MapperMain {
   }
 
 
-
-
   def importMode(repositoryRef: String, pathGMQLIn: String, pathXML: String): Unit = {
     DbHandler.setDatabase()
 
@@ -163,7 +164,7 @@ object MapperMain {
     val datasetName = Source.fromFile(datasetFileName).mkString
     Predefined.map += "dataset_name" -> datasetName
 
-    val pathGMQL = pathGMQLIn + File.separator + "Transformations" + File.separator
+    val pathGMQL = pathGMQLIn + File.separator + DirectoryNamingUtil.cleanFolderName + File.separator
 
 
     val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/Metadata-Manager/master/Example/xml/setting.xsd"
@@ -176,10 +177,9 @@ object MapperMain {
       repositoryRef.toUpperCase() match {
         case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileEncode(path.toString, pathXML))
         case "REP" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
-        case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML, false))
-        case "ANN" => ListFiles.recursiveListFiles(new File(pathGMQL))
-          .filter(f => regexMeta.findFirstIn(f.getName).isDefined)
-          .map(path => analyzeFileRegular(path.toString, pathXML, true))
+        case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
+        case "ANN" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
+        case "TADS" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
         case _ => logger.error(s"Incorrectly specified repository")
       }
       val t1 = System.nanoTime()
@@ -254,7 +254,6 @@ object MapperMain {
     logger.info(s"Start reading $path")
     try {
       val lines = Source.fromFile(path).getLines.toArray
-      filePath = path
       val encodesTableId = new EncodeTableId
       // setting field _biosampleArray with the numbers of replicates present in the item
       val bioSampleList = new BioSampleList(lines, encodesTableId)
@@ -274,7 +273,7 @@ object MapperMain {
         tables.setFilePath(path)
         tables.setPathOnTables()
 
-        val states: collection.mutable.Map[String, String] = createMapper(lines)
+        val states: collection.mutable.Map[String, String] = createMapper(lines.toList)
 
         Statistics.released += 1
         logger.info(s"Start populating tables for file ${path.split("/").last}")
@@ -295,7 +294,7 @@ object MapperMain {
         })
         val t2: Long = System.nanoTime()
         Statistics.incrementTrasformTime((t2 - t1))
-        tables.insertTables(states, createPairs(lines))
+        tables.insertTables(states, createPairs(lines.toList))
         val t3: Long = System.nanoTime()
         Statistics.incrementLoadTime((t3 - t2))
       }
@@ -315,7 +314,6 @@ object MapperMain {
     logger.info(s"Start reading $path")
     try {
       val old_lines = Source.fromFile(path).getLines.toArray
-      filePath = path
       val repTableId = new REPTableId
 
       //computes number of samples in the file
@@ -335,7 +333,7 @@ object MapperMain {
       tables.setPathOnTables()
 
       //key,value pairs (multiple values are concatenated with comma)
-      val states: mutable.Map[String, String] = createMapper(lines)
+      val states: mutable.Map[String, String] = createMapper(lines.toList)
 
       Statistics.released += 1
       logger.info(s"File status released, start populating table")
@@ -355,7 +353,7 @@ object MapperMain {
       }
       val t2: Long = System.nanoTime()
       Statistics.incrementTrasformTime((t2 - t1))
-      tables.insertTables(states, createPairs(lines))
+      tables.insertTables(states, createPairs(lines.toList))
       val t3: Long = System.nanoTime()
       Statistics.incrementLoadTime((t3 - t2))
 
@@ -367,19 +365,20 @@ object MapperMain {
     }
   }
 
-  def analyzeFileRegular(path: String, pathXML: String, metadata_id_needed: Boolean): Unit = {
+  def analyzeFileRegular(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
     logger.info(s"Start reading $path")
     try {
-      val old_lines = Source.fromFile(path).getLines.toArray
+      var lines = Source.fromFile(path).getLines.toList
+      lines = lines ::: List("file_name\t" + path.split("/").last)
+      val path_region_file = path.replaceAll(".meta$", "")
+      val region_file = new File(path_region_file)
+      val region_file_size = region_file.length
+      if(region_file_size!=0)
+        lines = lines ::: List("file_size\t" + region_file.length)
 
-      filePath = path
       val tables = new TCGATables
-
-      var lines = old_lines
-      if (metadata_id_needed)
-        lines = enrichLinesAnn(old_lines)
 
       //key,value pairs (multiple values are concatenated with comma)
       val states: mutable.Map[String, String] = createMapper(lines)
@@ -421,7 +420,7 @@ object MapperMain {
 
     val insertMethod = InsertMethod.selectInsertionMethod(list(1), list(2), list(3), list(4), list(5), list(6), list(7))
 
-    if (list(3).contains("MANUALLY") || list(3).contains("PREDEFINED"))
+    if (list(3).contains("MANUAL") || list(3).contains("PREDEFINED"))
       table.setParameter(list(1), list(2), insertMethod)
     else
       table.setParameter(states(list(1)), list(2), insertMethod)
@@ -439,20 +438,34 @@ object MapperMain {
     Logger.getLogger("it.polimi.genomics").addAppender(fa2)
   }
 
-  def createMapper(lines: Array[String]): collection.mutable.Map[String, String] = {
+  def createMapper(lines: List[String]): collection.mutable.Map[String, String] = {
+    var temp_states = collection.mutable.Map[String, mutable.SortedSet[String]]()
     var states = collection.mutable.Map[String, String]()
+
     for (l <- lines) {
       val first = l.split("\t", 2)
       if (first.size == 2) {
-        if (states.contains(first(0)))
-          states += (first(0) -> states(first(0)).concat(conf.getString("import.multiple_value_concatenation") + first(1)))
-        else
-          states += (first(0) -> first(1))
+        if (temp_states.contains(first(0))) {
+          val newset: mutable.SortedSet[String] = temp_states(first(0))
+          newset += first(1)
+          temp_states += (first(0) -> newset)
+        }
+        else {
+          val newset2 = scala.collection.mutable.SortedSet[String]()
+          newset2 += first(1)
+          temp_states += (first(0) -> newset2)
+        }
       }
       else {
         logger.warn(s"Malformation in line ${first(0)}")
         Statistics.malformedInput += 1
       }
+
+      for (z <- temp_states.keys) {
+        val concat_char = conf.getString("import.multiple_value_concatenation")
+        states += (z -> temp_states(z).mkString(concat_char))
+      }
+
     }
     states
   }
@@ -501,20 +514,20 @@ object MapperMain {
     linesFromSet.toArray
   }
 
-  def enrichLinesAnn(lines: Array[String]): Array[String] = {
-    var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
+  /*def enrichLinesAnn(lines: Array[String]): Array[String] = {
+      var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
 
+      linesFromSet += "donor_id\t" + filePath.split("/").last
+      linesFromSet += "biosample_id\t" + filePath.split("/").last
+      linesFromSet += "file_name\t" + filePath.split("/").last
+      linesFromSet += "replicate_id\t" + filePath.split("/").last
+      linesFromSet += "case_id\t" + filePath.split("/").last
 
-    linesFromSet += "file_name\t" + filePath.split("/").last
-    linesFromSet += "donor_id\t" + filePath.split("/").last
-    linesFromSet += "biosample_id\t" + filePath.split("/").last
-    linesFromSet += "replicate_id\t" + filePath.split("/").last
-    linesFromSet += "case_id\t" + filePath.split("/").last
+      linesFromSet.toArray
+    }
+    */
 
-    linesFromSet.toArray
-  }
-
-  def createPairs(lines: Array[String]): List[(String, String)] = {
+  def createPairs(lines: List[String]): List[(String, String)] = {
     var pairs = List[(String, String)]()
     for (l <- lines) {
       val first = l.split("\t", 2)

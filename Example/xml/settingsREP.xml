@@ -68,6 +68,10 @@
             <source_key>manually_curated__data_type</source_key>
             <global_key>technique</global_key>
         </mapping>
+        <mapping method="CONCAT" concat_character=" ">
+            <source_key>manually_curated__methylation_technique</source_key>
+            <global_key>technique</global_key>
+        </mapping>
         <mapping>
             <source_key>manually_curated__feature</source_key>
             <global_key>feature</global_key>
@@ -81,11 +85,6 @@
                 <global_key>antibody</global_key>
             </mapping>-->
     </table>
-
-    Correct mapping for roadmap, when technique/manually_curated__data_type = DMR,
-    put instead technique/manually_curated__methylation_technique = WGBS,RRBS
-
-
     <table name="PROJECTS">
         <mapping method="MANUAL">
             <source_key>Consolidated Epigenome</source_key>
@@ -172,7 +171,7 @@
             <source_key>manually_curated__file_id</source_key>
             <global_key>localUrl</global_key>
         </mapping>
-        <mapping method="MANUALLY-CONCAT" concat_character="">
+        <mapping method="MANUAL-CONCAT" concat_character="">
             <source_key>/region</source_key>
             <global_key>localUrl</global_key>
         </mapping>

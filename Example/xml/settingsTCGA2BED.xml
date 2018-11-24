@@ -14,6 +14,10 @@
             <global_key>species</global_key>
         </mapping>
         <mapping method="ABS">
+            <source_key>clinical_patient__days_to_birth</source_key><!--ok-->
+            <global_key>age</global_key>
+        </mapping>
+        <mapping method="CHECKPREC-ABS">
             <source_key>clinical_patient__birth_days_to</source_key><!--ok-->
             <global_key>age</global_key>
         </mapping>
@@ -71,7 +75,7 @@
             <source_key>manually_curated__datatype</source_key><!--prepare method vedere con tutti gli exp type che cambiamenti fare, nel metodo adoc separare rna e seq-->
             <global_key>technique</global_key>
         </mapping>
-        <mapping method="REMOVE" rem_character="v2">><!--ok-->
+        <mapping method="REMOVE" rem_character="v2"><!--ok-->
             <source_key>manually_curated__datatype</source_key>
             <global_key>feature</global_key>
         </mapping>
@@ -103,7 +107,7 @@
             <source_key>biospecimen_aliquot__bcr_patient_uuid</source_key><!--ok-->
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping method="SELECT-CASE-TCGA">
+        <mapping method="SELECTCASETCGA">
             <source_key>clinical_patient__tissue_source_site</source_key><!--ok-->
             <global_key>sourceSite</global_key>
         </mapping>
@@ -151,16 +155,16 @@
             <source_key>manually_curated__id</source_key><!-->ok<-->
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping method="MANUAL">
-            <source_key>null</source_key><!-->ok<-->
+        <mapping>
+            <source_key>manually_curated__origin_file_size</source_key><!-->ok<-->
             <global_key>size</global_key>
         </mapping>
-        <mapping method="MANUAL">
-            <source_key>null</source_key><!-->ok<-->
+        <mapping>
+            <source_key>manually_curated__origin_last_modified_date</source_key><!-->ok<-->
             <global_key>date</global_key>
         </mapping>
         <mapping>
-            <source_key>manually_curated__md5sum</source_key><!-->ok<-->
+            <source_key>manually_curated__origin_md5</source_key><!-->ok<-->
             <global_key>checksum</global_key>
         </mapping>
         <mapping method="SUB" sub_character="_" new_character=" ">
@@ -184,10 +188,10 @@
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="CONCAT" concat_character="/">
-            <source_key>manually_curated__opengdc_id</source_key><!-->ok<-->
+            <source_key>manually_curated__id</source_key><!-->ok<-->
             <global_key>localUrl</global_key>
         </mapping>
-        <mapping method="MANUALLY-CONCAT" concat_character=""><!-->ok<-->
+        <mapping method="MANUAL-CONCAT" concat_character=""><!-->ok<-->
             <source_key>/region</source_key>
             <global_key>localUrl</global_key>
         </mapping>

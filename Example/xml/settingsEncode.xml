@@ -106,6 +106,10 @@
             <global_key>target</global_key>
         </mapping>
         <mapping>
+            <source_key>antibody__dbxrefs</source_key>
+            <global_key>antibody</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character=", ">
             <source_key>antibody__url</source_key>
             <global_key>antibody</global_key>
         </mapping>
@@ -120,7 +124,7 @@
             <global_key>programName</global_key>
         </mapping>
         <mapping>
-            <source_key>award__project</source_key>
+            <source_key>experiment__award__project</source_key>
             <global_key>projectName</global_key>
         </mapping>
     </table>
@@ -134,7 +138,7 @@
             <global_key>sourceSite</global_key>
         </mapping>
         <mapping>
-            <source_key>dbxrefs</source_key>
+            <source_key>experiment__dbxrefs</source_key>
             <global_key>externalRef</global_key>
         </mapping>
     </table>
@@ -175,7 +179,7 @@
             <source_key>file__accession</source_key>
             <global_key>localUrl</global_key>
         </mapping>
-        <mapping method="MANUALLY-CONCAT" concat_character="">
+        <mapping method="MANUAL-CONCAT" concat_character="">
             <source_key>/region</source_key>
             <global_key>localUrl</global_key>
         </mapping>

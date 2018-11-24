@@ -54,9 +54,17 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
         this.insertPosition = resetPosition(this.insertPosition, quantity)
       }
       case "TYPES" => {
-        this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), param)
+        param match{
+          case "PrimaryCell" => this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), "Primary cell")
+          case "PrimaryTissue" => this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), "Primary tissue")
+          case "ESCDerived" => this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), "ESC derived cell line")
+          case "PrimaryCulture" => this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), "Primary culture")
+          case "CellLine" => this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), "Cell line")
+          case _ => this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), param)
+        }
         this.typesInsertPosition = resetPosition(this.typesInsertPosition, quantity)
       }
+
       case "TISSUE" => {
         if (typesArray(tissueInsertPosition).toLowerCase.contains("tissue"))
           this.tissueArray(tissueInsertPosition) = insertMethod(this.tissueArray(tissueInsertPosition), param)

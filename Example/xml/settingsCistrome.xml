@@ -2,7 +2,7 @@
 <root>
     <table name="DONORS">
         <mapping>
-            <source_key>file_name</source_key><!--><-->
+            <source_key>donor_id</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="MANUAL">
@@ -10,7 +10,7 @@
             <global_key>species</global_key>
         </mapping>
         <mapping>
-            <source_key>not_existing</source_key><!-->TRICK, i cannot use null, nor eliminate the tag, since it's an integer!<-->
+            <source_key>not_existing</source_key><!-->TRICK!<-->
             <global_key>age</global_key>
         </mapping>
         <!-- <mapping method="MANUAL">
@@ -24,7 +24,7 @@
     </table>
     <table name="BIOSAMPLES">
         <mapping>
-            <source_key>file_name</source_key><!--><-->
+            <source_key>biosample_id</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <!--   <mapping method="MANUAL">
@@ -50,7 +50,7 @@
     </table>
     <table name="REPLICATES">
         <mapping>
-            <source_key>file_name</source_key><!--><-->
+            <source_key>replicate_id</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="MANUAL">
@@ -63,12 +63,8 @@
         </mapping>
     </table>
     <table name="EXPERIMENTSTYPE">
-         <mapping>
-             <source_key>provider</source_key>
-             <global_key>technique</global_key>
-         </mapping>
-        <mapping method="MANUAL-CONCAT" concat_character=" ">
-            <source_key>annotation</source_key>
+        <mapping><!--><-->
+            <source_key>provider</source_key>
             <global_key>technique</global_key>
         </mapping>
         <!--   <mapping method="MANUAL">
@@ -96,7 +92,7 @@
     </table>
     <table name="CASES">
         <mapping>
-            <source_key>file_name</source_key><!--><-->
+            <source_key>case_id</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
@@ -129,7 +125,7 @@
             <source_key>true</source_key>
             <global_key>isAnn</global_key>
         </mapping>
-        <mapping method="REMOVE" rem_character="_">
+        <mapping>
             <source_key>annotation_type</source_key>
             <global_key>annotation</global_key>
         </mapping>
@@ -140,12 +136,8 @@
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>file_size</source_key>
+            <source_key>not_existing</source_key><!-->TRICK!<-->
             <global_key>size</global_key>
-        </mapping>
-        <mapping>
-            <source_key>release_date</source_key>
-            <global_key>date</global_key>
         </mapping>
         <mapping>
             <source_key>download_link</source_key>
@@ -169,7 +161,7 @@
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="CONCAT" concat_character="/">
-            <source_key>file_name</source_key>
+            <source_key>file__accession</source_key>
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="MANUAL-CONCAT" concat_character="">

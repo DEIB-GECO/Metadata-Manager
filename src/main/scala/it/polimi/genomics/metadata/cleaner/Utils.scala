@@ -15,13 +15,13 @@ object Utils {
     val filesList: Array[File] = dir.listFiles
     //println(dir + "---------" + filesList)
     val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfMetaFiles)
-    res.filter(_.getName.endsWith(".meta"))
+    res.filter(_.getName.contains(".meta"))
   }
 
   def getListOfRegFiles(dir: File): Array[File] = {
     val filesList: Array[File] = dir.listFiles
     //println(dir + "---------" + filesList)
-    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfMetaFiles)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfRegFiles)
     res.filter(_.getName.endsWith(".bed"))
   }
 

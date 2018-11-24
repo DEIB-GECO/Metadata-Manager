@@ -13,7 +13,12 @@ class ExperimentTypeREP(repTableId: REPTableId) extends REPTable(repTableId) wit
   //var originalValue: String = _
 
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = dest.toUpperCase()  match{
-    case "TECHNIQUE" => this.technique = insertMethod(this.technique,param)
+    case "TECHNIQUE" => param match {
+      case "DMR" => this.technique = insertMethod(this.technique, param)
+      case "RRBS" => this.technique = "RRBS"
+      case "WGBS" => this.technique = "WGBS"
+      case _ => this.technique = insertMethod(this.technique, param)
+    }
     case "FEATURE" => this.feature = insertMethod(this.feature,param)
     case "TARGET" => this.target = insertMethod(this.target,param)
     case "ANTIBODY" => this.antibody = insertMethod(this.antibody,param)
@@ -24,3 +29,4 @@ class ExperimentTypeREP(repTableId: REPTableId) extends REPTable(repTableId) wit
   }
 
 }
+
