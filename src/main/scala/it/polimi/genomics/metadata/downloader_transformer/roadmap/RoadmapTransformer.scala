@@ -268,7 +268,10 @@ class RoadmapTransformer  extends Transformer {
                 }
               }
             case patternDMRFile() =>
-              val methTech = dataFileName.split("_")(1)
+              val methTech = {
+                val split = dataFileName.split("_")
+                split(split.length-3)
+              }
               manCuratedMeta += (("data_type", "DMR"))
               manCuratedMeta += (("methylation_technique", methTech))
               manCuratedMeta += (("feature", "DNA methylation"))
