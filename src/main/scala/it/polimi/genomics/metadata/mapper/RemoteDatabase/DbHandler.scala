@@ -199,7 +199,7 @@ object DbHandler {
   }
 
   def toOption[T](value: T): Option[T] = {
-    if (!value.equals(0))
+    if (!value.equals(0) && !value.equals(0L))
       Option(value)
     else
       None

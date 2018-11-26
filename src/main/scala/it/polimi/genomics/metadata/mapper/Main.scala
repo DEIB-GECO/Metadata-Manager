@@ -28,10 +28,9 @@ import it.polimi.genomics.metadata.step.utils.DirectoryNamingUtil
 
 object MapperMain {
   val logger: Logger = Logger.getLogger(this.getClass)
-  private val regexBedMetaJson = ".*.bed.meta.json".r
-  //private val regexBedMeta = ".*.bed.meta\\z".r
-  private val regexBedMeta = ".*.bed.meta".r
   private val regexMeta = ".*.meta".r
+  private val regexRaoTads = ".*_rao.*".r
+  private val regexCombTads = ".*_(rep1|rep2|combined).*".r
 
   private val exportRegexENCODE = "bed.meta.json".r
   private val exportRegexTCGA = "bed.meta".r
@@ -43,7 +42,9 @@ object MapperMain {
     val tcgaString = Value("TCGA")
     val roadmapString = Value("REP")
     val annotationString = Value("ANN")
-    val tadsString = Value("TADS")
+    val tadsraoString = Value("TADS_RAO")
+    val tadscombString = Value("TADS_COMB")
+    val cistromeString = Value("CISTROME")
 
     def isSourceString(s: String) = values.exists(_.toString == s)
 
@@ -62,7 +63,7 @@ object MapperMain {
 
   val conf = ConfigFactory.load()
 
-  /*
+  /*//main prova per leggere pagina html TCGA tss codes
     def main(args: Array[String]): Unit = {
       val driver = new HtmlUnitDriver
       driver.get("https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tissue-source-site-codes")
@@ -175,11 +176,11 @@ object MapperMain {
 
       val t0: Long = System.nanoTime()
       repositoryRef.toUpperCase() match {
-        case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileEncode(path.toString, pathXML))
+        case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileEncode(path.toString, pathXML))
         case "REP" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
-        case "TCGA" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
-        case "ANN" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
-        case "TADS" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
+        case "TCGA" | "ANN" | "CISTROME" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
+        case "TADS_RAO" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexRaoTads.findFirstIn(f.getName).isDefined).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
+        case "TADS_COMB" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexCombTads.findFirstIn(f.getName).isDefined).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
         case _ => logger.error(s"Incorrectly specified repository")
       }
       val t1 = System.nanoTime()
@@ -221,14 +222,14 @@ object MapperMain {
     repositoryRef.toUpperCase() match {
       case "ENCODE" => {
 
-        ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMetaJson.findFirstIn(f.getName).isDefined).map(path => {
+        ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => {
           val tables = new EncodeTables(new EncodeTableId).getListOfTables()
           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
           fromDbToTsv.run(path.getAbsolutePath, exportRegexENCODE)
         })
       }
       case "TCGA" => {
-        ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexBedMeta.findFirstIn(f.getName).isDefined).map(path => {
+        ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => {
           val tables = new TCGATables().getListOfTables()
           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
           fromDbToTsv.run(path.getAbsolutePath, exportRegexTCGA)
@@ -313,14 +314,16 @@ object MapperMain {
     Statistics.fileNumber += 1
     logger.info(s"Start reading $path")
     try {
-      val old_lines = Source.fromFile(path).getLines.toArray
+      var old_lines = Source.fromFile(path).getLines.toList
+      //old_lines = old_lines ::: List("file_name\t" + path.split("/").last)
+
       val repTableId = new REPTableId
 
       //computes number of samples in the file
-      val bioSampleList = new REP.Utils.BioSampleList(old_lines, repTableId)
+      val bioSampleList = new REP.Utils.BioSampleList(old_lines.toArray, repTableId)
 
       //in files with simple epi__donor_id, it adds the keys epi__donor_id__X for each biosample present (same for other attributes)
-      val lines = enrichLinesREP(old_lines, bioSampleList)
+      val lines = enrichLinesREP(old_lines.toArray, bioSampleList)
 
       //prepares ficticious replicate tuples (id=biosample_id, bio/tech replicate number = 1)
       val replicateList = new REP.Utils.ReplicateList(lines, bioSampleList)

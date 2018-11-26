@@ -10,7 +10,7 @@ class ReplicateList(lines: Array[String], bioSampleList: BioSampleList) {
 
 
   bioSampleList.BiosampleList.foreach(bioReplicateNumber => {
-    val r = "epi__sample_alias__" + bioReplicateNumber
+    var r = "epi__sample_alias__" + bioReplicateNumber
     for (l <- lines) {
       val conf = l.split("\t")
       if (conf(0) == r) {
@@ -19,6 +19,19 @@ class ReplicateList(lines: Array[String], bioSampleList: BioSampleList) {
         _technicalReplicateNumberList += "1"
       }
     }
+
+    r = "geo_sample__" + bioReplicateNumber + "__accession"
+    for (l <- lines) {
+      val conf = l.split("\t")
+      if (conf(0) == r) {
+        _uuidList += conf(1)
+        _biologicalReplicateNumber += bioReplicateNumber
+        _technicalReplicateNumberList += "1"
+      }
+    }
+
+
+
   })
 
   def UuidList: List[String] = _uuidList.toList

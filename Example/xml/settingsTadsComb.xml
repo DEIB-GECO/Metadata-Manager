@@ -2,17 +2,17 @@
 <root>
     <table name="DONORS">
         <mapping>
-            <source_key>file_name</source_key><!-->XXXX<-->
+            <source_key>geo_sample__X__accession</source_key><!-->XXXX<-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
             <source_key>organism</source_key><!-->ok<-->
             <global_key>species</global_key>
         </mapping>
-        <mapping>
-            <source_key>not_existing</source_key><!-->TRICK, i cannot use null, nor eliminate the tag, since it's an integer!<-->
+        <!--<mapping>
+            <source_key>not_existing</source_key>
             <global_key>age</global_key>
-        </mapping>
+        </mapping>-->
         <!-- <mapping method="MANUAL">
              <source_key>null</source_key>
              <global_key>gender</global_key>
@@ -24,7 +24,7 @@
     </table>
     <table name="BIOSAMPLES">
         <mapping>
-            <source_key>file_name</source_key><!--><-->
+            <source_key>geo_sample__X__accession</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
@@ -50,29 +50,25 @@
     </table>
     <table name="REPLICATES">
         <mapping>
-            <source_key>file_name</source_key><!--><-->
+            <source_key>geo_sample__X__accession</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping method="MANUAL">
-            <source_key>1</source_key>
+        <mapping>
+            <source_key>bio_replicate__X__number</source_key>
             <global_key>bioReplicateNum</global_key>
         </mapping>
-        <mapping method="MANUAL">
+        <mapping method="MANUAL"><!--ok-->
             <source_key>1</source_key>
             <global_key>techReplicateNum</global_key>
         </mapping>
     </table>
     <table name="EXPERIMENTSTYPE">
         <mapping>
-            <source_key>provider</source_key>
+            <source_key>extraction_protocol</source_key>
             <global_key>technique</global_key>
         </mapping>
-        <mapping method="MANUAL-CONCAT" concat_character=" ">
-            <source_key>annotation</source_key>
-            <global_key>technique</global_key>
-        </mapping>
-        <!--   <mapping method="MANUAL">
-              <source_key>null</source_key>
+        <!--<mapping method="MANUAL">
+              <source_key>region_type</source_key>
               <global_key>feature</global_key>
           </mapping>-->
         <!--   <mapping method="MANUAL">
@@ -85,22 +81,26 @@
           </mapping>-->
     </table>
     <table name="PROJECTS">
-        <mapping>
-            <source_key>full_name</source_key>
+        <mapping method="MANUAL">
+            <source_key>TADs</source_key>
             <global_key>projectName</global_key>
         </mapping>
-        <mapping>
-            <source_key>provider</source_key>
+        <mapping method="MANUAL">
+            <source_key>TADs</source_key>
             <global_key>programName</global_key>
         </mapping>
     </table>
     <table name="CASES">
         <mapping>
-            <source_key>file_name</source_key><!--><-->
+            <source_key>file_id</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>Ren Lab</source_key><!-->ok<-->
+            <source_key>organization_name</source_key><!-->ok<-->
+            <global_key>sourceSite</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character=" - ">
+            <source_key>lab</source_key><!-->ok<-->
             <global_key>sourceSite</global_key>
         </mapping>
         <mapping>
@@ -113,10 +113,10 @@
             <source_key>dataset_name</source_key>
             <global_key>name</global_key>
         </mapping>
-        <!-- <mapping method="MANUAL">
-             <source_key>null</source_key>
+        <mapping>
+             <source_key>region_type</source_key>
              <global_key>dataType</global_key>
-         </mapping>-->
+         </mapping>
         <mapping>
             <source_key>file_format</source_key><!--ok-->
             <global_key>format</global_key>
@@ -126,27 +126,27 @@
             <global_key>assembly</global_key>
         </mapping>
         <mapping method="MANUAL">
-            <source_key>true</source_key>
+            <source_key>false</source_key>
             <global_key>isAnn</global_key>
         </mapping>
-        <mapping method="REMOVE" rem_character="_">
+        <!--<mapping method="MANUAL">
             <source_key>annotation_type</source_key>
             <global_key>annotation</global_key>
-        </mapping>
+        </mapping>-->
     </table>
     <table name="ITEMS">
         <mapping>
-            <source_key>file_name</source_key><!-->generate metadata from name of file<-->
+            <source_key>file_id</source_key><!-->generate metadata from name of file<-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
             <source_key>file_size</source_key><!-->ok<-->
             <global_key>size</global_key>
         </mapping>
-        <mapping>
+        <!--<mapping>
             <source_key>release_date</source_key>
             <global_key>date</global_key>
-        </mapping>
+        </mapping>-->
         <mapping>
             <source_key>data_url</source_key><!-->ok<-->
             <global_key>sourceUrl</global_key>
