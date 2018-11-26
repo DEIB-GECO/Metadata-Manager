@@ -6,7 +6,7 @@ import java.nio.file.{Files, Paths}
 import it.polimi.genomics.metadata.downloader_transformer.default.SchemaFinder
 import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.step.utils.{DatasetNameUtil, DirectoryNamingUtil, ParameterUtil}
-import it.polimi.genomics.metadata.mapper.MapperMain
+import it.polimi.genomics.metadata.mapper.main
 import it.polimi.genomics.metadata.cleaner.RuleBase
 import it.polimi.genomics.metadata.step.xml.Source
 import org.slf4j.{Logger, LoggerFactory}
