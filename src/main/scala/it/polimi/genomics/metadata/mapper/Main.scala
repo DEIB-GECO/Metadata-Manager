@@ -26,7 +26,7 @@ import scala.io.Source
 
 import it.polimi.genomics.metadata.step.utils.DirectoryNamingUtil
 
-object MapperMain {
+object main {
   val logger: Logger = Logger.getLogger(this.getClass)
   private val regexMeta = ".*.meta".r
   private val regexRaoTads = ".*_rao.*".r
