@@ -13,6 +13,8 @@ class ItemTCGA extends TCGATable with Item{
       this.date = insertMethod(this.date,param)
     case "CHECKSUM" =>
       this.checksum = insertMethod(this.checksum,param)
+    case "CONTENTTYPE" =>
+      this.contentType = insertMethod(this.contentType,param)
     case "PLATFORM" => this.platform = sortPipeline(insertMethod(this.platform, param))
     case "PIPELINE" => this.pipeline = insertMethod(this.pipeline,param)
     case "SOURCEURL" => this.sourceUrl = insertMethod(this.sourceUrl,param)
