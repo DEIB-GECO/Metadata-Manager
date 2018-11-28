@@ -40,7 +40,8 @@ object Cleaner extends App {
 
 
   val input_meta_files: Array[File] = Utils.getListOfMetaFiles(input_directory)
-  val input_reg_files: Array[File] = Utils.getListOfRegFiles(input_directory)
+  val input_bed_files: Array[File] = Utils.getListOfBEDFiles(input_directory)
+  val input_gdm_files: Array[File] = Utils.getListOfGDMFiles(input_directory)
 
   input_meta_files.foreach({ inputFile: File =>
 
@@ -59,7 +60,17 @@ object Cleaner extends App {
 
   })
 
-  input_reg_files.foreach({ inputFile: File =>
+  input_bed_files.foreach({ inputFile: File =>
+
+    val inputPath = inputFile.getAbsolutePath
+
+    val outputPath = new File(output_directory, inputFile.getName).getAbsolutePath
+
+    createSymbolicLink(inputPath, outputPath)
+
+  })
+
+  input_gdm_files.foreach({ inputFile: File =>
 
     val inputPath = inputFile.getAbsolutePath
 

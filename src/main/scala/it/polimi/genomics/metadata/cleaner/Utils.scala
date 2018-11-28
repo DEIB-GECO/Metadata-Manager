@@ -18,11 +18,18 @@ object Utils {
     res.filter(_.getName.contains(".meta"))
   }
 
-  def getListOfRegFiles(dir: File): Array[File] = {
+  def getListOfBEDFiles(dir: File): Array[File] = {
     val filesList: Array[File] = dir.listFiles
     //println(dir + "---------" + filesList)
-    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfRegFiles)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfBEDFiles)
     res.filter(_.getName.endsWith(".bed"))
+  }
+
+  def getListOfGDMFiles(dir: File): Array[File] = {
+    val filesList: Array[File] = dir.listFiles
+    //println(dir + "---------" + filesList)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfGDMFiles)
+    res.filter(_.getName.endsWith(".gdm"))
   }
 
   def buildRulePair(input_string: String): (String, String) = {
