@@ -15,11 +15,18 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     case "DATE" => this.date = insertMethod(this.date,param)
     case "CHECKSUM" => this.checksum = insertMethod(this.checksum,param)
     case "CONTENTTYPE" => this.contentType = insertMethod(this.contentType,param)
-    case "PLATFORM" => this.platform = insertMethod(this.platform, param)
-    case "PIPELINE" => this.pipeline = insertMethod(this.pipeline,param)
+    case "PLATFORM" => this.platform = sortPipelineOrPlatform(insertMethod(this.platform, param))
+    case "PIPELINE" => this.pipeline = sortPipelineOrPlatform(insertMethod(this.pipeline,param))
     case "SOURCEURL" => this.sourceUrl = insertMethod(this.sourceUrl,param)
     case "LOCALURL" => this.localUrl = insertMethod(this.localUrl,param)
     case _ => noMatching(dest)
+  }
+
+  def sortPipelineOrPlatform(s: String): String = {
+    val pList = s.split(",")
+    val pListSorted = pList.sorted
+    val sortedString = pListSorted.mkString(", ")
+    sortedString
   }
 
   override def insert(): Int = {

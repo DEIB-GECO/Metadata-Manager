@@ -13,11 +13,11 @@
             <source_key>Homo sapiens</source_key><!--ok-->
             <global_key>species</global_key>
         </mapping>
-        <mapping method="ABS">
+        <mapping method="REMOVE" rem_character="-">
             <source_key>clinical_patient__days_to_birth</source_key><!--ok-->
             <global_key>age</global_key>
         </mapping>
-        <mapping method="CHECKPREC-ABS">
+        <mapping method="CHECKPREC-REMOVE" rem_character="-">
             <source_key>clinical_patient__birth_days_to</source_key><!--ok-->
             <global_key>age</global_key>
         </mapping>
@@ -71,11 +71,11 @@
         </mapping>
     </table>
     <table name="EXPERIMENTSTYPE">
-        <mapping method="REMOVE" rem_character="v2">
+        <mapping>
             <source_key>manually_curated__datatype</source_key>
             <global_key>technique</global_key>
         </mapping>
-        <mapping method="REMOVE" rem_character="v2"><!--ok-->
+        <mapping><!--ok-->
             <source_key>manually_curated__datatype</source_key>
             <global_key>feature</global_key>
         </mapping>

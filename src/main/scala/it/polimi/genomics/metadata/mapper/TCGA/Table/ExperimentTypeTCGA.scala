@@ -10,6 +10,7 @@ class ExperimentTypeTCGA extends TCGATable with ExperimentType{
       case "cnv" => this.technique = "snp array"
       case "mirnaseq" => this.technique = "mirna-seq"
       case "rnaseq" => this.technique = "rna-seq"
+      case "rnaseqv2" => this.technique = "rna-seq"
       case "dnaseq" => this.technique = "dna-seq"
       case "dnamethylation450" => this.technique = "dna methylation 450"
       case "dnamethylation27" => this.technique = "dna methylation 27"

@@ -283,6 +283,7 @@ class EncodeTransformer extends Transformer {
 
           writePlatform(node, writer, replicateIds, metadataList, separator)
 
+          //writePipeline(fileNameWithoutExtension, node, writer, metadataList, separator)
 
           printTree(node, "", writer, metadataList, separator, exclusion = true)
           writer.close()
@@ -390,19 +391,19 @@ class EncodeTransformer extends Transformer {
     * @param separator    separator string to use for separating the nested metadata
     */
   def writePlatform(rootNode: JsonNode, writer: PrintWriter, replicateIds: List[String],
-                      metaList: java.util.ArrayList[(String, String)], separator: String): Unit = {
+                    metaList: java.util.ArrayList[(String, String)], separator: String): Unit = {
     if (rootNode.has("files")) {
       val filesNode = rootNode.get("files")
       if (filesNode.isArray) {
         val files = filesNode.getElements
         while (files.hasNext) {
           val file = files.next()
-          if(file.has("platform") && file.has("biological_replicates")){
+          if (file.has("platform") && file.has("biological_replicates")) {
             val fileReplicates = file.get("biological_replicates")
-            if(fileReplicates.isArray){
+            if (fileReplicates.isArray) {
               val fileReplicateAsText = fileReplicates.getElements().asScala.map(_.asText()).toSet
               val hasIntersection = fileReplicateAsText.intersect(replicateIds.toSet).nonEmpty
-              if(hasIntersection)
+              if (hasIntersection)
                 printTree(file.get("platform"), s"platform", writer, metaList, separator, exclusion = false)
             }
           }
@@ -410,6 +411,51 @@ class EncodeTransformer extends Transformer {
       }
     }
   }
+
+  /**
+    * handles the particular case of pipelines
+    *
+    * @param fileNameWithoutExtension name of the files for which pipeline needs to be retrieved
+    * @param rootNode     initial node of the json file.
+    * @param writer       output for metadata.
+    * @param metaList     list with already inserted meta to avoid duplication.
+    * @param separator    separator string to use for separating the nested metadata
+    */
+  def writePipeline(fileNameWithoutExtension: String, rootNode: JsonNode, writer: PrintWriter, metaList: java.util.ArrayList[(String, String)], separator: String): Unit = ???
+
+    /*def writePipeline(fileNameWithoutExtension: String, rootNode: JsonNode, writer: PrintWriter, metaList: java.util.ArrayList[(String, String)], separator: String): Unit = {
+      if (rootNode.has("files")) {
+        val filesNode = rootNode.get("files")
+        if (filesNode.isArray) {
+          val files = filesNode.getElements
+          while (files.hasNext) {
+            val file = files.next()
+            if (file.has("accession") && file.get("accession") == fileNameWithoutExtension) {
+              if (file.has("analysis_step_version")){
+                val analysis_step_versionNode = file.get("analysis_step_version")
+                if(analysis_step_versionNode.has("analysis_step")){
+                  val analysis_stepNode = analysis_step_versionNode.get("analysis_step")
+                  if(analysis_stepNode.has("pipelines")) {
+                    val pipelinesNode = analysis_stepNode.get("pipelines")
+                    if (pipelinesNode.isArray) {
+                      val pipelines = pipelinesNode.getElements
+                      while (pipelines.hasNext) {
+                        val pipeline = pipelines.next()
+                        if (pipeline.has("analysis_steps")) {
+                          val analysis_stepsNode = pipeline.get("analysis_steps")
+                          printTree(analysis_stepsNode,s"pipeline", writer, metaList, separator, exclusion = false)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }*/
+
 
   /**
     * gets the "hard coded" exclusion categories, meant to be used for the particular cases

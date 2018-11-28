@@ -14,9 +14,9 @@ class ItemTCGA extends TCGATable with Item {
       case "humanmethylation27" => this.platform = "methylation 27K"
       case "humanmethylation450" => this.platform = "methylation 450K"
       case "illumina ga2" => this.platform = "illumina genome analyzer 2"
-      case _ => this.platform = sortPipeline(insertMethod(this.platform, param))
+      case _ => this.platform = insertMethod(this.platform, param)
     }
-    case "PIPELINE" => this.pipeline = insertMethod(this.pipeline, param)
+    case "PIPELINE" => this.pipeline = sortPipeline(insertMethod(this.pipeline, param))
     case "SOURCEURL" => this.sourceUrl = insertMethod(this.sourceUrl, param)
     case "LOCALURL" => this.localUrl = insertMethod(this.localUrl, param)
     case _ => noMatching(dest)

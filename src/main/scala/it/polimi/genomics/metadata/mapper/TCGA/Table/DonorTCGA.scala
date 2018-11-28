@@ -10,7 +10,8 @@ class DonorTCGA extends TCGATable with Donor{
         this.sourceId = insertMethod(this.sourceId, param)
       case "SPECIES" => this.species = insertMethod(this.species, param)
       case "AGE" =>
-        this.age = insertMethod(this.age.toString,param).toInt //param.toInt.abs
+        val b = insertMethod(this.age.toString,param)
+        this.age = b.toInt //param.toInt.abs
       case "GENDER" => this.gender = insertMethod(this.gender, param)
       case "ETHNICITY" => this.ethnicity = insertMethod(this.ethnicity, param)
       case _ => noMatching(dest)
