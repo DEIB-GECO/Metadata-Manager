@@ -112,7 +112,6 @@ object InsertMethod {
   private def average(list: Array[Float]): Float = list.sum / list.length
 
 
-  //TODO TEST ANNA
   private def getSourceSiteByCode(code: String): String = {
     try{
       val driver = new HtmlUnitDriver

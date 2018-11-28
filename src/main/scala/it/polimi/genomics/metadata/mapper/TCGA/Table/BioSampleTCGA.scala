@@ -26,12 +26,12 @@ class BioSampleTCGA extends TCGATable with BioSample {
         }
       }
       case "ISHEALTHY" => {
-        if (param == "normal")
+        if (param.toUpperCase == "NORMAL" || param.toUpperCase == "HEALTHY")
           this.isHealthy = Some(true)
-        else if (param == "tumoral")
+        else //if (param.toUpperCase == "TUMORAL")
           this.isHealthy = Some(false)
-        else
-          this.isHealthy = None
+       // else
+       //   this.isHealthy = None
         /*if (param == "null") this.isHealthy = false
         else
           param.toUpperCase match {
@@ -44,11 +44,10 @@ class BioSampleTCGA extends TCGATable with BioSample {
           }*/
       }
       case "DISEASE" => {
-      //  if (conf.getBoolean("import.rules.is_healthy")) {
-      //    this.disease = if (!this.isHealthy) insertMethod(this.disease, param) else null
-      //  } else {
-          this.disease = insertMethod(this.disease, param)
-      //  }
+        if (param.toUpperCase == "HEALTHY")
+          this.disease = None
+        else
+          this.disease = Some(param)
       }
       case _ => noMatching(dest)
     }

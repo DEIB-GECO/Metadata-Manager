@@ -14,8 +14,7 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     case "SIZE" => this.size = insertMethod(this.size.toString,param).toLong
     case "DATE" => this.date = insertMethod(this.date,param)
     case "CHECKSUM" => this.checksum = insertMethod(this.checksum,param)
-    case "CONTENTTYPE" =>
-      this.contentType = insertMethod(this.contentType,param)
+    case "CONTENTTYPE" => this.contentType = insertMethod(this.contentType,param)
     case "PLATFORM" => this.platform = insertMethod(this.platform, param)
     case "PIPELINE" => this.pipeline = insertMethod(this.pipeline,param)
     case "SOURCEURL" => this.sourceUrl = insertMethod(this.sourceUrl,param)

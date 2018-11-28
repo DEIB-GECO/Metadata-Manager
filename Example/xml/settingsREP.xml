@@ -130,10 +130,6 @@
             <source_key>false</source_key>
             <global_key>isAnn</global_key>
         </mapping>
-        <!--      <mapping method="MANUAL">
-                  <source_key>null</source_key>
-                  <global_key>annotation</global_key>
-              </mapping> -->
     </table>
     <table name="ITEMS">
         <mapping>

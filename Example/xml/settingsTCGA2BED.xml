@@ -39,7 +39,7 @@
             <source_key>tissue</source_key><!--ok-->
             <global_key>types</global_key>
         </mapping>
-        <mapping>
+        <mapping method="SUB" sub_character="|" new_character=", ">
             <source_key>clinical_patient__tumor_tissue_site</source_key><!--ok-->
             <global_key>tissue</global_key>
         </mapping>
@@ -72,7 +72,7 @@
     </table>
     <table name="EXPERIMENTSTYPE">
         <mapping method="REMOVE" rem_character="v2">
-            <source_key>manually_curated__datatype</source_key><!--prepare method vedere con tutti gli exp type che cambiamenti fare, nel metodo adoc separare rna e seq-->
+            <source_key>manually_curated__datatype</source_key>
             <global_key>technique</global_key>
         </mapping>
         <mapping method="REMOVE" rem_character="v2"><!--ok-->
@@ -121,15 +121,15 @@
             <source_key>dataset_name</source_key><!-->ok<-->
             <global_key>name</global_key>
         </mapping>
-        <mapping method="REMOVE" rem_character="_">
+        <mapping method="SUB" sub_character="_" new_character=" ">
             <source_key>manually_curated__rna_seq_exp_type</source_key>
             <global_key>dataType</global_key>
         </mapping>
-        <mapping method="CHECKPREC-REMOVE" rem_character="_">
+        <mapping method="CHECKPREC-SUB" sub_character="_" new_character=" ">
             <source_key>manually_curated__mirna_seq_exp_type</source_key>
             <global_key>dataType</global_key>
         </mapping>
-        <mapping method="CHECKPREC" rem_character="_">
+        <mapping method="CHECKPREC-SUB" sub_character="_" new_character=" ">
             <source_key>manually_curated__datatype</source_key>
             <global_key>dataType</global_key>
         </mapping>
@@ -144,10 +144,6 @@
         <mapping method="MANUAL"><!-->ok<-->
             <source_key>false</source_key>
             <global_key>isAnn</global_key>
-        </mapping>
-        <mapping method="MANUAL"><!-->ok<-->
-            <source_key>null</source_key>
-            <global_key>annotation</global_key>
         </mapping>
     </table>
     <table name="ITEMS">

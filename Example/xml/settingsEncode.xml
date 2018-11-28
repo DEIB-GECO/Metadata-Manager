@@ -5,8 +5,8 @@
             <source_key>dataset_name</source_key>
             <global_key>name</global_key>
         </mapping>
-        <mapping>
-            <source_key>file__output_type</source_key> <!--peaks-->
+        <mapping method="MANUAL">
+            <source_key>peaks</source_key> <!--peaks-->
             <global_key>dataType</global_key>
         </mapping>
         <mapping>
@@ -20,10 +20,6 @@
         <mapping method="MANUAL">
             <source_key>false</source_key>
             <global_key>isAnn</global_key>
-        </mapping>
-        <mapping method="MANUAL">
-            <source_key>null</source_key>
-            <global_key>annotation</global_key>
         </mapping>
     </table>
     <table name="DONORS">
@@ -158,6 +154,10 @@
         <mapping>
             <source_key>manually_curated__origin_md5</source_key>
             <global_key>checksum</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__output_type</source_key>
+            <global_key>contentType</global_key>
         </mapping>
         <mapping method="MANUAL">
             <source_key>https://www.encodeproject.org</source_key>

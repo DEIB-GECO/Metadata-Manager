@@ -14,7 +14,6 @@ class DatasetEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTabl
       this.format = {insertMethod(this.format,param)}
     case "ASSEMBLY" => this.assembly = insertMethod(this.assembly,param)
     case "ISANN" => this.isAnn = if(insertMethod(this.isAnn.toString,param).equals("true")) true else false
-    case "ANNOTATION" => this.annotation = insertMethod(this.annotation,param)
     case _ => noMatching(dest)
   }
 

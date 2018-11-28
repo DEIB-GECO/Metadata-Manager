@@ -16,7 +16,7 @@ trait BioSample extends Table{
 
   var isHealthy: Option[Boolean] = _
 
-  var disease: String = _
+  var disease: Option[String] = _
 
   _hasForeignKeys = true
 
@@ -97,7 +97,7 @@ trait BioSample extends Table{
       if(value._4.isDefined) this.tissue = value._4.get
       if(value._5.isDefined) this.cellLine = value._5.get
       if(value._6.isDefined) this.isHealthy = Option(value._6.get) //check if correct putting Option around value._6.get
-      if(value._7.isDefined) this.disease = value._7.get
+      if(value._7.isDefined) this.disease = Option(value._7.get)
     }
   }
 

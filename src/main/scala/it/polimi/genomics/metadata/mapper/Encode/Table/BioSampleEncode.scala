@@ -21,7 +21,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   var isHealthyArray: Array[Option[Boolean]] = new Array[Option[Boolean]](quantity)
 
-  var diseaseArray: Array[String] = new Array[String](quantity)
+  var diseaseArray: Array[Option[String]] = new Array[Option[String]](quantity)
 
   var ontologicalCode: Array[String] = new Array[String](quantity)
 
@@ -93,7 +93,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
           param.toLowerCase.equals("unknown"))
           this.diseaseArray(diseaseInsertPosition) = null
         else
-          this.diseaseArray(diseaseInsertPosition) = insertMethod(this.diseaseArray(diseaseInsertPosition), param)
+          this.diseaseArray(diseaseInsertPosition) = Some(param)
         this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
       }
       case "ONTOLOGICALCODE" => {

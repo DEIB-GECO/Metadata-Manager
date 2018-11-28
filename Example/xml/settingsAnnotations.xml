@@ -125,10 +125,6 @@
             <source_key>true</source_key>
             <global_key>isAnn</global_key>
         </mapping>
-        <mapping method="REMOVE" rem_character="_">
-            <source_key>annotation_type</source_key>
-            <global_key>annotation</global_key>
-        </mapping>
     </table>
     <table name="ITEMS">
         <mapping>
@@ -143,9 +139,13 @@
             <source_key>release_date</source_key>
             <global_key>date</global_key>
         </mapping>
-        <mapping>
-            <source_key>download_link</source_key>
-            <global_key>sourceUrl</global_key>
+        <!--   <mapping method="MANUAL">
+               <source_key>null</source_key>
+               <global_key>checksum</global_key>
+           </mapping> -->
+        <mapping method="SUB" sub_character="_" new_character=" ">
+            <source_key>annotation_type</source_key>
+            <global_key>contentType</global_key>
         </mapping>
         <!--   <mapping method="MANUAL">
                <source_key>null</source_key>
@@ -155,7 +155,10 @@
               <source_key>null</source_key>
               <global_key>pipeline</global_key>
           </mapping>-->
-
+        <mapping>
+            <source_key>download_link</source_key>
+            <global_key>sourceUrl</global_key>
+        </mapping>
         <mapping method="MANUAL">
             <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
             <global_key>localUrl</global_key>

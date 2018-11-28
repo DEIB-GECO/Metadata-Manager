@@ -12,10 +12,6 @@ trait Item extends Table{
 
   var sourceId : String = _
 
-//  var dataType: String = _
-
-//  var format : String = _
-
   var size : Long = _
 
   var date : String = _
@@ -119,7 +115,7 @@ trait Item extends Table{
         this.experimentTypeId = value._2
         this.datasetId = value._3
         this.sourceId = value._4
-        if (value._5.isDefined) this.size = value._5.get
+        if (value._5.isDefined) this.size = value._5.get //TODO add checksum and contentType
         if (value._6.isDefined) this.pipeline = value._6.get
         if (value._7.isDefined) this.platform = value._7.get
         if (value._8.isDefined) this.sourceUrl = value._8.get
@@ -136,7 +132,7 @@ trait Item extends Table{
     write.append(getMessage(tableName, "item_source_id", this.sourceId))
 
     if(this.size != 0) write.append(getMessage(tableName, "size", this.size))
-    if(this.pipeline != null) write.append(getMessage(tableName, "pipeline", this.pipeline))
+    if(this.pipeline != null) write.append(getMessage(tableName, "pipeline", this.pipeline))  //TODO add checksum and contentType
     if(this.platform != null) write.append(getMessage(tableName, "platform", this.platform))
     if(this.sourceUrl != null) write.append(getMessage(tableName, "source_url", this.sourceUrl))
     if(this.localUrl != null) write.append(getMessage(tableName, "source_url", this.localUrl))
