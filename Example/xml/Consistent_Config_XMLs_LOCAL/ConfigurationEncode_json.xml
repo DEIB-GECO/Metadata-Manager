@@ -51,7 +51,7 @@
                     <key>json_suffix</key>
                     <value>/?frame=embedded&amp;format=json/</value>
                 </parameter>
-                <parameter>
+                <!--<parameter>
                     <description>Excluding useless group of metadata</description>
                     <key>encode_metadata_exclusion</key>
                     <value>^contributing_files.*$</value>
@@ -80,7 +80,7 @@
                     <description>Not useful metadata</description>
                     <key>encode_metadata_exclusion</key>
                     <value>^assembly$</value>
-                </parameter>
+                </parameter>-->
                <!-- <parameter>
                     <description>Xml file with the metadata key replacements.</description>
                     <key>metadata_replacement</key>
@@ -273,7 +273,7 @@
                     <key>metadata_name_separation_char</key>
                     <value>__</value>
                 </parameter>
-                <parameter>
+                <!--<parameter>
                     <description>Found this field to be not useful and too many fields</description>
                     <key>encode_metadata_exclusion</key>
                     <value>^contributing_files.*$</value>
@@ -297,7 +297,7 @@
                     <description>Not useful metadata</description>
                     <key>encode_metadata_exclusion</key>
                     <value>^.*revoked_files.*$</value>
-                </parameter>
+                </parameter>-->
                <!-- <parameter>
                     <description>Xml file with the metadata key replacements.</description>
                     <key>metadata_replacement</key>
