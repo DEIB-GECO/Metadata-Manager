@@ -136,7 +136,7 @@
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>file_size</source_key>
+            <source_key>region_file_size</source_key>
             <global_key>size</global_key>
         </mapping>
         <mapping method="MANUAL">

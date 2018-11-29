@@ -43,10 +43,10 @@
             <source_key>clinical_patient__tumor_tissue_site</source_key><!--ok-->
             <global_key>tissue</global_key>
         </mapping>
-        <mapping method="MANUAL"><!--ok-->
+        <!--<mapping method="MANUAL">
             <source_key>null</source_key>
             <global_key>cellLine</global_key>
-        </mapping>
+        </mapping>-->
         <mapping>
             <source_key>manually_curated__tissue_status</source_key><!--ok-->
             <global_key>isHealthy</global_key>
@@ -79,14 +79,14 @@
             <source_key>manually_curated__datatype</source_key>
             <global_key>feature</global_key>
         </mapping>
-        <mapping method="MANUAL"><!--ok-->
+        <!--<mapping method="MANUAL">
             <source_key>null</source_key>
             <global_key>target</global_key>
-        </mapping>
-        <mapping method="MANUAL"><!--ok-->
+        </mapping>-->
+        <!--<mapping method="MANUAL">
             <source_key>null</source_key>
             <global_key>antibody</global_key>
-        </mapping>
+        </mapping>-->
     </table>
     <table name="PROJECTS">
         <mapping method="MANUAL">
@@ -111,10 +111,10 @@
             <source_key>clinical_patient__tissue_source_site</source_key><!--ok-->
             <global_key>sourceSite</global_key>
         </mapping>
-        <mapping method="MANUAL"><!--ok-->
+        <!--<mapping method="MANUAL">
             <source_key>null</source_key>
             <global_key>externalRef</global_key>
-        </mapping>
+        </mapping>-->
     </table>
     <table name="DATASETS">
         <mapping method="PREDEFINED">
@@ -167,10 +167,10 @@
             <source_key>manually_curated__seqplatform</source_key><!-->ok<-->
             <global_key>platform</global_key>
         </mapping>
-        <mapping method="MANUAL">
-            <source_key>null</source_key><!-->ok<-->
+        <!--<mapping method="MANUAL">
+            <source_key>null</source_key>
             <global_key>pipeline</global_key>
-        </mapping>
+        </mapping>-->
         <mapping>
             <source_key>manually_curated__exp_data_bed_url</source_key><!-->ok<-->
             <global_key>sourceUrl</global_key>

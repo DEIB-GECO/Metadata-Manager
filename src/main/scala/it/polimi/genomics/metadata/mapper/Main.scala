@@ -379,7 +379,7 @@ object main {
       val region_file = new File(path_region_file)
       val region_file_size = region_file.length
       if(region_file_size!=0)
-        lines = lines ::: List("file_size\t" + region_file.length)
+        lines = lines ::: List("region_file_size\t" + region_file.length)
 
       val tables = new TCGATables
 

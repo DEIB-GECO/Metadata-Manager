@@ -13,10 +13,10 @@
             <source_key>gdc__primary_site</source_key><!-->ok<-->
             <global_key>tissue</global_key>
         </mapping>
-        <mapping method="MANUAL"><!-->ok<-->
+        <!--<mapping method="MANUAL">
             <source_key>null</source_key>
             <global_key>cellLine</global_key>
-        </mapping>
+        </mapping>-->
         <mapping>
             <source_key>manually_curated__tissue_status</source_key><!-->ok<-->
             <global_key>isHealthy</global_key>
@@ -117,14 +117,14 @@
             <source_key>gdc__data_category</source_key><!-->ok<-->
             <global_key>feature</global_key>
         </mapping>
-        <mapping method="MANUAL"><!-->ok<-->
+        <!--<mapping method="MANUAL">
             <source_key>null</source_key>
             <global_key>target</global_key>
-        </mapping>
-        <mapping method="MANUAL"><!-->ok<-->
+        </mapping>-->
+        <!--<mapping method="MANUAL">
             <source_key>null</source_key>
             <global_key>antibody</global_key>
-        </mapping>
+        </mapping>-->
     </table>
     <table name="PROJECTS">
         <mapping>
