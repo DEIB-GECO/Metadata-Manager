@@ -207,16 +207,16 @@ object DbHandler {
 
   //Insert Method
 
-  def insertDonor(sourceId: String, species: String, age: Int, gender: String, ethnicity: String): Int = {
-    val idQuery = (donors returning donors.map(_.donorId)) += (None, sourceId, Option(species), None, this.toOption[Int](age), Option(gender), Option(ethnicity), None)
+  def insertDonor(sourceId: String, species: String, age: Option[Int], gender: String, ethnicity: String): Int = {
+    val idQuery = (donors returning donors.map(_.donorId)) += (None, sourceId, Option(species), None, age, Option(gender), Option(ethnicity), None)
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
-  def updateDonor(sourceId: String, species: String, age: Int, gender: String, ethnicity: String): Int = {
+  def updateDonor(sourceId: String, species: String, age: Option[Int], gender: String, ethnicity: String): Int = {
     val query = for {donor <- donors if donor.sourceId === sourceId} yield (donor.species, donor.age, donor.gender, donor.ethnicity)
-    val updateAction = query.update(Option(species), this.toOption[Int](age), Option(gender), Option(ethnicity))
+    val updateAction = query.update(Option(species), age, Option(gender), Option(ethnicity))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     val idQuery = donors.filter(_.sourceId === sourceId).map(_.donorId)
@@ -226,9 +226,9 @@ object DbHandler {
     id.head
   }
 
-  def updateDonorById(donorId: Int, sourceId: String, species: String, age: Int, gender: String, ethnicity: String): Int = {
+  def updateDonorById(donorId: Int, sourceId: String, species: String, age: Option[Int], gender: String, ethnicity: String): Int = {
     val query = for {donor <- donors if donor.donorId === donorId} yield (donor.sourceId, donor.species, donor.age, donor.gender, donor.ethnicity)
-    val updateAction = query.update(sourceId, Option(species), this.toOption[Int](age), Option(gender), Option(ethnicity))
+    val updateAction = query.update(sourceId, Option(species), age, Option(gender), Option(ethnicity))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     donorId

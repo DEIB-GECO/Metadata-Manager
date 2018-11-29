@@ -131,7 +131,7 @@
         </mapping>-->
     </table>
     <table name="ITEMS">
-        <mapping>
+        <mapping method="REMOVE" rem_character=".bed">
             <source_key>name</source_key><!-->generate metadata from name of file<-->
             <global_key>sourceId</global_key>
         </mapping>

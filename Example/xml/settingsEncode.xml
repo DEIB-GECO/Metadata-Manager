@@ -163,6 +163,10 @@
             <source_key>platform__term_name</source_key>
             <global_key>platform</global_key>
         </mapping>
+        <mapping method="REMOVE-SUB" rem_character="/analysis-steps/" sub_character="-" new_character=" ">
+            <source_key>file__analysis_step</source_key>
+            <global_key>pipeline</global_key>
+        </mapping>
         <mapping method="MANUAL">
             <source_key>https://www.encodeproject.org</source_key>
             <global_key>sourceUrl</global_key>

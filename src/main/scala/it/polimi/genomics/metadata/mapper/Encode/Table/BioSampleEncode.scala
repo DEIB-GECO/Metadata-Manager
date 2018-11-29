@@ -85,7 +85,6 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
         this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
       }
       case "DISEASE" => {
-
         if(param.toLowerCase.startsWith("healthy") ||
           param.toLowerCase.equals("control") ||
           param.toLowerCase.contains("normal") ||

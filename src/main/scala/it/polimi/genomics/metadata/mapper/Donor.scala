@@ -8,7 +8,7 @@ trait Donor extends Table{
 
   var species : String = _
 
-  var age : Int = _
+  var age : Option[Int] = None
 
   var gender : String= _
 
@@ -74,7 +74,7 @@ trait Donor extends Table{
       var value = values.head
       this.sourceId = value._1
       if(value._2.isDefined) this.species = value._2.get
-      if(value._3.isDefined) this.age = value._3.get
+      if(value._3.isDefined) this.age = Option(value._3.get)
       if(value._4.isDefined) this.gender = value._4.get
       if(value._5.isDefined) this.ethnicity = value._5.get
     }
@@ -86,7 +86,7 @@ trait Donor extends Table{
 
     write.append(getMessage(tableName, "donor_source_id", this.sourceId))
     if(this.species != null) write.append(getMessage(tableName, "species", this.species))
-    if(this.age != 0) write.append(getMessage(tableName, "age", this.age))
+    if(this.age != null) write.append(getMessage(tableName, "age", this.age))
     if(this.gender != null) write.append(getMessage(tableName, "gender", this.gender))
     if(this.ethnicity != null) write.append(getMessage(tableName, "ethnicity", this.ethnicity))
 

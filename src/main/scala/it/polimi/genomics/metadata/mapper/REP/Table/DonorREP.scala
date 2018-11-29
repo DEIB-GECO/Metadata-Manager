@@ -4,13 +4,15 @@ import it.polimi.genomics.metadata.mapper.REP.REPTableId
 import it.polimi.genomics.metadata.mapper.Utils.Statistics
 import it.polimi.genomics.metadata.mapper.{Donor, Table}
 
+import scala.util.Try
+
 class DonorREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTableId) with Donor{
 
   val sourceIdArray: Array[String] = new Array[String](quantity)
 
   var speciesArray: Array[String] = new Array[String](quantity)
 
-  var ageArray: Array[Int] = new Array[Int](quantity)
+  var ageArray: Array[Option[Int]] = new Array[Option[Int]](quantity)
 
   var genderArray: Array[String] = new Array[String](quantity)
 
@@ -41,7 +43,8 @@ class DonorREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTableI
         this.speciesInsertPosition = resetPosition(speciesInsertPosition, quantity)
       }
       case "AGE" => {
-        this.ageArray(this.ageInsertPosition) = insertMethod(this.ageArray(this.ageInsertPosition).toString, param).toInt
+        this.ageArray(this.ageInsertPosition) = Try(insertMethod(this.age.map(_.toString).getOrElse(null),param).toInt).toOption
+        //this.ageArray(this.ageInsertPosition) = insertMethod(this.ageArray(this.ageInsertPosition).toString, param).toInt
         this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
       }
       case "GENDER" => {
