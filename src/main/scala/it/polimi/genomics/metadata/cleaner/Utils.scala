@@ -32,6 +32,13 @@ object Utils {
     res.filter(_.getName.endsWith(".gdm"))
   }
 
+  def getSchemaFile(dir: File): Array[File] = {
+    val filesList: Array[File] = dir.listFiles
+    //println(dir + "---------" + filesList)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getSchemaFile)
+    res.filter(_.getName.endsWith(".schema"))
+  }
+
   def buildRulePair(input_string: String): (String, String) = {
     val rule_pattern = "(.*)=>(.*)"
     (input_string.replaceAll(rule_pattern, "$1"), input_string.replaceAll(rule_pattern, "$2"))

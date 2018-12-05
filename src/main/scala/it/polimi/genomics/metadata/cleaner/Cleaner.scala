@@ -5,7 +5,9 @@ import java.io.File
 import it.polimi.genomics.metadata.step.CleanerStep.createSymbolicLink
 
 import scala.collection.mutable.ArrayBuffer
-
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.nio.channels.FileChannel
 ///Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/example_for_cleaner/rules.txt
 
 
@@ -42,6 +44,7 @@ object Cleaner extends App {
   val input_meta_files: Array[File] = Utils.getListOfMetaFiles(input_directory)
   val input_bed_files: Array[File] = Utils.getListOfBEDFiles(input_directory)
   val input_gdm_files: Array[File] = Utils.getListOfGDMFiles(input_directory)
+  val input_schema_file: Array[File] = Utils.getSchemaFile(input_directory)
 
   input_meta_files.foreach({ inputFile: File =>
 
@@ -79,6 +82,21 @@ object Cleaner extends App {
     createSymbolicLink(inputPath, outputPath)
 
   })
+
+  input_schema_file.foreach({ inputFile: File =>
+
+    val inputPath = inputFile.getAbsolutePath
+
+    val outputPath = new File(output_directory, inputFile.getName).getAbsolutePath
+
+    val inputChannel: FileChannel = new FileInputStream(inputPath).getChannel
+    val outputChannel: FileChannel = new FileOutputStream(outputPath).getChannel
+    outputChannel.transferFrom(inputChannel, 0, inputChannel.size)
+    inputChannel.close
+    outputChannel.close
+  })
+
+
 
 
 
