@@ -2,6 +2,8 @@ package it.polimi.genomics.metadata.mapper.TCGA.Table
 
 import it.polimi.genomics.metadata.mapper.BioSample
 
+import scala.util.Try
+
 class BioSampleTCGA extends TCGATable with BioSample {
 
   override def setParameter(param: String, dest: String, insertMethod: (String, String) => String): Unit = {
@@ -46,8 +48,11 @@ class BioSampleTCGA extends TCGATable with BioSample {
       case "DISEASE" => {
         if (param.toUpperCase == "HEALTHY")
           this.disease = None
-        else
-          this.disease = Some(param)
+        else{
+          val a: String = this.disease.getOrElse(null)
+          val b: String = insertMethod(a,param)
+          this.disease = Some(b)
+        }
       }
       case _ => noMatching(dest)
     }

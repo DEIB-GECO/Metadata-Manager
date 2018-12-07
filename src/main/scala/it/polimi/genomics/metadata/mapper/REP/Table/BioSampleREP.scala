@@ -84,9 +84,10 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
         this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
       }
       case "DISEASE" => {
-        this.diseaseArray(diseaseInsertPosition) = Some(param)
+        val a: String = this.disease.getOrElse(null)
+        val b: String = insertMethod(a,param)
+        this.diseaseArray(diseaseInsertPosition) = Some(b)
         this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
-
       }
       case _ => noMatching(dest)
     }

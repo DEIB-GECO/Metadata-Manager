@@ -16,7 +16,7 @@ trait BioSample extends Table{
 
   var isHealthy: Option[Boolean] = _
 
-  var disease: Option[String] = _
+  var disease: Option[String] = None
 
   _hasForeignKeys = true
 

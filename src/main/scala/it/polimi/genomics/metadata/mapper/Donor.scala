@@ -10,7 +10,7 @@ trait Donor extends Table{
 
   var age : Option[Int] = None
 
-  var gender : String= _
+  var gender : String = _
 
   var ethnicity : String = _
 

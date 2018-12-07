@@ -13,11 +13,8 @@ class DonorTCGA extends TCGATable with Donor{
       case "AGE" => {
         val optAgeToString: Option[String] = this.age.map(_.toString)
         val ageToString: String = optAgeToString.getOrElse(null)
-
         val rightAge: String = insertMethod(ageToString,param)
-
         this.age = Try(rightAge.toInt).toOption //converts to a Some(Int) if possible, otherwise None
-        println
       }
       case "GENDER" => this.gender = insertMethod(this.gender, param)
       case "ETHNICITY" => this.ethnicity = insertMethod(this.ethnicity, param)

@@ -10,7 +10,7 @@ class ItemTCGA extends TCGATable with Item {
     case "DATE" => this.date = insertMethod(this.date, param)
     case "CHECKSUM" => this.checksum = insertMethod(this.checksum, param)
     case "CONTENTTYPE" => this.contentType = insertMethod(this.contentType, param)
-    case "PLATFORM" => param match {
+    case "PLATFORM" => insertMethod(this.platform, param) match {
       case "humanmethylation27" => this.platform = "methylation 27K"
       case "humanmethylation450" => this.platform = "methylation 450K"
       case "illumina ga2" => this.platform = "illumina genome analyzer 2"

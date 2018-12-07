@@ -6,7 +6,7 @@ class ExperimentTypeTCGA extends TCGATable with ExperimentType{
 
   override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit =
     dest.toUpperCase()  match{
-    case "TECHNIQUE" => param match{
+    case "TECHNIQUE" => insertMethod(this.feature, param) match{
       case "cnv" => this.technique = "snp array"
       case "mirnaseq" => this.technique = "mirna-seq"
       case "rnaseq" => this.technique = "rna-seq"
@@ -16,7 +16,7 @@ class ExperimentTypeTCGA extends TCGATable with ExperimentType{
       case "dnamethylation27" => this.technique = "dna methylation 27"
       case _ => this.technique = insertMethod(this.technique, param)
     }
-    case "FEATURE" => param match{
+    case "FEATURE" => insertMethod(this.feature, param) match{
       case "Transcriptome Profiling" => this.feature = "gene expression" //new opengdc: gene expression quantification
       case "cnv" => this.feature = "copy number variation" //old tcga:cnv
       case "rnaseq"|"mirnaseq" => this.feature = "gene expression" //old tcga:mirnaseq..rnaseq..,rnaseqv2..

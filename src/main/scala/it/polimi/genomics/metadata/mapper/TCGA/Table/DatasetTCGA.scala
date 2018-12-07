@@ -6,7 +6,7 @@ class DatasetTCGA extends TCGATable with Dataset{
 
   override def setParameter(param: String, dest: String,insertMethod: (String,String) => String): Unit = dest.toUpperCase match {
     case "NAME" => this.name = insertMethod(this.name,param)
-    case "DATATYPE" => param match{
+    case "DATATYPE" => insertMethod(this.dataType, param) match{
       case "cnv" => this.dataType = "cnv" //old tcga:cnv
       case "dnaseq" => this.dataType = "dna seq" //old tcga:dnaseq
       case "dnamethylation450"|"dnamethylation27" => this.dataType = "dna methylation" //old tcga:dnamethylation

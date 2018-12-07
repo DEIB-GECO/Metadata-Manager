@@ -75,7 +75,7 @@
             <source_key>manually_curated__datatype</source_key>
             <global_key>technique</global_key>
         </mapping>
-        <mapping><!--ok-->
+        <mapping method="REMOVE" rem_character="v2"><!--ok-->
             <source_key>manually_curated__datatype</source_key>
             <global_key>feature</global_key>
         </mapping>
