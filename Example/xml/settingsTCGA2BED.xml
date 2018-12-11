@@ -9,6 +9,10 @@
             <source_key>clinical_patient__bcr_patient_uuid</source_key><!--ok-->
             <global_key>sourceId</global_key>
         </mapping>
+        <mapping method="CHECKPREC">
+            <source_key>manually_curated__id</source_key><!--ok-->
+            <global_key>sourceId</global_key>
+        </mapping>
         <mapping method="MANUAL">
             <source_key>Homo sapiens</source_key><!--ok-->
             <global_key>species</global_key>
@@ -35,6 +39,10 @@
             <source_key>biospecimen_sample__bcr_sample_uuid</source_key><!--ok-->
             <global_key>sourceId</global_key>
         </mapping>
+        <mapping method="CHECKPREC">
+            <source_key>manually_curated__id</source_key><!--ok-->
+            <global_key>sourceId</global_key>
+        </mapping>
         <mapping method="MANUAL">
             <source_key>tissue</source_key><!--ok-->
             <global_key>types</global_key>
@@ -59,6 +67,10 @@
     <table name="REPLICATES">
         <mapping>
             <source_key>biospecimen_aliquot__bcr_patient_uuid</source_key><!--ok-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="CHECKPREC">
+            <source_key>manually_curated__id</source_key><!--ok-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="MANUAL"><!--ok-->
@@ -105,6 +117,10 @@
     <table name="CASES">
         <mapping>
             <source_key>biospecimen_aliquot__bcr_patient_uuid</source_key><!--ok-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="CHECKPREC">
+            <source_key>manually_curated__id</source_key><!--ok-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="SELECTCASETCGA">
