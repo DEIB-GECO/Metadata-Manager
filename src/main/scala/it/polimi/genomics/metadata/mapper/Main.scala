@@ -373,8 +373,14 @@ object main {
     Statistics.fileNumber += 1
     logger.info(s"Start reading $path")
     try {
+
       var lines = Source.fromFile(path).getLines.toList
-      lines = lines ::: List("file_name\t" + path.split("/").last)
+      val str : Array[String] = path.split("/")
+      val file_name: String = str.last.split("\\.").head
+      lines = lines ::: List("file_name\t" + file_name)
+      val file_name_with_directory: String = file_name + "__" + str(str.size - 3)
+      lines = lines ::: List("file_name_with_directory\t" + file_name_with_directory)
+
       val path_region_file = path.replaceAll(".meta$", "")
       val region_file = new File(path_region_file)
       val region_file_size = region_file.length

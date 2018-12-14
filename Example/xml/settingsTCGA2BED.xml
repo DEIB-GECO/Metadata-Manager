@@ -10,7 +10,7 @@
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="CHECKPREC">
-            <source_key>manually_curated__id</source_key><!--ok-->
+            <source_key>file_name_with_directory</source_key><!--ok-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="MANUAL">
@@ -40,7 +40,7 @@
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="CHECKPREC">
-            <source_key>manually_curated__id</source_key><!--ok-->
+            <source_key>file_name_with_directory</source_key><!--ok-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="MANUAL">
@@ -66,11 +66,11 @@
     </table>
     <table name="REPLICATES">
         <mapping>
-            <source_key>biospecimen_aliquot__bcr_patient_uuid</source_key><!--ok-->
+            <source_key>biospecimen_sample__bcr_sample_uuid</source_key>
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="CHECKPREC">
-            <source_key>manually_curated__id</source_key><!--ok-->
+            <source_key>file_name_with_directory</source_key><!--ok-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="MANUAL"><!--ok-->
@@ -91,14 +91,6 @@
             <source_key>manually_curated__datatype</source_key>
             <global_key>feature</global_key>
         </mapping>
-        <!--<mapping method="MANUAL">
-            <source_key>null</source_key>
-            <global_key>target</global_key>
-        </mapping>-->
-        <!--<mapping method="MANUAL">
-            <source_key>null</source_key>
-            <global_key>antibody</global_key>
-        </mapping>-->
     </table>
     <table name="PROJECTS">
         <mapping method="MANUAL">
@@ -120,7 +112,7 @@
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="CHECKPREC">
-            <source_key>manually_curated__id</source_key><!--ok-->
+            <source_key>file_name_with_directory</source_key><!--ok-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="SELECTCASETCGA">
@@ -164,7 +156,7 @@
     </table>
     <table name="ITEMS">
         <mapping>
-            <source_key>manually_curated__id</source_key><!-->ok<-->
+            <source_key>file_name_with_directory</source_key><!-->ok<-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
@@ -200,7 +192,7 @@
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="CONCAT" concat_character="/">
-            <source_key>manually_curated__id</source_key><!-->ok<-->
+            <source_key>file_name</source_key><!-->ok<-->
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="MANUAL-CONCAT" concat_character=""><!-->ok<-->
