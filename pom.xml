@@ -9,13 +9,13 @@
     <groupId>it.polimi.genomics.metadata</groupId>
     <version>1.0-SNAPSHOT</version>
 
-    <repositories>
-        <repository>
-            <id>browserid-snapshots</id>
-            <name>browserid-snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
-    </repositories>
+    <!--<repositories>-->
+        <!--<repository>-->
+            <!--<id>browserid-snapshots</id>-->
+            <!--<name>browserid-snapshots</name>-->
+            <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+        <!--</repository>-->
+    <!--</repositories>-->
 
 
     <dependencies>

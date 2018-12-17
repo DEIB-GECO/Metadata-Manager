@@ -41,7 +41,7 @@ class GMQLLoader {
     source.datasets.foreach(dataset => {
       logger.debug("dataset " + dataset.name)
       if (dataset.loadEnabled) {
-        val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Transformations"
+        val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Cleaned"
 
         val listAdd = new java.util.ArrayList[GMQLSample]()
 
