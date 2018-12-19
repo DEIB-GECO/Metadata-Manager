@@ -482,7 +482,7 @@ object main {
   def enrichLinesREP(lines: Array[String], bioSampleList: REP.Utils.BioSampleList): Array[String] = {
     val bioNumbers = 1 to bioSampleList.BiosampleList.length toList
     var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
-    for (l <- linesFromSet) {
+    for (l <- linesFromSet.toList) {
       val pair = l.split("\t", 2)
       if (pair.length == 2) {
 
