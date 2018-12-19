@@ -520,6 +520,50 @@ object main {
         Statistics.malformedInput += 1
       }
     }
+
+
+
+    val manCurId = linesFromSet.toList.map { l =>
+      val pair = l.split("\t", 2)
+      if (pair.length == 2)
+        if (pair(0).startsWith("manually_curated__file_id"))
+          Some(pair(1))
+        else
+          None
+      else
+        None
+    }.flatten.head
+
+    val hasDonorId = linesFromSet.toList.map{l=>
+      val pair = l.split("\t", 2)
+      if (pair.length == 2)
+        if (pair(0).startsWith("epi__donor_id"))
+          true
+        else
+          false
+      else
+        false
+    }.reduce(_||_)
+
+    val hasSampleId = linesFromSet.toList.map{l=>
+      val pair = l.split("\t", 2)
+      if (pair.length == 2)
+        if (pair(0).startsWith("epi__sample_alias"))
+          true
+        else
+          false
+      else
+        false
+    }.reduce(_||_)
+
+
+    if(!hasDonorId)
+      linesFromSet += "epi__donor_id__1" +  "\t" + manCurId
+
+    if(!hasSampleId)
+      linesFromSet += "epi__sample_alias__1" +  "\t" + manCurId
+
+
     linesFromSet.toArray
   }
 
