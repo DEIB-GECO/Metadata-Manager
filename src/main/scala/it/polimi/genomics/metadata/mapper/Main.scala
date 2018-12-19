@@ -162,7 +162,7 @@ object main {
     DbHandler.setDatabase()
 
     val datasetFileName = pathGMQLIn + File.separator + "dataset_name.txt"
-    val datasetName = Source.fromFile(datasetFileName).mkString
+    val datasetName = Source.fromFile(datasetFileName).mkString.trim
     Predefined.map += "dataset_name" -> datasetName
 
     val pathGMQL = pathGMQLIn + File.separator + DirectoryNamingUtil.cleanFolderName + File.separator
