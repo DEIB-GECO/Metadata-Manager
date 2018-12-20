@@ -97,8 +97,8 @@
             <source_key>target__investigated_as</source_key>
             <global_key>feature</global_key>
         </mapping>
-        <mapping>
-            <source_key>target__gene_name</source_key>
+        <mapping method="REMOVE" rem_character="eGFP-*3xFLAG-*FLAG-">
+            <source_key>target__label</source_key>
             <global_key>target</global_key>
         </mapping>
         <mapping>
