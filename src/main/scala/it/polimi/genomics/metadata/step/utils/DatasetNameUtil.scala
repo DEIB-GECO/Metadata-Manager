@@ -27,7 +27,7 @@ object DatasetNameUtil {
 
   def loadDatasetName(dataset: Dataset): String = {
     val datasetFileName = datasetFile(dataset)
-    Source.fromFile(datasetFileName).mkString
+    Source.fromFile(datasetFileName).mkString.trim
   }
 
 }
