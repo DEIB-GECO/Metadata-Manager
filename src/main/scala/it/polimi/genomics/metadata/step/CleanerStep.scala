@@ -16,7 +16,7 @@ object CleanerStep extends Step {
 
 
   override def execute(source: Source, parallelExecution: Boolean): Unit = {
-    if (source.transformEnabled) {
+    if (source.cleanerEnabled) {
 
       logger.info("Starting cleaner for: " + source.outputFolder)
       val sourceId = FileDatabase.sourceId(source.name)
@@ -30,7 +30,9 @@ object CleanerStep extends Step {
         new Thread {
           override def run(): Unit = {
             val rulePathOpt = ParameterUtil.getParameter(dataset, "rule_base")
-            if (dataset.transformEnabled) {
+//            if (dataset.transformEnabled) {
+            // cleaner works at source level
+            if (true) {
               val ruleBasePathOpt: Option[RuleBase] = rulePathOpt.map(new RuleBase(_))
 
 
@@ -100,13 +102,7 @@ object CleanerStep extends Step {
               modifiedMetadataFilesSource = modifiedMetadataFilesSource + modifiedMetadataFilesDataset
               modifiedRegionFilesSource = modifiedRegionFilesSource + modifiedRegionFilesDataset
               wrongSchemaFilesSource = wrongSchemaFilesSource + wrongSchemaFilesDataset
-              //              logger.info(modifiedRegionFilesDataset + " region data files modified in dataset: " + dataset.name)
-              //              logger.info(modifiedMetadataFilesDataset + " metadata files modified in dataset: " + dataset.name)
-              //              logger.info(wrongSchemaFilesDataset + " region data files do not respect the schema in dataset: " + dataset.name)
-              //              val t1Dataset = System.nanoTime()
-              //              logger.info(s"Total time for transformation dataset ${dataset.name}: ${Transformer.getTotalTimeFormatted(t0Dataset, t1Dataset)}")
 
-              DatasetNameUtil.saveDatasetName(dataset)
 
             }
           }

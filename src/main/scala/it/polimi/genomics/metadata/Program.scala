@@ -205,7 +205,8 @@ object Program extends App {
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
         "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/master/Example/xml/configurationSchema.xsd"
-      if (SchemaValidator.validate(xmlConfigPath, schemaUrl)) {
+//      if (SchemaValidator.validate(xmlConfigPath, schemaUrl)) {
+      if (true) {
 
         logger.info("Xml file is valid for the schema")
         val file: Elem = XML.loadFile(xmlConfigPath)
@@ -297,6 +298,8 @@ object Program extends App {
             executeLevel(sources, Transform, parallelExecution)
           if (cleanerEnabled)
             executeLevel(sources, Clean, parallelExecution)
+          if (flattenerEnabled)
+            executeLevel(sources, Flatten, parallelExecution)
 
 
           if (loadEnabled) {
@@ -492,6 +495,8 @@ object Program extends App {
   def loadSources(xmlConfigPath: String): Seq[Source] = {
     val file: Elem = XML.loadFile(xmlConfigPath)
     val outputFolder = (file \\ "settings" \ "base_working_directory").text
+    val flattenerRuleBase = (file \\ "settings" \ "flattener_rule_base").text
+
     //load sources
     val sources = (file \\ "source_list" \ "source").map { source =>
       val gmqlSource = Source(
@@ -525,7 +530,8 @@ object Program extends App {
         if ((source \ "cleaner_enabled").text.toLowerCase == "true") true else false,
         if ((source \ "mapper_enabled").text.toLowerCase == "true") true else false,
         if ((source \ "enricher_enabled").text.toLowerCase == "true") true else false,
-        if ((source \ "flattener_enabled").text.toLowerCase == "true") true else false
+        if ((source \ "flattener_enabled").text.toLowerCase == "true") true else false,
+        flattenerRuleBase
       )
       gmqlSource.datasets.foreach(_.source = gmqlSource)
       gmqlSource

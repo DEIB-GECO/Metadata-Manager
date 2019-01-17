@@ -24,6 +24,11 @@
                     <xs:documentation>Gcm database configuration</xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element type="xs:string" name="flattener_rule_base">
+                <xs:annotation>
+                    <xs:documentation>Flattener rule base</xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element type="xs:boolean" name="download_enabled">
                 <xs:annotation>
                     <xs:documentation>Top level filter for allowing the application to download.</xs:documentation>

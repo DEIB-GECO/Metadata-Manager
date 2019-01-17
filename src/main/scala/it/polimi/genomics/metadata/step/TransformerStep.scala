@@ -642,6 +642,7 @@ object TransformerStep extends Step {
     *
     * @param path base folder path
     */
+  //TODO move to a util object, used in many steps
   def deleteFolder(path: File): Unit = {
     try {
       if (path.exists()) {

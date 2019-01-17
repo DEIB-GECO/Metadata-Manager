@@ -6,7 +6,7 @@ import java.util
 import it.polimi.genomics.core.DataStructures.IRDataSet
 import it.polimi.genomics.core.GDMSUserClass
 import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
-import it.polimi.genomics.metadata.step.utils.DatasetNameUtil
+import it.polimi.genomics.metadata.step.utils.{DatasetNameUtil, DirectoryNamingUtil}
 import it.polimi.genomics.manager.ProfilerLauncher
 import it.polimi.genomics.metadata.step.xml.Source
 import it.polimi.genomics.repository.{GMQLRepository, GMQLSample, Utilities}
@@ -41,7 +41,7 @@ class GMQLLoader {
     source.datasets.foreach(dataset => {
       logger.debug("dataset " + dataset.name)
       if (dataset.loadEnabled) {
-        val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Cleaned"
+        val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + DirectoryNamingUtil.flattenFolderName
 
         val listAdd = new java.util.ArrayList[GMQLSample]()
 
