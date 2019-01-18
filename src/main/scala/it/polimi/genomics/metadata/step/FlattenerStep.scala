@@ -1,15 +1,50 @@
 package it.polimi.genomics.metadata.step
 
-import java.io.File
+import java.io._
 
 import it.polimi.genomics.metadata.cleaner.RuleBase
 import it.polimi.genomics.metadata.database.FileDatabase
 import it.polimi.genomics.metadata.downloader_transformer.default.SchemaFinder
+import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler
 import it.polimi.genomics.metadata.step.CleanerStep.{createSymbolicLink, logger}
 import it.polimi.genomics.metadata.step.utils.DirectoryNamingUtil
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
+import slick.jdbc.PostgresProfile.api._
+import slick.jdbc.{GetResult, PositionedResult}
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.util.Try
+
 
 object FlattenerStep extends Step {
+
+  object ResultMap extends GetResult[Map[String, Any]] {
+    def apply(pr: PositionedResult) = {
+      val rs = pr.rs // <- jdbc result set
+      val md = rs.getMetaData();
+      val res = (1 to pr.numColumns).map { i => md.getColumnName(i) -> rs.getObject(i) }.toMap
+      res
+    }
+  }
+
+  val excludeList = List("item_id",
+    "experiment_type_id",
+    "dataset_id",
+    "case_id", "case_study_id", "project_id",
+    "replicate_id", "biosample_id", "donor_id",
+    ".*_tid")
+
+  val columnNamesMap = Map("program_name" -> "source",
+    "name" -> "dataset_name",
+    "format" -> "file_format",
+    "is_ann" -> "is_annotation",
+    "type" -> "biosample_type",
+    "bio_replicate_num" -> "biological_replicate_number",
+    "tech_replicate_num" -> "technical_replicate_number",
+    "external_ref" -> "external_reference")
+
+
   override def execute(source: Source, parallelExecution: Boolean): Unit = {
     if (source.flattenerEnabled) {
 
@@ -67,22 +102,75 @@ object FlattenerStep extends Step {
               }
               logger.info("Flattener for dataset: " + dataset.name)
 
-              var filesToTransform = 0
 
-
-              val regionFileList = inputFolder.listFiles.
+              val fileList = inputFolder.listFiles.
                 filter(_.isFile).
                 filter(!_.getName.endsWith(".schema")).toList
 
 
-              regionFileList.foreach { file =>
+              val datasetFileName = datasetOutputFolder + File.separator + "dataset_name.txt"
+              val datasetFullName = scala.io.Source.fromFile(datasetFileName).mkString.trim
+
+
+              fileList.foreach { file =>
                 val fileName = file.getName
 
 
                 val fullOutPath = flattenerFolder + File.separator + fileName
 
                 if (fileName.endsWith(".meta")) {
+                  val fileNameFirstPart = fileName.split("\\.").head
                   ruleBasePath.applyRBToFile(file.getAbsolutePath, fullOutPath)
+
+
+                  val databaseLines = Try {
+                    val query =
+                      sql"""SELECT *
+                          FROM dataset d
+                          JOIN item i on d.dataset_id = i.dataset_id
+                          LEFT JOIN experiment_type et on i.experiment_type_id = et.experiment_type_id
+                          LEFT JOIN case2item c2i on i.item_id = c2i.item_id
+                          LEFT JOIN case_study cs on c2i.case_id = cs.case_study_id
+                          LEFT JOIN project p on cs.project_id = p.project_id
+                          LEFT JOIN replicate2item r2i on i.item_id = r2i.item_id
+                          LEFT JOIN replicate r on r2i.replicate_id = r.replicate_id
+                          LEFT JOIN biosample b on r.biosample_id = b.biosample_id
+                          LEFT JOIN donor d2 on b.donor_id = d2.donor_id
+                          WHERE d.name = '#${datasetFullName}'
+                          AND (
+                              i.local_url ILIKE '%/#${fileNameFirstPart}/region'
+                              OR (i.local_url IS NULL AND i.item_source_id ILIKE '#${fileNameFirstPart}')
+                            )""".as(ResultMap)
+                    val result = DbHandler.database.run(query)
+                    val res = Await.result(result, Duration.Inf)
+                    res
+                      .flatten
+                      .filterNot { case (col, _) => excludeList.exists(col.matches) }
+                      .filterNot { case (_, value) => value == null }
+                      .map { case (col, value) => (columnNamesMap.getOrElse(col, col), value.toString) }
+                  }.getOrElse(Seq.empty)
+                    .map(t => "gcm_curated__" + t.productIterator.mkString("\t"))
+
+                  // always sort
+                  // if(databaseLines.nonEmpty) {
+
+                  //read file
+                  val fileLines = scala.io.Source.fromFile(fullOutPath).getLines()
+                    .filter(_.trim.nonEmpty)
+
+                  val allLines = databaseLines ++ fileLines
+                  val allLinesUniqSorted = allLines
+                    //remove duplicates
+                    .toSet
+                    //to sort
+                    .toList.sorted
+
+
+                  val pw = new PrintWriter(new File(fullOutPath))
+                  pw.write(allLinesUniqSorted.mkString(scala.compat.Platform.EOL))
+                  pw.close()
+
+                  // }
                 } else {
                   createSymbolicLink(file.getAbsolutePath, fullOutPath)
                 }
