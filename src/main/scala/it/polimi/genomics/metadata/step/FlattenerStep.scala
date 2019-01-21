@@ -12,12 +12,15 @@ import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
 import slick.jdbc.PostgresProfile.api._
 import slick.jdbc.{GetResult, PositionedResult}
 
+import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.Try
 
 
 object FlattenerStep extends Step {
+
+  val GCM_CURATE_PREFIX = "gcm_curated__"
 
   object ResultMap extends GetResult[Map[String, Any]] {
     def apply(pr: PositionedResult) = {
@@ -123,7 +126,7 @@ object FlattenerStep extends Step {
                   ruleBasePath.applyRBToFile(file.getAbsolutePath, fullOutPath)
 
 
-                  val databaseLines = Try {
+                  val databaseLinesTuples = Try {
                     val query =
                       sql"""SELECT *
                           FROM dataset d
@@ -147,9 +150,24 @@ object FlattenerStep extends Step {
                       .flatten
                       .filterNot { case (col, _) => excludeList.exists(col.matches) }
                       .filterNot { case (_, value) => value == null }
-                      .map { case (col, value) => (columnNamesMap.getOrElse(col, col), value.toString) }
+                      .map { case (col, value) => (columnNamesMap.getOrElse(col, col), value) }
                   }.getOrElse(Seq.empty)
-                    .map(t => "gcm_curated__" + t.productIterator.mkString("\t"))
+                    .to[mutable.Set]
+
+                  def addCount(key: String, countKey: String, keepZero: Boolean = true): Unit = {
+                    val count = databaseLinesTuples.count(_._1 == key)
+                    if (keepZero || count > 0)
+                      databaseLinesTuples += countKey -> count
+                  }
+
+                  addCount("biological_replicate_number","biological_replicate_count")
+                  addCount("technical_replicate_number","technical_replicate_count")
+
+
+                  val databaseLines = databaseLinesTuples
+                    .map(t => GCM_CURATE_PREFIX + t.productIterator.mkString("\t"))
+
+
 
                   // always sort
                   // if(databaseLines.nonEmpty) {
