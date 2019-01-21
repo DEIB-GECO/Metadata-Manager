@@ -4,17 +4,16 @@ import java.io.{File, FileInputStream}
 import java.net.URL
 import java.security.{DigestInputStream, MessageDigest}
 
-import it.polimi.genomics.metadata.downloader_transformer.Downloader
 import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
-import it.polimi.genomics.metadata.step.xml.Dataset
+import it.polimi.genomics.metadata.downloader_transformer.Downloader
 import it.polimi.genomics.metadata.step.xml
+import it.polimi.genomics.metadata.step.xml.Dataset
 import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
 import scala.language.postfixOps
 import scala.sys.process._
-import scala.xml.{Elem, XML}
 
 /**
   * Created by Nacho on 10/13/16.
@@ -28,7 +27,7 @@ class EncodeDownloader extends Downloader {
     * into the folder defined in the loader
     * recursively checks all folders and subfolders matching with the regular expressions defined in the loader
     *
-    * @param source contains specific download and sorting info.
+    * @param source            contains specific download and sorting info.
     * @param parallelExecution defines if the execution is in parallel or sequential
     */
   override def download(source: xml.Source, parallelExecution: Boolean): Unit = {
@@ -38,18 +37,18 @@ class EncodeDownloader extends Downloader {
     }
     downloadIndexAndMeta(source, parallelExecution)
     downloadFailedFiles(source, parallelExecution)
-    logger.info("Download for: " + source.name +" finished")
+    logger.info("Download for: " + source.name + " finished")
   }
 
-/**
+  /**
     * downloads the failed files from the source defined in the loader
     * into the folder defined in the loader
     *
     * For each dataset, download method should put the downloaded files inside
     * /source.outputFolder/dataset.outputFolder/Downloads
     *
-    * @param source contains specific download and sorting info.
-  * @param parallelExecution defines if the execution is in parallel or sequential
+    * @param source            contains specific download and sorting info.
+    * @param parallelExecution defines if the execution is in parallel or sequential
     */
   override def downloadFailedFiles(source: xml.Source, parallelExecution: Boolean): Unit = {
     logger.info(s"Downloading failed files for source ${source.name}")
@@ -67,8 +66,8 @@ class EncodeDownloader extends Downloader {
           failedFiles.foreach(file => {
             //in file I have (fileId,name,copyNumber,url, hash)
             val filename =
-            if (file._3 == 1) file._2
-            else file._2.replaceFirst("\\.", "_" + file._3 + ".")
+              if (file._3 == 1) file._2
+              else file._2.replaceFirst("\\.", "_" + file._3 + ".")
             val filePath =
               source.outputFolder + File.separator + dataset.outputFolder +
                 File.separator + "Downloads" + File.separator + filename
@@ -96,16 +95,16 @@ class EncodeDownloader extends Downloader {
             FileDatabase.runDatasetDownloadAppend(datasetId, dataset, 0, counter)
           })
           val t1Dataset = System.nanoTime()
-          logger.info(s"Total time for download failed files in dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset,t1Dataset)}")
+          logger.info(s"Total time for download failed files in dataset ${dataset.name}: ${getTotalTimeFormatted(t0Dataset, t1Dataset)}")
         }
       }
     }
-    if(parallelExecution) {
+    if (parallelExecution) {
       downloadThreads.foreach(_.start())
       downloadThreads.foreach(_.join())
     }
-    else{
-      downloadThreads.foreach(thread =>{
+    else {
+      downloadThreads.foreach(thread => {
         thread.start()
         thread.join()
       })
@@ -138,7 +137,7 @@ class EncodeDownloader extends Downloader {
     * file index is generated, here, that file is downloaded and then, for everyone
     * downloads all the files linked by it.
     *
-    * @param source information needed for downloading ENCODE datasets.
+    * @param source           information needed for downloading ENCODE datasets.
     * @param parallelDownload defines if the execution is in parallel or sequential
     */
   private def downloadIndexAndMeta(source: xml.Source, parallelDownload: Boolean): Unit = {
@@ -199,7 +198,7 @@ class EncodeDownloader extends Downloader {
         }
       }
     }
-    if(parallelDownload) {
+    if (parallelDownload) {
       downloadThreads.foreach(_.start())
       downloadThreads.foreach(_.join())
     }
@@ -246,16 +245,16 @@ class EncodeDownloader extends Downloader {
   /**
     * given a url and destination path, downloads that file into the path
     *
-    * @param url  source file url.
-    * @param path destination file path and name.
+    * @param url    source file url.
+    * @param path   destination file path and name.
     * @param number index of the being downloaded file
-    * @param total total number of files being downloaded
+    * @param total  total number of files being downloaded
     */
   def downloadFileFromURL(url: String, path: String, number: Int, total: Int): Boolean = {
     try {
       new URL(url) #> new File(path) !!
 
-      if(new File(path).exists()) {
+      if (new File(path).exists()) {
         logger.info(s"Downloading [$number/$total]: " + path + " from: " + url + " DONE")
         true
       }
@@ -344,8 +343,8 @@ class EncodeDownloader extends Downloader {
             val filePath = path + File.separator + filename
 
             val candidateNameJson = fields(url).split(File.separator).last + ".json"
-            val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
-            val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
+            val urlExperimentJson = source.url + dataset.getParameter("json_prefix").getOrElse("experiments/") + fields(experimentAccession) + dataset.getParameter("json_suffix").getOrElse("/?format=json")
+            val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson, false)
             FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
 
             if (FileDatabase.checkIfUpdateFile(fileId, fields(md5sum), fields(originSize), fields(originLastUpdate))) {
@@ -373,40 +372,6 @@ class EncodeDownloader extends Downloader {
                 counter = counter + 1
 
 
-                //this is the metadata part.
-                //example of json url https://www.encodeproject.org/experiments/ENCSR570HXV/?frame=embedded&format=json
-                //            val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
-                //have to implement if metadata is from json, else do not download (include just metadata.tsv metadata)
-                if (urlExists(urlExperimentJson)) {
-                  //              val candidateNameJson = fields(url).split(File.separator).last + ".json"
-                  //              val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
-                  val fileNameAndCopyNumberJson = FileDatabase.getFileNameAndCopyNumber(fileIdJson)
-                  val jsonName =
-                    if (fileNameAndCopyNumberJson._2 == 1) fileNameAndCopyNumberJson._1
-                    else fileNameAndCopyNumberJson._1.replaceFirst("\\.", "_" + fileNameAndCopyNumberJson._2 + ".")
-
-                  val filePathJson = path + File.separator + jsonName
-                  //As I dont have the metadata for the json file i use the same as the region data.
-                  //              if(FileDatabase.checkIfUpdateFile(fileIdJson,fields(md5sum),fields(originSize),fields(originLastUpdate))){
-                  //              FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
-                  var jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
-                  timesTried = 0
-                  while (!jsonDownloaded && timesTried < 4 && downloaded) {
-                    jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
-                    timesTried += 1
-                  }
-                  val file = new File(filePathJson)
-                  //cannot check the correctness of the download for the json.
-                  if (jsonDownloaded && downloaded) {
-                    FileDatabase.markAsUpdated(fileIdJson, file.length.toString)
-                    downloadedFiles = downloadedFiles + 1
-                  }
-                  else
-                    FileDatabase.markAsFailed(fileIdJson)
-                  // if metadata is from json add this other +1.
-                  counter = counter + 1
-                  //              }
-                }
               }
               else {
                 FileDatabase.markAsFailed(fileId)
@@ -416,6 +381,46 @@ class EncodeDownloader extends Downloader {
             }
             else
               logger.info(s"Source: ${source.name}|Dataset: ${dataset.name} File ${fields(url)} is already up to date.")
+
+            //set to true because we want to download metadata every time
+            val downloaded = true
+
+            //this is the metadata part.
+            //example of json url https://www.encodeproject.org/experiments/ENCSR570HXV/?frame=embedded&format=json
+            //            val urlExperimentJson = source.url + "experiments" + File.separator + fields(experimentAccession) + File.separator + "?frame=embedded&format=json"
+            //have to implement if metadata is from json, else do not download (include just metadata.tsv metadata)
+            if (urlExists(urlExperimentJson)) {
+              var timesTried = 0
+              //              val candidateNameJson = fields(url).split(File.separator).last + ".json"
+              //              val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson)
+              val fileNameAndCopyNumberJson = FileDatabase.getFileNameAndCopyNumber(fileIdJson)
+              val jsonName =
+                if (fileNameAndCopyNumberJson._2 == 1) fileNameAndCopyNumberJson._1
+                else fileNameAndCopyNumberJson._1.replaceFirst("\\.", "_" + fileNameAndCopyNumberJson._2 + ".")
+
+              val filePathJson = path + File.separator + jsonName
+              //As I dont have the metadata for the json file i use the same as the region data.
+              //              if(FileDatabase.checkIfUpdateFile(fileIdJson,fields(md5sum),fields(originSize),fields(originLastUpdate))){
+              //              FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
+              var jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
+              timesTried = 0
+              while (!jsonDownloaded && timesTried < 4 && downloaded) {
+                jsonDownloaded = downloadFileFromURL(urlExperimentJson, filePathJson, counter + 1, total)
+                timesTried += 1
+              }
+              val file = new File(filePathJson)
+              //cannot check the correctness of the download for the json.
+              if (jsonDownloaded && downloaded) {
+                FileDatabase.markAsUpdated(fileIdJson, file.length.toString)
+                downloadedFiles = downloadedFiles + 1
+              }
+              else
+                FileDatabase.markAsFailed(fileIdJson)
+              // if metadata is from json add this other +1.
+              counter = counter + 1
+              //              }
+            }
+
             runningThreads = runningThreads - 1
           }
         }
@@ -455,17 +460,19 @@ class EncodeDownloader extends Downloader {
 
   /**
     * gets the time between 2 timestamps in hh:mm:ss format
+    *
     * @param t0 start time
     * @param t1 end time
     * @return hh:mm:ss as string
     */
-  def getTotalTimeFormatted(t0:Long, t1:Long): String = {
+  def getTotalTimeFormatted(t0: Long, t1: Long): String = {
 
-    val hours = Integer.parseInt(""+(t1-t0)/1000000000/60/60)
-    val minutes = Integer.parseInt(""+((t1-t0)/1000000000/60-hours*60))
-    val seconds = Integer.parseInt(""+((t1-t0)/1000000000-hours*60*60-minutes*60))
+    val hours = Integer.parseInt("" + (t1 - t0) / 1000000000 / 60 / 60)
+    val minutes = Integer.parseInt("" + ((t1 - t0) / 1000000000 / 60 - hours * 60))
+    val seconds = Integer.parseInt("" + ((t1 - t0) / 1000000000 - hours * 60 * 60 - minutes * 60))
     s"$hours:$minutes:$seconds"
   }
+
   /**
     * checks if the given URL exists
     *

@@ -7,11 +7,11 @@
         <base_working_directory>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example</base_working_directory>
         <gcm_config_file>/Users/canakoglu/GMQL-sources/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
         <flattener_rule_base>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example/cleaner_rule_base.txt</flattener_rule_base>
-        <download_enabled>false</download_enabled>
-        <transform_enabled>false</transform_enabled>
-        <cleaner_enabled>false</cleaner_enabled>
-        <mapper_enabled>false</mapper_enabled>
-        <enricher_enabled>false</enricher_enabled>
+        <download_enabled>true</download_enabled>
+        <transform_enabled>true</transform_enabled>
+        <cleaner_enabled>true</cleaner_enabled>
+        <mapper_enabled>true</mapper_enabled>
+        <enricher_enabled>true</enricher_enabled>
         <flattener_enabled>true</flattener_enabled>
         <load_enabled>true</load_enabled>
         <parallel_execution>false</parallel_execution>
@@ -61,7 +61,7 @@
                     <description>we specified frame embedded and format json in encode for importing metadata
                     </description>
                     <key>json_suffix</key>
-                    <value>/?frame=embedded&amp;format=json/</value>
+                    <value>/?format=json</value>
                 </parameter>
                 <parameter>
                     <description>Found this field to be not useful and too many fields</description>

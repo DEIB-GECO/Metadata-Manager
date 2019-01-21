@@ -149,10 +149,17 @@ case class DbContainer() {
     * @param candidateName the name the file should have.
     * @return id of the file.
     */
-  def fileId(datasetId: Int, url: String, stage: Stage.Value, candidateName: String): Int = {
-    val query = (for (s <- files.filter(f =>
-      f.datasetId === datasetId && f.url === url && f.stage === stage.toString && f.name === candidateName))
-      yield s.id).result
+  def fileId(datasetId: Int, url: String, stage: Stage.Value, candidateName: String, useUrl: Boolean): Int = {
+    val query =
+      if (useUrl)
+        (for (s <- files.filter(f =>
+          f.datasetId === datasetId && f.url === url && f.stage === stage.toString && f.name === candidateName))
+          yield s.id).result
+      else
+        (for (s <- files.filter(f =>
+          f.datasetId === datasetId && f.stage === stage.toString && f.name === candidateName))
+          yield s.id).result
+
     val execution = database.run(query)
     val result = Await.result(execution, Duration.Inf)
 
