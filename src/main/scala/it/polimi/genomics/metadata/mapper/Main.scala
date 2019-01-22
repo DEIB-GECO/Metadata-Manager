@@ -323,7 +323,7 @@ object main {
       val bioSampleList = new REP.Utils.BioSampleList(old_lines.toArray, repTableId)
 
       //in files with simple epi__donor_id, it adds the keys epi__donor_id__X for each biosample present (same for other attributes)
-      val lines = enrichLinesREP(old_lines.toArray, bioSampleList)
+      val lines = enrichLinesREP(old_lines.toArray, bioSampleList,path)
 
       //prepares ficticious replicate tuples (id=biosample_id, bio/tech replicate number = 1)
       val replicateList = new REP.Utils.ReplicateList(lines, bioSampleList)
@@ -479,7 +479,7 @@ object main {
     states
   }
 
-  def enrichLinesREP(lines: Array[String], bioSampleList: REP.Utils.BioSampleList): Array[String] = {
+  def enrichLinesREP(lines: Array[String], bioSampleList: REP.Utils.BioSampleList,path:String): Array[String] = {
     val bioNumbers = 1 to bioSampleList.BiosampleList.length toList
     var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
     for (l <- linesFromSet.toList) {
@@ -532,7 +532,7 @@ object main {
           None
       else
         None
-    }.flatten.head
+    }.flatten.headOption.getOrElse("Error during EnrichLinesREP method")
 
     val hasDonorId = linesFromSet.toList.map{l=>
       val pair = l.split("\t", 2)
@@ -562,6 +562,12 @@ object main {
 
     if(!hasSampleId)
       linesFromSet += "epi__sample_alias__1" +  "\t" + manCurId
+
+
+    //useful for tads which do not have a file name
+    val str : Array[String] = path.split("/")
+    val file_name: String = str.last.split("\\.").head
+    linesFromSet += "file_name" +  "\t" + file_name
 
 
     linesFromSet.toArray

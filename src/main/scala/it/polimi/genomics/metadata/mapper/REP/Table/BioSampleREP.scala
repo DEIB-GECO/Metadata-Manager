@@ -54,7 +54,7 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
         this.insertPosition = resetPosition(this.insertPosition, quantity)
       }
       case "TYPES" => {
-        param match{
+        param match {
           case "PrimaryCell" => this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), "Primary cell")
           case "PrimaryTissue" => this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), "Primary tissue")
           case "ESCDerived" => this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), "ESC derived cell line")
@@ -66,14 +66,14 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
       }
 
       case "TISSUE" => {
-        if (typesArray(tissueInsertPosition) == null  || typesArray(tissueInsertPosition).toLowerCase.contains("tissue"))
-          this.tissueArray(tissueInsertPosition) = insertMethod(this.tissueArray(tissueInsertPosition), param)
-        else
-          this.tissueArray(tissueInsertPosition) = null
+        // if (typesArray(tissueInsertPosition) == null  || typesArray(tissueInsertPosition).toLowerCase.contains("tissue"))
+        this.tissueArray(tissueInsertPosition) = insertMethod(this.tissueArray(tissueInsertPosition), param)
+        // else
+        //   this.tissueArray(tissueInsertPosition) = null
         this.tissueInsertPosition = resetPosition(this.tissueInsertPosition, quantity)
       }
       case "CELLLINE" => {
-        if (typesArray(tissueInsertPosition) == null  || typesArray(tissueInsertPosition).toLowerCase.contains("tissue"))
+        if (typesArray(tissueInsertPosition) == null || typesArray(tissueInsertPosition).toLowerCase.contains("tissue"))
           this.cellLineArray(cellLineInsertPosition) = null
         else
           this.cellLineArray(cellLineInsertPosition) = insertMethod(this.cellLineArray(cellLineInsertPosition), param)
@@ -85,7 +85,7 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
       }
       case "DISEASE" => {
         val a: String = this.disease.getOrElse(null)
-        val b: String = insertMethod(a,param)
+        val b: String = insertMethod(a, param)
         this.diseaseArray(diseaseInsertPosition) = Some(b)
         this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
       }

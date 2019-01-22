@@ -17,11 +17,11 @@ case class Rule(antecedent: String, consequent: String) extends PartiallyOrdered
     if (that.isInstanceOf[Rule]) {
       val thatIns = that.asInstanceOf[Rule]
 
-      val autoThis = new RegExp(this.antecedent).toAutomaton()
+      val autoThis = new RegExp(this.antecedent).toAutomaton() //autoThis = existing
       autoThis.expandSingleton()
       //autoThis.determinize()
 
-      val autoThat = new RegExp(thatIns.antecedent).toAutomaton()
+      val autoThat = new RegExp(thatIns.antecedent).toAutomaton() //autoThat = newRule
       autoThat.expandSingleton()
       //autoThat.determinize()
 
@@ -31,10 +31,10 @@ case class Rule(antecedent: String, consequent: String) extends PartiallyOrdered
         //val inter = BasicOperations.intersection(autoThis, autoThat)
         //inter.determinize()
         //if (inter.equals(autoThat)) //L(a') is contained in L(a) (new is contained in existing)
-        if (autoThat.subsetOf(autoThis))
+        if (autoThat.subsetOf(autoThis)) //existing contains newRule = 1
           Some(1)
         //else if (inter.equals(autoThis)) //L(a) is contained in L(a') (existing is contained in new)
-        else if (autoThis.subsetOf(autoThat))
+        else if (autoThis.subsetOf(autoThat)) // existing is contained in newRule = -1
           Some(-1)
         else {
           val inter = BasicOperations.intersection(autoThis, autoThat)
