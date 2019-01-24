@@ -15,7 +15,7 @@ import slick.jdbc.{GetResult, PositionedResult}
 import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 
 object FlattenerStep extends Step {
@@ -126,7 +126,7 @@ object FlattenerStep extends Step {
                   ruleBasePath.applyRBToFile(file.getAbsolutePath, fullOutPath)
 
 
-                  val databaseLinesTuples = Try {
+                  val databaseLinesTuplesTry = Try {
                     val query =
                       sql"""SELECT *
                           FROM dataset d
@@ -146,31 +146,42 @@ object FlattenerStep extends Step {
                             )""".as(ResultMap)
                     val result = DbHandler.database.run(query)
                     val res = Await.result(result, Duration.Inf)
-                    res
+                    val innerResult = res
                       .flatten
                       .filterNot { case (col, _) => excludeList.exists(col.matches) }
                       .filterNot { case (_, value) => value == null }
                       .map { case (col, value) => (columnNamesMap.getOrElse(col, col), value) }
-                  }.getOrElse(Seq.empty)
-                    .to[mutable.Set]
-
-                  def addCount(key: String, countKey: String, keepZero: Boolean = true): Unit = {
-                    val count = databaseLinesTuples.count(_._1 == key)
-                    if (keepZero || count > 0)
-                      databaseLinesTuples += countKey -> count
+                    if(innerResult.isEmpty)
+                      throw new Exception("Sql query result is empty")
+                    innerResult
                   }
 
-                  addCount("biological_replicate_number","biological_replicate_count")
-                  addCount("technical_replicate_number","technical_replicate_count")
+
+//                  val databaseLinesTuples=databaseLinesTuplesTry.getOrElse(Seq.empty)
+//                    .to[mutable.Set]
+
+                  val databaseLines =  databaseLinesTuplesTry match{
+                    case Success(v) =>
+                      val databaseLinesTuples = v.to[mutable.Set]
+
+                      def addCount(key: String, countKey: String, keepZero: Boolean = true): Unit = {
+                        val count = databaseLinesTuples.count(_._1 == key)
+                        if (keepZero || count > 0)
+                          databaseLinesTuples += countKey -> count
+                      }
+
+                      addCount("biological_replicate_number", "biological_replicate_count")
+                      addCount("technical_replicate_number", "technical_replicate_count")
+
+                      databaseLinesTuples
+                        .map(t => GCM_CURATE_PREFIX + t.productIterator.mkString("\t"))
+
+                    case Failure(e) =>
+                      logger.warn(s"GCM export error => dataset: $datasetFullName , file: $fileNameFirstPart , ${e.getMessage}"  /*,e*/)
+                      Seq.empty
+                  }
 
 
-                  val databaseLines = databaseLinesTuples
-                    .map(t => GCM_CURATE_PREFIX + t.productIterator.mkString("\t"))
-
-
-
-                  // always sort
-                  // if(databaseLines.nonEmpty) {
 
                   //read file
                   val fileLines = scala.io.Source.fromFile(fullOutPath).getLines()
@@ -188,7 +199,6 @@ object FlattenerStep extends Step {
                   pw.write(allLinesUniqSorted.mkString(scala.compat.Platform.EOL))
                   pw.close()
 
-                  // }
                 } else {
                   createSymbolicLink(file.getAbsolutePath, fullOutPath)
                 }
