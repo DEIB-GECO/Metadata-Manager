@@ -109,12 +109,12 @@
             <source_key>dataset_name</source_key>
             <global_key>name</global_key>
         </mapping>
-        <!-- <mapping method="MANUAL">
-             <source_key>null</source_key>
+        <mapping method="MANUAL">
+             <source_key>annotation</source_key>
              <global_key>dataType</global_key>
-         </mapping>-->
-        <mapping>
-            <source_key>original_format</source_key>
+         </mapping>
+        <mapping method="MANUAL">
+            <source_key>bed</source_key>
             <global_key>format</global_key>
         </mapping>
         <mapping>
