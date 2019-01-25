@@ -27,7 +27,9 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     val pList = s.split(",")
     val pListSorted = pList.sorted
     val sortedString = pListSorted.mkString(", ")
-    sortedString
+    if(sortedString.startsWith(" "))
+      sortedString.drop(1)
+    else sortedString
   }
 
   override def insert(): Int = {
