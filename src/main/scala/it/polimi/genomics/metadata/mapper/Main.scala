@@ -32,8 +32,8 @@ object main {
   private val regexRaoTads = ".*_rao.*".r
   private val regexCombTads = ".*_(rep1|rep2|combined).*".r
 
-  private val exportRegexENCODE = "bed.meta.json".r
-  private val exportRegexTCGA = "bed.meta".r
+  //  private val exportRegexENCODE = "bed.meta.json".r
+  //  private val exportRegexTCGA = "bed.meta".r
 
   object SourceString extends Enumeration {
     type SourceString = Value
@@ -142,18 +142,21 @@ object main {
 
       importMode(args(1), args(2), args(3))
     } else {
-      if (args.length != 3) {
+
+      logger.info("EXPORT MODE IS DISABLED. PLEASE RUN FLATTENER using settings.xml")
+
+      /*if (args.length != 3) {
         logger.error(s"Incorrect number of arguments")
         logger.info("GMQLImporter help; in order to export Data from Database to file:\n"
           + "\t Run with EXPORT, repository_ref and file_folder as arguments\n"
         )
         return
-      }
+      }*/
 
-      val logName = "EXPORT_" + args(1).toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z")) + ".log"
+      //val logName = "EXPORT_" + args(1).toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z")) + ".log"
 
-      defineFileAppenderSetting(logName)
-      exportMode(args(1), args(2))
+      //defineFileAppenderSetting(logName)
+      //exportMode(args(1), args(2))
     }
   }
 
@@ -213,52 +216,63 @@ object main {
 
   }
 
-  def exportMode(repositoryRef: String, pathGMQL: String): Unit = {
-    DbHandler.setDatabase()
+  // OLD EXPORT MODE BY FEDERICO, superseded by flattener BY ARIF
+  /*def exportMode(repositoryRef: String, pathGMQL: String): Unit = {
+     DbHandler.setDatabase()
 
-    logger.info(s"Start to write TSV file")
-    val t2: Long = System.nanoTime()
-    val fromDbToTsv = new FromDbToTsv()
-    repositoryRef.toUpperCase() match {
-      case "ENCODE" => {
+     logger.info(s"Start to write TSV file")
+     val t2: Long = System.nanoTime()
+     val fromDbToTsv = new FromDbToTsv()
+     repositoryRef.toUpperCase() match {
+       case "ENCODE" => {
 
-        ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => {
-          val tables = new EncodeTables(new EncodeTableId).getListOfTables()
-          fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
-          fromDbToTsv.run(path.getAbsolutePath, exportRegexENCODE)
-        })
-      }
-      case "TCGA" => {
-        ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => {
-          val tables = new TCGATables().getListOfTables()
-          fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
-          fromDbToTsv.run(path.getAbsolutePath, exportRegexTCGA)
-        })
-      }
-      case _ => logger.error(s"Incorrect repository")
-    }
+         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => {
+           val tables = new EncodeTables(new EncodeTableId).getListOfTables()
+           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
+           fromDbToTsv.run(path.getAbsolutePath, exportRegexENCODE)
+         })
+       }
+       case "TCGA" => {
+         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => {
+           val tables = new TCGATables().getListOfTables()
+           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
+           fromDbToTsv.run(path.getAbsolutePath, exportRegexTCGA)
+         })
+       }
+       case _ => logger.error(s"Incorrect repository")
+     }
 
-    val t3: Long = System.nanoTime()
+     val t3: Long = System.nanoTime()
 
-    logger.info(s"Total time for the write info in TSV file ${getTotalTimeFormatted(t2, t3)}")
-    logger.info(s"Total file analized ${Statistics.tsvFile}")
-    logger.info(s"File correctly exported ${Statistics.correctExportedFile}")
-    logger.info(s"File exported with Error ${Statistics.errorExportedFile}")
+     logger.info(s"Total time for the write info in TSV file ${getTotalTimeFormatted(t2, t3)}")
+     logger.info(s"Total file analized ${Statistics.tsvFile}")
+     logger.info(s"File correctly exported ${Statistics.correctExportedFile}")
+     logger.info(s"File exported with Error ${Statistics.errorExportedFile}")
 
-    DbHandler.closeDatabase()
+     DbHandler.closeDatabase()
 
-  }
+   } */
 
   def analyzeFileEncode(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
     logger.info(s"Start reading $path")
     try {
-      val lines = Source.fromFile(path).getLines.toArray
+
+      var lines = Source.fromFile(path).getLines.toList
+      val str: Array[String] = path.split("/")
+      val metadata_file_name: String = str.last //with extension for metadata file (.meta)
+      val region_file_name: String = metadata_file_name.replace(".meta","") //with extension for metadata file (.meta)
+      val file_identifier: String = region_file_name.split("\\.").head //without extension
+      val file_identifier_with_directory: String = file_identifier + "__" + str(str.size - 3)
+      lines = lines ::: List("file_name\t" + region_file_name)
+      lines = lines ::: List("file_identifier\t" + file_identifier)
+      lines = lines ::: List("file_identifier_with_directory\t" + file_identifier_with_directory)
+
       val encodesTableId = new EncodeTableId
       // setting field _biosampleArray with the numbers of replicates present in the item
-      val bioSampleList = new BioSampleList(lines, encodesTableId)
-      val replicateList = new ReplicateList(lines, bioSampleList)
+      val bioSampleList = new BioSampleList(lines.toArray, encodesTableId)
+      val replicateList = new ReplicateList(lines.toArray, bioSampleList)
 
       //if replicateList is empty print a log and don't import file
       if (replicateList.UuidList.isEmpty) {
@@ -274,7 +288,7 @@ object main {
         tables.setFilePath(path)
         tables.setPathOnTables()
 
-        val states: collection.mutable.Map[String, String] = createMapper(lines.toList)
+        val states: collection.mutable.Map[String, String] = createMapper(lines)
 
         Statistics.released += 1
         logger.info(s"Start populating tables for file ${path.split("/").last}")
@@ -295,7 +309,7 @@ object main {
         })
         val t2: Long = System.nanoTime()
         Statistics.incrementTrasformTime((t2 - t1))
-        tables.insertTables(states, createPairs(lines.toList))
+        tables.insertTables(states, createPairs(lines))
         val t3: Long = System.nanoTime()
         Statistics.incrementLoadTime((t3 - t2))
       }
@@ -315,7 +329,17 @@ object main {
     logger.info(s"Start reading $path")
     try {
       var old_lines = Source.fromFile(path).getLines.toList
-      //old_lines = old_lines ::: List("file_name\t" + path.split("/").last)
+
+
+      val str: Array[String] = path.split("/")
+      val metadata_file_name: String = str.last //with extension for metadata file (.meta)
+      val region_file_name: String = metadata_file_name.replace(".meta","") //with extension for metadata file (.meta)
+      val file_identifier: String = region_file_name.split("\\.").head //without extension
+      val file_identifier_with_directory: String = file_identifier + "__" + str(str.size - 3)
+      old_lines = old_lines ::: List("file_name\t" + region_file_name)
+      old_lines = old_lines ::: List("file_identifier\t" + file_identifier)
+      old_lines = old_lines ::: List("file_identifier_with_directory\t" + file_identifier_with_directory)
+
 
       val repTableId = new REPTableId
 
@@ -323,7 +347,8 @@ object main {
       val bioSampleList = new REP.Utils.BioSampleList(old_lines.toArray, repTableId)
 
       //in files with simple epi__donor_id, it adds the keys epi__donor_id__X for each biosample present (same for other attributes)
-      val lines = enrichLinesREP(old_lines.toArray, bioSampleList,path)
+      val lines: Array[String] = enrichLinesREP(old_lines.toArray, bioSampleList, path)
+
 
       //prepares ficticious replicate tuples (id=biosample_id, bio/tech replicate number = 1)
       val replicateList = new REP.Utils.ReplicateList(lines, bioSampleList)
@@ -375,16 +400,19 @@ object main {
     try {
 
       var lines = Source.fromFile(path).getLines.toList
-      val str : Array[String] = path.split("/")
-      val file_name: String = str.last.split("\\.").head
-      lines = lines ::: List("file_name\t" + file_name)
-      val file_name_with_directory: String = file_name + "__" + str(str.size - 3)
-      lines = lines ::: List("file_name_with_directory\t" + file_name_with_directory)
+      val str: Array[String] = path.split("/")
+      val metadata_file_name: String = str.last //with extension for metadata file (.meta)
+      val region_file_name: String = metadata_file_name.replace(".meta","") //with extension for metadata file (.meta)
+      val file_identifier: String = region_file_name.split("\\.").head //without extension
+      val file_identifier_with_directory: String = file_identifier + "__" + str(str.size - 3)
+      lines = lines ::: List("file_name\t" + region_file_name)
+      lines = lines ::: List("file_identifier\t" + file_identifier)
+      lines = lines ::: List("file_identifier_with_directory\t" + file_identifier_with_directory)
 
       val path_region_file = path.replaceAll(".meta$", "")
       val region_file = new File(path_region_file)
       val region_file_size = region_file.length
-      if(region_file_size!=0)
+      if (region_file_size != 0)
         lines = lines ::: List("region_file_size\t" + region_file.length)
 
       val tables = new TCGATables
@@ -479,7 +507,7 @@ object main {
     states
   }
 
-  def enrichLinesREP(lines: Array[String], bioSampleList: REP.Utils.BioSampleList,path:String): Array[String] = {
+  def enrichLinesREP(lines: Array[String], bioSampleList: REP.Utils.BioSampleList, path: String): Array[String] = {
     val bioNumbers = 1 to bioSampleList.BiosampleList.length toList
     var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
     for (l <- linesFromSet.toList) {
@@ -522,7 +550,6 @@ object main {
     }
 
 
-
     val manCurId = linesFromSet.toList.map { l =>
       val pair = l.split("\t", 2)
       if (pair.length == 2)
@@ -534,7 +561,7 @@ object main {
         None
     }.flatten.headOption.getOrElse("Error during EnrichLinesREP method")
 
-    val hasDonorId = linesFromSet.toList.map{l=>
+    val hasDonorId = linesFromSet.toList.map { l =>
       val pair = l.split("\t", 2)
       if (pair.length == 2)
         if (pair(0).startsWith("epi__donor_id"))
@@ -543,9 +570,9 @@ object main {
           false
       else
         false
-    }.reduce(_||_)
+    }.reduce(_ || _)
 
-    val hasSampleId = linesFromSet.toList.map{l=>
+    val hasSampleId = linesFromSet.toList.map { l =>
       val pair = l.split("\t", 2)
       if (pair.length == 2)
         if (pair(0).startsWith("epi__sample_alias"))
@@ -554,37 +581,24 @@ object main {
           false
       else
         false
-    }.reduce(_||_)
+    }.reduce(_ || _)
 
 
-    if(!hasDonorId)
-      linesFromSet += "epi__donor_id__1" +  "\t" + manCurId
+    if (!hasDonorId)
+      linesFromSet += "epi__donor_id__1" + "\t" + manCurId
 
-    if(!hasSampleId)
-      linesFromSet += "epi__sample_alias__1" +  "\t" + manCurId
+    if (!hasSampleId)
+      linesFromSet += "epi__sample_alias__1" + "\t" + manCurId
 
 
     //useful for tads which do not have a file name
-    val str : Array[String] = path.split("/")
-    val file_name: String = str.last.split("\\.").head
-    linesFromSet += "file_name" +  "\t" + file_name
+    //val str: Array[String] = path.split("/")
+    //val file_identifier: String = str.last.split("\\.").head
+    //linesFromSet += "file_identifier" + "\t" + file_identifier
 
 
     linesFromSet.toArray
   }
-
-  /*def enrichLinesAnn(lines: Array[String]): Array[String] = {
-      var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
-
-      linesFromSet += "donor_id\t" + filePath.split("/").last
-      linesFromSet += "biosample_id\t" + filePath.split("/").last
-      linesFromSet += "file_name\t" + filePath.split("/").last
-      linesFromSet += "replicate_id\t" + filePath.split("/").last
-      linesFromSet += "case_id\t" + filePath.split("/").last
-
-      linesFromSet.toArray
-    }
-    */
 
   def createPairs(lines: List[String]): List[(String, String)] = {
     var pairs = List[(String, String)]()
