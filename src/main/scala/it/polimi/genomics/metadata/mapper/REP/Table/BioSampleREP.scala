@@ -66,10 +66,10 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
       }
 
       case "TISSUE" => {
-        // if (typesArray(tissueInsertPosition) == null  || typesArray(tissueInsertPosition).toLowerCase.contains("tissue"))
-        this.tissueArray(tissueInsertPosition) = insertMethod(this.tissueArray(tissueInsertPosition), param)
-        // else
-        //   this.tissueArray(tissueInsertPosition) = null
+        if (param.equals("ESC") || param.contains("ESC_") || param.equals("IPSC"))
+          this.tissueArray(tissueInsertPosition) = null
+        else
+          this.tissueArray(tissueInsertPosition) = insertMethod(this.tissueArray(tissueInsertPosition), param)
         this.tissueInsertPosition = resetPosition(this.tissueInsertPosition, quantity)
       }
       case "CELLLINE" => {
