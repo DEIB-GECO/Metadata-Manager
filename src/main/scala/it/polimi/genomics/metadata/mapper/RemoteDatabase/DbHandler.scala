@@ -407,16 +407,16 @@ object DbHandler {
   }
 
 
-  def insertItem(experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, date: String, checksum: String, contentType: String, platform: String, pipeline: String, sourceUrl: String, localUrl: String): Int = {
-    val idQuery = (items returning items.map(_.itemId)) += (None, experimentTypeId, datasetId, sourceId, this.toOption[Long](size), Option(date), Option(checksum), Option(contentType), None, Option(platform), None, Option(pipeline), Option(sourceUrl), Option(localUrl))
+  def insertItem(experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, date: String, checksum: String, contentType: String, platform: String, pipeline: String, sourceUrl: String, localUrl: String, fileName: String): Int = {
+    val idQuery = (items returning items.map(_.itemId)) += (None, experimentTypeId, datasetId, sourceId, this.toOption[Long](size), Option(date), Option(checksum), Option(contentType), None, Option(platform), None, Option(pipeline), Option(sourceUrl), Option(localUrl), Option(fileName))
     val executionId = database.run(idQuery)
     val id = Await.result(executionId, Duration.Inf)
     id
   }
 
-  def updateItem(experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, date: String, checksum: String, contentType: String, platform: String, pipeline: String, sourceUrl: String, localUrl: String): Int = {
-    val updateQuery = for {item <- items if item.sourceId === sourceId} yield (item.experimentTypeId, item.datasetId, item.size, item.date, item.checksum, item.contentType, item.platform, item.pipeline, item.sourceUrl, item.localUrl)
-    val updateAction = updateQuery.update(experimentTypeId, datasetId, this.toOption[Long](size), Option(date), Option(checksum), Option(contentType), Option(platform), Option(pipeline), Option(sourceUrl), Option(localUrl))
+  def updateItem(experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, date: String, checksum: String, contentType: String, platform: String, pipeline: String, sourceUrl: String, localUrl: String, fileName: String): Int = {
+    val updateQuery = for {item <- items if item.sourceId === sourceId} yield (item.experimentTypeId, item.datasetId, item.size, item.date, item.checksum, item.contentType, item.platform, item.pipeline, item.sourceUrl, item.localUrl, item.fileName)
+    val updateAction = updateQuery.update(experimentTypeId, datasetId, this.toOption[Long](size), Option(date), Option(checksum), Option(contentType), Option(platform), Option(pipeline), Option(sourceUrl), Option(localUrl), Option(fileName))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     val idQuery = items.filter(_.sourceId === sourceId).map(_.itemId)
@@ -426,9 +426,9 @@ object DbHandler {
     id.head
   }
 
-  def updateItemById(itemId: Int, experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, date: String, checksum: String, contentType: String, platform: String, pipeline: String, sourceUrl: String, localUrl: String): Int = {
-    val updateQuery = for {item <- items if item.itemId === itemId} yield (item.experimentTypeId, item.datasetId, item.sourceId, item.size, item.date, item.checksum,item.contentType,item.platform, item.pipeline, item.sourceUrl, item.localUrl)
-    val updateAction = updateQuery.update(experimentTypeId, datasetId, sourceId, this.toOption[Long](size), Option(date), Option(checksum), Option(contentType), Option(platform), Option(pipeline), Option(sourceUrl), Option(localUrl))
+  def updateItemById(itemId: Int, experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, date: String, checksum: String, contentType: String, platform: String, pipeline: String, sourceUrl: String, localUrl: String, fileName: String): Int = {
+    val updateQuery = for {item <- items if item.itemId === itemId} yield (item.experimentTypeId, item.datasetId, item.sourceId, item.size, item.date, item.checksum,item.contentType,item.platform, item.pipeline, item.sourceUrl, item.localUrl, item.fileName)
+    val updateAction = updateQuery.update(experimentTypeId, datasetId, sourceId, this.toOption[Long](size), Option(date), Option(checksum), Option(contentType), Option(platform), Option(pipeline), Option(sourceUrl), Option(localUrl), Option(fileName))
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     itemId
@@ -979,7 +979,7 @@ object DbHandler {
   val datasets = TableQuery[Datasets]
 
   class Items(tag: Tag) extends
-    Table[(Option[Int], Int, Int, String, Option[Long], Option[String], Option[String], Option[String],Option[Int], Option[String], Option[Int], Option[String], Option[String], Option[String])](tag, ITEM_TABLE_NAME) {
+    Table[(Option[Int], Int, Int, String, Option[Long], Option[String], Option[String], Option[String],Option[Int], Option[String], Option[Int], Option[String], Option[String], Option[String], Option[String])](tag, ITEM_TABLE_NAME) {
     def itemId = column[Int]("item_id", O.PrimaryKey, O.AutoInc)
 
     def experimentTypeId = column[Int]("experiment_type_id")
@@ -1008,6 +1008,8 @@ object DbHandler {
 
     def localUrl = column[Option[String]]("local_url", O.Default(None))
 
+    def fileName = column[Option[String]]("file_name", O.Default(None))
+
     def experimentType = foreignKey("items_experimentType_fk", experimentTypeId, experimentsType)(
       _.experimentTypeId,
       onUpdate = ForeignKeyAction.Restrict,
@@ -1020,7 +1022,7 @@ object DbHandler {
       onDelete = ForeignKeyAction.Cascade
     )
 
-    def * = (itemId.?, experimentTypeId, datasetId, sourceId, size, date, checksum, contentType, contentTypeTid, platform, platformTid, pipeline, sourceUrl, localUrl)
+    def * = (itemId.?, experimentTypeId, datasetId, sourceId, size, date, checksum, contentType, contentTypeTid, platform, platformTid, pipeline, sourceUrl, localUrl, fileName)
   }
 
   val items = TableQuery[Items]

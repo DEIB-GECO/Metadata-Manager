@@ -19,6 +19,7 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     case "PIPELINE" => this.pipeline = sortPipelineOrPlatform(insertMethod(this.pipeline,param))
     case "SOURCEURL" => this.sourceUrl = insertMethod(this.sourceUrl,param)
     case "LOCALURL" => this.localUrl = insertMethod(this.localUrl,param)
+    case "FILENAME" => this.fileName = insertMethod(this.fileName,param)
     case _ => noMatching(dest)
   }
 
@@ -26,23 +27,25 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     val pList = s.split(",")
     val pListSorted = pList.sorted
     val sortedString = pListSorted.mkString(", ")
-    sortedString
+    if(sortedString.startsWith(" "))
+      sortedString.drop(1)
+    else sortedString
   }
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(experimentTypeId, datasetId,this.sourceId, this.size, this.date, this.checksum, this.contentType, this.platform, this.pipeline, this.sourceUrl, this.localUrl)
+    val id = dbHandler.insertItem(experimentTypeId, datasetId,this.sourceId, this.size, this.date, this.checksum, this.contentType, this.platform, this.pipeline, this.sourceUrl, this.localUrl, this.fileName)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl, this.localUrl)
+    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl, this.localUrl, this.fileName)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl, this.localUrl)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl, this.localUrl, this.fileName)
     Statistics.itemUpdated += 1
   }
 

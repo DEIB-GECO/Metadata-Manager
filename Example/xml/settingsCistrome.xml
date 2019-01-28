@@ -143,6 +143,10 @@
             <source_key>http://cistrome.org/db/#/bdown</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
+        <mapping>
+            <source_key>file_name</source_key>
+            <global_key>fileName</global_key>
+        </mapping>
         <!--   <mapping method="MANUAL">
                <source_key>null</source_key>
                <global_key>platform</global_key>

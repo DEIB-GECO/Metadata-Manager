@@ -35,11 +35,10 @@
             <source_key>epi__standardized_epigenome_name</source_key>
             <global_key>cellLine</global_key>
         </mapping>
-        <mapping>
-            <source_key>epi__standardized_epigenome_name</source_key>
+        <mapping method="SUB" sub_character="_" new_character=" ">
+            <source_key>epi__anatomy</source_key>
             <global_key>tissue</global_key>
         </mapping>
-
         <!--    <mapping method="MANUAL">
                 <source_key>null</source_key>
                 <global_key>isHealthy</global_key>
@@ -171,6 +170,9 @@
             <source_key>/region</source_key>
             <global_key>localUrl</global_key>
         </mapping>
-
+        <mapping>
+            <source_key>file_name</source_key>
+            <global_key>fileName</global_key>
+        </mapping>
     </table>
 </root>

@@ -71,6 +71,10 @@
             <source_key>/region</source_key>
             <global_key>localUrl</global_key>
         </mapping>
+        <mapping>
+            <source_key>file_name</source_key>
+            <global_key>fileName</global_key>
+        </mapping>
     </table>
     <table name="DONORS">
         <mapping>

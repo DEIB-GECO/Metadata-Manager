@@ -5,9 +5,9 @@
     <settings>
         <base_working_directory>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta</base_working_directory>
         <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
-        <download_enabled>true</download_enabled>
-        <transform_enabled>true</transform_enabled>
-        <cleaner_enabled>false</cleaner_enabled>
+        <download_enabled>false</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>true</cleaner_enabled>
         <mapper_enabled>false</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
         <flattener_enabled>false</flattener_enabled>
@@ -144,6 +144,11 @@
                 <parameter>
                     <key>multiple_comma_separated</key>
                     <value>Audit ERROR</value>
+                </parameter>
+                <parameter>
+                    <description>Cleaner definition rule base file</description>
+                    <key>rule_base</key>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta/ENCODE_rules.txt</value>
                 </parameter>
             </parameter_list>
             <dataset_list>

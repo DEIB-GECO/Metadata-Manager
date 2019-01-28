@@ -2,7 +2,7 @@
 <root>
     <table name="DONORS">
         <mapping>
-            <source_key>file_id</source_key><!--><-->
+            <source_key>file_identifier</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
@@ -24,7 +24,7 @@
     </table>
     <table name="BIOSAMPLES">
         <mapping>
-            <source_key>file_id</source_key><!--><-->
+            <source_key>file_identifier</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
@@ -50,7 +50,7 @@
     </table>
     <table name="REPLICATES">
         <mapping>
-            <source_key>file_id</source_key><!--><-->
+            <source_key>file_identifier</source_key><!--><-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping method="MANUAL">
@@ -132,7 +132,7 @@
     </table>
     <table name="ITEMS">
         <mapping>
-            <source_key>file_id</source_key><!-->generate metadata from name of file<-->
+            <source_key>file_identifier</source_key><!-->generate metadata from name of file<-->
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
@@ -165,12 +165,16 @@
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="CONCAT" concat_character="/">
-            <source_key>file_name</source_key>
+            <source_key>file_identifier</source_key>
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="MANUAL-CONCAT" concat_character="">
             <source_key>/region</source_key>
             <global_key>localUrl</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file_name</source_key>
+            <global_key>fileName</global_key>
         </mapping>
     </table>
 </root>
