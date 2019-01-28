@@ -8,18 +8,18 @@
         <gcm_config_file>/home/hduser/gmql_importer/conf/application.conf</gcm_config_file>
         <download_enabled>false</download_enabled>
         <transform_enabled>true</transform_enabled>
-        <cleaner_enabled>true</cleaner_enabled>
-        <mapper_enabled>true</mapper_enabled>
-        <enricher_enabled>true</enricher_enabled>
-        <flattener_enabled>true</flattener_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>false</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>false</flattener_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
-        <source name="GRCh38_TCGA">
+        <source name="GRCh38_TCGA_OPENGDC">
             <!--url is the host in the FTPDownloader-->
             <url>bioinformatics.iasi.cnr.it</url>
-            <source_working_directory>GRCh38_TCGA</source_working_directory>
+            <source_working_directory>GRCh38_TCGA_OPENGDC</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.default.FtpDownloader</downloader>
             <transformer>it.polimi.genomics.metadata.downloader_transformer.default.NullTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
@@ -29,7 +29,7 @@
             <mapper_enabled>true</mapper_enabled>
             <enricher_enabled>true</enricher_enabled>
             <flattener_enabled>true</flattener_enabled>
-            <load_enabled>false</load_enabled>
+            <load_enabled>true</load_enabled>
             <parameter_list>
                 <parameter>
                     <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>
@@ -68,12 +68,12 @@
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
                     <flattener_enabled>true</flattener_enabled>
-                    <load_enabled>false</load_enabled>
+                    <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>GRCh38_TCGA_copy_number</value>
+                            <value>GRCh38_TCGA_copy_number_2018_12</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -117,12 +117,12 @@
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
                     <flattener_enabled>true</flattener_enabled>
-                    <load_enabled>false</load_enabled>
+                    <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>GRCh38_TCGA_gene_expression</value>
+                            <value>GRCh38_TCGA_gene_expression_2018_12</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -174,12 +174,12 @@
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
                     <flattener_enabled>true</flattener_enabled>
-                    <load_enabled>false</load_enabled>
+                    <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>GRCh38_TCGA_miRNA_isoform_expression</value>
+                            <value>GRCh38_TCGA_miRNA_isoform_expression_2018_12</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -228,12 +228,12 @@
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
                     <flattener_enabled>true</flattener_enabled>
-                    <load_enabled>false</load_enabled>
+                    <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>GRCh38_TCGA_copy_number_masked</value>
+                            <value>GRCh38_TCGA_copy_number_masked_2018_12</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -277,12 +277,12 @@
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
                     <flattener_enabled>true</flattener_enabled>
-                    <load_enabled>false</load_enabled>
+                    <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>GRCh38_TCGA_somatic_mutation_masked</value>
+                            <value>GRCh38_TCGA_somatic_mutation_masked_2018_12</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -337,12 +337,12 @@
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
                     <flattener_enabled>true</flattener_enabled>
-                    <load_enabled>false</load_enabled>
+                    <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>GRCh38_TCGA_methylation</value>
+                            <value>GRCh38_TCGA_methylation_2018_12</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -398,12 +398,12 @@
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
                     <flattener_enabled>true</flattener_enabled>
-                    <load_enabled>false</load_enabled>
+                    <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>GRCh38_TCGA_miRNA_expression</value>
+                            <value>GRCh38_TCGA_miRNA_expression_2018_12</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
