@@ -36,6 +36,8 @@ object FlattenerStep extends Step {
     "dataset_id",
     "case_id", "case_study_id", "project_id",
     "replicate_id", "biosample_id", "donor_id",
+    "tech_replicate_num",
+    "technical_replicate_number",
     ".*_tid")
 
   val columnNamesMap = Map("program_name" -> "source",
@@ -44,7 +46,8 @@ object FlattenerStep extends Step {
     "is_ann" -> "is_annotation",
     "type" -> "biosample_type",
     "bio_replicate_num" -> "biological_replicate_number",
-    "tech_replicate_num" -> "technical_replicate_number",
+    "tech_replicate_num" -> "technical_replicate_number", //no need, it is excluded...
+    "temp_column" -> "technical_replicate_number",
     "external_ref" -> "external_reference")
 
 
@@ -128,7 +131,7 @@ object FlattenerStep extends Step {
 
                   val databaseLinesTuplesTry = Try {
                     val query =
-                      sql"""SELECT *
+                      sql"""SELECT *, r.bio_replicate_num || '_' || r.tech_replicate_num as temp_column
                           FROM dataset d
                           JOIN item i on d.dataset_id = i.dataset_id
                           LEFT JOIN experiment_type et on i.experiment_type_id = et.experiment_type_id
