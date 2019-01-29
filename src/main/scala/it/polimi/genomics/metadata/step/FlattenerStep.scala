@@ -126,6 +126,8 @@ object FlattenerStep extends Step {
 
                 if (fileName.endsWith(".meta")) {
                   val fileNameFirstPart = fileName.split("\\.").head
+                  val regionFileName = fileName.replace(".meta","")
+
                   ruleBasePath.applyRBToFile(file.getAbsolutePath, fullOutPath)
 
 
@@ -143,10 +145,8 @@ object FlattenerStep extends Step {
                           LEFT JOIN biosample b on r.biosample_id = b.biosample_id
                           LEFT JOIN donor d2 on b.donor_id = d2.donor_id
                           WHERE d.name = '#${datasetFullName}'
-                          AND (
-                              i.local_url ILIKE '%/#${fileNameFirstPart}/region'
-                              OR (i.local_url IS NULL AND i.item_source_id ILIKE '#${fileNameFirstPart}')
-                            )""".as(ResultMap)
+                          AND i.file_name = '#${regionFileName}'""".as(ResultMap)
+
                     val result = DbHandler.database.run(query)
                     val res = Await.result(result, Duration.Inf)
                     val innerResult = res
