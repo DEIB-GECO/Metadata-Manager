@@ -6,11 +6,12 @@
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/home/hduser/gmql_importer/</base_working_directory>
         <gcm_config_file>/home/hduser/gmql_importer/conf/application.conf</gcm_config_file>
-        <download_enabled>true</download_enabled>
-        <transform_enabled>true</transform_enabled>
-        <cleaner_enabled>true</cleaner_enabled>
-        <mapper_enabled>true</mapper_enabled>
-        <enricher_enabled>true</enricher_enabled>
+        <flattener_rule_base>/home/hduser/GMQL-sources/Metadata-Manager/Example/flattener_rule_base.txt</flattener_rule_base>
+        <download_enabled>false</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>false</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
         <flattener_enabled>true</flattener_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
@@ -41,12 +42,17 @@
                 </parameter>
                 <parameter>
                     <key>client_secrets_path</key>
-                    <value>C:\Users\ricca\Desktop\tesi\GMQL-importer2\GMQL-Importer2\client_secrets.json</value>
+                    <value>/home/hduser/GMQL-sources/Metadata-Manager/client_secrets.json</value>
                 </parameter>
                 <parameter>
                     <key>credential_directory</key>
-                    <value>C:\Users\ricca\Desktop\tesi\GMQL-importer2\GMQL-Importer2\.credentials\sheets.googleapis.com-GMQL-importer\</value>
+                    <value>/home/hduser/GMQL-sources/Metadata-Manager/.credentials/sheets.googleapis.com-GMQL-importer/</value>
                 </parameter>
+                <!--<parameter>
+                    <description>Cleaner definition rule base file</description>
+                    <key>rule_base</key>
+                    <value>/home/hduser/gmql_importer/ROADMAP_rules.txt</value>
+                </parameter>-->
             </parameter_list>
             <dataset_list>
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_NARROW">
