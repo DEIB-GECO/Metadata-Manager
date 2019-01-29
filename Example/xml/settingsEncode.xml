@@ -184,7 +184,7 @@
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="CONCAT" concat_character="/">
-            <source_key>file__accession</source_key>
+            <source_key>file_identifier</source_key>
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="MANUAL-CONCAT" concat_character="">

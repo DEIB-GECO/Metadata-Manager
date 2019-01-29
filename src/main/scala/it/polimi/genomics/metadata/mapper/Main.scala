@@ -32,9 +32,6 @@ object main {
   private val regexRaoTads = ".*_rao.*".r
   private val regexCombTads = ".*_(rep1|rep2|combined).*".r
 
-  //  private val exportRegexENCODE = "bed.meta.json".r
-  //  private val exportRegexTCGA = "bed.meta".r
-
   object SourceString extends Enumeration {
     type SourceString = Value
 
@@ -63,24 +60,6 @@ object main {
 
   val conf = ConfigFactory.load()
 
-  /*//main prova per leggere pagina html TCGA tss codes
-    def main(args: Array[String]): Unit = {
-      val driver = new HtmlUnitDriver
-      driver.get("https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tissue-source-site-codes")
-      val peers: util.List[WebElement] = driver.findElementsByXPath("//table")
-      val table: WebElement = peers.get(1)
-      val tr_elements: mutable.Seq[WebElement] = table.findElements(By.xpath("//tr")).asScala
-
-      val tss: mutable.Seq[WebElement] = tr_elements.slice(6, tr_elements.length)
-      val tss_map = collection.mutable.Map[String, (String, String, String)]()
-
-      for (e: WebElement <- tss) {
-        val one = e.findElements(By.xpath("td")).asScala
-        val tup = (one(0).getText, one(1).getText, one(2).getText, one(3).getText): Tuple4[String, String, String, String]
-        tss_map += (tup._1 -> (tup._2,tup._3,tup._4))
-      }
-    }
-  */
 
   def main(args: Array[String]): Unit = {
 
@@ -145,18 +124,6 @@ object main {
 
       logger.info("EXPORT MODE IS DISABLED. PLEASE RUN FLATTENER using settings.xml")
 
-      /*if (args.length != 3) {
-        logger.error(s"Incorrect number of arguments")
-        logger.info("GMQLImporter help; in order to export Data from Database to file:\n"
-          + "\t Run with EXPORT, repository_ref and file_folder as arguments\n"
-        )
-        return
-      }*/
-
-      //val logName = "EXPORT_" + args(1).toUpperCase + "_" + DateTime.now.toString(DateTimeFormat.forPattern("yyyy_MM_dd HH:mm:ss.SSS Z")) + ".log"
-
-      //defineFileAppenderSetting(logName)
-      //exportMode(args(1), args(2))
     }
   }
 
@@ -216,42 +183,7 @@ object main {
 
   }
 
-  // OLD EXPORT MODE BY FEDERICO, superseded by flattener BY ARIF
-  /*def exportMode(repositoryRef: String, pathGMQL: String): Unit = {
-     DbHandler.setDatabase()
 
-     logger.info(s"Start to write TSV file")
-     val t2: Long = System.nanoTime()
-     val fromDbToTsv = new FromDbToTsv()
-     repositoryRef.toUpperCase() match {
-       case "ENCODE" => {
-
-         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => {
-           val tables = new EncodeTables(new EncodeTableId).getListOfTables()
-           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
-           fromDbToTsv.run(path.getAbsolutePath, exportRegexENCODE)
-         })
-       }
-       case "TCGA" => {
-         ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => {
-           val tables = new TCGATables().getListOfTables()
-           fromDbToTsv.setTable(tables._1, tables._2, tables._3, tables._4, tables._5, tables._6, tables._7, tables._8)
-           fromDbToTsv.run(path.getAbsolutePath, exportRegexTCGA)
-         })
-       }
-       case _ => logger.error(s"Incorrect repository")
-     }
-
-     val t3: Long = System.nanoTime()
-
-     logger.info(s"Total time for the write info in TSV file ${getTotalTimeFormatted(t2, t3)}")
-     logger.info(s"Total file analized ${Statistics.tsvFile}")
-     logger.info(s"File correctly exported ${Statistics.correctExportedFile}")
-     logger.info(s"File exported with Error ${Statistics.errorExportedFile}")
-
-     DbHandler.closeDatabase()
-
-   } */
 
   def analyzeFileEncode(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()

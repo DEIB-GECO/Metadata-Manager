@@ -64,7 +64,7 @@
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="CONCAT" concat_character="/">
-            <source_key>manually_curated__opengdc_id</source_key><!-->ok<-->
+            <source_key>file_identifier</source_key><!-->ok<-->
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="MANUAL-CONCAT" concat_character=""><!-->ok<-->
