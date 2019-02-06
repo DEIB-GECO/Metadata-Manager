@@ -24,12 +24,10 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
   }
 
   def sortPipelineOrPlatform(s: String): String = {
-    val pList = s.split(",")
-    val pListSorted = pList.sorted
-    val sortedString = pListSorted.mkString(", ")
-    if(sortedString.startsWith(" "))
-      sortedString.drop(1)
-    else sortedString
+    val pArray: Array[String] = s.split(",")
+    val pArrayNoSpaces = pArray.map(x => if(x.startsWith(" ")) x.drop(1) else x)
+    val pArraySorted = pArrayNoSpaces.sorted
+    pArraySorted.mkString(", ")
   }
 
   override def insert(): Int = {

@@ -220,7 +220,7 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
     flushAndClose(write)
   }
 
-  def insertOrUpdateOntologicTuple(id: Int): Unit = {
+ /* def insertOrUpdateOntologicTuple(id: Int): Unit = {
     if (this.cellLineArray(actualPosition) != null)
       if (DbHandler.checkInsertOntology(id, "biosample", "cell_line"))
         dbHandler.insertOntology(id, "biosample", "cell_line", ontologicalCode(actualPosition).split('*')(0), this.cellLineArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
@@ -231,5 +231,5 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
         dbHandler.insertOntology(id, "biosample", "tissue", ontologicalCode(actualPosition).split('*')(0), this.tissueArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
       else
         dbHandler.updateOntology(id, "biosample", "tissue", ontologicalCode(actualPosition).split('*')(0), this.tissueArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
-  }
+  }*/
 }

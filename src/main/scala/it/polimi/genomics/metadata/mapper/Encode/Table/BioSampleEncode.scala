@@ -199,8 +199,8 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   override def insert(): Int = {
     val id = dbHandler.insertBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellLineArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
-    if (conf.getBoolean("import.support_table_insert"))
-      insertOrUpdateOntologicTuple(id)
+   // if (conf.getBoolean("import.support_table_insert"))
+     // insertOrUpdateOntologicTuple(id)
     /* if(this.cellLineArray(actualPosition) != null && conf.getBoolean("import.support_table_insert"))
      dbHandler.insertOntology(id, "biosample", "cell_line", ontologicalCode(actualPosition).split('*')(0), this.cellLineArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
    if(this.tissueArray(actualPosition) != null && conf.getBoolean("import.support_table_insert"))
@@ -212,8 +212,8 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   override def update(): Int = {
     val id = dbHandler.updateBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellLineArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
-    if (conf.getBoolean("import.support_table_insert"))
-      insertOrUpdateOntologicTuple(id)
+   // if (conf.getBoolean("import.support_table_insert"))
+    //  insertOrUpdateOntologicTuple(id)
     id
   }
 
@@ -246,7 +246,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
     flushAndClose(write)
   }
 
-  def insertOrUpdateOntologicTuple(id: Int): Unit = {
+  /*def insertOrUpdateOntologicTuple(id: Int): Unit = {
     if (this.cellLineArray(actualPosition) != null)
       if (DbHandler.checkInsertOntology(id, "biosample", "cell_line"))
         dbHandler.insertOntology(id, "biosample", "cell_line", ontologicalCode(actualPosition).split('*')(0), this.cellLineArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
@@ -257,5 +257,5 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
         dbHandler.insertOntology(id, "biosample", "tissue", ontologicalCode(actualPosition).split('*')(0), this.tissueArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
       else
         dbHandler.updateOntology(id, "biosample", "tissue", ontologicalCode(actualPosition).split('*')(0), this.tissueArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
-  }
+  }*/
 }
