@@ -18,29 +18,29 @@ class ItemREP(repTableId: REPTableId) extends REPTable(repTableId) with Item {
     case "PLATFORM" => this.platform = insertMethod(this.platform, param)
     case "PIPELINE" => this.pipeline = insertMethod(this.pipeline,param)
     case "SOURCEURL" => this.sourceUrl = insertMethod(this.sourceUrl,param)
-    case "SOURCEPAGE" => this.sourcePage = insertMethod(this.sourcePage,param)
     case "LOCALURL" => this.localUrl = insertMethod(this.localUrl,param)
     case "FILENAME" => this.fileName = insertMethod(this.fileName,param)
+    case "SOURCEPAGE" => this.sourcePage = insertMethod(this.sourcePage,param)
     case _ => noMatching(dest)
   }
 
   override def insert(): Int = {
     val id = dbHandler.insertItem(experimentTypeId, datasetId,this.sourceId, this.size, this.date, this.checksum,
-      this.contentType, this.platform, this.pipeline, this.sourceUrl, this.sourcePage, this.localUrl, this.fileName)
+      this.contentType, this.platform, this.pipeline, this.sourceUrl,  this.localUrl, this.fileName,this.sourcePage)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
     val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size, this.date,this.checksum,
-      this.contentType, this.platform,this.pipeline,this.sourceUrl, this.sourcePage, this.localUrl, this.fileName)
+      this.contentType, this.platform,this.pipeline,this.sourceUrl, this.localUrl, this.fileName,this.sourcePage)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
     val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,
-      this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl, this.sourcePage, this.localUrl, this.fileName)
+      this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl, this.localUrl, this.fileName,this.sourcePage)
     Statistics.itemUpdated += 1
   }
 

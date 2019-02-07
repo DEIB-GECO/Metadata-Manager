@@ -26,11 +26,11 @@ trait Item extends Table{
 
   var sourceUrl : String = _
 
-  var sourcePage : String = _
-
   var localUrl : String = _
 
   var fileName : String = _
+
+  var sourcePage : String = _
 
   _hasForeignKeys = true
 
@@ -42,19 +42,22 @@ trait Item extends Table{
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.sourcePage,this.localUrl,this.fileName)
+    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,
+      this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName,this.sourcePage)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.sourcePage,this.localUrl,this.fileName)
+    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,
+      this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName,this.sourcePage)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.sourcePage,this.localUrl,this.fileName)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,
+      this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName,this.sourcePage)
     Statistics.itemUpdated += 1
   }
 
