@@ -40,7 +40,7 @@ class ItemEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
 
   override def update(): Int = {
     val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,
-      this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName,this.sourcePage,)
+      this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName,this.sourcePage)
     Statistics.itemUpdated += 1
     id
   }
