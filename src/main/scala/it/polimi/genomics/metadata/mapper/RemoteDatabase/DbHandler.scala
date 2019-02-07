@@ -32,8 +32,9 @@ object DbHandler {
   private val CASEITEM_TABLE_NAME = "case2item"
   private val REPLICATEITEM_TABLE_NAME = "replicate2item"
   //private val CASE_TCGA_MAPPING = "case_tcga_mapping"
-  private val ONTOLOGY_TABLE = "ontology_table"
+  //private val ONTOLOGY_TABLE = "ontology_table"
   private val PAIR_TABLE_NAME = "pair"
+  private val FLATTEN_VIEW_NAME = "flatten"
 
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
@@ -49,132 +50,234 @@ object DbHandler {
 
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList
 
-    //donors
     logger.info("Connecting to the database...")
 
+    //donor
     if (!tables.exists(_.name.name == DONOR_TABLE_NAME)) {
-      var queries = DBIO.seq(donors.schema.create)
+      val queries = DBIO.seq(donors.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table DONORS created")
+      logger.info("Table " + DONOR_TABLE_NAME + " created")
     }
 
     //biosample
     if (!tables.exists(_.name.name == BIOSAMPLE_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        bioSamples.schema.create
-      )
+      val queries = DBIO.seq(bioSamples.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table BIOSAMPLES created")
+      logger.info("Table " + BIOSAMPLE_TABLE_NAME + " created")
     }
 
     //replicate
     if (!tables.exists(_.name.name == REPLICATE_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        replicates.schema.create
-      )
+      val queries = DBIO.seq(replicates.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table REPLICATES created")
+      logger.info("Table " + REPLICATE_TABLE_NAME + " created")
     }
 
     //experimentType
     if (!tables.exists(_.name.name == EXPERIMENTTYPE_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        experimentsType.schema.create
-      )
+      val queries = DBIO.seq(experimentsType.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table EXPERIMENTSTYPE created")
+      logger.info("Table " + EXPERIMENTTYPE_TABLE_NAME + " created")
     }
 
     //project
     if (!tables.exists(_.name.name == PROJECT_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        projects.schema.create
-      )
+      val queries = DBIO.seq(projects.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table PROJECTS created")
+      logger.info("Table " + PROJECT_TABLE_NAME + " created")
     }
 
     //dataset
     if (!tables.exists(_.name.name == DATASET_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        datasets.schema.create
-      )
+      val queries = DBIO.seq(datasets.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table DATASETS created")
+      logger.info("Table " + DATASET_TABLE_NAME + " created")
     }
 
-    //case
+    //case_study
     if (!tables.exists(_.name.name == CASE_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        cases.schema.create
-      )
+      val queries = DBIO.seq(cases.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table CASES created")
+      logger.info("Table " + CASE_TABLE_NAME + " created")
     }
 
     //item
     if (!tables.exists(_.name.name == ITEM_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        items.schema.create
-      )
+      val queries = DBIO.seq(items.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table ITEMS created")
+      logger.info("Table " + ITEM_TABLE_NAME + " created")
     }
 
+    //replicateitem
     if (!tables.exists(_.name.name == REPLICATEITEM_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        replicatesItems.schema.create
-      )
+      val queries = DBIO.seq(replicatesItems.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table REPLICATESITEMS created")
+      logger.info("Table " + REPLICATEITEM_TABLE_NAME + " created")
     }
 
     //caseitem
     if (!tables.exists(_.name.name == CASEITEM_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        casesItems.schema.create
-      )
+      val queries = DBIO.seq(casesItems.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table CASESITEMS created")
+      logger.info("Table " + CASEITEM_TABLE_NAME + " created")
     }
 
+    //derivedfrom
     if (!tables.exists(_.name.name == DERIVEDFROM_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        derivedFrom.schema.create
-      )
+      val queries = DBIO.seq(derivedFrom.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table DERIVEDFROM created")
+      logger.info("Table " + DERIVEDFROM_TABLE_NAME + " created")
     }
 
-    if (!tables.exists(_.name.name == ONTOLOGY_TABLE)) {
-      val queries = DBIO.seq(
-        ontologyTable.schema.create
-      )
-      val setup = database.run(queries)
-      Await.result(setup, Duration.Inf)
-      logger.info("Table ONTOLOGY created")
-    }
+    /* if (!tables.exists(_.name.name == ONTOLOGY_TABLE)) {
+       val queries = DBIO.seq(ontologyTable.schema.create)
+       val setup = database.run(queries)
+       Await.result(setup, Duration.Inf)
+       logger.info("Table ONTOLOGY created")
+     }*/
 
     if (!tables.exists(_.name.name == PAIR_TABLE_NAME)) {
-      val queries = DBIO.seq(
-        pairs.schema.create
-      )
+      val queries = DBIO.seq(pairs.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
-      logger.info("Table PAIR created")
+      logger.info("Table " + PAIR_TABLE_NAME + " created")
     }
+
+    val createSchemaDW = sqlu"""CREATE SCHEMA IF NOT EXISTS dw;"""
+
+    val dropItemViewDW = sqlu"""DROP VIEW IF EXISTS dw.item CASCADE;"""
+
+    val createItemViewDW =
+      sqlu"""CREATE VIEW dw.item AS SELECT
+                                  (SELECT COUNT(distinct bio_replicate_num)
+                                    FROM replicate2item
+                                    NATURAL JOIN replicate
+                                    WHERE item.item_id = replicate2item.item_id)
+                                  as biological_replicate_count,
+                                  (SELECT COUNT(distinct r.bio_replicate_num || '_' || r.tech_replicate_num)
+                                  FROM replicate2item
+                                    NATURAL JOIN replicate as r
+                                  WHERE item.item_id = replicate2item.item_id)
+                                  as technical_replicate_count,
+                                  *
+                                  FROM item;"""
+
+    val setupcreatedw = database.run(createSchemaDW)
+    Await.result(setupcreatedw, Duration.Inf)
+    logger.info("dw schema created")
+
+    val setupdropitem = database.run(dropItemViewDW)
+    Await.result(setupdropitem, Duration.Inf)
+    logger.info("dw.item view dropped")
+
+    val setupcreateitem = database.run(createItemViewDW)
+    Await.result(setupcreateitem, Duration.Inf)
+    logger.info("dw.item view created")
+
+    val dropFlattenViewDW = sqlu"""DROP MATERIALIZED VIEW IF EXISTS dw.flatten;"""
+
+    val createFlattenViewDW =
+      sqlu"""CREATE MATERIALIZED VIEW dw.flatten AS
+    SELECT DISTINCT
+    item_id                                          AS item_id,
+    LOWER(type)                                      AS biosample_type,
+    LOWER(tissue)                                    AS tissue,
+    LOWER(cell_line)                                 AS cell,
+    (is_healthy)                                     AS is_healthy,
+    LOWER(disease)                                   AS disease,
+    LOWER(source_site)                               AS source_site,
+    LOWER(external_ref)                              AS external_reference,
+    LOWER(name)                                      AS dataset_name,
+    LOWER(data_type)                                 AS data_type,
+    LOWER(format)                                    AS file_format,
+    LOWER(assembly)                                  AS assembly,
+    (is_ann)                                         AS is_annotation,
+    LOWER(species)                                   AS species,
+    (age)                                            AS age,
+    LOWER(gender)                                    AS gender,
+    LOWER(ethnicity)                                 AS ethnicity,
+    LOWER(technique)                                 AS technique,
+    LOWER(feature)                                   AS feature,
+    LOWER(target)                                    AS target,
+    LOWER(antibody)                                  AS antibody,
+    LOWER(platform)                                  AS platform,
+    LOWER(pipeline)                                  AS pipeline,
+    LOWER(content_type)                              AS content_type,
+    LOWER(program_name)                              AS source,
+    LOWER(project_name)                              AS project_name,
+    (bio_replicate_num)                              AS biological_replicate_number,
+    (bio_replicate_num || '_' || tech_replicate_num) AS technical_replicate_number,
+    biological_replicate_count                       AS biological_replicate_count,
+    technical_replicate_count                        AS technical_replicate_count
+    FROM dw.item i
+      NATURAL JOIN dataset d
+    NATURAL JOIN experiment_type et
+    NATURAL JOIN case2item c2i
+    NATURAL JOIN case_study cs
+    NATURAL JOIN project p
+    NATURAL JOIN replicate2item r2i
+    NATURAL JOIN replicate r
+    NATURAL JOIN biosample b
+    NATURAL JOIN donor d2
+    ;"""
+
+    val createFlattenIndexesDW =
+      sqlu"""
+    CREATE INDEX dw_flatten_biosample_type_idx ON dw.flatten (biosample_type);
+    CREATE INDEX dw_flatten_tissue_idx ON dw.flatten (tissue);
+    CREATE INDEX dw_flatten_cell_idx ON dw.flatten (cell);
+    CREATE INDEX dw_flatten_is_healthy_idx ON dw.flatten (is_healthy);
+    CREATE INDEX dw_flatten_disease_idx ON dw.flatten (disease);
+    CREATE INDEX dw_flatten_source_site_idx ON dw.flatten (source_site);
+    CREATE INDEX dw_flatten_external_reference_idx ON dw.flatten (external_reference);
+    CREATE INDEX dw_flatten_dataset_name_idx ON dw.flatten (dataset_name);
+    CREATE INDEX dw_flatten_data_type_idx ON dw.flatten (data_type);
+    CREATE INDEX dw_flatten_file_format_idx ON dw.flatten (file_format);
+    CREATE INDEX dw_flatten_assembly_idx ON dw.flatten (assembly);
+    CREATE INDEX dw_flatten_is_annotation_idx ON dw.flatten (is_annotation);
+    CREATE INDEX dw_flatten_species_idx ON dw.flatten (species);
+    CREATE INDEX dw_flatten_age_idx ON dw.flatten (age);
+    CREATE INDEX dw_flatten_gender_idx ON dw.flatten (gender);
+    CREATE INDEX dw_flatten_ethnicity_idx ON dw.flatten (ethnicity);
+    CREATE INDEX dw_flatten_technique_idx ON dw.flatten (technique);
+    CREATE INDEX dw_flatten_feature_idx ON dw.flatten (feature);
+    CREATE INDEX dw_flatten_target_idx ON dw.flatten (target);
+    CREATE INDEX dw_flatten_antibody_idx ON dw.flatten (antibody);
+    CREATE INDEX dw_flatten_platform_idx ON dw.flatten (platform);
+    CREATE INDEX dw_flatten_pipeline_idx ON dw.flatten (pipeline);
+    CREATE INDEX dw_flatten_content_type_idx ON dw.flatten (content_type);
+    CREATE INDEX dw_flatten_source_idx ON dw.flatten (source);
+    CREATE INDEX dw_flatten_project_name_idx ON dw.flatten (project_name);
+    CREATE INDEX dw_flatten_biological_replicate_number_idx ON dw.flatten (biological_replicate_number);
+    CREATE INDEX dw_flatten_technical_replicate_number_idx ON dw.flatten (technical_replicate_number);
+    CREATE INDEX dw_flatten_biological_replicate_count_idx ON dw.flatten (biological_replicate_count);
+    CREATE INDEX dw_flatten_technical_replicate_count_idx ON dw.flatten (technical_replicate_count);"""
+
+    val setupdropflatten = database.run(dropFlattenViewDW)
+    Await.result(setupdropflatten, Duration.Inf)
+    logger.info("dw.flatten dropped")
+
+    val setupcreateflatten = database.run(createFlattenViewDW)
+    Await.result(setupcreateflatten, Duration.Inf)
+    logger.info("dw.flatten created")
+
+    val setupcreateindex = database.run(createFlattenIndexesDW)
+    Await.result(setupcreateindex, Duration.Inf)
+    logger.info("dw.flatten indexes created")
+
   }
+
 
   def closeDatabase(): Unit = {
     val closing = database.shutdown
@@ -188,6 +291,7 @@ object DbHandler {
       None
   }
 
+
   //Insert Method
 
   def insertDonor(sourceId: String, species: String, age: Option[Int], gender: String, ethnicity: String): Int = {
@@ -199,8 +303,8 @@ object DbHandler {
 
   def updateDonor(sourceId: String, species: String, age: Option[Int], gender: String, ethnicity: String): Int = {
     val query = for {donor <- donors if donor.sourceId === sourceId}
-      yield (donor.species, donor.speciesTid,donor.age, donor.gender, donor.ethnicity,donor.ethnicityTid)
-    val updateAction = query.update(Option(species),None, age, Option(gender), Option(ethnicity),None)
+      yield (donor.species, donor.speciesTid, donor.age, donor.gender, donor.ethnicity, donor.ethnicityTid)
+    val updateAction = query.update(Option(species), None, age, Option(gender), Option(ethnicity), None)
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     val idQuery = donors.filter(_.sourceId === sourceId).map(_.donorId)
@@ -229,7 +333,7 @@ object DbHandler {
     val query = for {bioSample <- bioSamples if bioSample.sourceId === sourceId}
       yield (bioSample.donorId, bioSample.types, bioSample.tissue, bioSample.tissueTid,
         bioSample.cellLine, bioSample.cellLineTid, bioSample.isHealthy, bioSample.disease, bioSample.diseaseTid)
-    val updateAction = query.update(donorId, Option(types), Option(tissue), None, Option(cellLine),None, isHealthy, disease,None)
+    val updateAction = query.update(donorId, Option(types), Option(tissue), None, Option(cellLine), None, isHealthy, disease, None)
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     val idQuery = bioSamples.filter(_.sourceId === sourceId).map(_.bioSampleId)
@@ -286,7 +390,7 @@ object DbHandler {
     val query = for {experimentType <- experimentsType
                      if experimentType.technique === technique && experimentType.feature === feature && experimentType.target === target}
       yield (experimentType.antibody, experimentType.techniqueTid, experimentType.featureTid, experimentType.targetTid)
-    val updateAction = query.update(Option(antibody),None,None,None)
+    val updateAction = query.update(Option(antibody), None, None, None)
     val execution = database.run(updateAction)
     Await.result(execution, Duration.Inf)
     val idQuery = experimentsType.filter(value => {
@@ -426,8 +530,8 @@ object DbHandler {
                      checksum: String, contentType: String, platform: String, pipeline: String, sourceUrl: String,
                      localUrl: String, fileName: String, sourcePage: String): Int = {
     val updateQuery = for {item <- items if item.itemId === itemId} yield (item.experimentTypeId, item.datasetId,
-      item.sourceId, item.size, item.date, item.checksum,item.contentType,item.platform, item.pipeline, item.sourceUrl,
-      item.localUrl, item.fileName,item.sourcePage)
+      item.sourceId, item.size, item.date, item.checksum, item.contentType, item.platform, item.pipeline, item.sourceUrl,
+      item.localUrl, item.fileName, item.sourcePage)
     val updateAction = updateQuery.update(experimentTypeId, datasetId, sourceId, this.toOption[Long](size), Option(date),
       Option(checksum), Option(contentType), Option(platform), Option(pipeline), Option(sourceUrl),
       Option(localUrl), Option(fileName), Option(sourcePage))
@@ -626,14 +730,14 @@ object DbHandler {
     checkResult(result)
   }
 
-  def checkInsertOntology(tableId: Int, tableName: String, tableColumn: String): Boolean = {
-    val query = ontologyTable.filter(value => {
-      value.tableId === tableId && value.tableNames === tableName && value.tableColumn === tableColumn
-    })
-    val action = query.result
-    val result = database.run(action)
-    checkResult(result)
-  }
+  /* def checkInsertOntology(tableId: Int, tableName: String, tableColumn: String): Boolean = {
+     val query = ontologyTable.filter(value => {
+       value.tableId === tableId && value.tableNames === tableName && value.tableColumn === tableColumn
+     })
+     val action = query.result
+     val result = database.run(action)
+     checkResult(result)
+   }*/
 
   def checkInsertPair(itemId: Int, key: String, value: String): Boolean = {
     val query = pairs.filter(_.itemId === itemId).filter(_.key === key).filter(_.value === value)
@@ -701,7 +805,6 @@ object DbHandler {
     val result = database.run(action)
     checkId(result)
   }
-
 
 
   /*def getSourceSiteByCode(code: String): String = {
@@ -973,9 +1076,10 @@ object DbHandler {
   val datasets = TableQuery[Datasets]
 
   case class ItemsXXX(itemId: Option[Int], experimentTypeId: Int, datasetId: Int, sourceId: String, size: Option[Long],
-                      date:Option[String], checksum:Option[String], contentType:Option[String], contentTypeTid:Option[Int],
-                      platform:Option[String], platformTid:Option[Int], pipeline:Option[String], sourceUrl:Option[String],
-                      localUrl:Option[String], fileName:Option[String], sourcePage: Option[String])
+                      date: Option[String], checksum: Option[String], contentType: Option[String], contentTypeTid: Option[Int],
+                      platform: Option[String], platformTid: Option[Int], pipeline: Option[String], sourceUrl: Option[String],
+                      localUrl: Option[String], fileName: Option[String], sourcePage: Option[String])
+
   class Items(tag: Tag) extends
     Table[ItemsXXX](tag, ITEM_TABLE_NAME) {
     def itemId = column[Int]("item_id", O.PrimaryKey, O.AutoInc)
@@ -1023,7 +1127,7 @@ object DbHandler {
     )
 
     def * = (itemId.?, experimentTypeId, datasetId, sourceId, size, date, checksum, contentType, contentTypeTid,
-      platform, platformTid, pipeline, sourceUrl, localUrl, fileName, sourcePage) <> (ItemsXXX.tupled,ItemsXXX.unapply)
+      platform, platformTid, pipeline, sourceUrl, localUrl, fileName, sourcePage) <> (ItemsXXX.tupled, ItemsXXX.unapply)
   }
 
   val items = TableQuery[Items]
@@ -1032,7 +1136,7 @@ object DbHandler {
     Table[(Int, Int)](tag, CASEITEM_TABLE_NAME) {
     def itemId = column[Int]("item_id")
 
-    def caseId = column[Int]("case_id")
+    def caseId = column[Int]("case_study_id")
 
     def pk = primaryKey("item_case_id", (itemId, caseId))
 
@@ -1119,7 +1223,7 @@ object DbHandler {
     val caseTcgaMapping = TableQuery[CaseTCGAMapping]
   */
 
-  class OntologyTable(tag: Tag) extends
+  /*class OntologyTable(tag: Tag) extends
     Table[(Int, String, String, String, String, Option[String])](tag, ONTOLOGY_TABLE) {
     def tableId = column[Int]("table_id")
 
@@ -1139,6 +1243,7 @@ object DbHandler {
   }
 
   val ontologyTable = TableQuery[OntologyTable]
+  */
 
 
   class PairTable(tag: Tag) extends

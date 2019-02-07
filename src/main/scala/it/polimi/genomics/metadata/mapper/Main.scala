@@ -129,7 +129,7 @@ object main {
 
 
   def importMode(repositoryRef: String, pathGMQLIn: String, pathXML: String): Unit = {
-    DbHandler.setDatabase()
+    //DbHandler.setDatabase()
 
     val datasetFileName = pathGMQLIn + File.separator + "dataset_name.txt"
     val datasetName = Source.fromFile(datasetFileName).mkString.trim
@@ -142,7 +142,6 @@ object main {
     if (SchemaValidator.validate(pathXML, schemaUrl)) {
       logger.info("Xml file is valid for the schema")
       DbHandler.setDatabase()
-
 
       val t0: Long = System.nanoTime()
       repositoryRef.toUpperCase() match {
@@ -522,13 +521,6 @@ object main {
     if (!hasSampleId)
       linesFromSet += "epi__sample_alias__1" + "\t" + manCurId
 
-
-    //useful for tads which do not have a file name
-    //val str: Array[String] = path.split("/")
-    //val file_identifier: String = str.last.split("\\.").head
-    //linesFromSet += "file_identifier" + "\t" + file_identifier
-
-
     linesFromSet.toArray
   }
 
@@ -537,7 +529,7 @@ object main {
     for (l <- lines) {
       val first = l.split("\t", 2)
       if (first.size == 2) {
-        pairs = pairs ::: List((first(0), first(1)))
+        pairs = pairs ::: List((first(0).replaceAll("__[0-9]+__","__"), first(1)))
       }
       else {
         logger.warn(s"Malformation in line ${
