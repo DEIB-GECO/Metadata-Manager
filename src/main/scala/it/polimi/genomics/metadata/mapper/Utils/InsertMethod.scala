@@ -23,19 +23,15 @@ object InsertMethod {
         case "DEFAULT" => acc
         case "MANUAL" => if (sourceKey == "null") null else sourceKey
         case "CONCAT" => if (actualParam == null) acc else actualParam.concat(concatCharacter + acc)
-        case "CHECKPREC" =>
-          if (actualParam == null) acc else actualParam
-        //case "SELECTCASETCGA" => if (actualParam == null) DbHandler.getSourceSiteByCode(acc) else actualParam.concat(concatCharacter + DbHandler.getSourceSiteByCode(acc))
+        case "CHECKPREC" => if (actualParam == null) acc else actualParam
         case "SELECTCASETCGA" => if (actualParam == null) getSourceSiteByCode(acc) else actualParam.concat(concatCharacter + getSourceSiteByCode(acc))
-        case "REMOVE" =>
-         // this.remove(remCharacter, acc)
-          this.remove(remCharacter, newParam) //this is only used in TCGA2BED mapping
+        case "SOURCEPAGEGDC" => acc.split(",").map(x => conf.getString("import.gdc_source_page") + x).mkString(",")
+        case "REMOVE" => this.remove(remCharacter, newParam) //this is only used in TCGA2BED mapping
         case "SUB" => this.replace(subCharacter, newCharacter, acc)
         case "UPPERCASE" => acc.toUpperCase()
         case "LOWERCASE" => acc.toLowerCase()
         case "DATETODAYS" => this.selectDayByParam(newParam)
         case "WEEKSTODAYS" => if (this.weeksToDays(newParam) != null) this.weeksToDays(newParam) else null
-        //case "ABS" => acc.substring(1)
         case "ONTOLOGY" => sourceKey + '*' + acc
         case "PREDEFINED" => Predefined.map.get(sourceKey) match {
           case Some(x) =>
@@ -44,7 +40,6 @@ object InsertMethod {
             logger.error("Method PREDEFINED failed for sourceKey: " + sourceKey)
             actualParam
         }
-
         case _ => {
           logger.error("Method " + method + " not found");
           actualParam
@@ -113,7 +108,6 @@ object InsertMethod {
   private def toArrayInt(list: Array[String]): Array[Float] = list.map(_.toFloat)
 
   private def average(list: Array[Float]): Float = list.sum / list.length
-
 
   private def getSourceSiteByCode(code: String): String = {
     try{

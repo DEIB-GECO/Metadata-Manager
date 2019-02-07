@@ -55,6 +55,10 @@
             <source_key>manually_curated__exp_data_bed_url</source_key><!-->ok<-->
             <global_key>sourceUrl</global_key>
         </mapping>
+        <mapping method="SOURCEPAGEGDC">
+            <source_key>gdc__file_id</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
         <mapping method="MANUAL">
             <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key><!-->ok<-->
             <global_key>localUrl</global_key>

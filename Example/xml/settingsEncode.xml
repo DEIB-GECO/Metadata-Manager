@@ -105,10 +105,6 @@
             <source_key>antibody__dbxrefs</source_key>
             <global_key>antibody</global_key>
         </mapping>
-        <mapping method="CONCAT" concat_character=", ">
-            <source_key>antibody__url</source_key>
-            <global_key>antibody</global_key>
-        </mapping>
         <mapping method="ONTOLOGY">
             <source_key>experiment__assay_term_id</source_key>
             <global_key>ontologicalcode</global_key>
@@ -174,6 +170,14 @@
         <mapping method="CONCAT" concat_character="">
             <source_key>file__href</source_key>
             <global_key>sourceUrl</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>https://www.encodeproject.org/files/</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="">
+            <source_key>file__accession</source_key>
+            <global_key>sourcePage</global_key>
         </mapping>
         <mapping method="MANUAL">
             <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>

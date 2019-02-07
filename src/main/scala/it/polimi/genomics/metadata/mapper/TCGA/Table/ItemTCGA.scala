@@ -18,6 +18,7 @@ class ItemTCGA extends TCGATable with Item {
     }
     case "PIPELINE" => this.pipeline = sortPipeline(insertMethod(this.pipeline, param))
     case "SOURCEURL" => this.sourceUrl = insertMethod(this.sourceUrl, param)
+    case "SOURCEPAGE" => this.sourcePage = insertMethod(this.sourcePage, param)
     case "LOCALURL" => this.localUrl = insertMethod(this.localUrl, param)
     case "FILENAME" => this.fileName = insertMethod(this.fileName, param)
     case _ => noMatching(dest)

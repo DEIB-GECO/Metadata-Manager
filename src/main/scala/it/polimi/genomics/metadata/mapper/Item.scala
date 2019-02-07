@@ -26,6 +26,8 @@ trait Item extends Table{
 
   var sourceUrl : String = _
 
+  var sourcePage : String = _
+
   var localUrl : String = _
 
   var fileName : String = _
@@ -40,19 +42,19 @@ trait Item extends Table{
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName)
+    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.sourcePage,this.localUrl,this.fileName)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName)
+    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.sourcePage,this.localUrl,this.fileName)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.sourcePage,this.localUrl,this.fileName)
     Statistics.itemUpdated += 1
   }
 
@@ -106,7 +108,7 @@ trait Item extends Table{
 //    }
 //  }
 
-  def convertTo(values: Seq[(Int, Int, Int, String, Option[Long], Option[String], Option[String], Option[String], Option[String])]): Unit = {
+ /* def convertTo(values: Seq[(Int, Int, Int, String, Option[Long], Option[String], Option[String], Option[String], Option[String])]): Unit = {
     try {
       this.checkValueLength(values)
       if (values.length > 1)
@@ -117,7 +119,7 @@ trait Item extends Table{
         this.experimentTypeId = value._2
         this.datasetId = value._3
         this.sourceId = value._4
-        if (value._5.isDefined) this.size = value._5.get //TODO add checksum and contentType
+        if (value._5.isDefined) this.size = value._5.get
         if (value._6.isDefined) this.pipeline = value._6.get
         if (value._7.isDefined) this.platform = value._7.get
         if (value._8.isDefined) this.sourceUrl = value._8.get
@@ -126,7 +128,7 @@ trait Item extends Table{
     } catch {
       case notTuple: NoTupleInDatabaseException => logger.error(s"Item: ${notTuple.message}")
     }
-  }
+  }*/
 
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)

@@ -103,10 +103,10 @@
             <source_key>lab</source_key><!-->ok<-->
             <global_key>sourceSite</global_key>
         </mapping>
-        <mapping>
-            <source_key>publication_doi</source_key><!-->ok<-->
+        <!--<mapping>
+            <source_key>publication_doi</source_key>
             <global_key>externalRef</global_key>
-        </mapping>
+        </mapping>-->
     </table>
     <table name="DATASETS">
         <mapping method="PREDEFINED">
@@ -144,10 +144,6 @@
             <global_key>date</global_key>
         </mapping>-->
         <mapping>
-            <source_key>data_url</source_key><!-->ok<-->
-            <global_key>sourceUrl</global_key>
-        </mapping>
-        <mapping>
             <source_key>instrument_model</source_key>
             <global_key>platform</global_key>
         </mapping>
@@ -155,7 +151,14 @@
               <source_key>null</source_key>
               <global_key>pipeline</global_key>
           </mapping>-->
-
+        <mapping>
+            <source_key>data_url</source_key><!-->ok<-->
+            <global_key>sourceUrl</global_key>
+        </mapping>
+        <mapping>
+            <source_key>publication_doi</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
         <mapping method="MANUAL">
             <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
             <global_key>localUrl</global_key>

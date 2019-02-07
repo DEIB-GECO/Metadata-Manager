@@ -141,7 +141,7 @@
         </mapping>
         <mapping method="MANUAL">
             <source_key>http://cistrome.org/db/#/bdown</source_key>
-            <global_key>sourceUrl</global_key>
+            <global_key>sourcePage</global_key>
         </mapping>
         <mapping>
             <source_key>file_name</source_key>

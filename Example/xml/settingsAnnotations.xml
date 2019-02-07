@@ -159,6 +159,10 @@
             <source_key>download_link</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
+        <mapping>
+            <source_key>original_url</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
         <mapping method="MANUAL">
             <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
             <global_key>localUrl</global_key>

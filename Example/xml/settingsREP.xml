@@ -103,10 +103,10 @@
             <source_key>epi__lab</source_key>
             <global_key>sourceSite</global_key>
         </mapping>
-        <mapping method="MANUAL">
+        <!--<mapping method="MANUAL">
             <source_key>https://www.nature.com/articles/nature14248</source_key>
             <global_key>externalRef</global_key>
-        </mapping>
+        </mapping>-->
     </table>
     <table name="DATASETS">
         <mapping method="PREDEFINED">
@@ -153,7 +153,10 @@
             <source_key>manually_curated__data_url</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
-
+        <mapping method="MANUAL">
+            <source_key>https://www.nature.com/articles/nature14248</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
         <mapping method="MANUAL">
             <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
             <global_key>localUrl</global_key>
