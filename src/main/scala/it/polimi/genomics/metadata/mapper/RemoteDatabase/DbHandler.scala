@@ -224,7 +224,7 @@ object DbHandler {
       NATURAL JOIN dataset d
     NATURAL JOIN experiment_type et
     NATURAL JOIN case2item c2i
-    NATURAL JOIN case_study cs
+    JOIN case_study cs on c2i.case_id = cs.case_study_id
     NATURAL JOIN project p
     NATURAL JOIN replicate2item r2i
     NATURAL JOIN replicate r
@@ -1136,7 +1136,7 @@ object DbHandler {
     Table[(Int, Int)](tag, CASEITEM_TABLE_NAME) {
     def itemId = column[Int]("item_id")
 
-    def caseId = column[Int]("case_study_id")
+    def caseId = column[Int]("case_id")
 
     def pk = primaryKey("item_case_id", (itemId, caseId))
 
