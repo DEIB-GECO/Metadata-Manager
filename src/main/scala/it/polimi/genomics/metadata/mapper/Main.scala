@@ -141,7 +141,10 @@ object main {
     val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/Metadata-Manager/master/Example/xml/setting.xsd"
     if (SchemaValidator.validate(pathXML, schemaUrl)) {
       logger.info("Xml file is valid for the schema")
-      DbHandler.setDatabase()
+      DbHandler.setDatabase
+      DbHandler.setDWViews
+      DbHandler.setFlattenMaterialized
+      logger.info("Database has been set")
 
       val t0: Long = System.nanoTime()
       repositoryRef.toUpperCase() match {
@@ -175,13 +178,14 @@ object main {
 
       }
 
+      DbHandler.refreshFlattenMaterialized
+
     }
     else
       logger.info("Xml file is NOT valid for the schema, please check it for next runs")
     DbHandler.closeDatabase()
 
   }
-
 
 
   def analyzeFileEncode(path: String, pathXML: String): Unit = {
@@ -193,7 +197,7 @@ object main {
       var lines = Source.fromFile(path).getLines.toList
       val str: Array[String] = path.split("/")
       val metadata_file_name: String = str.last //with extension for metadata file (.meta)
-      val region_file_name: String = metadata_file_name.replace(".meta","") //with extension for metadata file (.meta)
+      val region_file_name: String = metadata_file_name.replace(".meta", "") //with extension for metadata file (.meta)
       val file_identifier: String = region_file_name.split("\\.").head //without extension
       val file_identifier_with_directory: String = file_identifier + "__" + str(str.size - 3)
       lines = lines ::: List("file_name\t" + region_file_name)
@@ -264,7 +268,7 @@ object main {
 
       val str: Array[String] = path.split("/")
       val metadata_file_name: String = str.last //with extension for metadata file (.meta)
-      val region_file_name: String = metadata_file_name.replace(".meta","") //with extension for metadata file (.meta)
+      val region_file_name: String = metadata_file_name.replace(".meta", "") //with extension for metadata file (.meta)
       val file_identifier: String = region_file_name.split("\\.").head //without extension
       val file_identifier_with_directory: String = file_identifier + "__" + str(str.size - 3)
       old_lines = old_lines ::: List("file_name\t" + region_file_name)
@@ -333,7 +337,7 @@ object main {
       var lines = Source.fromFile(path).getLines.toList
       val str: Array[String] = path.split("/")
       val metadata_file_name: String = str.last //with extension for metadata file (.meta)
-      val region_file_name: String = metadata_file_name.replace(".meta","") //with extension for metadata file (.meta)
+      val region_file_name: String = metadata_file_name.replace(".meta", "") //with extension for metadata file (.meta)
       val file_identifier: String = region_file_name.split("\\.").head //without extension
       val file_identifier_with_directory: String = file_identifier + "__" + str(str.size - 3)
       lines = lines ::: List("file_name\t" + region_file_name)
@@ -529,7 +533,7 @@ object main {
     for (l <- lines) {
       val first = l.split("\t", 2)
       if (first.size == 2) {
-        pairs = pairs ::: List((first(0).replaceAll("__[0-9]+__","__"), first(1)))
+        pairs = pairs ::: List((first(0).replaceAll("__[0-9]+__", "__"), first(1)))
       }
       else {
         logger.warn(s"Malformation in line ${

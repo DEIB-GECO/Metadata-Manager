@@ -34,13 +34,12 @@ object FlattenerStep extends Step {
   val excludeList = List("item_id",
     "experiment_type_id",
     "dataset_id",
-    "case_id", "case_study_id", "project_id",
+    "case_study_id", "project_id",
     "replicate_id", "biosample_id", "donor_id",
-    "tech_replicate_num",
     "technical_replicate_number",
     ".*_tid")
 
-  val columnNamesMap = Map("program_name" -> "source",
+  /*val columnNamesMap = Map("program_name" -> "source",
     "name" -> "dataset_name",
     "format" -> "file_format",
     "is_ann" -> "is_annotation",
@@ -49,6 +48,9 @@ object FlattenerStep extends Step {
     "tech_replicate_num" -> "technical_replicate_number", //no need, it is excluded...
     "temp_column" -> "technical_replicate_number",
     "external_ref" -> "external_reference")
+    */
+
+  val columnNamesMap = Map("temp_column" -> "technical_replicate_number")
 
 
   override def execute(source: Source, parallelExecution: Boolean): Unit = {
@@ -133,18 +135,18 @@ object FlattenerStep extends Step {
 
                   val databaseLinesTuplesTry = Try {
                     val query =
-                      sql"""SELECT *, r.bio_replicate_num || '_' || r.tech_replicate_num as temp_column
+                      sql"""SELECT *, r.biological_replicate_number || '_' || r.technical_replicate_number as temp_column
                           FROM dataset d
                           JOIN item i on d.dataset_id = i.dataset_id
                           LEFT JOIN experiment_type et on i.experiment_type_id = et.experiment_type_id
                           LEFT JOIN case2item c2i on i.item_id = c2i.item_id
-                          LEFT JOIN case_study cs on c2i.case_id = cs.case_study_id
+                          LEFT JOIN case_study cs on c2i.case_study_id = cs.case_study_id
                           LEFT JOIN project p on cs.project_id = p.project_id
                           LEFT JOIN replicate2item r2i on i.item_id = r2i.item_id
                           LEFT JOIN replicate r on r2i.replicate_id = r.replicate_id
                           LEFT JOIN biosample b on r.biosample_id = b.biosample_id
                           LEFT JOIN donor d2 on b.donor_id = d2.donor_id
-                          WHERE d.name = '#${datasetFullName}'
+                          WHERE d.dataset_name = '#${datasetFullName}'
                           AND i.file_name = '#${regionFileName}'""".as(ResultMap)
 
                     val result = DbHandler.database.run(query)

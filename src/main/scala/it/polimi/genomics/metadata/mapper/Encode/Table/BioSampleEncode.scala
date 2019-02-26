@@ -17,7 +17,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   var tissueArray: Array[String] = new Array[String](quantity)
 
-  var cellLineArray: Array[String] = new Array[String](quantity)
+  var cellArray: Array[String] = new Array[String](quantity)
 
   var isHealthyArray: Array[Option[Boolean]] = new Array[Option[Boolean]](quantity)
 
@@ -37,7 +37,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   var tissueInsertPosition: Int = 0
 
-  var cellLineInsertPosition: Int = 0
+  var cellInsertPosition: Int = 0
 
   var isHealthyInsertPosition: Int = 0
 
@@ -63,14 +63,14 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
         }
         this.tissueInsertPosition = resetPosition(this.tissueInsertPosition, quantity)
       }
-      case "CELLLINE" => {
+      case "CELL" => {
         if (conf.getBoolean("import.rules.type")) {
-          this.cellLineArray(cellLineInsertPosition) = if (typesArray(cellLineInsertPosition).contains("cell")) insertMethod(this.cellLineArray(cellLineInsertPosition), param) else null
+          this.cellArray(cellInsertPosition) = if (typesArray(cellInsertPosition).contains("cell")) insertMethod(this.cellArray(cellInsertPosition), param) else null
         }
         else {
-          this.cellLineArray(cellLineInsertPosition) = insertMethod(this.cellLineArray(cellLineInsertPosition), param)
+          this.cellArray(cellInsertPosition) = insertMethod(this.cellArray(cellInsertPosition), param)
         }
-        this.cellLineInsertPosition = resetPosition(this.cellLineInsertPosition, quantity)
+        this.cellInsertPosition = resetPosition(this.cellInsertPosition, quantity)
       }
       case "ISHEALTHY" => {
         if (param.toLowerCase.startsWith("healthy") ||
@@ -117,8 +117,8 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
       case "TISSUE" => {
         this.tissueInsertPosition = resetPosition(tissueInsertPosition, quantity)
       }
-      case "CELLLINE" => {
-        this.cellLineInsertPosition = resetPosition(cellLineInsertPosition, quantity)
+      case "CELL" => {
+        this.cellInsertPosition = resetPosition(cellInsertPosition, quantity)
       }
       case "ISHEALTHY" => {
         this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
@@ -172,7 +172,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
               this.logger.warn(s"Biosample tissue constraints violated ${_filePath}")
               res = false
             }
-            else if (bioSamples.typesArray(position).contains("cell") && this.cellLineArray(position) == null) {
+            else if (bioSamples.typesArray(position).contains("cell") && this.cellArray(position) == null) {
               Statistics.constraintsViolated += 1
               this.logger.warn("Biosample cellLine constraints violated")
               res = false
@@ -198,7 +198,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellLineArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
+    val id = dbHandler.insertBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
    // if (conf.getBoolean("import.support_table_insert"))
      // insertOrUpdateOntologicTuple(id)
     /* if(this.cellLineArray(actualPosition) != null && conf.getBoolean("import.support_table_insert"))
@@ -211,7 +211,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
   // override def insert(states: collection.mutable.Map[String, String]): Int = ???
 
   override def update(): Int = {
-    val id = dbHandler.updateBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellLineArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
+    val id = dbHandler.updateBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
    // if (conf.getBoolean("import.support_table_insert"))
     //  insertOrUpdateOntologicTuple(id)
     id
@@ -234,17 +234,18 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
     true
   }
 
-  override def writeInFile(path: String, biologicalReplicateNum: String = ""): Unit = {
+ /* override def writeInFile(path: String, biologicalReplicateNum: String = ""): Unit = {
     val write = getWriter(path)
     val tableName = "biosample"
     write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "biosample_source_id"))
     if (this.types != null) write.append(getMessageMultipleAttribute(this.types, tableName, biologicalReplicateNum, "type"))
     if (this.tissue != null) write.append(getMessageMultipleAttribute(this.tissue, tableName, biologicalReplicateNum, "tissue"))
-    if (this.cellLine != null) write.append(getMessageMultipleAttribute(this.cellLine, tableName, biologicalReplicateNum, "cell_line"))
+    if (this.cell != null) write.append(getMessageMultipleAttribute(this.cell, tableName, biologicalReplicateNum, "cell_line"))
     write.append(getMessageMultipleAttribute(this.isHealthy, tableName, biologicalReplicateNum, "is_healthy"))
     if (this.disease != null) write.append(getMessageMultipleAttribute(this.disease, tableName, biologicalReplicateNum, "disease"))
     flushAndClose(write)
   }
+  */
 
   /*def insertOrUpdateOntologicTuple(id: Int): Unit = {
     if (this.cellLineArray(actualPosition) != null)

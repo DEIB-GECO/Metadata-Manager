@@ -15,7 +15,7 @@
         </mapping>
         <!--<mapping method="MANUAL">
             <source_key>null</source_key>
-            <global_key>cellLine</global_key>
+            <global_key>cell</global_key>
         </mapping>-->
         <mapping>
             <source_key>manually_curated__tissue_status</source_key><!-->ok<-->

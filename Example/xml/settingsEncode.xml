@@ -50,16 +50,16 @@
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>biosample__X__type</source_key>
+            <source_key>biosample__X__ontology__classification</source_key>
             <global_key>types</global_key>
         </mapping>
         <mapping>
-            <source_key>biosample__X__term_name</source_key>
+            <source_key>biosample__X__ontology__term_name</source_key>
             <global_key>tissue</global_key>
         </mapping>
         <mapping>
-            <source_key>biosample__X__term_name</source_key>
-            <global_key>cellLine</global_key>
+            <source_key>biosample__X__ontology__term_name</source_key>
+            <global_key>cell</global_key>
         </mapping>
         <mapping>
             <source_key>biosample__X__health_status</source_key>

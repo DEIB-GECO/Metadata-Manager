@@ -12,7 +12,7 @@ trait BioSample extends Table{
 
   var tissue: String = _
 
-  var cellLine: String = _
+  var cell: String = _
 
   var isHealthy: Option[Boolean] = _
 
@@ -27,15 +27,15 @@ trait BioSample extends Table{
   _dependenciesTables = List("BIOSAMPLES")
 
   override def insert(): Int ={
-    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine, this.isHealthy,this.disease)
+    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tissue,this.cell, this.isHealthy,this.disease)
   }
 
   override def update(): Int = {
-    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cellLine, this.isHealthy,this.disease)
+    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cell, this.isHealthy,this.disease)
   }
 
   override def updateById(): Unit = {
-    dbHandler.updateBioSampleById(this.primaryKey, donorId,this.sourceId,this.types,this.tissue,this.cellLine,this.isHealthy,this.disease)
+    dbHandler.updateBioSampleById(this.primaryKey, donorId,this.sourceId,this.types,this.tissue,this.cell,this.isHealthy,this.disease)
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -95,7 +95,7 @@ trait BioSample extends Table{
       this.sourceId = value._2
       if(value._3.isDefined) this.types = value._3.get
       if(value._4.isDefined) this.tissue = value._4.get
-      if(value._5.isDefined) this.cellLine = value._5.get
+      if(value._5.isDefined) this.cell = value._5.get
       if(value._6.isDefined) this.isHealthy = Option(value._6.get) //check if correct putting Option around value._6.get
       if(value._7.isDefined) this.disease = Option(value._7.get)
     }
@@ -107,7 +107,7 @@ trait BioSample extends Table{
     write.append(getMessage(tableName, "biosample_source_id", this.sourceId))
     if(this.types != null) write.append(getMessage(tableName, "type", this.types))
     if(this.tissue != null) write.append(getMessage(tableName, "tissue", this.tissue))
-    if(this.cellLine != null) write.append(getMessage(tableName, "cell_line", this.cellLine))
+    if(this.cell != null) write.append(getMessage(tableName, "cell", this.cell))
     write.append(getMessage(tableName, "is_healthy", this.isHealthy))
     if(this.disease != null) write.append(getMessage(tableName, "disease", this.disease))
     flushAndClose(write)

@@ -17,14 +17,14 @@ class BioSampleTCGA extends TCGATable with BioSample {
           this.tissue = insertMethod(this.tissue, param)
         }
       }
-      case "CELLLINE" => {
+      case "CELL" => {
         if (conf.getBoolean("import.rules.type")) {
           if (this.types!=null && !this.types.equals("tissue"))
-            this.cellLine = insertMethod(this.cellLine, param)
+            this.cell = insertMethod(this.cell, param)
           else
-            this.cellLine = null
+            this.cell = null
         } else {
-          this.cellLine = insertMethod(this.cellLine, param)
+          this.cell = insertMethod(this.cell, param)
         }
       }
       case "ISHEALTHY" => {

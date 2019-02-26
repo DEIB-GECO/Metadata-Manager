@@ -43,7 +43,7 @@ trait Case extends Table{
     if(this.sourceId != null) true else false
   }
 
-  def convertTo(values: Seq[(Int, String, Option[String], Option[String])]): Unit = {
+ /* def convertTo(values: Seq[(Int, String, Option[String], Option[String])]): Unit = {
     if (values.length > 1)
       logger.error(s"Too many value: ${values.length}")
     else {
@@ -53,8 +53,9 @@ trait Case extends Table{
       if (value._3.isDefined) this.sourceSite = value._3.get
       if (value._4.isDefined) this.externalRef = value._4.get
     }
-  }
+  }*/
 
+  /*
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "case_study"
@@ -63,5 +64,6 @@ trait Case extends Table{
     if(this.externalRef != null) write.append(getMessage(tableName, "external_ref", this.externalRef))
     flushAndClose(write)
   }
+  */
 
 }

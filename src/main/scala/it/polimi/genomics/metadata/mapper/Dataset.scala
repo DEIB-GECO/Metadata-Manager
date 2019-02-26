@@ -79,7 +79,7 @@ trait Dataset extends Table{
     }
   }
 
-  def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Option[Boolean])]): Unit = {
+/*  def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Option[Boolean])]): Unit = {
     if(values.length > 1)
       logger.error(s"Too many values: ${values.length}")
     else {
@@ -91,9 +91,9 @@ trait Dataset extends Table{
       if(value._5.isDefined) this.assembly = value._5.get
       if(value._6.isDefined) this.isAnn = value._6.get
     }
-  }
+  }*/
 
-  def writeInFile(path: String): Unit = {
+ /* def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "dataset"
     write.append(getMessage(tableName, "name", this.name))
@@ -102,5 +102,5 @@ trait Dataset extends Table{
     if(this.assembly != null) write.append(getMessage(tableName, "assembly", this.assembly))
     write.append(getMessage(tableName, "is_ann", this.isAnn))
     flushAndClose(write)
-  }
+  }*/
 }

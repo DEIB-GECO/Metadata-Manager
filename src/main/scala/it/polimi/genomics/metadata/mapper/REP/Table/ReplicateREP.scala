@@ -96,7 +96,7 @@ class ReplicateREP(repTableId: REPTableId) extends REPTable(repTableId) with Rep
     true
   }
 
-  override def convertTo(values: Seq[(Int, String, Option[Int], Option[Int])]): Unit = {
+ /* override def convertTo(values: Seq[(Int, String, Option[Int], Option[Int])]): Unit = {
       values.foreach(value => {
         this.bioSampleIdList += value._1
         this.sourceIdList += value._2
@@ -104,8 +104,9 @@ class ReplicateREP(repTableId: REPTableId) extends REPTable(repTableId) with Rep
         if(value._4.isDefined) this.techReplicateNumList += value._4.get
       })
   }
+  */
 
-  override def writeInFile(path: String): Unit = {
+ /* override def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "replicate"
     this.sourceIdList.map(source=>{
@@ -116,7 +117,7 @@ class ReplicateREP(repTableId: REPTableId) extends REPTable(repTableId) with Rep
       if(this.techReplicateNumList(this.actualPosition) != 0) write.append(getMessageMultipleAttribute(this.techReplicateNumList(this.actualPosition), tableName, tempBioReplicate, "tech_replicate_num"))
     })
     flushAndClose(write)
-  }
+  }*/
 
   override def getReplicateIdList(): List[Int] = { bioSampleIdList.toList }
 

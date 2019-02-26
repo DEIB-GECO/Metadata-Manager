@@ -37,7 +37,7 @@
          </mapping>
         <mapping>
               <source_key>cell_line</source_key>
-              <global_key>cellLine</global_key>
+              <global_key>cell</global_key>
           </mapping>
         <mapping>
               <source_key>disease</source_key>

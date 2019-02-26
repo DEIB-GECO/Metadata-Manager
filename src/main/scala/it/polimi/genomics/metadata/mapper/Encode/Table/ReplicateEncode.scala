@@ -95,7 +95,7 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
     true
   }
 
-  override def convertTo(values: Seq[(Int, String, Option[Int], Option[Int])]): Unit = {
+ /* override def convertTo(values: Seq[(Int, String, Option[Int], Option[Int])]): Unit = {
       values.foreach(value => {
         this.bioSampleIdList += value._1
         this.sourceIdList += value._2
@@ -103,7 +103,9 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
         if(value._4.isDefined) this.techReplicateNumList += value._4.get
       })
   }
+  */
 
+  /*
   override def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "replicate"
@@ -116,6 +118,7 @@ class ReplicateEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTa
     })
     flushAndClose(write)
   }
+  */
 
   override def getReplicateIdList(): List[Int] = { bioSampleIdList.toList }
 

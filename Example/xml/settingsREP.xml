@@ -33,7 +33,7 @@
         </mapping>
         <mapping>
             <source_key>epi__standardized_epigenome_name</source_key>
-            <global_key>cellLine</global_key>
+            <global_key>cell</global_key>
         </mapping>
         <mapping method="SUB" sub_character="_" new_character=" ">
             <source_key>epi__anatomy</source_key>
