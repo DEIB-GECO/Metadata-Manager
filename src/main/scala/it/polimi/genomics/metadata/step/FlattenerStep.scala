@@ -232,7 +232,7 @@ object FlattenerStep extends Step {
       logger.info(modifiedRegionFilesSource + " region data files modified in source: " + source.name)
       logger.info(modifiedMetadataFilesSource + " metadata files modified in source: " + source.name)
       logger.info(wrongSchemaFilesSource + " region data files do not respect the schema in source: " + source.name)
-      logger.info(s"Source ${source.name} transformation finished")
+      logger.info(s"Source ${source.name} flattening finished")
     }
   }
 

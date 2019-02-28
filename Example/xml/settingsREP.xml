@@ -2,6 +2,10 @@
 <root>
     <table name="DONORS">
         <mapping>
+            <source_key>epi__epigenome_id</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="__">
             <source_key>epi__donor_id__X</source_key>
             <global_key>sourceId</global_key>
         </mapping>
@@ -24,6 +28,10 @@
     </table>
     <table name="BIOSAMPLES">
         <mapping>
+            <source_key>epi__epigenome_id</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="__">
             <source_key>epi__sample_alias__X</source_key>
             <global_key>sourceId</global_key>
         </mapping>
