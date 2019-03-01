@@ -11,21 +11,37 @@ class BioSampleTCGA extends TCGATable with BioSample {
       case "SOURCEID" => this.sourceId = insertMethod(this.sourceId, param)
       case "TYPES" => this.types = insertMethod(this.types, param)
       case "TISSUE" => {
-        if (conf.getBoolean("import.rules.type")) {
-          this.tissue = if (this.types.equals("tissue")) insertMethod(this.tissue, param) else null
+        /*if (conf.getBoolean("import.rules.type")) {
+          if (this.types != null && this.types.equals("tissue") && !param.equalsIgnoreCase("none"))
+            this.tissue = insertMethod(this.tissue, param)
+          else
+            this.tissue = null
         } else {
           this.tissue = insertMethod(this.tissue, param)
-        }
+        }*/
+
+
+          if (!param.equalsIgnoreCase("none"))
+            this.tissue = insertMethod(this.tissue, param)
+          else
+            this.tissue = null
+
+
       }
       case "CELL" => {
-        if (conf.getBoolean("import.rules.type")) {
-          if (this.types!=null && !this.types.equals("tissue"))
+       /* if (conf.getBoolean("import.rules.type")) {
+          if (this.types != null && !this.types.equals("tissue") && !param.equalsIgnoreCase("none"))
             this.cell = insertMethod(this.cell, param)
           else
             this.cell = null
         } else {
           this.cell = insertMethod(this.cell, param)
-        }
+        }*/
+
+        if (!param.equalsIgnoreCase("none"))
+          this.cell = insertMethod(this.cell, param)
+        else
+          this.cell = null
       }
       case "ISHEALTHY" => {
         if (param.toUpperCase == "NORMAL" || param.toUpperCase == "HEALTHY")

@@ -445,6 +445,23 @@ object main {
   def enrichLinesREP(lines: Array[String], bioSampleList: REP.Utils.BioSampleList, path: String): Array[String] = {
     val bioNumbers = 1 to bioSampleList.BiosampleList.length toList
     var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
+    //RETRIEVE EPIGENOME NAME
+    var epigenome_prefix = "Edef__"
+
+    for (l <- linesFromSet.toList) {
+      val pair = l.split("\t", 2)
+      if (pair.length == 2) {
+
+        if (pair(0).contains("epi__epigenome_id")) {
+          epigenome_prefix = pair(1) + "__"
+        }
+      }
+      else {
+        logger.warn(s"Malformation in line ${pair(0)}. Not able to retrieve epigenome name")
+        Statistics.malformedInput += 1
+      }
+    }
+
     for (l <- linesFromSet.toList) {
       val pair = l.split("\t", 2)
       if (pair.length == 2) {
@@ -453,10 +470,16 @@ object main {
           linesFromSet -= l
           logger.warn(s"Ignoring unknown age_weeks for roadmap epigenomics")
         }
+        if (pair(0).startsWith("epi__donor_id__") || pair(0).startsWith("epi__sample_alias__")) {
+          linesFromSet -= l
+          for (b <- bioNumbers) {
+            linesFromSet += pair(0) + "\t" + epigenome_prefix + pair(1) //added prefix epigenome
+          }
+        }
         if (pair(0) == "epi__donor_id") {
           linesFromSet -= l
           for (b <- bioNumbers) {
-            linesFromSet += "epi__donor_id__" + b + "\t" + pair(1)
+            linesFromSet += "epi__donor_id__" + b + "\t" + epigenome_prefix + pair(1) //added prefix epigenome
           }
         }
         if (pair(0) == "epi__age_weeks") {
@@ -474,7 +497,7 @@ object main {
         if (pair(0) == "epi__sample_alias") {
           linesFromSet -= l
           for (b <- bioNumbers) {
-            linesFromSet += "epi__sample_alias__" + b + "\t" + pair(1)
+            linesFromSet += "epi__sample_alias__" + b + "\t" + epigenome_prefix + pair(1)
           }
         }
       }
