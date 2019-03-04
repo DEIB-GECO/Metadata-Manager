@@ -18,7 +18,7 @@ object Step {
   def getLevelExecutable(key: ExecutionLevel): Step = key match {
     case Transform => TransformerStep
     case Clean => CleanerStep
-    //    case Map => Mapper
+    case Map => MapperStep
     //    case Enrich => enricherEnabled
     case Flatten => FlattenerStep
     case _ => new Step {

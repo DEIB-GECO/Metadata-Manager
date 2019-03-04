@@ -298,6 +298,8 @@ object Program extends App {
             executeLevel(sources, Transform, parallelExecution)
           if (cleanerEnabled)
             executeLevel(sources, Clean, parallelExecution)
+          if (mapperEnabled)
+            executeLevel(sources, Map, parallelExecution)
           if (flattenerEnabled)
             executeLevel(sources, Flatten, parallelExecution)
 
