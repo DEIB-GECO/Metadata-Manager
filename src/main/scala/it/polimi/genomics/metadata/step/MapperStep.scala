@@ -4,7 +4,6 @@ import java.io._
 
 import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.metadata.Program.getTotalTimeFormatted
-import it.polimi.genomics.metadata.database.FileDatabase
 import it.polimi.genomics.metadata.step.utils.{DirectoryNamingUtil, ParameterUtil, SchemaValidator}
 import it.polimi.genomics.metadata.mapper.{Predefined, REP, Table}
 import it.polimi.genomics.metadata.mapper.Encode.{EncodeTableId, EncodeTables}
@@ -56,7 +55,7 @@ object MapperStep extends Step {
     if (source.mapperEnabled) {
 
       logger.info("Starting mapper for: " + source.outputFolder)
-      val sourceId = FileDatabase.sourceId(source.name)
+
 
       //counters
       var modifiedRegionFilesSource = 0
@@ -70,7 +69,6 @@ object MapperStep extends Step {
             val source_name = source.name
             //arg2
             val mappingsDefinition = ParameterUtil.getParameter(dataset, "mappings").get
-
 
             if (true) {
 
@@ -88,37 +86,10 @@ object MapperStep extends Step {
                 throw new Exception("No input folder: " + cleanerFolder)
               }
 
-
               logger.info("Starting mapper for: " + dataset.name)
 
-              val fileList = inputFolder.listFiles.filter(_.isFile).toList
 
-
-              val datasetFileName = datasetInputFolder + File.separator + "dataset_name.txt"
-              val datasetFullName = scala.io.Source.fromFile(datasetFileName).mkString.trim
-
-
-              fileList.foreach { file =>
-                val fileName = file.getName
-
-                val fullInputPath = cleanerFolder + File.separator + fileName
-
-                if (fileName.endsWith(".meta")) {
-                  val fileNameFirstPart = fileName.split("\\.").head
-                  val regionFileName = fileName.replace(".meta", "")
-
-                  //arg 1 rep
-                  // arg 2 / Users / abernasconi / Documents / gitProjects / GMQL -Importer / Example / examples_meta / rep
-                  // arg 3 / Users / abernasconi / Documents / gitProjects / GMQL -Importer / Example / xml / settingsREP.xml
-
-
-                  importMode(source_name, datasetInputFolder, mappingsDefinition)
-
-
-                }
-
-              }
-
+              importMode(source_name, datasetInputFolder, mappingsDefinition)
 
             }
           }
@@ -133,7 +104,6 @@ object MapperStep extends Step {
           //thread.run()
           thread.start()
           thread.join()
-          thread.stop()
         }
       }
       logger.info(s"Source ${source.name} mapping finished")
