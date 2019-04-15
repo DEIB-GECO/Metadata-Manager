@@ -21,7 +21,7 @@ class BioSampleTCGA extends TCGATable with BioSample {
         }*/
 
 
-          if (!param.equalsIgnoreCase("none"))
+          if (!param.equalsIgnoreCase("none") && !param.equalsIgnoreCase("unknown primary site"))
             this.tissue = insertMethod(this.tissue, param)
           else
             this.tissue = null

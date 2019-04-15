@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<root xmlns="http://polimi.it/GDMImporter"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+    <settings>
+        <!--BASE WORKING FOLDER FOR THE IMPORTER-->
+        <base_working_directory>/home/hduser/gmql_importer/</base_working_directory>
+        <gcm_config_file>/home/hduser/GMQL-sources/Metadata-Manager/src/main/resources/application.conf</gcm_config_file>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
+        <database_connection_user>xxx</database_connection_user>
+        <database_connection_pw>yyy</database_connection_pw>
+        <database_connection_driver>org.postgresql.Driver</database_connection_driver>
+        <flattener_rule_base>/home/hduser/GMQL-sources/Metadata-Manager/Example/flattener_rule_base.txt</flattener_rule_base>
+        <download_enabled>false</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>true</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>false</flattener_enabled>
+        <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
+    </settings>
+    <source_list>
+        <source name="ENCODE">
+            <url>https://www.encodeproject.org/</url>
+            <source_working_directory>ENCODE</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
+            <load_enabled>true</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>to know which user in gmql is going to be imported</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>| is the default but anyway we put it to know possibilities</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+                <parameter>
+                    <description>for downloading the .tsv from encode we need to add this at the end of the url
+                    </description>
+                    <key>metadata_prefix</key>
+                    <value>metadata/</value>
+                </parameter>
+                <parameter>
+                    <description>after all the filters is needed this suffix to download de .tsv</description>
+                    <key>metadata_suffix</key>
+                    <value>/metadata.tsv</value>
+                </parameter>
+                <parameter>
+                    <description>as we download the json for the experiment, here is specified</description>
+                    <key>json_prefix</key>
+                    <value>experiments/</value>
+                </parameter>
+                <parameter>
+                    <description>we specified frame embedded and format json in encode for importing metadata
+                    </description>
+                    <key>json_suffix</key>
+                    <value>/?format=json</value>
+                </parameter>
+                <parameter>
+                    <description>Found this field to be not useful and too many fields</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^contributing_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>also creates a huge mess to include this metadata and is not useful</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^original_files.*$</value>
+                </parameter>
+                <!--<parameter>-->
+                <!--<description>not useful</description>-->
+                <!--<key>encode_metadata_exclusion</key>-->
+                <!--<value>^.*analysis_step_version.*$</value>-->
+                <!--</parameter>-->
+                <parameter>
+                    <description>not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*derived_from.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*revoked_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^assembly$</value>
+                </parameter>
+                <!--<parameter>-->
+                <!--<description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>-->
+                <!--<key>metadata_replacement</key>-->
+                <!--<value>xml/metadataReplacement.xml</value>-->
+                <!--</parameter>-->
+                <parameter>
+                    <description>metadata extraction method tsv or json.</description>
+                    <key>metadata_extraction</key>
+                    <value>json</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit WARNING</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit INTERNAL_ACTION</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit NOT_COMPLIANT</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit ERROR</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude GRCh38 references</description>
+                    <type>exclusion</type>
+                    <key>Assembly</key>
+                    <value>hg19</value>
+                </parameter>
+                <!--<parameter>-->
+                    <!--<description>to exclude</description>-->
+                    <!--<type>exclusion</type>-->
+                    <!--<key>Biological replicate(s)</key>-->
+                    <!--<value></value>-->
+                <!--</parameter>-->
+                <parameter>
+                    <description>Cleaner definition rule base file</description>
+                    <key>rule_base</key>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta/ENCODE_rules.txt</value>
+                </parameter>
+                <parameter>
+                    <description>Mappings</description>
+                    <key>mappings</key>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsEncode.xml</value>
+                </parameter>
+
+            </parameter_list>
+            <dataset_list>
+                <dataset name="exampleNarrowPeak">
+                    <dataset_working_directory>ExampleNARROWPEAK</dataset_working_directory>
+                    <schema_url location="local">schemas/narrowPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_ENCODE_BROAD_NOV_2027</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>HG19_ENCODE_BROAD_NOV_2017 contains ENCODE data mapped to HG19 human genome.&lt;br&gt;
+                                In this case Broad (or Regions) Peaks format is selected and archived/revoked data are
+                                avoided.&lt;br&gt;
+                                &lt;b&gt;bold&lt;/b&gt; &lt;br&gt;
+                                The release date of this dataset is November 2017 https://www.encodeproject.org/.&lt;br&gt;
+
+                                &lt;ol&gt;
+                                &lt;li&gt;first element&lt;/li&gt;
+                                &lt;li&gt;second element&lt;/li&gt;
+                                &lt;/ol&gt;
+
+
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+narrowPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
+                            <key>accession</key>
+                            <!--<value>ENCFF001SSQ</value>-->
+                            <!--<value>ENCSR000EOT</value>-->
+                            <value>ENCSR635OSG</value>
+                        </parameter>
+
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+    </source_list>
+</root>

@@ -19,9 +19,29 @@
                     <xs:documentation>Paths inside the configuration xml are relative to this path.</xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element type="xs:string" name="database_connection_url">
+                <xs:annotation>
+                    <xs:documentation>database_connection_url</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="database_connection_user">
+                <xs:annotation>
+                    <xs:documentation>database_connection_user</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="database_connection_pw">
+                <xs:annotation>
+                    <xs:documentation>database_connection_pw</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="database_connection_driver">
+                <xs:annotation>
+                    <xs:documentation>database_connection_driver</xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element type="xs:string" name="gcm_config_file">
                 <xs:annotation>
-                    <xs:documentation>Gcm database configuration</xs:documentation>
+                    <xs:documentation>GCM configuration file path</xs:documentation>
                 </xs:annotation>
             </xs:element>
             <xs:element type="xs:string" name="flattener_rule_base">

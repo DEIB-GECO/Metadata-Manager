@@ -211,6 +211,11 @@ object Program extends App {
         logger.info("Xml file is valid for the schema")
         val file: Elem = XML.loadFile(xmlConfigPath)
         val outputFolder = (file \\ "settings" \ "base_working_directory").text
+        ParameterUtil.gcmConfigFile = (file \\ "settings" \ "gcm_config_file").text
+        ParameterUtil.dbConnectionUrl = (file \\ "settings" \ "database_connection_url").text
+        ParameterUtil.dbConnectionUser = (file \\ "settings" \ "database_connection_user").text
+        ParameterUtil.dbConnectionPw = (file \\ "settings" \ "database_connection_pw").text
+        ParameterUtil.dbConnectionDriver = (file \\ "settings" \ "database_connection_driver").text
 
         val downloadEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "download_enabled").text)) true else false

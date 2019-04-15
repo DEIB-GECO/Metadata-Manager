@@ -1,17 +1,12 @@
 package it.polimi.genomics.metadata.mapper.RemoteDatabase
 
-import java.util
-
-import collection.JavaConverters._
 import com.typesafe.config.ConfigFactory
-import org.openqa.selenium.{By, WebElement}
-import org.openqa.selenium.htmlunit.HtmlUnitDriver
+import it.polimi.genomics.metadata.step.utils.ParameterUtil
 import org.slf4j.{Logger, LoggerFactory}
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.meta.MTable
 import slick.lifted.Tag
 
-import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
@@ -32,8 +27,6 @@ object DbHandler {
   private val DERIVEDFROM_TABLE_NAME = "derived_from"
   private val CASEITEM_TABLE_NAME = "case2item"
   private val REPLICATEITEM_TABLE_NAME = "replicate2item"
-  //private val CASE_TCGA_MAPPING = "case_tcga_mapping"
-  //private val ONTOLOGY_TABLE = "ontology_table"
   private val PAIR_TABLE_NAME = "pair"
   private val FLATTEN_VIEW_NAME = "flatten"
 
@@ -41,10 +34,10 @@ object DbHandler {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val database = Database.forURL(
-    conf.getString("database.url"),
-    conf.getString("database.username"),
-    conf.getString("database.password"),
-    driver = conf.getString("database.driver")
+    ParameterUtil.dbConnectionUrl,
+    ParameterUtil.dbConnectionUser,
+    ParameterUtil.dbConnectionPw,
+    driver = ParameterUtil.dbConnectionDriver
   )
 
   def setDatabase(): Unit = {
@@ -141,13 +134,7 @@ object DbHandler {
       logger.info("Table " + DERIVEDFROM_TABLE_NAME + " created")
     }
 
-    /* if (!tables.exists(_.name.name == ONTOLOGY_TABLE)) {
-       val queries = DBIO.seq(ontologyTable.schema.create)
-       val setup = database.run(queries)
-       Await.result(setup, Duration.Inf)
-       logger.info("Table ONTOLOGY created")
-     }*/
-
+    //pair
     if (!tables.exists(_.name.name == PAIR_TABLE_NAME)) {
       val queries = DBIO.seq(pairs.schema.create)
       val setup = database.run(queries)
@@ -585,7 +572,7 @@ object DbHandler {
   def insertItem(experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, date: String, checksum: String,
                  contentType: String, platform: String, pipeline: String, sourceUrl: String,
                  localUrl: String, fileName: String, sourcePage: String): Int = {
-    val idQuery = (items returning items.map(_.itemId)) += ItemsXXX(None, experimentTypeId, datasetId, sourceId,
+    val idQuery = (items returning items.map(_.itemId)) += (None, experimentTypeId, datasetId, sourceId,
       this.toOption[Long](size), Option(date), Option(checksum), Option(contentType), None, Option(platform), None,
       Option(pipeline), Option(sourceUrl), Option(localUrl), Option(fileName), Option(sourcePage))
     val executionId = database.run(idQuery)
@@ -1179,13 +1166,12 @@ object DbHandler {
 
   val datasets = TableQuery[Datasets]
 
-  case class ItemsXXX(itemId: Option[Int], experimentTypeId: Int, datasetId: Int, sourceId: String, size: Option[Long],
-                      date: Option[String], checksum: Option[String], contentType: Option[String], contentTypeTid: Option[Int],
-                      platform: Option[String], platformTid: Option[Int], pipeline: Option[String], sourceUrl: Option[String],
-                      localUrl: Option[String], fileName: Option[String], sourcePage: Option[String])
 
   class Items(tag: Tag) extends
-    Table[ItemsXXX](tag, ITEM_TABLE_NAME) {
+    Table[(Option[Int], Int, Int, String, Option[Long], Option[String], Option[String], Option[String], Option[Int],
+      Option[String], Option[Int], Option[String], Option[String], Option[String], Option[String],
+      Option[String])](tag, ITEM_TABLE_NAME) {
+
     def itemId = column[Int]("item_id", O.PrimaryKey, O.AutoInc)
 
     def experimentTypeId = column[Int]("experiment_type_id")
@@ -1231,7 +1217,7 @@ object DbHandler {
     )
 
     def * = (itemId.?, experimentTypeId, datasetId, sourceId, size, date, checksum, contentType, contentTypeTid,
-      platform, platformTid, pipeline, sourceUrl, localUrl, fileName, sourcePage) <> (ItemsXXX.tupled, ItemsXXX.unapply)
+      platform, platformTid, pipeline, sourceUrl, localUrl, fileName, sourcePage)
   }
 
   val items = TableQuery[Items]
@@ -1313,41 +1299,6 @@ object DbHandler {
   }
 
   val derivedFrom = TableQuery[DerivedFrom]
-
-  /*  class CaseTCGAMapping(tag: Tag) extends
-      Table[(String, String)](tag, CASE_TCGA_MAPPING) {
-
-      def code = column[String]("tss_code", O.PrimaryKey)
-
-      def sourceSite = column[String]("source_site")
-
-      def * = (code, sourceSite)
-    }
-
-    val caseTcgaMapping = TableQuery[CaseTCGAMapping]
-  */
-
-  /*class OntologyTable(tag: Tag) extends
-    Table[(Int, String, String, String, String, Option[String])](tag, ONTOLOGY_TABLE) {
-    def tableId = column[Int]("table_id")
-
-    def tableNames = column[String]("table_name")
-
-    def tableColumn = column[String]("table_column")
-
-    def originalKey = column[String]("original_key")
-
-    def originalValue = column[String]("original_value")
-
-    def ontologicalCode = column[Option[String]]("ontological_code", O.Default(None))
-
-    def pk = ("table_id_table_name_table_column", (tableId, tableNames, tableColumn))
-
-    def * = (tableId, tableNames, tableColumn, originalKey, originalValue, ontologicalCode)
-  }
-
-  val ontologyTable = TableQuery[OntologyTable]
-  */
 
 
   class PairTable(tag: Tag) extends
