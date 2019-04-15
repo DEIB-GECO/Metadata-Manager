@@ -212,6 +212,7 @@ object Program extends App {
         val file: Elem = XML.loadFile(xmlConfigPath)
         val outputFolder = (file \\ "settings" \ "base_working_directory").text
         ParameterUtil.gcmConfigFile = (file \\ "settings" \ "gcm_config_file").text
+        ParameterUtil.mapperSource = (file \\ "settings" \ "mapper_source").text
         ParameterUtil.dbConnectionUrl = (file \\ "settings" \ "database_connection_url").text
         ParameterUtil.dbConnectionUser = (file \\ "settings" \ "database_connection_user").text
         ParameterUtil.dbConnectionPw = (file \\ "settings" \ "database_connection_pw").text
@@ -430,7 +431,7 @@ object Program extends App {
         }
 
         def go(): Unit = {          val t0Source = System.nanoTime()
-          logger.info(s"Starting $level for ${source.name}")
+          logger.info(s"Starting $level for source: ${source.name}")
           Step.getLevelExecutable(level).execute(source, parallelExecution)
           logger.info(s"$level for ${source.name} Finished")
           val t1Source = System.nanoTime()

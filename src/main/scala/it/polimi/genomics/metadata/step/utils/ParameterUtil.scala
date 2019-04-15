@@ -5,6 +5,7 @@ import it.polimi.genomics.metadata.step.xml.Dataset
 object ParameterUtil {
 
   var gcmConfigFile = ""
+  var mapperSource = ""
   var dbConnectionUrl = ""
   var dbConnectionUser = ""
   var dbConnectionPw = ""

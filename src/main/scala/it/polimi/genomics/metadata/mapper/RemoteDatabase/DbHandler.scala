@@ -40,6 +40,8 @@ object DbHandler {
     driver = ParameterUtil.dbConnectionDriver
   )
 
+  logger.info("Set connection to database: " + ParameterUtil.dbConnectionUrl, ", user: " + ParameterUtil.dbConnectionUser)
+
   def setDatabase(): Unit = {
 
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList

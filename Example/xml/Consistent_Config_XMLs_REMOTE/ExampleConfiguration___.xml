@@ -6,6 +6,7 @@
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/home/hduser/gmql_importer/</base_working_directory>
         <gcm_config_file>/home/hduser/GMQL-sources/Metadata-Manager/src/main/resources/application.conf</gcm_config_file>
+        <mapper_source>ENCODE</mapper_source>
         <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
         <database_connection_user>xxx</database_connection_user>
         <database_connection_pw>yyy</database_connection_pw>

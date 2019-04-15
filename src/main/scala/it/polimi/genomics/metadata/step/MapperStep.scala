@@ -54,7 +54,7 @@ object MapperStep extends Step {
   override def execute(source: Source, parallelExecution: Boolean): Unit = {
     if (source.mapperEnabled) {
 
-      logger.info("Starting mapper for: " + source.outputFolder)
+      logger.info("Starting mapper for on folder: " + source.outputFolder)
 
 
       //counters
@@ -66,7 +66,7 @@ object MapperStep extends Step {
         new Thread {
           override def run(): Unit = {
             //arg1
-            val source_name = source.name
+            val source_name = ParameterUtil.mapperSource
             //arg2
             val mappingsDefinition = ParameterUtil.getParameter(dataset, "mappings").get
 
@@ -86,7 +86,7 @@ object MapperStep extends Step {
                 throw new Exception("No input folder: " + cleanerFolder)
               }
 
-              logger.info("Starting mapper for: " + dataset.name)
+              logger.info("Starting mapper for dataset: " + dataset.name)
 
 
               importMode(source_name, datasetInputFolder, mappingsDefinition)
