@@ -138,12 +138,12 @@
                 <parameter>
                     <description>Cleaner definition rule base file</description>
                     <key>rule_base</key>
-                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta/ENCODE_rules.txt</value>
+                    <value>/home/hduser/GMQL-sources/Metadata-Manager/Example/examples_meta/ENCODE_rules.txt</value>
                 </parameter>
                 <parameter>
                     <description>Mappings</description>
                     <key>mappings</key>
-                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsEncode.xml</value>
+                    <value>/home/hduser/GMQL-sources/Metadata-Manager/Example/xml/settingsEncode.xml</value>
                 </parameter>
 
             </parameter_list>

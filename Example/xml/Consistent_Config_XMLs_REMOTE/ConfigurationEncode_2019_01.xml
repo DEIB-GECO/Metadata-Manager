@@ -116,10 +116,15 @@
                     <key>multiple_comma_separated</key>
                     <value>Audit ERROR</value>
                 </parameter>
-		<parameter>
+		        <parameter>
                     <description>Cleaner definition rule base file</description>
                     <key>rule_base</key>
                     <value>/home/hduser/gmql_importer/ENCODE_rules.txt</value>
+                </parameter>
+                <parameter>
+                    <description>Mappings</description>
+                    <key>mappings</key>
+                    <value>/home/hduser/GMQL-sources/Metadata-Manager/Example/xml/settingsEncode.xml</value>
                 </parameter>
             </parameter_list>
             <dataset_list>
