@@ -3,6 +3,7 @@ package it.polimi.genomics.metadata.mapper.RemoteDatabase
 import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.metadata.step.utils.ParameterUtil
 import org.slf4j.{Logger, LoggerFactory}
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.meta.MTable
 import slick.lifted.Tag
@@ -33,7 +34,7 @@ object DbHandler {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val database = Database.forURL(
+  val database: PostgresDriver.backend.DatabaseDef = Database.forURL(
     ParameterUtil.dbConnectionUrl,
     ParameterUtil.dbConnectionUser,
     ParameterUtil.dbConnectionPw,
@@ -146,186 +147,6 @@ object DbHandler {
 
   }
 
-  def setDWViews(): Unit = {
-    val createSchemaDW = sqlu"""CREATE SCHEMA IF NOT EXISTS dw;"""
-    val setupcreatedw = database.run(createSchemaDW)
-    Await.result(setupcreatedw, Duration.Inf)
-    logger.info("dw schema created")
-
-
-    val dropReplicateViewDW = sqlu"""DROP VIEW IF EXISTS dw.replicate CASCADE;"""
-    val setupdropreplicate = database.run(dropReplicateViewDW)
-    Await.result(setupdropreplicate, Duration.Inf)
-    logger.info("dw.replicate view dropped")
-
-
-    val replicateViewTry = Try {
-      val createReplicateViewDW =
-        sqlu"""CREATE VIEW dw.replicate AS
-               SELECT replicate_id,
-               biosample_id,
-               replicate_source_id,
-               biological_replicate_number,
-              biological_replicate_number || '_' || technical_replicate_number as technical_replicate_number
-              from replicate;"""
-      val result = database.run(createReplicateViewDW)
-      Await.result(result, Duration.Inf)
-    } match {
-      case Success(value) => logger.info("dw.replicate view created")
-      case Failure(f) => {
-        logger.info("SQL query for dw.replicate generated an error", f)
-        throw new Exception("SQL query for dw.replicate generated an error")
-      }
-    }
-
-
-    val dropItemViewDW = sqlu"""DROP VIEW IF EXISTS dw.item CASCADE;"""
-    val setupdropitem = database.run(dropItemViewDW)
-    Await.result(setupdropitem, Duration.Inf)
-    logger.info("dw.item view dropped")
-
-
-    val itemViewTry = Try {
-      val createItemViewDW =
-        sqlu"""CREATE VIEW dw.item AS SELECT
-                                  (SELECT COUNT(distinct biological_replicate_number)
-                                    FROM replicate2item
-                                    NATURAL JOIN dw.replicate
-                                    WHERE item.item_id = replicate2item.item_id)
-                                  as biological_replicate_count,
-                                  (SELECT COUNT(distinct r.technical_replicate_number)
-                                  FROM replicate2item
-                                  NATURAL JOIN dw.replicate as r
-                                  WHERE item.item_id = replicate2item.item_id)
-                                  as technical_replicate_count,
-                                  *
-                                  FROM item;"""
-      val result = database.run(createItemViewDW)
-      Await.result(result, Duration.Inf)
-    } match {
-      case Success(value) => logger.info("dw.item view created")
-      case Failure(f) => {
-        logger.info("SQL query for dw.item generated an error", f)
-        throw new Exception("SQL query for dw.item generated an error")
-      }
-    }
-  }
-
-  def setFlattenMaterialized(): Unit = {
-
-    val dropFlattenViewDW = sqlu"""DROP MATERIALIZED VIEW IF EXISTS dw.flatten;"""
-    val setupdropflatten = database.run(dropFlattenViewDW)
-    Await.result(setupdropflatten, Duration.Inf)
-    logger.info("dw.flatten dropped")
-
-
-    val flattenViewTry = Try {
-      val createFlattenViewDW =
-        sqlu"""CREATE MATERIALIZED VIEW dw.flatten AS
-      SELECT DISTINCT
-      item_id                                          AS item_id,
-      LOWER(biosample_type)                                      AS biosample_type,
-      LOWER(tissue)                                    AS tissue,
-      LOWER(cell)                                 AS cell,
-      (is_healthy)                                     AS is_healthy,
-      LOWER(disease)                                   AS disease,
-      LOWER(source_site)                               AS source_site,
-      LOWER(external_reference)                              AS external_reference,
-      LOWER(dataset_name)                                      AS dataset_name,
-      LOWER(data_type)                                 AS data_type,
-      LOWER(file_format)                                    AS file_format,
-      LOWER(assembly)                                  AS assembly,
-      (is_annotation)                                         AS is_annotation,
-      LOWER(species)                                   AS species,
-      (age)                                            AS age,
-      LOWER(gender)                                    AS gender,
-      LOWER(ethnicity)                                 AS ethnicity,
-      LOWER(technique)                                 AS technique,
-      LOWER(feature)                                   AS feature,
-      LOWER(target)                                    AS target,
-      LOWER(antibody)                                  AS antibody,
-      LOWER(platform)                                  AS platform,
-      LOWER(pipeline)                                  AS pipeline,
-      LOWER(content_type)                              AS content_type,
-      LOWER(source)                              AS source,
-      LOWER(project_name)                              AS project_name,
-      biological_replicate_number                              AS biological_replicate_number,
-      technical_replicate_number AS technical_replicate_number,
-      biological_replicate_count                       AS biological_replicate_count,
-      technical_replicate_count                        AS technical_replicate_count
-      FROM dw.item i
-        NATURAL JOIN dataset d
-      NATURAL JOIN experiment_type et
-      NATURAL JOIN case2item c2i
-      NATURAL JOIN case_study cs
-      NATURAL JOIN project p
-      NATURAL JOIN replicate2item r2i
-      NATURAL JOIN dw.replicate r
-      NATURAL JOIN biosample b
-      NATURAL JOIN donor d2
-      ;"""
-      val setupcreateflatten = database.run(createFlattenViewDW)
-      Await.result(setupcreateflatten, Duration.Inf)
-    } match {
-      case Success(value) => logger.info("dw.flatten created")
-      case Failure(f) => {
-        logger.info("SQL query for dw.flatten generated an error", f)
-        throw new Exception("SQL query for dw.flatten generated an error")
-      }
-    }
-
-
-    val flattenIndexesTry = Try {
-      val createFlattenIndexesDW =
-        sqlu"""CREATE INDEX dw_flatten_biosample_type_idx ON dw.flatten (biosample_type);
-    CREATE INDEX dw_flatten_tissue_idx ON dw.flatten (tissue);
-    CREATE INDEX dw_flatten_cell_idx ON dw.flatten (cell);
-    CREATE INDEX dw_flatten_is_healthy_idx ON dw.flatten (is_healthy);
-    CREATE INDEX dw_flatten_disease_idx ON dw.flatten (disease);
-    CREATE INDEX dw_flatten_source_site_idx ON dw.flatten (source_site);
-    CREATE INDEX dw_flatten_external_reference_idx ON dw.flatten (external_reference);
-    CREATE INDEX dw_flatten_dataset_name_idx ON dw.flatten (dataset_name);
-    CREATE INDEX dw_flatten_data_type_idx ON dw.flatten (data_type);
-    CREATE INDEX dw_flatten_file_format_idx ON dw.flatten (file_format);
-    CREATE INDEX dw_flatten_assembly_idx ON dw.flatten (assembly);
-    CREATE INDEX dw_flatten_is_annotation_idx ON dw.flatten (is_annotation);
-    CREATE INDEX dw_flatten_species_idx ON dw.flatten (species);
-    CREATE INDEX dw_flatten_age_idx ON dw.flatten (age);
-    CREATE INDEX dw_flatten_gender_idx ON dw.flatten (gender);
-    CREATE INDEX dw_flatten_ethnicity_idx ON dw.flatten (ethnicity);
-    CREATE INDEX dw_flatten_technique_idx ON dw.flatten (technique);
-    CREATE INDEX dw_flatten_feature_idx ON dw.flatten (feature);
-    CREATE INDEX dw_flatten_target_idx ON dw.flatten (target);
-    CREATE INDEX dw_flatten_antibody_idx ON dw.flatten (antibody);
-    CREATE INDEX dw_flatten_platform_idx ON dw.flatten (platform);
-    CREATE INDEX dw_flatten_pipeline_idx ON dw.flatten (pipeline);
-    CREATE INDEX dw_flatten_content_type_idx ON dw.flatten (content_type);
-    CREATE INDEX dw_flatten_source_idx ON dw.flatten (source);
-    CREATE INDEX dw_flatten_project_name_idx ON dw.flatten (project_name);
-    CREATE INDEX dw_flatten_biological_replicate_number_idx ON dw.flatten (biological_replicate_number);
-    CREATE INDEX dw_flatten_technical_replicate_number_idx ON dw.flatten (technical_replicate_number);
-    CREATE INDEX dw_flatten_biological_replicate_count_idx ON dw.flatten (biological_replicate_count);
-    CREATE INDEX dw_flatten_technical_replicate_count_idx ON dw.flatten (technical_replicate_count);"""
-      val setupcreateindex = database.run(createFlattenIndexesDW)
-      Await.result(setupcreateindex, Duration.Inf)
-    } match {
-      case Success(value) => logger.info("dw.flatten indexes created")
-      case Failure(f) => {
-        logger.info("SQL query for INDEXES for dw.flatten generated an error", f)
-        throw new Exception("SQL query for INDEXES for dw.flatten generated an error")
-      }
-    }
-  }
-
-  def refreshFlattenMaterialized(): Unit = {
-
-    val refreshFlattenViewDW = sqlu"""REFRESH MATERIALIZED VIEW dw.flatten;"""
-    val setuprefreshflatten = database.run(refreshFlattenViewDW)
-    Await.result(setuprefreshflatten, Duration.Inf)
-    logger.info("dw.flatten refreshed")
-
-  }
-
   def closeDatabase(): Unit = {
     val closing = database.shutdown
     Await.result(closing, Duration.Inf)
@@ -339,7 +160,7 @@ object DbHandler {
   }
 
 
-  //Insert Method
+  //Insert Methods
 
   def insertDonor(sourceId: String, species: String, age: Option[Int], gender: String, ethnicity: String): Int = {
     val idQuery = (donors returning donors.map(_.donorId)) += (None, sourceId, Option(species), None, age, Option(gender), Option(ethnicity), None)
@@ -1323,4 +1144,386 @@ object DbHandler {
   }
 
   val pairs = TableQuery[PairTable]
+
+
+
+
+  /////////////////////////
+
+
+  def setDWViews(): Unit = {
+    val createSchemaDW = sqlu"""CREATE SCHEMA IF NOT EXISTS dw;"""
+    val setupcreatedw = database.run(createSchemaDW)
+    Await.result(setupcreatedw, Duration.Inf)
+    logger.info("dw schema created")
+
+
+    val dropReplicateViewDW = sqlu"""DROP VIEW IF EXISTS dw.replicate CASCADE;"""
+    val setupdropreplicate = database.run(dropReplicateViewDW)
+    Await.result(setupdropreplicate, Duration.Inf)
+    logger.info("dw.replicate view dropped")
+
+
+    val replicateViewTry = Try {
+      val createReplicateViewDW =
+        sqlu"""CREATE VIEW dw.replicate AS
+               SELECT replicate_id,
+               biosample_id,
+               replicate_source_id,
+               biological_replicate_number,
+              biological_replicate_number || '_' || technical_replicate_number as technical_replicate_number
+              from replicate;"""
+      val result = database.run(createReplicateViewDW)
+      Await.result(result, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("dw.replicate view created")
+      case Failure(f) => {
+        logger.info("SQL query for dw.replicate generated an error", f)
+        throw new Exception("SQL query for dw.replicate generated an error")
+      }
+    }
+
+
+    val dropItemViewDW = sqlu"""DROP VIEW IF EXISTS dw.item CASCADE;"""
+    val setupdropitem = database.run(dropItemViewDW)
+    Await.result(setupdropitem, Duration.Inf)
+    logger.info("dw.item view dropped")
+
+
+    val itemViewTry = Try {
+      val createItemViewDW =
+        sqlu"""CREATE VIEW dw.item AS SELECT
+                                  (SELECT COUNT(distinct biological_replicate_number)
+                                    FROM replicate2item
+                                    NATURAL JOIN dw.replicate
+                                    WHERE item.item_id = replicate2item.item_id)
+                                  as biological_replicate_count,
+                                  (SELECT COUNT(distinct r.technical_replicate_number)
+                                  FROM replicate2item
+                                  NATURAL JOIN dw.replicate as r
+                                  WHERE item.item_id = replicate2item.item_id)
+                                  as technical_replicate_count,
+                                  *
+                                  FROM item;"""
+      val result = database.run(createItemViewDW)
+      Await.result(result, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("dw.item view created")
+      case Failure(f) => {
+        logger.info("SQL query for dw.item generated an error", f)
+        throw new Exception("SQL query for dw.item generated an error")
+      }
+    }
+  }
+
+  def setFlattenMaterialized(): Unit = {
+
+    val dropFlattenViewDW = sqlu"""DROP MATERIALIZED VIEW IF EXISTS dw.flatten;"""
+    val setupdropflatten = database.run(dropFlattenViewDW)
+    Await.result(setupdropflatten, Duration.Inf)
+    logger.info("dw.flatten dropped")
+
+
+    val flattenViewTry = Try {
+      val createFlattenViewDW =
+        sqlu"""CREATE MATERIALIZED VIEW dw.flatten AS
+      SELECT DISTINCT
+      item_id                                          AS item_id,
+      LOWER(biosample_type)                                      AS biosample_type,
+      LOWER(tissue)                                    AS tissue,
+      LOWER(cell)                                 AS cell,
+      (is_healthy)                                     AS is_healthy,
+      LOWER(disease)                                   AS disease,
+      LOWER(source_site)                               AS source_site,
+      LOWER(external_reference)                              AS external_reference,
+      LOWER(dataset_name)                                      AS dataset_name,
+      LOWER(data_type)                                 AS data_type,
+      LOWER(file_format)                                    AS file_format,
+      LOWER(assembly)                                  AS assembly,
+      (is_annotation)                                         AS is_annotation,
+      LOWER(species)                                   AS species,
+      (age)                                            AS age,
+      LOWER(gender)                                    AS gender,
+      LOWER(ethnicity)                                 AS ethnicity,
+      LOWER(technique)                                 AS technique,
+      LOWER(feature)                                   AS feature,
+      LOWER(target)                                    AS target,
+      LOWER(antibody)                                  AS antibody,
+      LOWER(platform)                                  AS platform,
+      LOWER(pipeline)                                  AS pipeline,
+      LOWER(content_type)                              AS content_type,
+      LOWER(source)                              AS source,
+      LOWER(project_name)                              AS project_name,
+      biological_replicate_number                              AS biological_replicate_number,
+      technical_replicate_number AS technical_replicate_number,
+      biological_replicate_count                       AS biological_replicate_count,
+      technical_replicate_count                        AS technical_replicate_count
+      FROM dw.item i
+        NATURAL JOIN dataset d
+      NATURAL JOIN experiment_type et
+      NATURAL JOIN case2item c2i
+      NATURAL JOIN case_study cs
+      NATURAL JOIN project p
+      NATURAL JOIN replicate2item r2i
+      NATURAL JOIN dw.replicate r
+      NATURAL JOIN biosample b
+      NATURAL JOIN donor d2
+      ;"""
+      val setupcreateflatten = database.run(createFlattenViewDW)
+      Await.result(setupcreateflatten, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("dw.flatten created")
+      case Failure(f) => {
+        logger.info("SQL query for dw.flatten generated an error", f)
+        throw new Exception("SQL query for dw.flatten generated an error")
+      }
+    }
+
+
+    val flattenIndexesTry = Try {
+      val createFlattenIndexesDW =
+        sqlu"""CREATE INDEX dw_flatten_biosample_type_idx ON dw.flatten (biosample_type);
+    CREATE INDEX dw_flatten_tissue_idx ON dw.flatten (tissue);
+    CREATE INDEX dw_flatten_cell_idx ON dw.flatten (cell);
+    CREATE INDEX dw_flatten_is_healthy_idx ON dw.flatten (is_healthy);
+    CREATE INDEX dw_flatten_disease_idx ON dw.flatten (disease);
+    CREATE INDEX dw_flatten_source_site_idx ON dw.flatten (source_site);
+    CREATE INDEX dw_flatten_external_reference_idx ON dw.flatten (external_reference);
+    CREATE INDEX dw_flatten_dataset_name_idx ON dw.flatten (dataset_name);
+    CREATE INDEX dw_flatten_data_type_idx ON dw.flatten (data_type);
+    CREATE INDEX dw_flatten_file_format_idx ON dw.flatten (file_format);
+    CREATE INDEX dw_flatten_assembly_idx ON dw.flatten (assembly);
+    CREATE INDEX dw_flatten_is_annotation_idx ON dw.flatten (is_annotation);
+    CREATE INDEX dw_flatten_species_idx ON dw.flatten (species);
+    CREATE INDEX dw_flatten_age_idx ON dw.flatten (age);
+    CREATE INDEX dw_flatten_gender_idx ON dw.flatten (gender);
+    CREATE INDEX dw_flatten_ethnicity_idx ON dw.flatten (ethnicity);
+    CREATE INDEX dw_flatten_technique_idx ON dw.flatten (technique);
+    CREATE INDEX dw_flatten_feature_idx ON dw.flatten (feature);
+    CREATE INDEX dw_flatten_target_idx ON dw.flatten (target);
+    CREATE INDEX dw_flatten_antibody_idx ON dw.flatten (antibody);
+    CREATE INDEX dw_flatten_platform_idx ON dw.flatten (platform);
+    CREATE INDEX dw_flatten_pipeline_idx ON dw.flatten (pipeline);
+    CREATE INDEX dw_flatten_content_type_idx ON dw.flatten (content_type);
+    CREATE INDEX dw_flatten_source_idx ON dw.flatten (source);
+    CREATE INDEX dw_flatten_project_name_idx ON dw.flatten (project_name);
+    CREATE INDEX dw_flatten_biological_replicate_number_idx ON dw.flatten (biological_replicate_number);
+    CREATE INDEX dw_flatten_technical_replicate_number_idx ON dw.flatten (technical_replicate_number);
+    CREATE INDEX dw_flatten_biological_replicate_count_idx ON dw.flatten (biological_replicate_count);
+    CREATE INDEX dw_flatten_technical_replicate_count_idx ON dw.flatten (technical_replicate_count);"""
+      val setupcreateindex = database.run(createFlattenIndexesDW)
+      Await.result(setupcreateindex, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("dw.flatten indexes created")
+      case Failure(f) => {
+        logger.info("SQL query for INDEXES for dw.flatten generated an error", f)
+        throw new Exception("SQL query for INDEXES for dw.flatten generated an error")
+      }
+    }
+  }
+
+  def refreshFlattenMaterialized(): Unit = {
+
+    val refreshFlattenViewDW = sqlu"""REFRESH MATERIALIZED VIEW dw.flatten;"""
+    val setuprefreshflatten = database.run(refreshFlattenViewDW)
+    Await.result(setuprefreshflatten, Duration.Inf)
+    logger.info("dw.flatten refreshed")
+
+  }
+
+  /////////////////////////
+
+
+
+
+  def setUnifiedPair(): Unit = {
+
+    val dropGcmPairView = sqlu"""DROP MATERIALIZED VIEW IF EXISTS gcm_pair;"""
+    val setupdropGcmPair = database.run(dropGcmPairView)
+    Await.result(setupdropGcmPair, Duration.Inf)
+    logger.info("gcm_pair dropped")
+
+
+    val gcmPairViewTry = Try {
+      val createGcmPairView =
+        sqlu"""CREATE MATERIALIZED VIEW gcm_pair AS(
+              select item_id, 'biosample_type' as key, biosample_type as value, 'biosample' as table_name
+              from dw.flatten
+              union
+              select item_id, 'tissue' as key, tissue as value, 'biosample' as table_name
+              from dw.flatten
+              union
+              select item_id, 'cell' as key, cell as value, 'biosample' as table_name
+              from dw.flatten
+              union
+              select item_id, 'disease' as key, disease as value, 'biosample' as table_name
+              from dw.flatten
+              union
+              select item_id, 'is_healthy' as key, is_healthy::text as value, 'biosample' as table_name
+              from dw.flatten
+              union
+              select item_id, 'source_site' as key, source_site as value, 'case' as table_name
+              from dw.flatten
+              union
+              select item_id, 'external_reference' as key, external_reference as value, 'case' as table_name
+              from dw.flatten
+              union
+              select item_id, 'dataset_name' as key, dataset_name as value, 'dataset' as table_name
+              from dw.flatten
+              union
+              select item_id, 'data_type' as key, data_type as value, 'dataset' as table_name
+              from dw.flatten
+              union
+              select item_id, 'file_format' as key, file_format as value, 'dataset' as table_name
+              from dw.flatten
+              union
+              select item_id, 'assembly' as key, assembly as value, 'dataset' as table_name
+              from dw.flatten
+              union
+              select item_id, 'is_annotation' as key, is_annotation::text as value, 'dataset' as table_name
+              from dw.flatten
+              union
+              select item_id, 'species' as key, species as value, 'donor' as table_name
+              from dw.flatten
+              union
+              select item_id, 'age' as key, age::text as value, 'donor' as table_name
+              from dw.flatten
+              union
+              select item_id, 'gender' as key, gender as value, 'donor' as table_name
+              from dw.flatten
+              union
+              select item_id, 'ethnicity' as key, ethnicity as value, 'donor' as table_name
+              from dw.flatten
+              union
+              select item_id, 'technique' as key, technique as value, 'experiment_type' as table_name
+              from dw.flatten
+              union
+              select item_id, 'feature' as key, feature as value, 'experiment_type' as table_name
+              from dw.flatten
+              union
+              select item_id, 'target' as key, target as value, 'experiment_type' as table_name
+              from dw.flatten
+              union
+              select item_id, 'antibody' as key, antibody as value, 'experiment_type' as table_name
+              from dw.flatten
+              union
+              select item_id, 'pipeline' as key, pipeline as value, 'item' as table_name
+              from dw.flatten
+              union
+              select item_id, 'platform' as key, platform as value, 'item' as table_name
+              from dw.flatten
+              union
+              select item_id, 'content_type' as key, content_type as value, 'item' as table_name
+              from dw.flatten
+              union
+              select item_id, 'project_name' as key, project_name as value, 'project' as table_name
+              from dw.flatten
+              union
+              select item_id, 'source' as key, source as value, 'project' as table_name
+              from dw.flatten
+              union
+              select item_id,
+                     'biological_replicate_number' as key,
+                     biological_replicate_number::text as value,
+                     'replicate'                   as table_name
+              from dw.flatten
+              union
+              select item_id, 'technical_replicate_number' as key, technical_replicate_number as value, 'replicate' as table_name
+              from dw.flatten
+              union
+              select item_id, 'biological_replicate_count' as key, biological_replicate_count::text as value, 'replicate' as table_name
+              from dw.flatten
+              union
+              select item_id, 'technical_replicate_count' as key, technical_replicate_count::text as value, 'replicate' as table_name
+              from dw.flatten
+        );"""
+      val setupcreateGcmPair = database.run(createGcmPairView)
+      Await.result(setupcreateGcmPair, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("gcm_pair created")
+      case Failure(f) => {
+        logger.info("SQL query for gcm_pair generated an error", f)
+        throw new Exception("SQL query for gcm_pair generated an error")
+      }
+    }
+
+
+    val dropUnifiedPair = sqlu"""DROP VIEW IF EXISTS unified_pair CASCADE;"""
+    val setupdropUnifiedPair = database.run(dropUnifiedPair)
+    Await.result(setupdropUnifiedPair, Duration.Inf)
+    logger.info("unified_pair dropped")
+
+
+    val UnifiedPairCreateTry = Try {
+      val createUnifiedPair =
+        sqlu"""create table unified_pair(
+                  item_id integer not null,
+                  key     text    not null,
+                  value   text    not null,
+                  is_gcm  boolean,
+                  constraint unified_pair_pkey
+                      primary key (item_id, key, value)
+              );"""
+      val result = database.run(createUnifiedPair)
+      Await.result(result, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("unified_pair created")
+      case Failure(f) => {
+        logger.info("SQL query for unified_pair generated an error", f)
+        throw new Exception("SQL query for unified_pair generated an error")
+      }
+    }
+
+
+    val UnifiedPairInsertTry = Try {
+      val insertUnifiedPair =
+        sqlu"""insert into unified_pair (
+              select item_id,
+                     key,
+                     value,
+                     case is_gcm
+                         when 0 then FALSE
+                         else TRUE
+                         end
+                         as is_gcm
+              from (
+                       select item_id,
+                              key,
+                              value,
+                              max(is_gcm) as is_gcm
+                       from (
+                                select *, 0 as is_gcm
+                                from pair
+                                UNION
+                                select item_id, key, value, 1 as is_gcm
+                                from gcm_pair
+                                where value is not null
+                                limit 100) as a
+                       group by item_id, key, value) as b);"""
+      val result = database.run(insertUnifiedPair)
+      Await.result(result, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("Insert in unified_pair completed")
+      case Failure(f) => {
+        logger.info("Insert SQL query for unified_pair generated an error", f)
+        throw new Exception("Insert SQL query for unified_pair generated an error")
+      }
+    }
+
+
+    val unifiedPairIndexesTry = Try {
+      val unifiedPairIndexes =
+        sqlu"""...;"""
+      val setupUPindex = database.run(unifiedPairIndexes)
+      Await.result(setupUPindex, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("unified_pair indexes created")
+      case Failure(f) => {
+        logger.info("SQL query for INDEXES for unified_pair generated an error", f)
+        throw new Exception("SQL query for INDEXES for unified_pair generated an error")
+      }
+    }
+  }
+
+
 }
