@@ -34,14 +34,32 @@ object DbHandler {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val database: PostgresDriver.backend.DatabaseDef = Database.forURL(
-    ParameterUtil.dbConnectionUrl,
-    ParameterUtil.dbConnectionUser,
-    ParameterUtil.dbConnectionPw,
-    driver = ParameterUtil.dbConnectionDriver
-  )
+  var database: PostgresDriver.backend.DatabaseDef = _
 
-  logger.info("Set connection to database: " + ParameterUtil.dbConnectionUrl, ", user: " + ParameterUtil.dbConnectionUser)
+  //Launched using Configuration.xml
+  if (ParameterUtil.dbConnectionUrl != "" && ParameterUtil.dbConnectionUrl != "" && ParameterUtil.dbConnectionUrl != "" && ParameterUtil.dbConnectionUrl != "")
+    database = Database.forURL(
+      ParameterUtil.dbConnectionUrl,
+      ParameterUtil.dbConnectionUser,
+      ParameterUtil.dbConnectionPw,
+      driver = ParameterUtil.dbConnectionDriver)
+  else //Launched using mapper config
+    database = Try {
+      Database.forURL(
+        conf.getString("database.url"),
+        conf.getString("database.username"),
+        conf.getString("database.password"),
+        driver = conf.getString("database.driver"))
+    } match { //Launched using mapper config but missing values
+      case Success(value) => value
+      case Failure(f) => {
+        logger.info("Mapper database config are missing.",f)
+        throw new Exception("Mapper database config are missing.")
+      }
+    }
+
+
+  logger.info("Set connection to database: " + ParameterUtil.dbConnectionUrl + ", user: " + ParameterUtil.dbConnectionUser)
 
   def setDatabase(): Unit = {
 
@@ -1146,8 +1164,6 @@ object DbHandler {
   val pairs = TableQuery[PairTable]
 
 
-
-
   /////////////////////////
 
 
@@ -1334,8 +1350,6 @@ object DbHandler {
   /////////////////////////
 
 
-
-
   def setUnifiedPair(): Unit = {
 
     val dropGcmPairView = sqlu"""DROP MATERIALIZED VIEW IF EXISTS gcm_pair;"""
@@ -1448,7 +1462,7 @@ object DbHandler {
     }
 
 
-    val dropUnifiedPair = sqlu"""DROP VIEW IF EXISTS unified_pair CASCADE;"""
+    val dropUnifiedPair = sqlu"""DROP TABLE IF EXISTS unified_pair CASCADE;"""
     val setupdropUnifiedPair = database.run(dropUnifiedPair)
     Await.result(setupdropUnifiedPair, Duration.Inf)
     logger.info("unified_pair dropped")
@@ -1511,18 +1525,18 @@ object DbHandler {
     }
 
 
-    val unifiedPairIndexesTry = Try {
-      val unifiedPairIndexes =
-        sqlu"""...;"""
-      val setupUPindex = database.run(unifiedPairIndexes)
-      Await.result(setupUPindex, Duration.Inf)
-    } match {
-      case Success(value) => logger.info("unified_pair indexes created")
-      case Failure(f) => {
-        logger.info("SQL query for INDEXES for unified_pair generated an error", f)
-        throw new Exception("SQL query for INDEXES for unified_pair generated an error")
-      }
-    }
+    /*  val unifiedPairIndexesTry = Try {
+        val unifiedPairIndexes =
+          sqlu"""...;"""
+        val setupUPindex = database.run(unifiedPairIndexes)
+        Await.result(setupUPindex, Duration.Inf)
+      } match {
+        case Success(value) => logger.info("unified_pair indexes created")
+        case Failure(f) => {
+          logger.info("SQL query for INDEXES for unified_pair generated an error", f)
+          throw new Exception("SQL query for INDEXES for unified_pair generated an error")
+        }
+      }*/
   }
 
 

@@ -127,6 +127,7 @@ object MapperStep extends Step {
       DbHandler.setDatabase
       DbHandler.setDWViews
       DbHandler.setFlattenMaterialized
+      DbHandler.setUnifiedPair
       logger.info("Database has been set")
 
       val t0: Long = System.nanoTime()
