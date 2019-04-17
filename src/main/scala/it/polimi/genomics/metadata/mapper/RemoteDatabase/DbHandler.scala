@@ -1502,18 +1502,20 @@ object DbHandler {
                          as is_gcm
               from (
                        select item_id,
-                              key,
-                              value,
+                              lower(key) as key,
+                              lower(value) as value,
                               max(is_gcm) as is_gcm
                        from (
                                 select *, 0 as is_gcm
                                 from pair
                                 UNION
-                                select item_id, key, value, 1 as is_gcm
+                                select item_id,key,value, 1 as is_gcm
                                 from gcm_pair
                                 where value is not null
-                                limit 100) as a
-                       group by item_id, key, value) as b);"""
+                             ) as a
+                       group by item_id, lower(key), lower(value)
+                    ) as b
+              );"""
       val result = database.run(insertUnifiedPair)
       Await.result(result, Duration.Inf)
     } match {
