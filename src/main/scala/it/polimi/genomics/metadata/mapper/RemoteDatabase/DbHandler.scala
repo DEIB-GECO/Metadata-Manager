@@ -148,12 +148,12 @@ object DbHandler {
     }
 
     //derivedfrom
-    if (!tables.exists(_.name.name == DERIVEDFROM_TABLE_NAME)) {
+    /*if (!tables.exists(_.name.name == DERIVEDFROM_TABLE_NAME)) {
       val queries = DBIO.seq(derivedFrom.schema.create)
       val setup = database.run(queries)
       Await.result(setup, Duration.Inf)
       logger.info("Table " + DERIVEDFROM_TABLE_NAME + " created")
-    }
+    }*/
 
     //pair
     if (!tables.exists(_.name.name == PAIR_TABLE_NAME)) {
@@ -409,7 +409,6 @@ object DbHandler {
     datasetId
   }
 
-
   def insertItem(experimentTypeId: Int, datasetId: Int, sourceId: String, size: Long, date: String, checksum: String,
                  contentType: String, platform: String, pipeline: String, sourceUrl: String,
                  localUrl: String, fileName: String, sourcePage: String): Int = {
@@ -474,7 +473,7 @@ object DbHandler {
     1
   }
 
-  def insertDerivedFrom(initialItemId: Int, finalItemId: Int, operation: String): Int = {
+  /*def insertDerivedFrom(initialItemId: Int, finalItemId: Int, operation: String): Int = {
     val insertActions = DBIO.seq(
       derivedFrom += (initialItemId, finalItemId, Option(operation))
     )
@@ -491,20 +490,7 @@ object DbHandler {
     val id = Await.result(execution, Duration.Inf)
     id
   }
-
-  /*def insertOntology(tableId: Int, tableName: String, tableColumn: String, originalKey: String, originalValue: String, ontologicalCode: String): Unit = {
-    val idQuery = (ontologyTable returning ontologyTable) += (tableId, tableName, tableColumn, originalKey, originalValue, Option(ontologicalCode))
-    val executionId = database.run(idQuery)
-    Await.result(executionId, Duration.Inf)
-  }*/
-
-  /*def updateOntology(tableId: Int, tableName: String, tableColumn: String, originalKey: String, originalValue: String, ontologicalCode: String): Unit = {
-    val query = for {ontology <- ontologyTable if ontology.tableId === tableId && ontology.tableNames === tableName && ontology.tableColumn === tableColumn}
-      yield (ontology.originalKey, ontology.originalValue, ontology.ontologicalCode)
-    val updateAction = query.update(originalKey, originalValue, Option(ontologicalCode))
-    val execution = database.run(updateAction)
-    Await.result(execution, Duration.Inf)
-  }*/
+  */
 
   /**
     * Returns all the key value pairs of the given itemId
@@ -542,7 +528,6 @@ object DbHandler {
     val dbioFuture = database.run(inOneGo)
     Await.result(dbioFuture, Duration.Inf).sum
   }
-
 
   /**
     *
@@ -643,21 +628,14 @@ object DbHandler {
     checkResult(result)
   }
 
+  /*
   def checkInsertDerivedFrom(initialItemId: Int, finalItemId: Int): Boolean = {
     val query = derivedFrom.filter(_.initialItemId === initialItemId).filter(_.finalItemId === finalItemId)
     val action = query.result
     val result = database.run(action)
     checkResult(result)
   }
-
-  /* def checkInsertOntology(tableId: Int, tableName: String, tableColumn: String): Boolean = {
-     val query = ontologyTable.filter(value => {
-       value.tableId === tableId && value.tableNames === tableName && value.tableColumn === tableColumn
-     })
-     val action = query.result
-     val result = database.run(action)
-     checkResult(result)
-   }*/
+  */
 
   def checkInsertPair(itemId: Int, key: String, value: String): Boolean = {
     val query = pairs.filter(_.itemId === itemId).filter(_.key === key).filter(_.value === value)
@@ -666,14 +644,12 @@ object DbHandler {
     checkResult(result)
   }
 
-
   def getDonorId(id: String): Int = {
     val query = donors.filter(_.sourceId === id).map(_.donorId)
     val action = query.result
     val result = database.run(action)
     checkId(result)
   }
-
 
   def getBioSampleId(sourceId: String): Int = {
     val query = bioSamples.filter(_.sourceId === sourceId).map(_.bioSampleId)
@@ -726,24 +702,8 @@ object DbHandler {
     checkId(result)
   }
 
-
-  /*def getSourceSiteByCode(code: String): String = {
-    val idQuery = caseTcgaMapping.filter(_.code === code).map(_.sourceSite)
-    val returnAction = idQuery.result
-    val execution2 = database.run(returnAction)
-    val sourceSite = Await.result(execution2, Duration.Inf)
-    sourceSite.head
-  }*/
-
   /*def derivedFromId(initialItemId: Int, finalItemId: Int): Int = {
     val query = derivedFrom.filter(_.initialItemId === initialItemId).filter(_.finalItemId === finalItemId)
-    val action = query.result
-    val result = database.run(action)
-    checkId(result)
-  }*/
-
-  /*def getCasesItemId(itemId : Int, caseId: Int): Int = {
-    val query = casesItems.filter(_.itemId === itemId).filter(_.caseId === caseId).map(_.pk)
     val action = query.result
     val result = database.run(action)
     checkId(result)
@@ -778,7 +738,6 @@ object DbHandler {
     val res = Await.result(result, Duration.Inf)
     res
   }
-
 
   def getDatasetById(id: Int): Seq[(Int, String, Option[String], Option[String], Option[String], Option[Boolean])] = {
     val query = for {
@@ -830,6 +789,7 @@ object DbHandler {
     res
   }
 
+  /*
   def getItemsByDerivedFromId(finalId: Int): Seq[(Int, Int, Int, String, Option[Long], Option[String], Option[String], Option[String], Option[String])] = {
     val crossJoin = for {
       (derivedFrom, item) <- derivedFrom.filter(_.finalItemId === finalId).join(items).on(_.initialItemId === _.itemId)
@@ -839,6 +799,7 @@ object DbHandler {
     val res = Await.result(result, Duration.Inf)
     res
   }
+  */
 
 
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------
@@ -900,7 +861,6 @@ object DbHandler {
 
     def * = (bioSampleId.?, donorId, sourceId, types, tissue, tissueTid, cell, cellTid, isHealthy, disease, diseaseTid)
   }
-
 
   val bioSamples = TableQuery[BioSamples]
 
@@ -1007,7 +967,6 @@ object DbHandler {
 
   val datasets = TableQuery[Datasets]
 
-
   class Items(tag: Tag) extends
     Table[(Option[Int], Int, Int, String, Option[Long], Option[String], Option[String], Option[String], Option[Int],
       Option[String], Option[Int], Option[String], Option[String], Option[String], Option[String],
@@ -1113,7 +1072,7 @@ object DbHandler {
 
   val replicatesItems = TableQuery[ReplicatesItems]
 
-  class DerivedFrom(tag: Tag) extends
+  /*class DerivedFrom(tag: Tag) extends
     Table[(Int, Int, Option[String])](tag, DERIVEDFROM_TABLE_NAME) {
 
     def initialItemId = column[Int]("initial_item_id")
@@ -1139,8 +1098,7 @@ object DbHandler {
     def * = (initialItemId, finalItemId, operation)
   }
 
-  val derivedFrom = TableQuery[DerivedFrom]
-
+  val derivedFrom = TableQuery[DerivedFrom]*/
 
   class PairTable(tag: Tag) extends
     Table[(Int, String, String)](tag, PAIR_TABLE_NAME) {
@@ -1164,7 +1122,7 @@ object DbHandler {
   val pairs = TableQuery[PairTable]
 
 
-  /////////////////////////
+  //-------------------------------------DATABASE DW VIEWS---------------------------------------------------------------
 
 
   def setDWViews(): Unit = {
@@ -1173,12 +1131,10 @@ object DbHandler {
     Await.result(setupcreatedw, Duration.Inf)
     logger.info("dw schema created")
 
-
     val dropReplicateViewDW = sqlu"""DROP VIEW IF EXISTS dw.replicate CASCADE;"""
     val setupdropreplicate = database.run(dropReplicateViewDW)
     Await.result(setupdropreplicate, Duration.Inf)
     logger.info("dw.replicate view dropped")
-
 
     val replicateViewTry = Try {
       val createReplicateViewDW =
@@ -1239,7 +1195,6 @@ object DbHandler {
     Await.result(setupdropflatten, Duration.Inf)
     logger.info("dw.flatten dropped")
 
-
     val flattenViewTry = Try {
       val createFlattenViewDW =
         sqlu"""CREATE MATERIALIZED VIEW dw.flatten AS
@@ -1295,7 +1250,6 @@ object DbHandler {
       }
     }
 
-
     val flattenIndexesTry = Try {
       val createFlattenIndexesDW =
         sqlu"""CREATE INDEX dw_flatten_biosample_type_idx ON dw.flatten (biosample_type);
@@ -1347,7 +1301,7 @@ object DbHandler {
 
   }
 
-  /////////////////////////
+  //-------------------------------------UNIFIED PAIR---------------------------------------------------------------
 
 
   def setUnifiedPair(): Unit = {
@@ -1356,7 +1310,6 @@ object DbHandler {
     val setupdropGcmPair = database.run(dropGcmPairView)
     Await.result(setupdropGcmPair, Duration.Inf)
     logger.info("gcm_pair dropped")
-
 
     val gcmPairViewTry = Try {
       val createGcmPairView =
@@ -1461,12 +1414,10 @@ object DbHandler {
       }
     }
 
-
     val dropUnifiedPair = sqlu"""DROP TABLE IF EXISTS unified_pair CASCADE;"""
     val setupdropUnifiedPair = database.run(dropUnifiedPair)
     Await.result(setupdropUnifiedPair, Duration.Inf)
     logger.info("unified_pair dropped")
-
 
     val UnifiedPairCreateTry = Try {
       val createUnifiedPair =
@@ -1488,33 +1439,38 @@ object DbHandler {
       }
     }
 
-
     val UnifiedPairInsertTry = Try {
       val insertUnifiedPair =
         sqlu"""insert into unified_pair (
-              select item_id,
-                     key,
-                     value,
-                     case is_gcm
-                         when 0 then FALSE
-                         else TRUE
-                         end
-                         as is_gcm
-              from (
-                       select item_id,
-                              lower(key) as key,
-                              lower(value) as value,
-                              max(is_gcm) as is_gcm
-                       from (
-                                select *, 0 as is_gcm
-                                from pair
-                                UNION
-                                select item_id,key,value, 1 as is_gcm
-                                from gcm_pair
-                                where value is not null
-                             ) as a
-                       group by item_id, lower(key), lower(value)
-                    ) as b
+                  select item_id,
+                         key,
+                         value,
+                         case is_gcm
+                             when 0 then FALSE
+                             else TRUE
+                             end
+                             as is_gcm
+                  from (
+                           select item_id,
+                                  key,
+                                  value,
+                                  max(is_gcm) as is_gcm
+                           from (
+                                    select item_id,
+                                           lower(key)   as key,
+                                           lower(value) as value,
+                                           0            as is_gcm
+                                    from pair
+                                    UNION
+                                    select item_id,
+                                           lower(key)   as key,
+                                           lower(value) as value,
+                                           1            as is_gcm
+                                    from gcm_pair
+                                    where value is not null
+                           ) as a
+                           group by item_id, key, value
+                  ) as b
               );"""
       val result = database.run(insertUnifiedPair)
       Await.result(result, Duration.Inf)
@@ -1525,7 +1481,6 @@ object DbHandler {
         throw new Exception("Insert SQL query for unified_pair generated an error")
       }
     }
-
 
     /*  val unifiedPairIndexesTry = Try {
         val unifiedPairIndexes =

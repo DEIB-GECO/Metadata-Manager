@@ -11,7 +11,7 @@ trait DerivedFrom extends Table{
   override def getId: Int = ???
 
 
-  override def checkInsert(): Boolean = {
+ /* override def checkInsert(): Boolean = {
     dbHandler.checkInsertDerivedFrom(initialItemId,finalItemId)
   }
 
@@ -22,6 +22,7 @@ trait DerivedFrom extends Table{
   override def update(): Int = {
     dbHandler.updateDerivedFrom(initialItemId,finalItemId,description)
   }
+  */
 
   override def setForeignKeys(table: Table): Unit = ???
 

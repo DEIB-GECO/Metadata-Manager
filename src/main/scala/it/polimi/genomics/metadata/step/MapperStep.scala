@@ -112,7 +112,6 @@ object MapperStep extends Step {
 
 
   def importMode(repositoryRef: String, pathGMQLIn: String, pathXML: String): Unit = {
-    //DbHandler.setDatabase()
 
     val datasetFileName = pathGMQLIn + File.separator + "dataset_name.txt"
     val datasetName = scala.io.Source.fromFile(datasetFileName).mkString.trim
@@ -127,7 +126,6 @@ object MapperStep extends Step {
       DbHandler.setDatabase
       DbHandler.setDWViews
       DbHandler.setFlattenMaterialized
-      DbHandler.setUnifiedPair
       logger.info("Database has been set")
 
       val t0: Long = System.nanoTime()
@@ -163,6 +161,7 @@ object MapperStep extends Step {
       }
 
       DbHandler.refreshFlattenMaterialized
+      DbHandler.setUnifiedPair
 
     }
     else
