@@ -1,28 +1,23 @@
 <?xml version="1.0"?>
-<root xmlns="http://polimi.it/GDMImporter"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+<root   xmlns="http://polimi.it/GDMImporter"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/home/hduser/gmql_importer/</base_working_directory>
         <gcm_config_file>/home/hduser/gmql_importer/conf/application.conf</gcm_config_file>
-        <mapper_source>REP</mapper_source>
-        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
-        <database_connection_user>geco</database_connection_user>
-        <database_connection_pw>geco78</database_connection_pw>
-        <database_connection_driver>org.postgresql.Driver</database_connection_driver>
         <flattener_rule_base>/home/hduser/GMQL-sources/Metadata-Manager/Example/flattener_rule_base.txt</flattener_rule_base>
         <download_enabled>false</download_enabled>
         <transform_enabled>false</transform_enabled>
         <cleaner_enabled>false</cleaner_enabled>
-        <mapper_enabled>true</mapper_enabled>
+        <mapper_enabled>false</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
-        <flattener_enabled>false</flattener_enabled>
+        <flattener_enabled>true</flattener_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
-        <source name="RoadmapEpigenomics">
+        <source name="ROADMAP_EPIGENOMICS">
             <url>http://egg2.wustl.edu/roadmap/data/</url>
             <source_working_directory>RoadmapEpigenomics</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.roadmap.RoadmapDownloader</downloader>
@@ -53,11 +48,11 @@
                     <key>credential_directory</key>
                     <value>/home/hduser/GMQL-sources/Metadata-Manager/.credentials/sheets.googleapis.com-GMQL-importer/</value>
                 </parameter>
-                <parameter>
-                    <description>Mappings</description>
-                    <key>mappings</key>
-                    <value>/home/hduser/GMQL-sources/Metadata-Manager/Example/xml/settingsREP.xml</value>
-                </parameter>
+                <!--<parameter>
+                    <description>Cleaner definition rule base file</description>
+                    <key>rule_base</key>
+                    <value>/home/hduser/gmql_importer/ROADMAP_rules.txt</value>
+                </parameter>-->
             </parameter_list>
             <dataset_list>
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_NARROW">
@@ -73,17 +68,11 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_NARROW contains Roadmap Epigenomics data mapped to hg19
-                                human genome. It contains ChIP-seq and DNase narrow regions called using MACS2 in
-                                narrowPeak format files. The release date of this dataset is October 2013.
-                                http://www.roadmapepigenomics.org/
-                            </value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_NARROW contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq and DNase narrow regions called using MACS2 in narrowPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
-                            <value>
-                                https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
-                            </value>
+                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
@@ -108,16 +97,11 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_BROAD contains Roadmap Epigenomics data mapped to hg19 human
-                                genome. It contains broad ChIP-seq regions called using MACS2 in broadPeak format files.
-                                The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/
-                            </value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_BROAD contains Roadmap Epigenomics data mapped to hg19 human genome. It contains broad ChIP-seq regions called using MACS2 in broadPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
-                            <value>
-                                https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
-                            </value>
+                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
@@ -142,17 +126,11 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_GAPPED contains Roadmap Epigenomics data mapped to hg19
-                                human genome. It contains ChIP-seq gapped regions called using MACS2 in gappedPeak
-                                format files. The release date of this dataset is October 2013.
-                                http://www.roadmapepigenomics.org/
-                            </value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_GAPPED contains Roadmap Epigenomics data mapped to hg19 human genome. It contains ChIP-seq gapped regions called using MACS2 in gappedPeak format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
-                            <value>
-                                https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
-                            </value>
+                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
@@ -177,23 +155,15 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_BED contains Roadmap Epigenomics data mapped to hg19 human
-                                genome. It contains DNase regions (narrow and broad) called using HOTSPOT in BED format
-                                files. The release date of this dataset is October 2013.
-                                http://www.roadmapepigenomics.org/
-                            </value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_BED contains Roadmap Epigenomics data mapped to hg19 human genome. It contains DNase regions (narrow and broad) called using HOTSPOT in BED format files. The release date of this dataset is October 2013. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
-                            <value>
-                                https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
-                            </value>
+                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
-                            <value>
-                                http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/(broadPeak/DNase|narrowPeak)/
-                            </value>
+                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/(broadPeak/DNase|narrowPeak)/</value>
                         </parameter>
                         <parameter>
                             <key>files_regex</key>
@@ -214,23 +184,15 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_RNA_expression contains Roadmap Epigenomics data mapped to
-                                hg19 human genome. It contains the RNA expression quantification of different gene, exon
-                                and intron regions in BED format files. The release date of this dataset is July 2014.
-                                http://www.roadmapepigenomics.org/
-                            </value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_RNA_expression contains Roadmap Epigenomics data mapped to hg19 human genome. It contains the RNA expression quantification of different gene, exon and intron regions in BED format files. The release date of this dataset is July 2014. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
-                            <value>
-                                https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
-                            </value>
+                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
                         </parameter>
                         <parameter>
                             <key>info_url</key>
-                            <value>
-                                http://egg2.wustl.edu/roadmap/data/byDataType/rna/expression/Ensembl_v65.Gencode_v10.ENSG.gene_info
-                            </value>
+                            <value>http://egg2.wustl.edu/roadmap/data/byDataType/rna/expression/Ensembl_v65.Gencode_v10.ENSG.gene_info</value>
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
@@ -255,16 +217,11 @@
                     <parameter_list>
                         <parameter>
                             <key>loading_description</key>
-                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human
-                                genome. It contains differentially methylated regions in BED format files. The release
-                                date of this dataset is March 2015. http://www.roadmapepigenomics.org/
-                            </value>
+                            <value>HG19_ROADMAP_EPIGENOMICS_DMR contains Roadmap Epigenomics data mapped to hg19 human genome. It contains differentially methylated regions in BED format files. The release date of this dataset is March 2015. http://www.roadmapepigenomics.org/</value>
                         </parameter>
                         <parameter>
                             <key>spreadsheet_url</key>
-                            <value>
-                                https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
-                            </value>
+                            <value>https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15</value>
                         </parameter>
                         <parameter>
                             <key>folder_regex</key>
