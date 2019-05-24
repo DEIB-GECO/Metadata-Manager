@@ -1,4 +1,6 @@
+/*
 package it.polimi.genomics.metadata.mapper
+
 
 
 import it.polimi.genomics.metadata.mapper.Utils._
@@ -570,3 +572,4 @@ object main {
 
 }
 
+ */
