@@ -69,8 +69,8 @@
             <source_key>epi__sample_alias__X</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping method="MANUAL">
-            <source_key>1</source_key>
+        <mapping>
+            <source_key>epi__replicate_number__X</source_key>
             <global_key>bioReplicateNum</global_key>
         </mapping>
         <mapping method="MANUAL">

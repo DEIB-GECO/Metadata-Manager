@@ -242,22 +242,6 @@ object MapperStep extends Step {
   }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   def analyzeFileRep(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()
     Statistics.fileNumber += 1
@@ -432,20 +416,15 @@ object MapperStep extends Step {
   }
 
 
-
-
-
-
-
-
-
-
-
   def enrichLinesREP(lines: Array[String], bioSampleList: REP.Utils.BioSampleList, path: String): Array[String] = {
     val bioNumbers = 1 to bioSampleList.BiosampleList.length toList
     var linesFromSet = scala.collection.mutable.Set(lines: _*) //transform array into set
     //RETRIEVE EPIGENOME NAME
     var epigenome_prefix = "Edef__"
+
+    for (b <- bioNumbers) {
+      linesFromSet += "epi__replicate_number__" + b + "\t" + b
+    }
 
     for (l <- linesFromSet.toList) {
       val pair = l.split("\t", 2)
