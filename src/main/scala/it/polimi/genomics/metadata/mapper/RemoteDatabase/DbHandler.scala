@@ -53,7 +53,7 @@ object DbHandler {
     } match { //Launched using mapper config but missing values
       case Success(value) => value
       case Failure(f) => {
-        logger.info("Mapper database config are missing.",f)
+        logger.info("Mapper database config are missing.", f)
         throw new Exception("Mapper database config are missing.")
       }
     }
@@ -1419,7 +1419,7 @@ object DbHandler {
     Await.result(setupdropUnifiedPair, Duration.Inf)
     logger.info("unified_pair dropped")
 
-    val UnifiedPairCreateTry = Try {
+    val UnifiedPairCreateTry: Unit = Try {
       val createUnifiedPair =
         sqlu"""create table unified_pair(
                   item_id integer not null,
@@ -1482,6 +1482,8 @@ object DbHandler {
       }
     }
 
+
+
     /*  val unifiedPairIndexesTry = Try {
         val unifiedPairIndexes =
           sqlu"""...;"""
@@ -1496,5 +1498,24 @@ object DbHandler {
       }*/
   }
 
+  def fixGENCODEUrlProblem(): Unit = {
+
+    val fixGENCODEUrlProblemTry = Try {
+      val updateGENCODEUrl =
+        sqlu"""UPDATE item
+              SET source_url = regexp_replace(source_url,'(ftp://ftp.)sanger(.ac.uk/pub/)(.*)','\1ebi\2databases/\3')
+              where dataset_id in (select dataset_id from dataset where dataset_name ilike '%_GENCODE')
+              and source_url ilike 'ftp://ftp.sanger.ac.uk%';"""
+      val result = database.run(updateGENCODEUrl)
+      Await.result(result, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("Update on GENCODE source_url finished")
+      case Failure(f) => {
+        logger.info("Update on GENCODE source_url generated an error", f)
+        throw new Exception("Update on GENCODE source_url generated an error")
+      }
+    }
+
+  }
 
 }

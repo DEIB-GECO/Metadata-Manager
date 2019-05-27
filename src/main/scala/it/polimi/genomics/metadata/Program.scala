@@ -222,7 +222,6 @@ object Program extends App {
           if ("true".equalsIgnoreCase((file \\ "settings" \ "download_enabled").text)) true else false
         val transformEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "transform_enabled").text)) true else false
-
         val cleanerEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "cleaner_enabled").text)) true else false
         val mapperEnabled =
@@ -231,7 +230,6 @@ object Program extends App {
           if ("true".equalsIgnoreCase((file \\ "settings" \ "enricher_enabled").text)) true else false
         val flattenerEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "flattener_enabled").text)) true else false
-
         val loadEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "load_enabled").text)) true else false
         val parallelExecution =

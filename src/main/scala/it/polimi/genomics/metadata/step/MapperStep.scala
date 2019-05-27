@@ -160,6 +160,8 @@ object MapperStep extends Step {
 
       }
 
+      if(repositoryRef.toUpperCase().equals("ANN"))
+        DbHandler.fixGENCODEUrlProblem
       DbHandler.refreshFlattenMaterialized
       DbHandler.setUnifiedPair
 
@@ -240,7 +242,6 @@ object MapperStep extends Step {
 
     }
   }
-
 
   def analyzeFileRep(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()
