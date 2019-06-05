@@ -163,6 +163,55 @@ object DbHandler {
       logger.info("Table " + PAIR_TABLE_NAME + " created")
     }
 
+
+
+    val createGCMIndexesTry = Try {
+      val createGCMIndexes =
+        sqlu"""CREATE INDEX ON donor (donor_id);
+                CREATE INDEX ON biosample (biosample_id);
+                CREATE INDEX ON replicate (replicate_id);
+                CREATE INDEX ON dataset (dataset_id);
+                CREATE INDEX ON experiment_type (experiment_type_id);
+                CREATE INDEX ON case_study (case_study_id);
+                CREATE INDEX ON project (project_id);
+                CREATE INDEX ON replicate2item (item_id);
+                CREATE INDEX ON replicate2item (replicate_id);
+                CREATE INDEX ON case2item (item_id);
+                CREATE INDEX ON case2item (case_study_id);CREATE INDEX ON biosample (lower(biosample_type));
+                CREATE INDEX ON biosample (lower(tissue));
+                CREATE INDEX ON biosample (lower(cell));
+                CREATE INDEX ON biosample (is_healthy);
+                CREATE INDEX ON biosample (lower(disease));
+                CREATE INDEX ON donor (lower(species));
+                CREATE INDEX ON donor (age);
+                CREATE INDEX ON donor (lower(gender));
+                CREATE INDEX ON donor (lower(ethnicity));
+                CREATE INDEX ON dataset (lower(dataset_name));
+                CREATE INDEX ON dataset (lower(data_type));
+                CREATE INDEX ON dataset (lower(file_format));
+                CREATE INDEX ON dataset (lower(assembly));
+                CREATE INDEX ON dataset (is_annotation);
+                CREATE INDEX ON case_study (lower(source_site));
+                CREATE INDEX ON case_study (lower(external_reference));
+                CREATE INDEX ON project (lower(source));
+                CREATE INDEX ON project (lower(project_name));
+                CREATE INDEX ON experiment_type (lower(technique));
+                CREATE INDEX ON experiment_type (lower(feature));
+                CREATE INDEX ON experiment_type (lower(target));
+                CREATE INDEX ON experiment_type (lower(antibody));"""
+      val result = database.run(createGCMIndexes)
+      Await.result(result, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("Created all indexes on GCM tables")
+      case Failure(f) => {
+        logger.info("creation of indexes on GCM tables generated an error", f)
+        throw new Exception("creation of indexes on GCM tables generated an error")
+      }
+    }
+
+
+
+
   }
 
   def closeDatabase(): Unit = {
@@ -876,7 +925,7 @@ object DbHandler {
 
     def techReplicateNum = column[Option[Int]]("technical_replicate_number", O.Default(None))
 
-    def bioSample = foreignKey("replicates_donor_fk", bioSampleId, bioSamples)(
+    def bioSample = foreignKey("replicates_biosample_fk", bioSampleId, bioSamples)(
       _.bioSampleId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -1004,7 +1053,7 @@ object DbHandler {
 
     def sourcePage = column[Option[String]]("source_page", O.Default(None))
 
-    def experimentType = foreignKey("items_experimentType_fk", experimentTypeId, experimentsType)(
+    def experimentType = foreignKey("items_experiment_type_fk", experimentTypeId, experimentsType)(
       _.experimentTypeId,
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
@@ -1155,16 +1204,14 @@ object DbHandler {
       }
     }
 
-
-    val dropItemViewDW = sqlu"""DROP VIEW IF EXISTS dw.item CASCADE;"""
+    val dropItemViewDW = sqlu"""DROP MATERIALIZED VIEW IF EXISTS dw.item CASCADE;"""
     val setupdropitem = database.run(dropItemViewDW)
     Await.result(setupdropitem, Duration.Inf)
     logger.info("dw.item view dropped")
 
-
     val itemViewTry = Try {
       val createItemViewDW =
-        sqlu"""CREATE VIEW dw.item AS SELECT
+        sqlu"""CREATE MATERIALIZED VIEW dw.item AS SELECT
                                   (SELECT COUNT(distinct biological_replicate_number)
                                     FROM replicate2item
                                     NATURAL JOIN dw.replicate
@@ -1186,11 +1233,33 @@ object DbHandler {
         throw new Exception("SQL query for dw.item generated an error")
       }
     }
+
+    val itemViewIndexesTry = Try {
+      val createItemViewIndexesDW =
+        sqlu"""CREATE INDEX ON dw.item (lower(platform));
+                CREATE INDEX ON dw.item (lower(pipeline));
+                CREATE INDEX ON dw.item (lower(content_type));
+                CREATE INDEX ON dw.item (biological_replicate_count);
+                CREATE INDEX ON dw.item (technical_replicate_count);
+                CREATE INDEX ON dw.item (item_id);"""
+      val result = database.run(createItemViewIndexesDW)
+      Await.result(result, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("dw.item view indexes created")
+      case Failure(f) => {
+        logger.info("SQL query for dw.item indexes generated an error", f)
+        throw new Exception("SQL query for dw.item indexes generated an error")
+      }
+    }
+
   }
+
+
+
 
   def setFlattenMaterialized(): Unit = {
 
-    val dropFlattenViewDW = sqlu"""DROP MATERIALIZED VIEW IF EXISTS dw.flatten;"""
+    val dropFlattenViewDW = sqlu"""DROP MATERIALIZED VIEW IF EXISTS dw.flatten CASCADE;"""
     val setupdropflatten = database.run(dropFlattenViewDW)
     Await.result(setupdropflatten, Duration.Inf)
     logger.info("dw.flatten dropped")
@@ -1253,34 +1322,34 @@ object DbHandler {
     val flattenIndexesTry = Try {
       val createFlattenIndexesDW =
         sqlu"""CREATE INDEX dw_flatten_biosample_type_idx ON dw.flatten (biosample_type);
-    CREATE INDEX dw_flatten_tissue_idx ON dw.flatten (tissue);
-    CREATE INDEX dw_flatten_cell_idx ON dw.flatten (cell);
-    CREATE INDEX dw_flatten_is_healthy_idx ON dw.flatten (is_healthy);
-    CREATE INDEX dw_flatten_disease_idx ON dw.flatten (disease);
-    CREATE INDEX dw_flatten_source_site_idx ON dw.flatten (source_site);
-    CREATE INDEX dw_flatten_external_reference_idx ON dw.flatten (external_reference);
-    CREATE INDEX dw_flatten_dataset_name_idx ON dw.flatten (dataset_name);
-    CREATE INDEX dw_flatten_data_type_idx ON dw.flatten (data_type);
-    CREATE INDEX dw_flatten_file_format_idx ON dw.flatten (file_format);
-    CREATE INDEX dw_flatten_assembly_idx ON dw.flatten (assembly);
-    CREATE INDEX dw_flatten_is_annotation_idx ON dw.flatten (is_annotation);
-    CREATE INDEX dw_flatten_species_idx ON dw.flatten (species);
-    CREATE INDEX dw_flatten_age_idx ON dw.flatten (age);
-    CREATE INDEX dw_flatten_gender_idx ON dw.flatten (gender);
-    CREATE INDEX dw_flatten_ethnicity_idx ON dw.flatten (ethnicity);
-    CREATE INDEX dw_flatten_technique_idx ON dw.flatten (technique);
-    CREATE INDEX dw_flatten_feature_idx ON dw.flatten (feature);
-    CREATE INDEX dw_flatten_target_idx ON dw.flatten (target);
-    CREATE INDEX dw_flatten_antibody_idx ON dw.flatten (antibody);
-    CREATE INDEX dw_flatten_platform_idx ON dw.flatten (platform);
-    CREATE INDEX dw_flatten_pipeline_idx ON dw.flatten (pipeline);
-    CREATE INDEX dw_flatten_content_type_idx ON dw.flatten (content_type);
-    CREATE INDEX dw_flatten_source_idx ON dw.flatten (source);
-    CREATE INDEX dw_flatten_project_name_idx ON dw.flatten (project_name);
-    CREATE INDEX dw_flatten_biological_replicate_number_idx ON dw.flatten (biological_replicate_number);
-    CREATE INDEX dw_flatten_technical_replicate_number_idx ON dw.flatten (technical_replicate_number);
-    CREATE INDEX dw_flatten_biological_replicate_count_idx ON dw.flatten (biological_replicate_count);
-    CREATE INDEX dw_flatten_technical_replicate_count_idx ON dw.flatten (technical_replicate_count);"""
+                CREATE INDEX dw_flatten_tissue_idx ON dw.flatten (tissue);
+                CREATE INDEX dw_flatten_cell_idx ON dw.flatten (cell);
+                CREATE INDEX dw_flatten_is_healthy_idx ON dw.flatten (is_healthy);
+                CREATE INDEX dw_flatten_disease_idx ON dw.flatten (disease);
+                CREATE INDEX dw_flatten_source_site_idx ON dw.flatten (source_site);
+                CREATE INDEX dw_flatten_external_reference_idx ON dw.flatten (external_reference);
+                CREATE INDEX dw_flatten_dataset_name_idx ON dw.flatten (dataset_name);
+                CREATE INDEX dw_flatten_data_type_idx ON dw.flatten (data_type);
+                CREATE INDEX dw_flatten_file_format_idx ON dw.flatten (file_format);
+                CREATE INDEX dw_flatten_assembly_idx ON dw.flatten (assembly);
+                CREATE INDEX dw_flatten_is_annotation_idx ON dw.flatten (is_annotation);
+                CREATE INDEX dw_flatten_species_idx ON dw.flatten (species);
+                CREATE INDEX dw_flatten_age_idx ON dw.flatten (age);
+                CREATE INDEX dw_flatten_gender_idx ON dw.flatten (gender);
+                CREATE INDEX dw_flatten_ethnicity_idx ON dw.flatten (ethnicity);
+                CREATE INDEX dw_flatten_technique_idx ON dw.flatten (technique);
+                CREATE INDEX dw_flatten_feature_idx ON dw.flatten (feature);
+                CREATE INDEX dw_flatten_target_idx ON dw.flatten (target);
+                CREATE INDEX dw_flatten_antibody_idx ON dw.flatten (antibody);
+                CREATE INDEX dw_flatten_platform_idx ON dw.flatten (platform);
+                CREATE INDEX dw_flatten_pipeline_idx ON dw.flatten (pipeline);
+                CREATE INDEX dw_flatten_content_type_idx ON dw.flatten (content_type);
+                CREATE INDEX dw_flatten_source_idx ON dw.flatten (source);
+                CREATE INDEX dw_flatten_project_name_idx ON dw.flatten (project_name);
+                CREATE INDEX dw_flatten_biological_replicate_number_idx ON dw.flatten (biological_replicate_number);
+                CREATE INDEX dw_flatten_technical_replicate_number_idx ON dw.flatten (technical_replicate_number);
+                CREATE INDEX dw_flatten_biological_replicate_count_idx ON dw.flatten (biological_replicate_count);
+                CREATE INDEX dw_flatten_technical_replicate_count_idx ON dw.flatten (technical_replicate_count);"""
       val setupcreateindex = database.run(createFlattenIndexesDW)
       Await.result(setupcreateindex, Duration.Inf)
     } match {
@@ -1306,7 +1375,7 @@ object DbHandler {
 
   def setUnifiedPair(): Unit = {
 
-    val dropGcmPairView = sqlu"""DROP MATERIALIZED VIEW IF EXISTS gcm_pair;"""
+    val dropGcmPairView = sqlu"""DROP MATERIALIZED VIEW IF EXISTS gcm_pair CASCADE;"""
     val setupdropGcmPair = database.run(dropGcmPairView)
     Await.result(setupdropGcmPair, Duration.Inf)
     logger.info("gcm_pair dropped")
@@ -1414,21 +1483,26 @@ object DbHandler {
       }
     }
 
-    val dropUnifiedPair = sqlu"""DROP TABLE IF EXISTS unified_pair CASCADE;"""
+    val dropUnifiedPair = sqlu"""DROP MATERIALIZED VIEW IF EXISTS unified_pair CASCADE;"""
     val setupdropUnifiedPair = database.run(dropUnifiedPair)
     Await.result(setupdropUnifiedPair, Duration.Inf)
     logger.info("unified_pair dropped")
 
     val UnifiedPairCreateTry: Unit = Try {
       val createUnifiedPair =
-        sqlu"""create table unified_pair(
-                  item_id integer not null,
-                  key     text    not null,
-                  value   text    not null,
-                  is_gcm  boolean,
-                  constraint unified_pair_pkey
-                      primary key (item_id, key, value)
-              );"""
+        sqlu"""CREATE MATERIALIZED VIEW unified_pair
+                AS
+                select item_id,
+               lower(key)::varchar(128)   as key,
+               lower(value) as value,
+               false        as is_gcm
+                from pair
+                UNION
+                select item_id,
+               lower(key)::varchar(128)   as key,
+               lower(value) as value,
+               true         as is_gcm
+               from gcm_pair;"""
       val result = database.run(createUnifiedPair)
       Await.result(result, Duration.Inf)
     } match {
@@ -1439,63 +1513,45 @@ object DbHandler {
       }
     }
 
-    val UnifiedPairInsertTry = Try {
+    val UnifiedPairInsertTry: Unit = Try {
       val insertUnifiedPair =
-        sqlu"""insert into unified_pair (
-                  select item_id,
-                         key,
-                         value,
-                         case is_gcm
-                             when 0 then FALSE
-                             else TRUE
-                             end
-                             as is_gcm
-                  from (
-                           select item_id,
-                                  key,
-                                  value,
-                                  max(is_gcm) as is_gcm
-                           from (
-                                    select item_id,
-                                           lower(key)   as key,
-                                           lower(value) as value,
-                                           0            as is_gcm
-                                    from pair
-                                    UNION
-                                    select item_id,
-                                           lower(key)   as key,
-                                           lower(value) as value,
-                                           1            as is_gcm
-                                    from gcm_pair
-                                    where value is not null
-                           ) as a
-                           group by item_id, key, value
-                  ) as b
-              );"""
+        sqlu"""CREATE UNIQUE INDEX unified_pair_unique_idx
+                ON unified_pair (item_id, key, value, is_gcm);"""
       val result = database.run(insertUnifiedPair)
       Await.result(result, Duration.Inf)
     } match {
-      case Success(value) => logger.info("Insert in unified_pair completed")
+      case Success(value) => logger.info("constraint in unified_pair completed")
       case Failure(f) => {
-        logger.info("Insert SQL query for unified_pair generated an error", f)
-        throw new Exception("Insert SQL query for unified_pair generated an error")
+        logger.info("constraint creation in unified_pair generated an error", f)
+        throw new Exception("constraint creation in unified_pair generated an error")
       }
     }
 
 
-
-    /*  val unifiedPairIndexesTry = Try {
-        val unifiedPairIndexes =
-          sqlu"""...;"""
-        val setupUPindex = database.run(unifiedPairIndexes)
-        Await.result(setupUPindex, Duration.Inf)
-      } match {
-        case Success(value) => logger.info("unified_pair indexes created")
-        case Failure(f) => {
-          logger.info("SQL query for INDEXES for unified_pair generated an error", f)
-          throw new Exception("SQL query for INDEXES for unified_pair generated an error")
-        }
-      }*/
+    val unifiedPairIndexesTry = Try {
+      val unifiedPairIndexes =
+        sqlu"""CREATE INDEX ON unified_pair (item_id);
+                CREATE INDEX ON unified_pair USING GIN (item_id,lower(key));
+                CREATE INDEX ON unified_pair USING GIN (item_id,lower(value));
+                CREATE INDEX ON unified_pair USING GIN (lower(key),item_id);
+                CREATE INDEX ON unified_pair USING GIN (lower(value),item_id);
+                CREATE INDEX ON unified_pair USING GIN (item_id,key);
+                CREATE INDEX ON unified_pair USING GIN (item_id,value);
+                CREATE INDEX ON unified_pair USING GIN (key,item_id);
+                CREATE INDEX ON unified_pair USING GIN (value,item_id);
+                CREATE INDEX ON unified_pair USING GIN (lower(key));
+                CREATE INDEX ON unified_pair USING GIN (lower(value));
+                CREATE INDEX ON unified_pair USING GIN (key);
+                CREATE INDEX ON unified_pair USING GIN (value);"""
+      val setupUPindex = database.run(unifiedPairIndexes)
+      Await.result(setupUPindex, Duration.Inf)
+    } match {
+      case Success(value) => logger.info("unified_pair indexes created")
+      case Failure(f) => {
+        logger.info("SQL query for INDEXES for unified_pair generated an error", f)
+        throw new Exception("SQL query for INDEXES for unified_pair generated an error")
+      }
+    }
   }
 
   def fixGENCODEUrlProblem(): Unit = {

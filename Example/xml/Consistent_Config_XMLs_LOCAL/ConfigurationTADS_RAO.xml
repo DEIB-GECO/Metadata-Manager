@@ -6,7 +6,7 @@
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta</base_working_directory>
         <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
-        <mapper_source>TADS_COMB</mapper_source>
+        <mapper_source>TADS_RAO</mapper_source>
         <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
         <database_connection_user>geco</database_connection_user>
         <database_connection_pw>geco78</database_connection_pw>
@@ -22,9 +22,9 @@
         <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
-        <source name="TADS_COMB">
+        <source name="TADS_RAO">
             <url>http://egg2.wustl.edu/roadmap/data/</url>
-            <source_working_directory>tads</source_working_directory>
+            <source_working_directory>tads_rao</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.roadmap.RoadmapDownloader</downloader>
             <transformer>it.polimi.genomics.metadata.downloader_transformer.roadmap.RoadmapTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
@@ -58,12 +58,12 @@
                 <parameter>
                     <description>Mappings</description>
                     <key>mappings</key>
-                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsREP.xml</value>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsTadsRao.xml</value>
                 </parameter>
             </parameter_list>
             <dataset_list>
-                <dataset name="tads_combined">
-                    <dataset_working_directory>narrowPeak</dataset_working_directory>
+                <dataset name="tads_rao">
+                    <dataset_working_directory>tads_rao_ds</dataset_working_directory>
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
