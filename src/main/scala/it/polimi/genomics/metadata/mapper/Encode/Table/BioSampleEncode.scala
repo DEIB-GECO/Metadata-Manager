@@ -23,6 +23,8 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   var diseaseArray: Array[Option[String]] = new Array[Option[String]](quantity)
 
+  var altBiosampleSourceIdArray: Array[String] = new Array[String](quantity)
+
   var ontologicalCode: Array[String] = new Array[String](quantity)
 
   var originalKey: Array[String] = new Array[String](quantity)
@@ -198,7 +200,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
+    val id = dbHandler.insertBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition), this.altBiosampleSourceIdArray(actualPosition))
    // if (conf.getBoolean("import.support_table_insert"))
      // insertOrUpdateOntologicTuple(id)
     /* if(this.cellLineArray(actualPosition) != null && conf.getBoolean("import.support_table_insert"))
@@ -211,7 +213,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
   // override def insert(states: collection.mutable.Map[String, String]): Int = ???
 
   override def update(): Int = {
-    val id = dbHandler.updateBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
+    val id = dbHandler.updateBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition), this.altBiosampleSourceIdArray(actualPosition))
    // if (conf.getBoolean("import.support_table_insert"))
     //  insertOrUpdateOntologicTuple(id)
     id

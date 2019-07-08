@@ -21,6 +21,7 @@ class ItemTCGA extends TCGATable with Item {
     case "LOCALURL" => this.localUrl = insertMethod(this.localUrl, param)
     case "FILENAME" => this.fileName = insertMethod(this.fileName, param)
     case "SOURCEPAGE" => this.sourcePage = insertMethod(this.sourcePage, param)
+    case "ALTITEMSOURCEID" => this.altItemSourceId = insertMethod(this.altItemSourceId, param)
     case _ => noMatching(dest)
   }
 

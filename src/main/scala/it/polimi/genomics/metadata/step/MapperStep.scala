@@ -54,6 +54,11 @@ object MapperStep extends Step {
   override def execute(source: Source, parallelExecution: Boolean): Unit = {
     if (source.mapperEnabled) {
 
+      DbHandler.setDatabase
+      DbHandler.setDWViews
+      DbHandler.setFlattenMaterialized
+      logger.info("Database has been set")
+
       logger.info("Starting mapper for on folder: " + source.outputFolder)
 
 
@@ -106,6 +111,13 @@ object MapperStep extends Step {
           thread.join()
         }
       }
+
+      DbHandler.refreshFlattenMaterialized
+      DbHandler.setUnifiedPair
+
+      DbHandler.closeDatabase()
+
+
       logger.info(s"Source ${source.name} mapping finished")
     }
   }
@@ -123,10 +135,11 @@ object MapperStep extends Step {
     val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/Metadata-Manager/master/Example/xml/setting.xsd"
     if (SchemaValidator.validate(pathXML, schemaUrl)) {
       logger.info("Xml file is valid for the schema")
-      DbHandler.setDatabase
-      DbHandler.setDWViews
-      DbHandler.setFlattenMaterialized
-      logger.info("Database has been set")
+
+      //DbHandler.setDatabase
+      //DbHandler.setDWViews
+      //DbHandler.setFlattenMaterialized
+      //logger.info("Database has been set")
 
       val t0: Long = System.nanoTime()
       repositoryRef.toUpperCase() match {
@@ -137,6 +150,10 @@ object MapperStep extends Step {
         case "TADS_COMB" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexCombTads.findFirstIn(f.getName).isDefined).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
         case _ => logger.error(s"Incorrectly specified repository")
       }
+
+      if(repositoryRef.toUpperCase().equals("ANN"))
+        DbHandler.fixGENCODEUrlProblem
+
       val t1 = System.nanoTime()
       logger.info(s"Total time to insert data in DB ${getTotalTimeFormatted(t0, t1)}")
       logger.info(s"Total analyzed files ${Statistics.fileNumber}")
@@ -159,16 +176,9 @@ object MapperStep extends Step {
         logger.info(s"Total Replicates inserted or updated ${Statistics.replicateInsertedOrUpdated}")
 
       }
-
-      if(repositoryRef.toUpperCase().equals("ANN"))
-        DbHandler.fixGENCODEUrlProblem
-      DbHandler.refreshFlattenMaterialized
-      DbHandler.setUnifiedPair
-
     }
     else
       logger.info("Xml file is NOT valid for the schema, please check it for next runs")
-    DbHandler.closeDatabase()
 
   }
 

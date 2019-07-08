@@ -18,6 +18,8 @@ class DonorREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTableI
 
   var ethnicityArray: Array[String] = new Array[String](quantity)
 
+  var altDonorSourceIdArray: Array[String] = new Array[String](quantity)
+
   var actualPosition: Int = _
 
   var insertPosition: Int = 0
@@ -114,17 +116,17 @@ class DonorREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTableI
   }
 
     override def insert(): Int ={
-    dbHandler.insertDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
+    dbHandler.insertDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition), this.altDonorSourceIdArray(actualPosition))
   }
 
  // override def insert(states: collection.mutable.Map[String, String]): Int = ???
 
   override def update(): Int ={
-    dbHandler.updateDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
+    dbHandler.updateDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition),this.altDonorSourceIdArray(actualPosition))
   }
 
   override def updateById(): Unit ={
-    dbHandler.updateDonorById(this.primaryKeys(actualPosition), this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
+    dbHandler.updateDonorById(this.primaryKeys(actualPosition), this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition),this.altDonorSourceIdArray(actualPosition))
   }
 
   override def setForeignKeys(table: Table): Unit = {

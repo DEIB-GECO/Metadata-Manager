@@ -18,6 +18,8 @@ trait BioSample extends Table{
 
   var disease: Option[String] = None
 
+  var altBiosampleSourceId: String = _
+
   _hasForeignKeys = true
 
   _foreignKeysTables = List("DONORS")
@@ -27,15 +29,15 @@ trait BioSample extends Table{
   _dependenciesTables = List("BIOSAMPLES")
 
   override def insert(): Int ={
-    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tissue,this.cell, this.isHealthy,this.disease)
+    dbHandler.insertBioSample(donorId,this.sourceId,this.types,this.tissue,this.cell, this.isHealthy,this.disease, this.altBiosampleSourceId)
   }
 
   override def update(): Int = {
-    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cell, this.isHealthy,this.disease)
+    dbHandler.updateBioSample(donorId,this.sourceId,this.types,this.tissue,this.cell, this.isHealthy,this.disease, this.altBiosampleSourceId)
   }
 
   override def updateById(): Unit = {
-    dbHandler.updateBioSampleById(this.primaryKey, donorId,this.sourceId,this.types,this.tissue,this.cell,this.isHealthy,this.disease)
+    dbHandler.updateBioSampleById(this.primaryKey, donorId,this.sourceId,this.types,this.tissue,this.cell,this.isHealthy,this.disease, this.altBiosampleSourceId)
   }
 
   override def setForeignKeys(table: Table): Unit = {

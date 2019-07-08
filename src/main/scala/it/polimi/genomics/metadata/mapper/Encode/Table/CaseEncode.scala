@@ -9,24 +9,25 @@ class CaseEncode(encodeTableId: EncodeTableId) extends EncodeTable(encodeTableId
     case "SOURCEID" => this.sourceId = insertMethod(this.sourceId,param)
     case "SOURCESITE" => this.sourceSite = insertMethod(this.sourceSite,param)
     case "EXTERNALREF" => this.externalRef =  insertMethod(this.externalRef,param)
+    case "ALTCASESOURCEID" => this.altCaseSourceId =  insertMethod(this.altCaseSourceId,param)
     case _ => noMatching(dest)
   }
 
 
   override def insert() = {
-    val id = dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef, this.altCaseSourceId)
     this.encodeTableId.caseId_(id)
     id
   }
 
   override def update() = {
-    val id = dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef, this.altCaseSourceId)
     this.encodeTableId.caseId_(id)
     id
   }
 
   override def updateById() = {
-    val id = dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef, this.altCaseSourceId)
     this.encodeTableId.caseId_(id)
   }
 }

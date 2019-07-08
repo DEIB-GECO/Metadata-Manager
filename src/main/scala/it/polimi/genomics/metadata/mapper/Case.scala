@@ -11,20 +11,22 @@ trait Case extends Table{
 
   var externalRef: String = _
 
+  var altCaseSourceId: String = _
+
   _hasForeignKeys = true
 
   _foreignKeysTables = List("PROJECTS")
 
   override def insert(): Int = {
-    dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef, this.altCaseSourceId)
   }
 
   override def update(): Int = {
-    dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef, this.altCaseSourceId)
   }
 
   override def updateById(): Unit = {
-    dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef, this.altCaseSourceId)
   }
 
   override def setForeignKeys(table: Table): Unit = {

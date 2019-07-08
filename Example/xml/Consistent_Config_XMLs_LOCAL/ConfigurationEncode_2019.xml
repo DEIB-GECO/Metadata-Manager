@@ -5,10 +5,16 @@
     <settings>
         <base_working_directory>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta</base_working_directory>
         <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
+        <mapper_source>ENCODE</mapper_source>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
+        <database_connection_user>geco</database_connection_user>
+        <database_connection_pw>geco78</database_connection_pw>
+        <database_connection_driver>org.postgresql.Driver</database_connection_driver>
+        <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/cleaner_rule_base.txt</flattener_rule_base>
         <download_enabled>false</download_enabled>
         <transform_enabled>false</transform_enabled>
-        <cleaner_enabled>true</cleaner_enabled>
-        <mapper_enabled>false</mapper_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>true</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
         <flattener_enabled>false</flattener_enabled>
         <load_enabled>false</load_enabled>
@@ -150,6 +156,11 @@
                     <key>rule_base</key>
                     <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta/ENCODE_rules.txt</value>
                 </parameter>
+                <parameter>
+                    <description>Mappings</description>
+                    <key>mappings</key>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsEncode.xml</value>
+                </parameter>
             </parameter_list>
             <dataset_list>
                 <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
@@ -204,13 +215,13 @@
                             <description>this ones are to reduce the downloaded files</description>
                             <type>url_generation</type>
                             <key>accession</key>
-                            <!--<value>ENCFF019GQM</value>-->
-                            <value>ENCSR726ZZX</value>
+                            <value>ENCSR635OSG</value>
+                            <!--<value>ENCSR726ZZX</value>-->
                         </parameter>
                     </parameter_list>
                 </dataset>
             </dataset_list>
         </source>
-        <!--I separated ENCODE in 2 diferent reference genomes to have a more "self explained" name in GMQL-->
+        <!--I separated ENCODE in 2 different reference genomes to have a more "self explained" name in GMQL-->
     </source_list>
 </root>

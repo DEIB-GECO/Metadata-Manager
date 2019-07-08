@@ -23,6 +23,8 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
 
   var diseaseArray: Array[Option[String]] = new Array[Option[String]](quantity)
 
+  var altBiosampleSourceIdArray: Array[String] = new Array[String](quantity)
+
   var ontologicalCode: Array[String] = new Array[String](quantity)
 
   var originalKey: Array[String] = new Array[String](quantity)
@@ -182,12 +184,12 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
+    val id = dbHandler.insertBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition), this.altBiosampleSourceIdArray(actualPosition))
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition))
+    val id = dbHandler.updateBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition), this.altBiosampleSourceIdArray(actualPosition))
     id
   }
 

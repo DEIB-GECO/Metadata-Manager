@@ -33,6 +33,10 @@
             <source_key>clinical_patient__race</source_key><!--ok-->
             <global_key>ethnicity</global_key>
         </mapping>
+        <mapping>
+            <source_key>clinical_patient__bcr_patient_barcode</source_key><!--ok-->
+            <global_key>altDonorSourceId</global_key>
+        </mapping>
     </table>
     <table name="BIOSAMPLES">
         <mapping>
@@ -62,6 +66,10 @@
         <mapping>
             <source_key>manually_curated__tumor_description</source_key><!--ok-->
             <global_key>disease</global_key>
+        </mapping>
+        <mapping>
+            <source_key>biospecimen_sample__bcr_sample_barcode</source_key><!--ok-->
+            <global_key>altBiosampleSourceId</global_key>
         </mapping>
     </table>
     <table name="REPLICATES">
@@ -202,6 +210,10 @@
         <mapping>
             <source_key>file_name</source_key>
             <global_key>fileName</global_key>
+        </mapping>
+        <mapping>
+            <source_key>biospecimen_aliquot__bcr_aliquot_barcode</source_key>
+            <global_key>altItemSourceId</global_key>
         </mapping>
     </table>
 </root>

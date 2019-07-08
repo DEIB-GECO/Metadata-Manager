@@ -15,19 +15,19 @@ class CaseREP(repTableId: REPTableId) extends REPTable(repTableId) with Case {
 
 
   override def insert() = {
-    val id = dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.insertCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef, this.altCaseSourceId)
     this.repTableId.caseId_(id)
     id
   }
 
   override def update() = {
-    val id = dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.updateCase(this.projectId,this.sourceId,this.sourceSite,this.externalRef,this.altCaseSourceId)
     this.repTableId.caseId_(id)
     id
   }
 
   override def updateById() = {
-    val id = dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef)
+    val id = dbHandler.updateCaseById(this.primaryKey, this.projectId,this.sourceId,this.sourceSite,this.externalRef,this.altCaseSourceId)
     this.repTableId.caseId_(id)
   }
 }

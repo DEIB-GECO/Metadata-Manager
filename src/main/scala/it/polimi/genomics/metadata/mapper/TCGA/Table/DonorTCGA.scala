@@ -18,6 +18,7 @@ class DonorTCGA extends TCGATable with Donor{
       }
       case "GENDER" => this.gender = insertMethod(this.gender, param)
       case "ETHNICITY" => this.ethnicity = insertMethod(this.ethnicity, param)
+      case "ALTDONORSOURCEID" => this.altDonorSourceId = insertMethod(this.altDonorSourceId, param)
       case _ => noMatching(dest)
     }
   }

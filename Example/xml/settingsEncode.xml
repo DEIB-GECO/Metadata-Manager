@@ -145,6 +145,11 @@
             <source_key>experiment__dbxrefs</source_key>
             <global_key>externalRef</global_key>
         </mapping>
+        <mapping>
+            <source_key>experiment__dbxrefs</source_key>
+            <global_key>altCaseSourceId</global_key>
+        </mapping>
+
     </table>
     <table name="ITEMS">
         <mapping>

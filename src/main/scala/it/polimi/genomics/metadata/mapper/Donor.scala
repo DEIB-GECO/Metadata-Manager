@@ -14,20 +14,22 @@ trait Donor extends Table{
 
   var ethnicity : String = _
 
+  var altDonorSourceId: String = _
+
   _hasDependencies = true
 
   _dependenciesTables = List("BIOSAMPLES")
 
   override def insert(): Int ={
-    dbHandler.insertDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity)
+    dbHandler.insertDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity, this.altDonorSourceId)
   }
 
   override def update(): Int ={
-    dbHandler.updateDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity)
+    dbHandler.updateDonor(this.sourceId,this.species,this.age,this.gender,this.ethnicity, this.altDonorSourceId)
   }
 
   override def updateById(): Unit = {
-    dbHandler.updateDonorById(this.primaryKey, this.sourceId,this.species,this.age,this.gender,this.ethnicity)
+    dbHandler.updateDonorById(this.primaryKey, this.sourceId,this.species,this.age,this.gender,this.ethnicity, this.altDonorSourceId)
   }
 
   override def setForeignKeys(table: Table): Unit = {

@@ -70,6 +70,7 @@ class BioSampleTCGA extends TCGATable with BioSample {
           this.disease = Some(b)
         }
       }
+      case "ALTBIOSAMPLESOURCEID" => this.altBiosampleSourceId = insertMethod(this.altBiosampleSourceId, param)
       case _ => noMatching(dest)
     }
   }

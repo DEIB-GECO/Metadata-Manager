@@ -25,6 +25,10 @@
             <source_key>gdc__project__disease_type</source_key><!-->ok<-->
             <global_key>disease</global_key>
         </mapping>
+        <mapping>
+            <source_key>biospecimen__bio__bcr_sample_barcode</source_key><!--ok-->
+            <global_key>altBiosampleSourceId</global_key>
+        </mapping>
     </table>
     <table name="ITEMS">
         <mapping>
@@ -55,10 +59,6 @@
             <source_key>manually_curated__exp_data_bed_url</source_key><!-->ok<-->
             <global_key>sourceUrl</global_key>
         </mapping>
-        <mapping method="SOURCEPAGEGDC">
-            <source_key>gdc__file_id</source_key>
-            <global_key>sourcePage</global_key>
-        </mapping>
         <mapping method="MANUAL">
             <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key><!-->ok<-->
             <global_key>localUrl</global_key>
@@ -78,6 +78,14 @@
         <mapping>
             <source_key>file_name</source_key>
             <global_key>fileName</global_key>
+        </mapping>
+        <mapping method="SOURCEPAGEGDC">
+            <source_key>gdc__file_id</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
+        <mapping>
+            <source_key>gdc__aliquots__submitter_id</source_key>
+            <global_key>altItemSourceId</global_key>
         </mapping>
     </table>
     <table name="DONORS">
@@ -100,6 +108,10 @@
         <mapping>
             <source_key>gdc__demographic__race</source_key><!-->ok<-->
             <global_key>ethnicity</global_key>
+        </mapping>
+        <mapping>
+            <source_key>biospecimen__shared__bcr_patient_barcode</source_key><!--ok-->
+            <global_key>altDonorSourceId</global_key>
         </mapping>
     </table>
     <table name="REPLICATES">

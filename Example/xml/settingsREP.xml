@@ -55,10 +55,10 @@
             <source_key>epi__anatomy</source_key>
             <global_key>tissue</global_key>
         </mapping>
-        <!--    <mapping method="MANUAL">
-                <source_key>null</source_key>
-                <global_key>isHealthy</global_key>
-            </mapping> -->
+        <mapping method="MANUAL">
+            <source_key>true</source_key>
+            <global_key>isHealthy</global_key>
+        </mapping>
         <!--     <mapping method="MANUAL">
                  <source_key>null</source_key>
                  <global_key>disease</global_key>
