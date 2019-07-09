@@ -8,8 +8,8 @@
         <gcm_config_file>/home/hduser/GMQL-sources/Metadata-Manager/src/main/resources/application.conf</gcm_config_file>
         <mapper_source>ENCODE</mapper_source>
         <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
-        <database_connection_user>xxx</database_connection_user>
-        <database_connection_pw>yyy</database_connection_pw>
+        <database_connection_user>geco</database_connection_user>
+        <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
         <flattener_rule_base>/home/hduser/GMQL-sources/Metadata-Manager/Example/flattener_rule_base.txt</flattener_rule_base>
         <download_enabled>false</download_enabled>
@@ -22,9 +22,9 @@
         <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
-        <source name="ENCODE">
+        <source name="ENCODEPROVANNA">
             <url>https://www.encodeproject.org/</url>
-            <source_working_directory>ENCODE</source_working_directory>
+            <source_working_directory>ENCODEPROVANNA</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
             <transformer>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
@@ -164,7 +164,7 @@
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>HG19_ENCODE_BROAD_NOV_2027</value>
+                            <value>ANNAHG19_ENCODE_BROAD_NOV_2027</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
