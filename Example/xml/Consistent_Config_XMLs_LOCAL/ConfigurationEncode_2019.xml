@@ -63,7 +63,7 @@
                 <parameter>
                     <description>We specified frame embedded and format json in encode for importing metadata</description>
                     <key>json_suffix</key>
-                    <value>/?frame=embedded&amp;format=json/</value>
+                    <value>/?frame=embedded&amp;format=json</value>
                 </parameter>
                 <!--<parameter>
                     <description>Excluding useless group of metadata</description>
