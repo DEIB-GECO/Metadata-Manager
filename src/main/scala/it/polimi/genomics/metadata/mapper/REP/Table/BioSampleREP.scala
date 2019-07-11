@@ -82,7 +82,7 @@ class BioSampleREP(repTableId: REPTableId, quantity: Int) extends REPTable(repTa
         this.cellInsertPosition = resetPosition(this.cellInsertPosition, quantity)
       }
       case "ISHEALTHY" => {
-        this.isHealthyArray(isHealthyInsertPosition) = null
+        this.isHealthyArray(isHealthyInsertPosition) = Some(true)
         this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
       }
       case "DISEASE" => {
