@@ -141,8 +141,12 @@
             <source_key>experiment__lab__title</source_key>
             <global_key>sourceSite</global_key>
         </mapping>
-        <mapping>
-            <source_key>experiment__dbxrefs</source_key>
+        <mapping method="MANUAL">
+            <source_key>https://www.encodeproject.org/experiments/</source_key>
+            <global_key>externalRef</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="">
+            <source_key>file__experiment</source_key>
             <global_key>externalRef</global_key>
         </mapping>
         <mapping>
