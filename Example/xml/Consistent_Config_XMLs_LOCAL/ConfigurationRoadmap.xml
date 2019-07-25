@@ -11,7 +11,7 @@
         <database_connection_user>geco</database_connection_user>
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
-        <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/cleaner_rule_base.txt</flattener_rule_base>
+        <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/flattener_rule_base.txt</flattener_rule_base>
         <download_enabled>false</download_enabled>
         <transform_enabled>false</transform_enabled>
         <cleaner_enabled>false</cleaner_enabled>
@@ -64,7 +64,7 @@
             <dataset_list>
                 <dataset name="HG19_ROADMAP_EPIGENOMICS_NARROW">
                     <dataset_working_directory>narrowPeak</dataset_working_directory>
-                    <schema_url location="local">schemas/narrowPeak.schema</schema_url>
+                    <schema_url location="local">schemas/narroPeak.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
                     <cleaner_enabled>true</cleaner_enabled>

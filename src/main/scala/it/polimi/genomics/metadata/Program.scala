@@ -428,7 +428,8 @@ object Program extends App {
           }
         }
 
-        def go(): Unit = {          val t0Source = System.nanoTime()
+        def go(): Unit = {
+          val t0Source = System.nanoTime()
           logger.info(s"Starting $level for source: ${source.name}")
           Step.getLevelExecutable(level).execute(source, parallelExecution)
           logger.info(s"$level for ${source.name} Finished")

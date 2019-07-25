@@ -1,10 +1,11 @@
 package it.polimi.genomics.metadata.database
 
+import it.polimi.genomics.metadata.step.utils.ParameterUtil
 import org.joda.time.DateTime
 import org.slf4j.{Logger, LoggerFactory}
 import slick.dbio.Effect.Write
-import slick.jdbc.H2Profile.api._
-import slick.jdbc.H2Profile.backend.DatabaseDef
+import slick.driver.PostgresDriver
+import slick.driver.PostgresDriver.api._
 import slick.jdbc.meta.MTable
 import slick.sql.FixedSqlAction
 
@@ -55,7 +56,7 @@ case class DbContainer() {
   //------------------------------------------------testing space-------------------------------------------------------
   //here print of run parameters and all the xmlConfigurationFile could be done.
   //-------------------------------------DATABASE DEFINITION------------------------------------------------------------
-  var database: DatabaseDef = _
+  var database: PostgresDriver.backend.DatabaseDef = _
   //------------------------------------------LOG PRINTING--------------------------------------------------------------
   /**
     * prints the log for dataset downloaded files for a specified run
@@ -805,64 +806,72 @@ case class DbContainer() {
   def setDatabase(path: String): Unit = {
     //;DB_CLOSE_ON_EXIT=FALSE
     //jdbc:h2:file:/home/nachon/Downloads/tesis/db/db
-    database = Database.forURL("jdbc:h2:file:" + path + "/db;AUTO_SERVER=TRUE", driver = "org.h2.Driver", keepAliveConnection = true)
+    //database = Database.forURL("jdbc:h2:file:" + path + "/db;AUTO_SERVER=TRUE", driver = "org.h2.Driver", keepAliveConnection = true)
+    //database = Database.forURL("jdbc:postgresql://localhost/gmql_importer?user=geco&password=geco78", driver = "org.postgresql.Driver", keepAliveConnection = true)
+
+    database =  Database.forURL(
+      "jdbc:postgresql://localhost/gmql_importer",
+      "geco",
+     "geco78",
+      driver = "org.postgresql.Driver")
+
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList
-    if (!tables.exists(_.name.name == "SOURCES")) {
+    if (!tables.exists(_.name.name == "SOURCES".toLowerCase())) {
       val setup = DBIO.seq(sources.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
       logger.info("Table SOURCES created")
     }
-    if (!tables.exists(_.name.name == "DATASETS")) {
+    if (!tables.exists(_.name.name == "DATASETS".toLowerCase())) {
       val setup = DBIO.seq(datasets.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
       logger.info("Table DATASETS created")
     }
-    if (!tables.exists(_.name.name == "FILES")) {
+    if (!tables.exists(_.name.name == "FILES".toLowerCase())) {
       val setup = DBIO.seq(files.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
       logger.info("Table FILES created")
     }
-    if (!tables.exists(_.name.name == "RUNS")) {
+    if (!tables.exists(_.name.name == "RUNS".toLowerCase())) {
       val setup = DBIO.seq(runs.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
       logger.info("Table RUNS created")
     }
-    if (!tables.exists(_.name.name == "RUNSOURCES")) {
+    if (!tables.exists(_.name.name == "RUNSOURCES".toLowerCase())) {
       val setup = DBIO.seq(runSources.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
       logger.info("Table RUNSOURCES created")
     }
-    if (!tables.exists(_.name.name == "RUNSOURCEPARAMETERS")) {
+    if (!tables.exists(_.name.name == "RUNSOURCEPARAMETERS".toLowerCase())) {
       val setup = DBIO.seq(runSourceParameters.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
       logger.info("Table RUNSOURCEPARAMETERS created")
     }
-    if (!tables.exists(_.name.name == "RUNDATASETS")) {
+    if (!tables.exists(_.name.name == "RUNDATASETS".toLowerCase())) {
       val setup = DBIO.seq(runDatasets.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
       logger.info("Table RUNDATASETS created")
     }
-    if (!tables.exists(_.name.name == "RUNDATASETPARAMETERS")) {
+    if (!tables.exists(_.name.name == "RUNDATASETPARAMETERS".toLowerCase())) {
       val setup = DBIO.seq(runDatasetParameters.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
       logger.info("Table RUNDATASETPARAMETERS created")
     }
-    if (!tables.exists(_.name.name == "RUNDATASETLOGS")) {
+    if (!tables.exists(_.name.name == "RUNDATASETLOGS".toLowerCase())) {
       val setup = DBIO.seq(runDatasetLogs.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
       logger.info("Table RUNDATASETLOGS created")
     }
 
-    if (!tables.exists(_.name.name == "RUNFILES")) {
+    if (!tables.exists(_.name.name == "RUNFILES".toLowerCase())) {
       val setup = DBIO.seq(runFiles.schema.create)
       val setupFuture = database.run(setup)
       Await.result(setupFuture, Duration.Inf)
@@ -902,10 +911,10 @@ case class DbContainer() {
     * @param tag SOURCES
     */
   class Sources(tag: Tag) extends
-    Table[(Option[Int], String)](tag, "SOURCES") {
-    def id = column[Int]("SOURCE_ID", O.PrimaryKey, O.AutoInc)
+    Table[(Option[Int], String)](tag, "SOURCES".toLowerCase()) {
+    def id = column[Int]("SOURCE_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def name = column[String]("NAME")
+    def name = column[String]("NAME".toLowerCase())
 
     def sourceNameIndex = index("sourceNameIndex", name, unique = true)
 
@@ -924,12 +933,12 @@ case class DbContainer() {
     * @param tag DATASETS
     */
   class Datasets(tag: Tag) extends
-    Table[(Option[Int], Int, String)](tag, "DATASETS") {
-    def id = column[Int]("DATASET_ID", O.PrimaryKey, O.AutoInc)
+    Table[(Option[Int], Int, String)](tag, "DATASETS".toLowerCase()) {
+    def id = column[Int]("DATASET_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def sourceId = column[Int]("SOURCE_ID")
+    def sourceId = column[Int]("SOURCE_ID".toLowerCase())
 
-    def name = column[String]("NAME")
+    def name = column[String]("NAME".toLowerCase())
 
     def Source = foreignKey("DATASETS_SOURCE_FK", sourceId, sources)(
       _.id,
@@ -965,34 +974,34 @@ case class DbContainer() {
     * @param tag FILES
     */
   class Files(tag: Tag) extends
-    Table[File](tag, "FILES") {
-    def id = column[Int]("FILE_ID", O.PrimaryKey, O.AutoInc)
+    Table[File](tag, "FILES".toLowerCase()) {
+    def id = column[Int]("FILE_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def datasetId = column[Int]("DATASET_ID")
+    def datasetId = column[Int]("DATASET_ID".toLowerCase())
 
-    def url = column[String]("URL")
+    def url = column[String]("URL".toLowerCase())
 
-    def name = column[String]("NAME")
+    def name = column[String]("NAME".toLowerCase())
 
-    def stage = column[String]("STAGE")
+    def stage = column[String]("STAGE".toLowerCase())
 
     //THIS IS DOWNLOAD/TRANSFORM
-    def status = column[String]("STATUS")
+    def status = column[String]("STATUS".toLowerCase())
 
     //UPDATED/FAILED/OUTDATED
-    def size = column[String]("SIZE")
+    def size = column[String]("FILE_SIZE".toLowerCase())
 
-    def lastUpdate = column[String]("LAST_UPDATE")
+    def lastUpdate = column[String]("LAST_UPDATE".toLowerCase())
 
-    def hash = column[String]("HASH")
+    def hash = column[String]("HASH".toLowerCase())
 
-    def originSize = column[String]("SIZE_IN_ORIGIN")
+    def originSize = column[String]("SIZE_IN_ORIGIN".toLowerCase())
 
-    def originLastUpdate = column[String]("LAST_UPDATE_IN_ORIGIN")
+    def originLastUpdate = column[String]("LAST_UPDATE_IN_ORIGIN".toLowerCase())
 
-    def dateProcessed = column[String]("DATE_PROCESSED")
+    def dateProcessed = column[String]("DATE_PROCESSED".toLowerCase())
 
-    def copyNumber = column[Int]("COPY_NUMBER")
+    def copyNumber = column[Int]("COPY_NUMBER".toLowerCase())
 
     def Dataset = foreignKey("FILES_DATASET_FK", datasetId, datasets)(
       _.id,
@@ -1024,20 +1033,20 @@ case class DbContainer() {
     * @param tag RUNS
     */
   class Runs(tag: Tag) extends
-    Table[(Option[Int], String, String, String, String, String, String)](tag, "RUNS") {
-    def id = column[Int]("RUN_ID", O.PrimaryKey, O.AutoInc)
+    Table[(Option[Int], String, String, String, String, String, String)](tag, "RUNS".toLowerCase()) {
+    def id = column[Int]("RUN_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def datetimeStart = column[String]("DATETIME_START")
+    def datetimeStart = column[String]("DATETIME_START".toLowerCase())
 
-    def datetimeEnd = column[String]("DATETIME_END")
+    def datetimeEnd = column[String]("DATETIME_END".toLowerCase())
 
-    def downloadEnabled = column[String]("DOWNLOAD_ENABLED")
+    def downloadEnabled = column[String]("DOWNLOAD_ENABLED".toLowerCase())
 
-    def transformEnabled = column[String]("TRANSFORM_ENABLED")
+    def transformEnabled = column[String]("TRANSFORM_ENABLED".toLowerCase())
 
-    def loadEnabled = column[String]("LOAD_ENABLED")
+    def loadEnabled = column[String]("LOAD_ENABLED".toLowerCase())
 
-    def outputFolder = column[String]("OUTPUT_FOLDER")
+    def outputFolder = column[String]("OUTPUT_FOLDER".toLowerCase())
 
     def * = (id.?, datetimeStart, datetimeEnd, downloadEnabled, transformEnabled, loadEnabled, outputFolder)
   }
@@ -1062,28 +1071,28 @@ case class DbContainer() {
     * @param tag RUNSOURCES
     */
   class RunSources(tag: Tag) extends
-    Table[(Option[Int], Int, Int, String, String, String, String, String, String, String, String)](tag, "RUNSOURCES") {
-    def id = column[Int]("RUNSOURCE_ID", O.PrimaryKey, O.AutoInc)
+    Table[(Option[Int], Int, Int, String, String, String, String, String, String, String, String)](tag, "RUNSOURCES".toLowerCase()) {
+    def id = column[Int]("RUNSOURCE_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def runId = column[Int]("RUN_ID")
+    def runId = column[Int]("RUN_ID".toLowerCase())
 
-    def sourceId = column[Int]("SOURCE_ID")
+    def sourceId = column[Int]("SOURCE_ID".toLowerCase())
 
-    def url = column[String]("URL")
+    def url = column[String]("URL".toLowerCase())
 
-    def outputFolder = column[String]("OUTPUT_FOLDER")
+    def outputFolder = column[String]("OUTPUT_FOLDER".toLowerCase())
 
-    def downloadEnabled = column[String]("DOWNLOAD_ENABLED")
+    def downloadEnabled = column[String]("DOWNLOAD_ENABLED".toLowerCase())
 
-    def downloader = column[String]("DOWNLOADER")
+    def downloader = column[String]("DOWNLOADER".toLowerCase())
 
-    def transformEnabled = column[String]("TRANSFORM_ENABLED")
+    def transformEnabled = column[String]("TRANSFORM_ENABLED".toLowerCase())
 
-    def transformer = column[String]("TRANSFORMER")
+    def transformer = column[String]("TRANSFORMER".toLowerCase())
 
-    def loadEnabled = column[String]("LOAD_ENABLED")
+    def loadEnabled = column[String]("LOAD_ENABLED".toLowerCase())
 
-    def loader = column[String]("LOADER")
+    def loader = column[String]("LOADER".toLowerCase())
 
     def Source = foreignKey("RUNSOURCES_SOURCE_FK", sourceId, sources)(
       _.id,
@@ -1115,16 +1124,16 @@ case class DbContainer() {
     * @param tag RUNSOURCEPARAMETERS
     */
   class RunSourceParameters(tag: Tag) extends
-    Table[(Option[Int], Int, String, String, String)](tag, "RUNSOURCEPARAMETERS") {
-    def id = column[Int]("RUNSOURCEPARAMETER_ID", O.PrimaryKey, O.AutoInc)
+    Table[(Option[Int], Int, String, String, String)](tag, "RUNSOURCEPARAMETERS".toLowerCase()) {
+    def id = column[Int]("RUNSOURCEPARAMETER_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def runSourceId = column[Int]("RUNSOURCE_ID")
+    def runSourceId = column[Int]("RUNSOURCE_ID".toLowerCase())
 
-    def description = column[String]("DESCRIPTION")
+    def description = column[String]("DESCRIPTION".toLowerCase())
 
-    def key = column[String]("KEY")
+    def key = column[String]("PARAM_KEY".toLowerCase())
 
-    def value = column[String]("VALUE")
+    def value = column[String]("VALUE".toLowerCase())
 
     def RunSource = foreignKey("RUNSOURCEPARAMETERS_RUNSOURCE_FK", runSourceId, runSources)(
       _.id,
@@ -1153,24 +1162,24 @@ case class DbContainer() {
     * @param tag RUNDATASETS
     */
   class RunDatasets(tag: Tag) extends
-    Table[(Option[Int], Int, Int, String, String, String, String, String, String)](tag, "RUNDATASETS") {
-    def id = column[Int]("RUNDATASET_ID", O.PrimaryKey, O.AutoInc)
+    Table[(Option[Int], Int, Int, String, String, String, String, String, String)](tag, "RUNDATASETS".toLowerCase()) {
+    def id = column[Int]("RUNDATASET_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def runId = column[Int]("RUN_ID")
+    def runId = column[Int]("RUN_ID".toLowerCase())
 
-    def datasetId = column[Int]("DATASET_ID")
+    def datasetId = column[Int]("DATASET_ID".toLowerCase())
 
-    def outputFolder = column[String]("OUTPUT_FOLDER")
+    def outputFolder = column[String]("OUTPUT_FOLDER".toLowerCase())
 
-    def downloadEnabled = column[String]("DOWNLOAD_ENABLED")
+    def downloadEnabled = column[String]("DOWNLOAD_ENABLED".toLowerCase())
 
-    def transformEnabled = column[String]("TRANSFORM_ENABLED")
+    def transformEnabled = column[String]("TRANSFORM_ENABLED".toLowerCase())
 
-    def loadEnabled = column[String]("LOAD_ENABLED")
+    def loadEnabled = column[String]("LOAD_ENABLED".toLowerCase())
 
-    def schemaLocation = column[String]("SCHEMA_LOCATION")
+    def schemaLocation = column[String]("SCHEMA_LOCATION".toLowerCase())
 
-    def schemaUrl = column[String]("SCHEMA_URL")
+    def schemaUrl = column[String]("SCHEMA_URL".toLowerCase())
 
     def Dataset = foreignKey("RUNDATASETS_DATASET_FK", datasetId, datasets)(
       _.id,
@@ -1201,16 +1210,16 @@ case class DbContainer() {
     * @param tag RUNDATASETPARAMETERS
     */
   class RunDatasetParameters(tag: Tag) extends
-    Table[(Option[Int], Int, String, String, String)](tag, "RUNDATASETPARAMETERS") {
-    def id = column[Int]("RUNDATASETPARAMETER_ID", O.PrimaryKey, O.AutoInc)
+    Table[(Option[Int], Int, String, String, String)](tag, "RUNDATASETPARAMETERS".toLowerCase()) {
+    def id = column[Int]("RUNDATASETPARAMETER_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def runDatasetId = column[Int]("RUNDATASET_ID")
+    def runDatasetId = column[Int]("RUNDATASET_ID".toLowerCase())
 
-    def description = column[String]("DESCRIPTION")
+    def description = column[String]("DESCRIPTION".toLowerCase())
 
-    def key = column[String]("KEY")
+    def key = column[String]("PARAM_KEY".toLowerCase())
 
-    def value = column[String]("VALUE")
+    def value = column[String]("VALUE".toLowerCase())
 
     def RunDataset = foreignKey("RUNDATASETPARAMETERS_RUNDATASET_FK", runDatasetId, runDatasets)(
       _.id,
@@ -1235,16 +1244,16 @@ case class DbContainer() {
     * @param tag RUNDATASETLOGS
     */
   class RunDatasetLogs(tag: Tag) extends
-    Table[(Option[Int], Int, String, Int, Int)](tag, "RUNDATASETLOGS") {
-    def id = column[Int]("RUNDATASETLOGS_ID", O.PrimaryKey, O.AutoInc)
+    Table[(Option[Int], Int, String, Int, Int)](tag, "RUNDATASETLOGS".toLowerCase()) {
+    def id = column[Int]("RUNDATASETLOGS_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def runDatasetId = column[Int]("RUNDATASET_ID")
+    def runDatasetId = column[Int]("RUNDATASET_ID".toLowerCase())
 
-    def stage = column[String]("STAGE")
+    def stage = column[String]("STAGE".toLowerCase())
 
-    def totalFiles = column[Int]("TOTAL_FILES")
+    def totalFiles = column[Int]("TOTAL_FILES".toLowerCase())
 
-    def downloadedFiles = column[Int]("DOWNLOADED_FILES")
+    def downloadedFiles = column[Int]("DOWNLOADED_FILES".toLowerCase())
 
     def RunDataset = foreignKey("RUNDATASETLOGS_RUNDATASET_FK", runDatasetId, runDatasets)(
       _.id,
@@ -1274,28 +1283,28 @@ case class DbContainer() {
     * @param tag RUNFILES
     */
   class RunFiles(tag: Tag) extends
-    Table[(Option[Int], Int, Int, String, String, String, String, String, String, String)](tag, "RUNFILES") {
-    def id = column[Int]("RUNFILE_ID", O.PrimaryKey, O.AutoInc)
+    Table[(Option[Int], Int, Int, String, String, String, String, String, String, String)](tag, "RUNFILES".toLowerCase()) {
+    def id = column[Int]("RUNFILE_ID".toLowerCase(), O.PrimaryKey, O.AutoInc)
 
-    def runId = column[Int]("RUN_ID")
+    def runId = column[Int]("RUN_ID".toLowerCase())
 
-    def fileId = column[Int]("FILE_ID")
+    def fileId = column[Int]("FILE_ID".toLowerCase())
 
     //THIS IS DOWNLOAD/TRANSFORM
-    def status = column[String]("STATUS")
+    def status = column[String]("STATUS".toLowerCase())
 
     //UPDATED/FAILED/OUTDATED
-    def size = column[String]("SIZE")
+    def size = column[String]("FILE_SIZE".toLowerCase())
 
-    def lastUpdate = column[String]("LAST_UPDATE")
+    def lastUpdate = column[String]("LAST_UPDATE".toLowerCase())
 
-    def hash = column[String]("HASH")
+    def hash = column[String]("HASH".toLowerCase())
 
-    def originSize = column[String]("SIZE_IN_ORIGIN")
+    def originSize = column[String]("SIZE_IN_ORIGIN".toLowerCase())
 
-    def originLastUpdate = column[String]("LAST_UPDATE_IN_ORIGIN")
+    def originLastUpdate = column[String]("LAST_UPDATE_IN_ORIGIN".toLowerCase())
 
-    def dateProcessed = column[String]("DATE_PROCESSED")
+    def dateProcessed = column[String]("DATE_PROCESSED".toLowerCase())
 
     def File = foreignKey("RUNFILES_FILE_FK", fileId, files)(
       _.id,
