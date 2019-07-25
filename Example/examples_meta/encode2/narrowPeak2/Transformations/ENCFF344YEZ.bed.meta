@@ -1,0 +1,751 @@
+_id	/experiments/ENCSR726ZZX/
+_type	Experiment
+_type	Dataset
+_type	Item
+accession	ENCSR726ZZX
+aliases	bradley-bernstein:Project Element 654
+assay_slims	DNA binding
+assay_term_id	OBI:0000716
+assay_term_name	ChIP-seq
+assay_title	Histone ChIP-seq
+assembly	hg19
+assembly	GRCh38
+award___id	/awards/U54HG006991/
+award___type	Award
+award___type	Item
+award__description	The human genome is regulated by hundreds of thousands of functional DNA elements that play pivotal roles in development and disease, yet remain poorly understood. Comprehensive identification and characterization of functional DNA elements is thus an essential goal with major implications for human health. Genomic DNA is organized into chromatin, a higher-order structure composed of DNA, RNA and proteins. Chromatin mapping technologies have emerged as a powerful means for identifying functional DNA elements, which are associated with characteristic chromatin structures. Mapping has enabled the systematic annotation of diverse types of functional elements, including promoters, enhancers and silencers, and new discoveries related to chromatin organization and genome regulation in health and disease. The proposed ENCODE data production center aims to vastly expand the catalog of functional elements in the human genome through production mapping of Protein, DNA and RNA constituents of chromatin. High-throughput pipelines will be used to map histone modifications, chromatin regulatory proteins and non-coding RNA binding interactions. These pipelines will be applied to designated ENCODE cell lines, embryonic stem (ES) cells and derivatives, induced pluripotent stem (iPS) cells and phenotypically diverse human tissues. Key histone modifications will also be mapped in representative cell and tissue types from multiple individuals, in order to address the extent and significance of inter-individual variation in chromatin landscapes and their relationships to genetic background. These multi-dimensional datasets will be integrated through innovative computational algorithms to identify sequences, motifs, variants and regulatory interactions that dictate chromatin state and functional element activity. Thus, the proposed project will dramatically increase the number, resolution and precision of functional DNA elements in the ENCODE catalog, and explicitly define causal sequences and physical interactions that mediate chromatin states and regulation in the human genome. All data will be rapidly released and made freely available to the scientific community.
+award__end_date	2016-07-31
+award__name	U54HG006991
+award__pi___id	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+award__pi___type	User
+award__pi___type	Item
+award__pi__lab___id	/labs/bradley-bernstein/
+award__pi__lab___type	Lab
+award__pi__lab___type	Item
+award__pi__lab__address1	Massachusetts General Hospital Simches Research Building, CPZN 8234
+award__pi__lab__address2	185 Cambridge St.
+award__pi__lab__awards	/awards/U01ES017155/
+award__pi__lab__awards	/awards/U54HG004570/
+award__pi__lab__awards	/awards/U54HG006991/
+award__pi__lab__awards	/awards/UM1HG009390/
+award__pi__lab__city	Boston
+award__pi__lab__country	USA
+award__pi__lab__fax	617-643-3566
+award__pi__lab__institute_label	Broad
+award__pi__lab__institute_name	Broad Institute
+award__pi__lab__name	bradley-bernstein
+award__pi__lab__phone1	617-726-6906
+award__pi__lab__pi	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+award__pi__lab__postal_code	2114
+award__pi__lab__schema_version	5
+award__pi__lab__state	MA
+award__pi__lab__status	current
+award__pi__lab__title	Bradley Bernstein, Broad
+award__pi__lab__uuid	b83215c3-3960-4085-b220-614a122eea01
+award__pi__title	Bradley Bernstein
+award__pi__uuid	aa57ecb5-3d0e-4b1f-9608-665785270ad7
+award__project	ENCODE
+award__rfa	ENCODE3
+award__schema_version	5
+award__start_date	2012-09-21
+award__status	disabled
+award__title	EXPANDING THE CATALOG OF CHROMATIN REGULATORY ELEMENTS IN THE HUMAN GENOME
+award__url	http://projectreporter.nih.gov/project_info_details.cfm?aid=8402205
+award__uuid	4621616e-faba-4c60-b7b9-1cd9e5627025
+award__viewing_group	ENCODE3
+biosample_ontology___id	/biosample-types/cell_line_EFO_0007070/
+biosample_ontology___type	BiosampleType
+biosample_ontology___type	Item
+biosample_ontology__cell_slims	epithelial cell
+biosample_ontology__cell_slims	cancer cell
+biosample_ontology__classification	cell line
+biosample_ontology__dbxrefs	Cellosaurus:CVCL_Y492
+biosample_ontology__developmental_slims	ectoderm
+biosample_ontology__developmental_slims	endoderm
+biosample_ontology__name	cell_line_EFO_0007070
+biosample_ontology__organ_slims	epithelium
+biosample_ontology__organ_slims	mouth
+biosample_ontology__schema_version	1
+biosample_ontology__status	released
+biosample_ontology__synonyms	UTSW-ACC112
+biosample_ontology__system_slims	digestive system
+biosample_ontology__term_id	EFO:0007070
+biosample_ontology__term_name	ACC112
+biosample_ontology__uuid	d71e23ff-b74d-4037-850e-83dcfa044090
+biosample_summary	ACC112
+contributing_files	/files/ENCFF643CGH/
+contributing_files	/files/ENCFF994UEQ/
+contributing_files	/files/ENCFF807MUK/
+contributing_files	/files/ENCFF960KMH/
+date_created	2014-02-20T05:42:43.973994+00:00
+date_released	2016-10-28
+date_submitted	2016-04-11
+dbxrefs	GEO:GSE101262
+experiment_classification	functional genomics assay
+file___id	/files/ENCFF344YEZ/
+file___type	File
+file___type	Item
+file__accession	ENCFF344YEZ
+file__analysis_step_version___id	/analysis-step-versions/histone-unreplicated-partition-concordance-step-v-1-0/
+file__analysis_step_version___type	AnalysisStepVersion
+file__analysis_step_version___type	Item
+file__analysis_step_version__analysis_step___id	/analysis-steps/histone-unreplicated-partition-concordance-step-v-1/
+file__analysis_step_version__analysis_step___type	AnalysisStep
+file__analysis_step_version__analysis_step___type	Item
+file__analysis_step_version__analysis_step__aliases	encode:histone-unreplicated-partition-concordance-step-v-1
+file__analysis_step_version__analysis_step__analysis_step_types	partition concordance
+file__analysis_step_version__analysis_step__current_version	/analysis-step-versions/histone-unreplicated-partition-concordance-step-v-1-0/
+file__analysis_step_version__analysis_step__date_created	2017-03-21T00:14:24.567750+00:00
+file__analysis_step_version__analysis_step__input_file_types	peaks
+file__analysis_step_version__analysis_step__major_version	1
+file__analysis_step_version__analysis_step__name	histone-unreplicated-partition-concordance-step-v-1
+file__analysis_step_version__analysis_step__output_file_types	stable peaks
+file__analysis_step_version__analysis_step__parents	/analysis-steps/histone-unreplicated-peak-calling-step-v-1/
+file__analysis_step_version__analysis_step__pipelines___id	/pipelines/ENCPL841HGV/
+file__analysis_step_version__analysis_step__pipelines___type	Pipeline
+file__analysis_step_version__analysis_step__pipelines___type	Item
+file__analysis_step_version__analysis_step__pipelines__accession	ENCPL841HGV
+file__analysis_step_version__analysis_step__pipelines__analysis_steps	/analysis-steps/histone-unreplicated-peak-calling-step-v-1/
+file__analysis_step_version__analysis_step__pipelines__analysis_steps	/analysis-steps/histone-unreplicated-partition-concordance-step-v-1/
+file__analysis_step_version__analysis_step__pipelines__analysis_steps	/analysis-steps/histone-unreplicated-partition-concordance-peaks-to-bigbed-step-v-1/
+file__analysis_step_version__analysis_step__pipelines__analysis_steps	/analysis-steps/histone-unreplicated-peaks-to-bigbed-step-v-1/
+file__analysis_step_version__analysis_step__pipelines__assay_term_names	ChIP-seq
+file__analysis_step_version__analysis_step__pipelines__award	/awards/U41HG006992/
+file__analysis_step_version__analysis_step__pipelines__date_created	2017-03-21T00:14:25.286050+00:00
+file__analysis_step_version__analysis_step__pipelines__description	ENCODE analysis pipeline for unreplicated histone ChIP-seq. The pipeline takes as inputs both ChIP-seq reads (from paired-end or single-end libraries) and a set of reference fastas found at https://www.encodeproject.org/data-standards/reference-sequences/. The reference used depends on the assembly.
+file__analysis_step_version__analysis_step__pipelines__lab	/labs/encode-processing-pipeline/
+file__analysis_step_version__analysis_step__pipelines__schema_version	9
+file__analysis_step_version__analysis_step__pipelines__source_url	https://github.com/ENCODE-DCC/chip-seq-pipeline
+file__analysis_step_version__analysis_step__pipelines__standards_page	/chip-seq/histone/
+file__analysis_step_version__analysis_step__pipelines__status	released
+file__analysis_step_version__analysis_step__pipelines__submitted_by	/users/6800d05f-7213-48b1-9ad8-254c73c5b83f/
+file__analysis_step_version__analysis_step__pipelines__title	Histone ChIP-seq (unreplicated)
+file__analysis_step_version__analysis_step__pipelines__uuid	a3a4d844-823e-4662-ad74-52ed3d057b0d
+file__analysis_step_version__analysis_step__schema_version	7
+file__analysis_step_version__analysis_step__status	released
+file__analysis_step_version__analysis_step__step_label	histone-unreplicated-partition-concordance-step
+file__analysis_step_version__analysis_step__submitted_by	/users/6800d05f-7213-48b1-9ad8-254c73c5b83f/
+file__analysis_step_version__analysis_step__title	Histone unreplicated ChIP partition concordance step
+file__analysis_step_version__analysis_step__uuid	19d3935a-fbca-4243-bb80-f61bc7333764
+file__analysis_step_version__analysis_step__versions	/analysis-step-versions/histone-unreplicated-partition-concordance-step-v-1-0/
+file__analysis_step_version__date_created	2017-03-21T00:14:24.976559+00:00
+file__analysis_step_version__minor_version	0
+file__analysis_step_version__name	histone-unreplicated-partition-concordance-step-v-1-0
+file__analysis_step_version__schema_version	4
+file__analysis_step_version__software_versions	/software-versions/64b2d05e-3347-4edd-b0a9-efbf1a259fbd/
+file__analysis_step_version__status	released
+file__analysis_step_version__submitted_by	/users/6800d05f-7213-48b1-9ad8-254c73c5b83f/
+file__analysis_step_version__uuid	fb4a04ac-a13c-4a6f-86b0-f4781e7e2232
+file__assembly	hg19
+file__award	/awards/U41HG006992/
+file__biological_replicates	1
+file__cloud_metadata__file_size	3449081
+file__cloud_metadata__md5sum_base64	AC37WRI2oa2jtUxdRYyWKw==
+file__cloud_metadata__url	https://encode-public.s3.amazonaws.com/2017/03/22/cd9d4350-ef72-46a6-91ad-e68c2ee27732/ENCFF344YEZ.bed.gz
+file__content_md5sum	a408a4a37910409cbcba9853639dbc0f
+file__dataset	/experiments/ENCSR726ZZX/
+file__date_created	2017-03-22T02:57:59.933220+00:00
+file__derived_from	/files/ENCFF019GQM/
+file__file_format	bed
+file__file_format_specifications	/documents/948203bb-8eb2-42a2-8b12-1c10f356c998/
+file__file_format_type	narrowPeak
+file__file_size	3449081
+file__file_type	bed narrowPeak
+file__href	/files/ENCFF344YEZ/@@download/ENCFF344YEZ.bed.gz
+file__lab___id	/labs/encode-processing-pipeline/
+file__lab___type	Lab
+file__lab___type	Item
+file__lab__awards	/awards/U41HG007000/
+file__lab__awards	/awards/U41HG006992/
+file__lab__country	USA
+file__lab__name	encode-processing-pipeline
+file__lab__pi	/users/8b1f8780-b5d6-4fb7-a5a2-ddcec9054288/
+file__lab__schema_version	5
+file__lab__status	current
+file__lab__title	ENCODE Processing Pipeline
+file__lab__uuid	a558111b-4c50-4b2e-9de8-73fd8fd3a67d
+file__md5sum	002dfb591236a1ada3b54c5d458c962b
+file__no_file_available	false
+file__notes	{"dx-createdBy": {"job": "job-FFFxXZ003697v8f36qqG7Y3Y", "executable": "applet-F9YvJzj0369JPFjp7zFkkvXg", "user": "user-keenangraham"}, "qc": {"npeaks_in": 245321, "npeaks_rejected": 102210, "npeaks_out": 143111}, "dx-parentAnalysis": "analysis-FFFxXYj03697v8f36qqG7Y3Q", "dx-id": "file-FFFxfV80X4vy5XxjF66VBb1J"}
+file__output_category	annotation
+file__output_type	stable peaks
+file__quality_metrics	/histone-chipseq-quality-metrics/ed863711-a948-46b8-bbb3-4ec36d4316aa/
+file__replicate_libraries	/libraries/ENCLB663RSK/
+file__s3_uri	s3://encode-public/2017/03/22/cd9d4350-ef72-46a6-91ad-e68c2ee27732/ENCFF344YEZ.bed.gz
+file__schema_version	14
+file__status	released
+file__step_run	/analysis-step-runs/41c60924-9502-430f-b2d0-d3037010d2e2/
+file__submitted_by___id	/users/85978cd9-131e-48e2-a389-f752ab05b0a6/
+file__submitted_by___type	User
+file__submitted_by___type	Item
+file__submitted_by__lab	/labs/j-michael-cherry/
+file__submitted_by__title	Kathrina Onate
+file__submitted_by__uuid	85978cd9-131e-48e2-a389-f752ab05b0a6
+file__submitted_file_name	project-BpBZvb003694v3fj3QJGK3Zb:/peaks_histone_hg19/ENCSR726ZZX/peaks/encode_macs2/final.replicated.narrowPeak.gz
+file__technical_replicates	1_1
+file__title	ENCFF344YEZ
+file__uuid	cd9d4350-ef72-46a6-91ad-e68c2ee27732
+hub	/experiments/ENCSR726ZZX/@@hub/hub.txt
+internal_status	pipeline completed
+internal_tags	ENCYCLOPEDIAv5
+lab___id	/labs/bradley-bernstein/
+lab___type	Lab
+lab___type	Item
+lab__address1	Massachusetts General Hospital Simches Research Building, CPZN 8234
+lab__address2	185 Cambridge St.
+lab__awards	/awards/U01ES017155/
+lab__awards	/awards/U54HG004570/
+lab__awards	/awards/U54HG006991/
+lab__awards	/awards/UM1HG009390/
+lab__city	Boston
+lab__country	USA
+lab__fax	617-643-3566
+lab__institute_label	Broad
+lab__institute_name	Broad Institute
+lab__name	bradley-bernstein
+lab__phone1	617-726-6906
+lab__pi	/users/aa57ecb5-3d0e-4b1f-9608-665785270ad7/
+lab__postal_code	2114
+lab__schema_version	5
+lab__state	MA
+lab__status	current
+lab__title	Bradley Bernstein, Broad
+lab__uuid	b83215c3-3960-4085-b220-614a122eea01
+manually_curated__download_date	2019-07-25T13:47:12.803+02:00
+manually_curated__local_file_size	10015367
+manually_curated__local_md5	a408a4a37910409cbcba9853639dbc0f
+manually_curated__origin_file_size	3449081
+manually_curated__origin_last_modified_date	2016-10-28
+manually_curated__origin_md5	002dfb591236a1ada3b54c5d458c962b
+month_released	October, 2016
+original_files	/files/ENCFF470CGB/
+original_files	/files/ENCFF228LCQ/
+original_files	/files/ENCFF880ZIL/
+original_files	/files/ENCFF167QVD/
+original_files	/files/ENCFF420ANX/
+original_files	/files/ENCFF115JJS/
+original_files	/files/ENCFF206IQY/
+original_files	/files/ENCFF645XTO/
+original_files	/files/ENCFF729OPU/
+original_files	/files/ENCFF560UTN/
+original_files	/files/ENCFF314ICJ/
+original_files	/files/ENCFF920COB/
+original_files	/files/ENCFF440NIC/
+original_files	/files/ENCFF374YHU/
+original_files	/files/ENCFF193LUH/
+original_files	/files/ENCFF019GQM/
+original_files	/files/ENCFF256HAY/
+original_files	/files/ENCFF344YEZ/
+platform___id	/platforms/OBI%3A0002002/
+platform___type	Platform
+platform___type	Item
+platform__aliases	encode:HiSeq2500
+platform__date_created	2014-01-16T23:00:39.869373+00:00
+platform__schema_version	7
+platform__status	released
+platform__submitted_by	/users/6800d05f-7213-48b1-9ad8-254c73c5b83f/
+platform__term_id	OBI:0002002
+platform__term_name	Illumina HiSeq 2500
+platform__title	Illumina HiSeq 2500
+platform__url	https://www.illumina.com/content/dam/illumina-marketing/documents/products/datasheets/datasheet_hiseq2500.pdf
+platform__uuid	171f8a03-650b-4f7f-9c2f-0970348ee95f
+possible_controls___id	/experiments/ENCSR836XKP/
+possible_controls___type	Experiment
+possible_controls___type	Dataset
+possible_controls___type	Item
+possible_controls__accession	ENCSR836XKP
+possible_controls__aliases	bradley-bernstein:Project Element 667
+possible_controls__assay_slims	DNA binding
+possible_controls__assay_term_id	OBI:0000716
+possible_controls__assay_term_name	ChIP-seq
+possible_controls__assay_title	Control ChIP-seq
+possible_controls__assembly	hg19
+possible_controls__assembly	GRCh38
+possible_controls__award	/awards/U54HG006991/
+possible_controls__biosample_ontology	/biosample-types/cell_line_EFO_0007070/
+possible_controls__biosample_summary	ACC112
+possible_controls__contributing_files	/files/ENCFF643CGH/
+possible_controls__contributing_files	/files/ENCFF807MUK/
+possible_controls__date_created	2014-02-27T16:58:17.905414+00:00
+possible_controls__date_released	2016-10-27
+possible_controls__date_submitted	2016-10-11
+possible_controls__dbxrefs	GEO:GSE96407
+possible_controls__experiment_classification	functional genomics assay
+possible_controls__hub	/experiments/ENCSR836XKP/@@hub/hub.txt
+possible_controls__internal_status	pipeline completed
+possible_controls__lab	/labs/bradley-bernstein/
+possible_controls__month_released	October, 2016
+possible_controls__original_files	/files/ENCFF849RAD/
+possible_controls__original_files	/files/ENCFF151OWC/
+possible_controls__original_files	/files/ENCFF625OXP/
+possible_controls__original_files	/files/ENCFF711GDL/
+possible_controls__original_files	/files/ENCFF114STI/
+possible_controls__original_files	/files/ENCFF069GCM/
+possible_controls__original_files	/files/ENCFF761CNP/
+possible_controls__original_files	/files/ENCFF263QNZ/
+possible_controls__original_files	/files/ENCFF800DGE/
+possible_controls__original_files	/files/ENCFF956QDK/
+possible_controls__original_files	/files/ENCFF137ZTJ/
+possible_controls__original_files	/files/ENCFF205YRD/
+possible_controls__original_files	/files/ENCFF452HMA/
+possible_controls__original_files	/files/ENCFF994UEQ/
+possible_controls__original_files	/files/ENCFF960KMH/
+possible_controls__original_files	/files/ENCFF198OXP/
+possible_controls__original_files	/files/ENCFF230XRK/
+possible_controls__original_files	/files/ENCFF932LMZ/
+possible_controls__original_files	/files/ENCFF988REB/
+possible_controls__original_files	/files/ENCFF906YGC/
+possible_controls__related_series	/reference-epigenomes/ENCSR106ZTG/
+possible_controls__replication_type	isogenic
+possible_controls__revoked_files	/files/ENCFF151OWC/
+possible_controls__revoked_files	/files/ENCFF625OXP/
+possible_controls__revoked_files	/files/ENCFF711GDL/
+possible_controls__revoked_files	/files/ENCFF114STI/
+possible_controls__revoked_files	/files/ENCFF069GCM/
+possible_controls__revoked_files	/files/ENCFF761CNP/
+possible_controls__revoked_files	/files/ENCFF263QNZ/
+possible_controls__schema_version	26
+possible_controls__status	released
+possible_controls__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+possible_controls__target	/targets/Control-human/
+possible_controls__uuid	2e6ed4be-66a8-406b-9739-206ec27cd7ee
+related_series___id	/reference-epigenomes/ENCSR106ZTG/
+related_series___type	ReferenceEpigenome
+related_series___type	Series
+related_series___type	Dataset
+related_series___type	Item
+related_series__accession	ENCSR106ZTG
+related_series__assay_synonyms	chromatin immunoprecipitation sequencing assay
+related_series__assay_synonyms	ChIP-seq assay
+related_series__assay_term_id	OBI:0000716
+related_series__assay_term_name	ChIP-seq
+related_series__assembly	hg19
+related_series__assembly	GRCh38
+related_series__award	/awards/U41HG006992/
+related_series__biosample_ontology	/biosample-types/cell_line_EFO_0007070/
+related_series__date_created	2016-05-23T15:35:11.359353+00:00
+related_series__date_released	2018-07-13
+related_series__description	Reference epigenome for human ACC112 cell line
+related_series__hub	/reference-epigenomes/ENCSR106ZTG/@@hub/hub.txt
+related_series__lab	/labs/encode-consortium/
+related_series__month_released	July, 2018
+related_series__organism	/organisms/human/
+related_series__related_datasets	/experiments/ENCSR059MVB/
+related_series__related_datasets	/experiments/ENCSR778VGY/
+related_series__related_datasets	/experiments/ENCSR726ZZX/
+related_series__related_datasets	/experiments/ENCSR897FOZ/
+related_series__related_datasets	/experiments/ENCSR475NLR/
+related_series__related_datasets	/experiments/ENCSR836XKP/
+related_series__schema_version	16
+related_series__status	released
+related_series__submitted_by	/users/332d0e03-a907-4f53-8358-bb00118277c8/
+related_series__target	/targets/H3K27me3-human/
+related_series__target	/targets/H3K27ac-human/
+related_series__target	/targets/H3K36me3-human/
+related_series__target	/targets/Control-human/
+related_series__target	/targets/H3K4me1-human/
+related_series__target	/targets/H3K4me3-human/
+related_series__uuid	7fa5a2bc-2076-4cd2-9eaf-35f9c8ca8396
+replicates__1___id	/replicates/bae11713-9dda-4ed6-9c9f-5574477c0a04/
+replicates__1___type	Replicate
+replicates__1___type	Item
+replicates__1__aliases	bradley-bernstein:Rep_DNA_Lib 3899
+replicates__1__antibody___id	/antibodies/ENCAB000APS/
+replicates__1__antibody___type	AntibodyLot
+replicates__1__antibody___type	Item
+replicates__1__antibody__accession	ENCAB000APS
+replicates__1__antibody__aliases	bradley-bernstein:PchAb 346
+replicates__1__antibody__aliases	bradley-bernstein:PchAb 86-V
+replicates__1__antibody__antigen_description	Synthetic peptide conjugated to KLH derived from within residues 1 - 100 of Human Histone H3, mono methylated at K4.
+replicates__1__antibody__award	/awards/U54HG006991/
+replicates__1__antibody__characterizations	/antibody-characterizations/b59acf07-7745-4c53-8901-8ae427de5d91/
+replicates__1__antibody__characterizations	/antibody-characterizations/84478423-b88f-417f-936c-adc3a6c86048/
+replicates__1__antibody__clonality	polyclonal
+replicates__1__antibody__date_created	2014-02-05T07:20:12.440209+00:00
+replicates__1__antibody__dbxrefs	AR:AB_306847
+replicates__1__antibody__host_organism	/organisms/rabbit/
+replicates__1__antibody__isotype	IgG
+replicates__1__antibody__lab	/labs/bradley-bernstein/
+replicates__1__antibody__lot_id	659352
+replicates__1__antibody__lot_reviews__biosample_term_id	NTR:99999999
+replicates__1__antibody__lot_reviews__biosample_term_name	any cell type or tissue
+replicates__1__antibody__lot_reviews__detail	Fully characterized.
+replicates__1__antibody__lot_reviews__organisms	/organisms/human/
+replicates__1__antibody__lot_reviews__status	characterized to standards
+replicates__1__antibody__lot_reviews__targets	/targets/H3K4me1-human/
+replicates__1__antibody__product_id	ab8895
+replicates__1__antibody__purifications	affinity
+replicates__1__antibody__schema_version	9
+replicates__1__antibody__source	/sources/abcam/
+replicates__1__antibody__status	released
+replicates__1__antibody__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__antibody__targets	/targets/H3K4me1-human/
+replicates__1__antibody__title	ENCAB000APS
+replicates__1__antibody__url	http://www.abcam.com/index.html?datasheet=8895
+replicates__1__antibody__uuid	397f7c5f-8aef-4c4a-805a-d6ce81ff866f
+replicates__1__biological_replicate_number	1
+replicates__1__date_created	2014-02-25T22:00:35.209983+00:00
+replicates__1__experiment	/experiments/ENCSR726ZZX/
+replicates__1__libraries___id	/libraries/ENCLB663RSK/
+replicates__1__libraries___type	Library
+replicates__1__libraries___type	Item
+replicates__1__libraries__accession	ENCLB663RSK
+replicates__1__libraries__aliases	bradley-bernstein:DNA_Lib 3899
+replicates__1__libraries__antibodies	/antibodies/ENCAB000APS/
+replicates__1__libraries__award	/awards/U54HG006991/
+replicates__1__libraries__biosample___id	/biosamples/ENCBS827JIC/
+replicates__1__libraries__biosample___type	Biosample
+replicates__1__libraries__biosample___type	Item
+replicates__1__libraries__biosample__accession	ENCBS827JIC
+replicates__1__libraries__biosample__age	70
+replicates__1__libraries__biosample__age_display	70 year
+replicates__1__libraries__biosample__age_units	year
+replicates__1__libraries__biosample__aliases	bradley-bernstein:BioSam 1357
+replicates__1__libraries__biosample__award	/awards/U54HG006991/
+replicates__1__libraries__biosample__biosample_ontology	/biosample-types/cell_line_EFO_0007070/
+replicates__1__libraries__biosample__culture_harvest_date	2013-01-18
+replicates__1__libraries__biosample__date_created	2014-02-25T21:59:20.805082+00:00
+replicates__1__libraries__biosample__dbxrefs	GEO:SAMN06464525
+replicates__1__libraries__biosample__description	adenoid cystic carcinoma cell line supplied by Lurdes Queimado, M.D., Ph.D. Phone: 405-271-4232 (office); 405-271-4279 (lab); cells immortalized by infection with a retrovirus expressing HPV16 E6 and E7
+replicates__1__libraries__biosample__donor___id	/human-donors/ENCDO085ZKK/
+replicates__1__libraries__biosample__donor___type	HumanDonor
+replicates__1__libraries__biosample__donor___type	Donor
+replicates__1__libraries__biosample__donor___type	Item
+replicates__1__libraries__biosample__donor__accession	ENCDO085ZKK
+replicates__1__libraries__biosample__donor__age	70
+replicates__1__libraries__biosample__donor__age_units	year
+replicates__1__libraries__biosample__donor__aliases	bradley-bernstein:Donor 507 of ACC112
+replicates__1__libraries__biosample__donor__aliases	encode:donor of ACC112
+replicates__1__libraries__biosample__donor__award	/awards/U54HG006991/
+replicates__1__libraries__biosample__donor__date_created	2014-02-18T04:56:58.385708+00:00
+replicates__1__libraries__biosample__donor__external_ids	GEO:SAMN06464589
+replicates__1__libraries__biosample__donor__health_status	submaxillar tumor
+replicates__1__libraries__biosample__donor__lab	/labs/bradley-bernstein/
+replicates__1__libraries__biosample__donor__life_stage	adult
+replicates__1__libraries__biosample__donor__organism___id	/organisms/human/
+replicates__1__libraries__biosample__donor__organism___type	Organism
+replicates__1__libraries__biosample__donor__organism___type	Item
+replicates__1__libraries__biosample__donor__organism__name	human
+replicates__1__libraries__biosample__donor__organism__schema_version	6
+replicates__1__libraries__biosample__donor__organism__scientific_name	Homo sapiens
+replicates__1__libraries__biosample__donor__organism__status	released
+replicates__1__libraries__biosample__donor__organism__taxon_id	9606
+replicates__1__libraries__biosample__donor__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicates__1__libraries__biosample__donor__references	/publications/5705daae-9e59-4786-84ad-86dc212da8dd/
+replicates__1__libraries__biosample__donor__schema_version	11
+replicates__1__libraries__biosample__donor__sex	male
+replicates__1__libraries__biosample__donor__status	released
+replicates__1__libraries__biosample__donor__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__libraries__biosample__donor__uuid	299d02a0-3201-4050-99c4-3d592daf3e10
+replicates__1__libraries__biosample__health_status	submaxillar tumor
+replicates__1__libraries__biosample__lab	/labs/bradley-bernstein/
+replicates__1__libraries__biosample__life_stage	adult
+replicates__1__libraries__biosample__organism___id	/organisms/human/
+replicates__1__libraries__biosample__organism___type	Organism
+replicates__1__libraries__biosample__organism___type	Item
+replicates__1__libraries__biosample__organism__name	human
+replicates__1__libraries__biosample__organism__schema_version	6
+replicates__1__libraries__biosample__organism__scientific_name	Homo sapiens
+replicates__1__libraries__biosample__organism__status	released
+replicates__1__libraries__biosample__organism__taxon_id	9606
+replicates__1__libraries__biosample__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicates__1__libraries__biosample__schema_version	24
+replicates__1__libraries__biosample__sex	male
+replicates__1__libraries__biosample__source___id	/sources/lurdes-queimado/
+replicates__1__libraries__biosample__source___type	Source
+replicates__1__libraries__biosample__source___type	Item
+replicates__1__libraries__biosample__source__description	Lurdes Queimado at University of Oklahoma
+replicates__1__libraries__biosample__source__name	lurdes-queimado
+replicates__1__libraries__biosample__source__schema_version	6
+replicates__1__libraries__biosample__source__status	released
+replicates__1__libraries__biosample__source__title	Lurdes Queimado
+replicates__1__libraries__biosample__source__url	http://www.oumedicine.com/orl/academic-information/research/lurdes-queimado-m-d-ph-d-
+replicates__1__libraries__biosample__source__uuid	1a97a86b-0c28-4185-95fb-6a99f2ce85b4
+replicates__1__libraries__biosample__status	released
+replicates__1__libraries__biosample__submitted_by___id	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__libraries__biosample__submitted_by___type	User
+replicates__1__libraries__biosample__submitted_by___type	Item
+replicates__1__libraries__biosample__submitted_by__lab	/labs/bradley-bernstein/
+replicates__1__libraries__biosample__submitted_by__title	Noam Shoresh
+replicates__1__libraries__biosample__submitted_by__uuid	f1843c60-e027-4b18-8582-64d3f3eae45b
+replicates__1__libraries__biosample__summary	Homo sapiens ACC112 cell line
+replicates__1__libraries__biosample__uuid	998d839c-9cc8-488b-8e5c-66413529cb07
+replicates__1__libraries__date_created	2014-02-25T22:00:32.682811+00:00
+replicates__1__libraries__dbxrefs	GEO:GSM2700588
+replicates__1__libraries__documents	/documents/18f0d330-5799-45f7-babe-7728dfbd1103/
+replicates__1__libraries__extraction_method	see document
+replicates__1__libraries__fragmentation_methods	sonication (generic)
+replicates__1__libraries__lab	/labs/bradley-bernstein/
+replicates__1__libraries__library_size_selection_method	see document
+replicates__1__libraries__lysis_method	see document
+replicates__1__libraries__nucleic_acid_term_id	SO:0000352
+replicates__1__libraries__nucleic_acid_term_name	DNA
+replicates__1__libraries__replicates	/replicates/bae11713-9dda-4ed6-9c9f-5574477c0a04/
+replicates__1__libraries__schema_version	9
+replicates__1__libraries__size_range	200-600
+replicates__1__libraries__status	released
+replicates__1__libraries__strand_specificity	false
+replicates__1__libraries__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__libraries__uuid	be391f53-08db-4ba7-8325-63edb34df254
+replicates__1__library___id	/libraries/ENCLB663RSK/
+replicates__1__library___type	Library
+replicates__1__library___type	Item
+replicates__1__library__accession	ENCLB663RSK
+replicates__1__library__aliases	bradley-bernstein:DNA_Lib 3899
+replicates__1__library__antibodies	/antibodies/ENCAB000APS/
+replicates__1__library__award	/awards/U54HG006991/
+replicates__1__library__biosample___id	/biosamples/ENCBS827JIC/
+replicates__1__library__biosample___type	Biosample
+replicates__1__library__biosample___type	Item
+replicates__1__library__biosample__accession	ENCBS827JIC
+replicates__1__library__biosample__age	70
+replicates__1__library__biosample__age_display	70 year
+replicates__1__library__biosample__age_units	year
+replicates__1__library__biosample__aliases	bradley-bernstein:BioSam 1357
+replicates__1__library__biosample__award	/awards/U54HG006991/
+replicates__1__library__biosample__biosample_ontology___id	/biosample-types/cell_line_EFO_0007070/
+replicates__1__library__biosample__biosample_ontology___type	BiosampleType
+replicates__1__library__biosample__biosample_ontology___type	Item
+replicates__1__library__biosample__biosample_ontology__cell_slims	epithelial cell
+replicates__1__library__biosample__biosample_ontology__cell_slims	cancer cell
+replicates__1__library__biosample__biosample_ontology__classification	cell line
+replicates__1__library__biosample__biosample_ontology__dbxrefs	Cellosaurus:CVCL_Y492
+replicates__1__library__biosample__biosample_ontology__developmental_slims	ectoderm
+replicates__1__library__biosample__biosample_ontology__developmental_slims	endoderm
+replicates__1__library__biosample__biosample_ontology__name	cell_line_EFO_0007070
+replicates__1__library__biosample__biosample_ontology__organ_slims	epithelium
+replicates__1__library__biosample__biosample_ontology__organ_slims	mouth
+replicates__1__library__biosample__biosample_ontology__schema_version	1
+replicates__1__library__biosample__biosample_ontology__status	released
+replicates__1__library__biosample__biosample_ontology__synonyms	UTSW-ACC112
+replicates__1__library__biosample__biosample_ontology__system_slims	digestive system
+replicates__1__library__biosample__biosample_ontology__term_id	EFO:0007070
+replicates__1__library__biosample__biosample_ontology__term_name	ACC112
+replicates__1__library__biosample__biosample_ontology__uuid	d71e23ff-b74d-4037-850e-83dcfa044090
+replicates__1__library__biosample__culture_harvest_date	2013-01-18
+replicates__1__library__biosample__date_created	2014-02-25T21:59:20.805082+00:00
+replicates__1__library__biosample__dbxrefs	GEO:SAMN06464525
+replicates__1__library__biosample__description	adenoid cystic carcinoma cell line supplied by Lurdes Queimado, M.D., Ph.D. Phone: 405-271-4232 (office); 405-271-4279 (lab); cells immortalized by infection with a retrovirus expressing HPV16 E6 and E7
+replicates__1__library__biosample__donor___id	/human-donors/ENCDO085ZKK/
+replicates__1__library__biosample__donor___type	HumanDonor
+replicates__1__library__biosample__donor___type	Donor
+replicates__1__library__biosample__donor___type	Item
+replicates__1__library__biosample__donor__accession	ENCDO085ZKK
+replicates__1__library__biosample__donor__age	70
+replicates__1__library__biosample__donor__age_units	year
+replicates__1__library__biosample__donor__aliases	bradley-bernstein:Donor 507 of ACC112
+replicates__1__library__biosample__donor__aliases	encode:donor of ACC112
+replicates__1__library__biosample__donor__award	/awards/U54HG006991/
+replicates__1__library__biosample__donor__date_created	2014-02-18T04:56:58.385708+00:00
+replicates__1__library__biosample__donor__external_ids	GEO:SAMN06464589
+replicates__1__library__biosample__donor__health_status	submaxillar tumor
+replicates__1__library__biosample__donor__lab	/labs/bradley-bernstein/
+replicates__1__library__biosample__donor__life_stage	adult
+replicates__1__library__biosample__donor__organism___id	/organisms/human/
+replicates__1__library__biosample__donor__organism___type	Organism
+replicates__1__library__biosample__donor__organism___type	Item
+replicates__1__library__biosample__donor__organism__name	human
+replicates__1__library__biosample__donor__organism__schema_version	6
+replicates__1__library__biosample__donor__organism__scientific_name	Homo sapiens
+replicates__1__library__biosample__donor__organism__status	released
+replicates__1__library__biosample__donor__organism__taxon_id	9606
+replicates__1__library__biosample__donor__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicates__1__library__biosample__donor__references	/publications/5705daae-9e59-4786-84ad-86dc212da8dd/
+replicates__1__library__biosample__donor__schema_version	11
+replicates__1__library__biosample__donor__sex	male
+replicates__1__library__biosample__donor__status	released
+replicates__1__library__biosample__donor__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__library__biosample__donor__uuid	299d02a0-3201-4050-99c4-3d592daf3e10
+replicates__1__library__biosample__health_status	submaxillar tumor
+replicates__1__library__biosample__lab	/labs/bradley-bernstein/
+replicates__1__library__biosample__life_stage	adult
+replicates__1__library__biosample__organism___id	/organisms/human/
+replicates__1__library__biosample__organism___type	Organism
+replicates__1__library__biosample__organism___type	Item
+replicates__1__library__biosample__organism__name	human
+replicates__1__library__biosample__organism__schema_version	6
+replicates__1__library__biosample__organism__scientific_name	Homo sapiens
+replicates__1__library__biosample__organism__status	released
+replicates__1__library__biosample__organism__taxon_id	9606
+replicates__1__library__biosample__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicates__1__library__biosample__schema_version	24
+replicates__1__library__biosample__sex	male
+replicates__1__library__biosample__source___id	/sources/lurdes-queimado/
+replicates__1__library__biosample__source___type	Source
+replicates__1__library__biosample__source___type	Item
+replicates__1__library__biosample__source__description	Lurdes Queimado at University of Oklahoma
+replicates__1__library__biosample__source__name	lurdes-queimado
+replicates__1__library__biosample__source__schema_version	6
+replicates__1__library__biosample__source__status	released
+replicates__1__library__biosample__source__title	Lurdes Queimado
+replicates__1__library__biosample__source__url	http://www.oumedicine.com/orl/academic-information/research/lurdes-queimado-m-d-ph-d-
+replicates__1__library__biosample__source__uuid	1a97a86b-0c28-4185-95fb-6a99f2ce85b4
+replicates__1__library__biosample__status	released
+replicates__1__library__biosample__submitted_by___id	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__library__biosample__submitted_by___type	User
+replicates__1__library__biosample__submitted_by___type	Item
+replicates__1__library__biosample__submitted_by__lab	/labs/bradley-bernstein/
+replicates__1__library__biosample__submitted_by__title	Noam Shoresh
+replicates__1__library__biosample__submitted_by__uuid	f1843c60-e027-4b18-8582-64d3f3eae45b
+replicates__1__library__biosample__summary	Homo sapiens ACC112 cell line
+replicates__1__library__biosample__uuid	998d839c-9cc8-488b-8e5c-66413529cb07
+replicates__1__library__date_created	2014-02-25T22:00:32.682811+00:00
+replicates__1__library__dbxrefs	GEO:GSM2700588
+replicates__1__library__documents	/documents/18f0d330-5799-45f7-babe-7728dfbd1103/
+replicates__1__library__extraction_method	see document
+replicates__1__library__fragmentation_methods	sonication (generic)
+replicates__1__library__lab	/labs/bradley-bernstein/
+replicates__1__library__library_size_selection_method	see document
+replicates__1__library__lysis_method	see document
+replicates__1__library__nucleic_acid_term_id	SO:0000352
+replicates__1__library__nucleic_acid_term_name	DNA
+replicates__1__library__replicates	/replicates/bae11713-9dda-4ed6-9c9f-5574477c0a04/
+replicates__1__library__schema_version	9
+replicates__1__library__size_range	200-600
+replicates__1__library__status	released
+replicates__1__library__strand_specificity	false
+replicates__1__library__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__library__uuid	be391f53-08db-4ba7-8325-63edb34df254
+replicates__1__notes	{'read_length_units': 'nt', 'paired_ended': False, 'read_length': 36}
+replicates__1__schema_version	9
+replicates__1__status	released
+replicates__1__submitted_by	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+replicates__1__technical_replicate_number	1
+replicates__1__uuid	bae11713-9dda-4ed6-9c9f-5574477c0a04
+replication_type	unreplicated
+schema_version	26
+status	released
+submitted_by___id	/users/f1843c60-e027-4b18-8582-64d3f3eae45b/
+submitted_by___type	User
+submitted_by___type	Item
+submitted_by__lab	/labs/bradley-bernstein/
+submitted_by__title	Noam Shoresh
+submitted_by__uuid	f1843c60-e027-4b18-8582-64d3f3eae45b
+submitter_comment	This experiment is unreplicated due to limited biosamples.
+target___id	/targets/H3K4me1-human/
+target___type	Target
+target___type	Item
+target__dbxref	GeneID:333932
+target__dbxref	GeneID:653604
+target__dbxref	GeneID:126961
+target__dbxref	UniProtKB:Q71DI3
+target__genes___id	/genes/333932/
+target__genes___id	/genes/653604/
+target__genes___id	/genes/126961/
+target__genes___type	Gene
+target__genes___type	Item
+target__genes__dbxrefs	HGNC:20505
+target__genes__dbxrefs	ENSEMBL:ENSG00000203852
+target__genes__dbxrefs	Vega:OTTHUMG00000012094
+target__genes__dbxrefs	UniProtKB:Q71DI3
+target__genes__dbxrefs	HGNC:25311
+target__genes__dbxrefs	ENSEMBL:ENSG00000183598
+target__genes__dbxrefs	Vega:OTTHUMG00000012092
+target__genes__dbxrefs	MIM:142780
+target__genes__dbxrefs	HGNC:20503
+target__genes__dbxrefs	ENSEMBL:ENSG00000203811
+target__genes__dbxrefs	Vega:OTTHUMG00000012190
+target__genes__geneid	333932
+target__genes__geneid	653604
+target__genes__geneid	126961
+target__genes__go_annotations__go_aspect	P
+target__genes__go_annotations__go_aspect	C
+target__genes__go_annotations__go_aspect	F
+target__genes__go_annotations__go_evidence_code	IBA
+target__genes__go_annotations__go_evidence_code	IEA
+target__genes__go_annotations__go_evidence_code	TAS
+target__genes__go_annotations__go_evidence_code	IDA
+target__genes__go_annotations__go_evidence_code	IPI
+target__genes__go_annotations__go_evidence_code	HDA
+target__genes__go_annotations__go_id	GO:0006334
+target__genes__go_annotations__go_id	GO:0000786
+target__genes__go_annotations__go_id	GO:0031492
+target__genes__go_annotations__go_id	GO:0000122
+target__genes__go_annotations__go_id	GO:0045652
+target__genes__go_annotations__go_id	GO:0044267
+target__genes__go_annotations__go_id	GO:0000183
+target__genes__go_annotations__go_id	GO:0006325
+target__genes__go_annotations__go_id	GO:0038111
+target__genes__go_annotations__go_id	GO:0046982
+target__genes__go_annotations__go_id	GO:0005515
+target__genes__go_annotations__go_id	GO:0005654
+target__genes__go_annotations__go_id	GO:0005634
+target__genes__go_annotations__go_id	GO:0070062
+target__genes__go_annotations__go_id	GO:0045814
+target__genes__go_annotations__go_id	GO:0060964
+target__genes__go_annotations__go_id	GO:0005576
+target__genes__go_annotations__go_id	GO:0007596
+target__genes__go_annotations__go_name	nucleosome assembly
+target__genes__go_annotations__go_name	nucleosome
+target__genes__go_annotations__go_name	nucleosomal DNA binding
+target__genes__go_annotations__go_name	negative regulation of transcription by RNA polymerase II
+target__genes__go_annotations__go_name	regulation of megakaryocyte differentiation
+target__genes__go_annotations__go_name	cellular protein metabolic process
+target__genes__go_annotations__go_name	chromatin silencing at rDNA
+target__genes__go_annotations__go_name	chromatin organization
+target__genes__go_annotations__go_name	interleukin-7-mediated signaling pathway
+target__genes__go_annotations__go_name	protein heterodimerization activity
+target__genes__go_annotations__go_name	protein binding
+target__genes__go_annotations__go_name	nucleoplasm
+target__genes__go_annotations__go_name	nucleus
+target__genes__go_annotations__go_name	extracellular exosome
+target__genes__go_annotations__go_name	negative regulation of gene expression, epigenetic
+target__genes__go_annotations__go_name	regulation of gene silencing by miRNA
+target__genes__go_annotations__go_name	extracellular region
+target__genes__go_annotations__go_name	blood coagulation
+target__genes__name	histone cluster 2 H3 family member a
+target__genes__name	histone cluster 2 H3 family member d
+target__genes__name	histone cluster 2 H3 family member c
+target__genes__ncbi_entrez_status	live
+target__genes__organism	/organisms/human/
+target__genes__schema_version	1
+target__genes__status	released
+target__genes__symbol	HIST2H3A
+target__genes__symbol	HIST2H3D
+target__genes__symbol	HIST2H3C
+target__genes__synonyms	H3/n
+target__genes__synonyms	H3/o
+target__genes__synonyms	H3
+target__genes__synonyms	H3.2
+target__genes__synonyms	H3/M
+target__genes__synonyms	H3F2
+target__genes__synonyms	H3FM
+target__genes__synonyms	H3FN
+target__genes__targets	/targets/H3K9me2-human/
+target__genes__targets	/targets/H3K27ac-human/
+target__genes__targets	/targets/H3K27me3-human/
+target__genes__targets	/targets/H3K36me3-human/
+target__genes__targets	/targets/H3K4me1-human/
+target__genes__targets	/targets/H3K4me2-human/
+target__genes__targets	/targets/H3K4me3-human/
+target__genes__targets	/targets/H3K79me2-human/
+target__genes__targets	/targets/H3K9ac-human/
+target__genes__targets	/targets/H3K9me1-human/
+target__genes__targets	/targets/H3K9me3-human/
+target__genes__title	HIST2H3A (Homo sapiens)
+target__genes__title	HIST2H3D (Homo sapiens)
+target__genes__title	HIST2H3C (Homo sapiens)
+target__genes__uuid	1b617f42-8051-411f-9c17-45c606d1672b
+target__genes__uuid	36d725d5-246a-4fdd-b83d-d6f8c7e07655
+target__genes__uuid	a3c46d2b-b825-4074-960e-2257870a6c8b
+target__investigated_as	histone
+target__investigated_as	broad histone mark
+target__label	H3K4me1
+target__modifications__amino_acid_code	K
+target__modifications__modification	Monomethylation
+target__modifications__position	4
+target__name	H3K4me1-human
+target__organism___id	/organisms/human/
+target__organism___type	Organism
+target__organism___type	Item
+target__organism__name	human
+target__organism__schema_version	6
+target__organism__scientific_name	Homo sapiens
+target__organism__status	released
+target__organism__taxon_id	9606
+target__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+target__schema_version	11
+target__status	released
+target__title	H3K4me1 (Homo sapiens)
+target__uuid	1aa5391a-01f1-4983-bdb6-d93db5f53334
+uuid	d94b0557-f085-43ce-b5bb-9438acced4de

@@ -1,0 +1,625 @@
+antibody__accession	ENCAB000AKG
+antibody__accession	ENCAB000AKG
+antibody__antigen_description	Synthetic peptide (Human) conjugated to KLH - which represents a portion of human Rad21 encoded within exon 14
+antibody__antigen_description	Synthetic peptide (Human) conjugated to KLH - which represents a portion of human Rad21 encoded within exon 14
+antibody__award	/awards/U54HG004558/
+antibody__award	/awards/U54HG004558/
+antibody__characterizations	/antibody-characterizations/61458486-0bc7-4ecc-8103-4276a056f990/
+antibody__characterizations	/antibody-characterizations/61458486-0bc7-4ecc-8103-4276a056f990/
+antibody__characterizations	/antibody-characterizations/6846a842-e442-448a-84b0-346d65266cb3/
+antibody__characterizations	/antibody-characterizations/6846a842-e442-448a-84b0-346d65266cb3/
+antibody__characterizations	/antibody-characterizations/7dd8e527-a4b9-49fa-a3d8-9ce80c3c273d/
+antibody__characterizations	/antibody-characterizations/7dd8e527-a4b9-49fa-a3d8-9ce80c3c273d/
+antibody__characterizations	/antibody-characterizations/9104ce0d-4997-4c3f-9275-344943bc83d6/
+antibody__characterizations	/antibody-characterizations/9104ce0d-4997-4c3f-9275-344943bc83d6/
+antibody__characterizations	/antibody-characterizations/a998bebe-57f7-4de9-8732-735fd07a8764/
+antibody__characterizations	/antibody-characterizations/a998bebe-57f7-4de9-8732-735fd07a8764/
+antibody__characterizations	/antibody-characterizations/d7ab7a41-76dc-4640-b48d-a8a928bde224/
+antibody__characterizations	/antibody-characterizations/d7ab7a41-76dc-4640-b48d-a8a928bde224/
+antibody__characterizations	/antibody-characterizations/d84f84e1-d1fb-47c3-9ae1-11828faec0da/
+antibody__characterizations	/antibody-characterizations/d84f84e1-d1fb-47c3-9ae1-11828faec0da/
+antibody__clonality	polyclonal
+antibody__clonality	polyclonal
+antibody__date_created	2013-09-13T13:23:32.705094-08:00
+antibody__date_created	2013-09-13T13:23:32.705094-08:00
+antibody__dbxrefs	AR:AB_2176601
+antibody__dbxrefs	AR:AB_2176601
+antibody__dbxrefs	UCSC-ENCODE-cv:Rad21
+antibody__dbxrefs	UCSC-ENCODE-cv:Rad21
+antibody__host_organism	/organisms/rabbit/
+antibody__host_organism	/organisms/rabbit/
+antibody__lab	/labs/michael-snyder/
+antibody__lab	/labs/michael-snyder/
+antibody__lot_id	940739
+antibody__lot_id	940739
+antibody__lot_id_alias	734371
+antibody__lot_id_alias	734371
+antibody__lot_id_alias	891751
+antibody__lot_id_alias	891751
+antibody__lot_reviews__biosample_term_id	CL:0002319
+antibody__lot_reviews__biosample_term_id	CL:0002319
+antibody__lot_reviews__biosample_term_id	EFO:0001187
+antibody__lot_reviews__biosample_term_id	EFO:0001187
+antibody__lot_reviews__biosample_term_id	EFO:0001203
+antibody__lot_reviews__biosample_term_id	EFO:0001203
+antibody__lot_reviews__biosample_term_id	EFO:0002067
+antibody__lot_reviews__biosample_term_id	EFO:0002067
+antibody__lot_reviews__biosample_term_id	EFO:0002784
+antibody__lot_reviews__biosample_term_id	EFO:0002784
+antibody__lot_reviews__biosample_term_id	EFO:0002791
+antibody__lot_reviews__biosample_term_id	EFO:0002791
+antibody__lot_reviews__biosample_term_id	EFO:0003971
+antibody__lot_reviews__biosample_term_id	EFO:0003971
+antibody__lot_reviews__biosample_term_id	EFO:0005233
+antibody__lot_reviews__biosample_term_id	EFO:0005233
+antibody__lot_reviews__biosample_term_id	UBERON:0002107
+antibody__lot_reviews__biosample_term_id	UBERON:0002107
+antibody__lot_reviews__biosample_term_name	CH12.LX
+antibody__lot_reviews__biosample_term_name	CH12.LX
+antibody__lot_reviews__biosample_term_name	GM12878
+antibody__lot_reviews__biosample_term_name	GM12878
+antibody__lot_reviews__biosample_term_name	HeLa-S3
+antibody__lot_reviews__biosample_term_name	HeLa-S3
+antibody__lot_reviews__biosample_term_name	HepG2
+antibody__lot_reviews__biosample_term_name	HepG2
+antibody__lot_reviews__biosample_term_name	K562
+antibody__lot_reviews__biosample_term_name	K562
+antibody__lot_reviews__biosample_term_name	MCF-7
+antibody__lot_reviews__biosample_term_name	MCF-7
+antibody__lot_reviews__biosample_term_name	MEL cell line
+antibody__lot_reviews__biosample_term_name	MEL cell line
+antibody__lot_reviews__biosample_term_name	liver
+antibody__lot_reviews__biosample_term_name	liver
+antibody__lot_reviews__biosample_term_name	neural cell
+antibody__lot_reviews__biosample_term_name	neural cell
+antibody__lot_reviews__detail	Awaiting a compliant primary characterization.
+antibody__lot_reviews__detail	Awaiting a compliant primary characterization.
+antibody__lot_reviews__detail	Fully characterized with exemption.
+antibody__lot_reviews__detail	Fully characterized with exemption.
+antibody__lot_reviews__detail	Fully characterized.
+antibody__lot_reviews__detail	Fully characterized.
+antibody__lot_reviews__organisms	/organisms/human/
+antibody__lot_reviews__organisms	/organisms/human/
+antibody__lot_reviews__organisms	/organisms/mouse/
+antibody__lot_reviews__organisms	/organisms/mouse/
+antibody__lot_reviews__status	characterized to standards
+antibody__lot_reviews__status	characterized to standards
+antibody__lot_reviews__status	characterized to standards with exemption
+antibody__lot_reviews__status	characterized to standards with exemption
+antibody__lot_reviews__status	not characterized to standards
+antibody__lot_reviews__status	not characterized to standards
+antibody__lot_reviews__targets	/targets/RAD21-human/
+antibody__lot_reviews__targets	/targets/RAD21-human/
+antibody__lot_reviews__targets	/targets/RAD21-mouse/
+antibody__lot_reviews__targets	/targets/RAD21-mouse/
+antibody__product_id	ab992
+antibody__product_id	ab992
+antibody__purifications	affinity
+antibody__purifications	affinity
+antibody__source	/sources/abcam/
+antibody__source	/sources/abcam/
+antibody__status	released
+antibody__status	released
+antibody__submitted_by	/users/27e105ca-c741-4459-bf17-90e003508639/
+antibody__submitted_by	/users/27e105ca-c741-4459-bf17-90e003508639/
+antibody__targets	/targets/RAD21-human/
+antibody__targets	/targets/RAD21-human/
+antibody__targets	/targets/RAD21-mouse/
+antibody__targets	/targets/RAD21-mouse/
+antibody__title	ENCAB000AKG
+antibody__title	ENCAB000AKG
+antibody__url	http://www.abcam.com/index.html?datasheet=992
+antibody__url	http://www.abcam.com/index.html?datasheet=992
+antibody__uuid	3b1a5418-f098-41bc-b256-41ad7922c7ae
+antibody__uuid	3b1a5418-f098-41bc-b256-41ad7922c7ae
+biosample__1__accession	ENCBS045RNA
+biosample__1__aliases	thomas-gingeras:098WC
+biosample__1__award	/awards/U54HG004557/
+biosample__1__date_created	2014-01-09T17:29:18.807964+00:00
+biosample__1__date_obtained	2012-12-01
+biosample__1__dbxrefs	GEO:SAMN04284274
+biosample__1__dbxrefs	UCSC-ENCODE-cv:Liver_STL004
+biosample__1__description	Human liver Tissue obtained from a healthy 6 year old Caucasian female donor
+biosample__1__health_status	healthy
+biosample__1__lab	/labs/thomas-gingeras/
+biosample__1__life_stage	child
+biosample__1__notes	Sent tissue section from Snyder Lab
+biosample__1__ontology__classification	tissue
+biosample__1__ontology__developmental_slims	endoderm
+biosample__1__ontology__name	tissue_UBERON_0002107
+biosample__1__ontology__organ_slims	liver
+biosample__1__ontology__status	released
+biosample__1__ontology__synonyms	Entire liver
+biosample__1__ontology__synonyms	iecur
+biosample__1__ontology__synonyms	jecur
+biosample__1__ontology__system_slims	digestive system
+biosample__1__ontology__system_slims	endocrine system
+biosample__1__ontology__term_id	UBERON:0002107
+biosample__1__ontology__term_name	liver
+biosample__1__ontology__uuid	09558c08-9581-4904-bd60-471bf39eef98
+biosample__1__source__description	Michael Snyder at Stanford University
+biosample__1__source__name	michael-snyder
+biosample__1__source__status	released
+biosample__1__source__title	Michael Snyder
+biosample__1__source__url	http://snyderlab.stanford.edu
+biosample__1__source__uuid	45be6f13-5346-4952-ad74-141540384381
+biosample__1__status	released
+biosample__1__submitted_by__lab	/labs/thomas-gingeras/
+biosample__1__submitted_by__title	Carrie Davis
+biosample__1__submitted_by__uuid	0abbd494-b852-433c-b360-93996f679dae
+biosample__1__summary	Homo sapiens female child (6 years) liver tissue
+biosample__1__uuid	0bb1ae6a-0e9f-4d7b-bdca-4652c1bfd408
+biosample__2__accession	ENCBS046RNA
+biosample__2__aliases	roadmap-epigenomics:Adult Liver_Dec-30-2012_19829
+biosample__2__aliases	roadmap-epigenomics:STL011LI-01
+biosample__2__aliases	thomas-gingeras:099WC
+biosample__2__alternate_accessions	ENCBS954ZVV
+biosample__2__award	/awards/U54HG004557/
+biosample__2__date_created	2014-01-09T17:29:19.881978+00:00
+biosample__2__date_obtained	2012-05-01
+biosample__2__dbxrefs	GEO:SAMN04284275
+biosample__2__dbxrefs	UCSC-ENCODE-cv:Liver_STL011
+biosample__2__description	Human liver Tissue obtained from a healthy, 32 year old Caucasian male donor
+biosample__2__health_status	healthy with non-obstructive CAD (coronary artery disease)
+biosample__2__lab	/labs/thomas-gingeras/
+biosample__2__life_stage	adult
+biosample__2__notes	Sent tissue section from Snyder Lab
+biosample__2__ontology__classification	tissue
+biosample__2__ontology__developmental_slims	endoderm
+biosample__2__ontology__name	tissue_UBERON_0002107
+biosample__2__ontology__organ_slims	liver
+biosample__2__ontology__status	released
+biosample__2__ontology__synonyms	Entire liver
+biosample__2__ontology__synonyms	iecur
+biosample__2__ontology__synonyms	jecur
+biosample__2__ontology__system_slims	digestive system
+biosample__2__ontology__system_slims	endocrine system
+biosample__2__ontology__term_id	UBERON:0002107
+biosample__2__ontology__term_name	liver
+biosample__2__ontology__uuid	09558c08-9581-4904-bd60-471bf39eef98
+biosample__2__source__description	Michael Snyder at Stanford University
+biosample__2__source__name	michael-snyder
+biosample__2__source__status	released
+biosample__2__source__title	Michael Snyder
+biosample__2__source__url	http://snyderlab.stanford.edu
+biosample__2__source__uuid	45be6f13-5346-4952-ad74-141540384381
+biosample__2__status	released
+biosample__2__submitted_by__lab	/labs/thomas-gingeras/
+biosample__2__submitted_by__title	Carrie Davis
+biosample__2__submitted_by__uuid	0abbd494-b852-433c-b360-93996f679dae
+biosample__2__submitter_comment	collection_method: autopsy
+biosample__2__summary	Homo sapiens male adult (32 years) liver tissue
+biosample__2__url	http://genboree.org/java-bin/project.jsp?projectName=XML%20Submissions%2FUCSD%2FSAMPLE%2FEDACC.15104
+biosample__2__uuid	06213179-d4b6-4fcb-af05-aad286d735c8
+donor__1__accession	ENCDO059AAA
+donor__1__age	6
+donor__1__age_display	6 year
+donor__1__age_units	year
+donor__1__aliases	michael-snyder:STL004
+donor__1__award	/awards/U41HG006992/
+donor__1__date_created	2013-09-13T13:28:16.650346-08:00
+donor__1__ethnicity	Caucasian
+donor__1__external_ids	GEO:SAMN04284558
+donor__1__lab	/labs/michael-snyder/
+donor__1__life_stage	child
+donor__1__organism__name	human
+donor__1__organism__scientific_name	Homo sapiens
+donor__1__organism__status	released
+donor__1__organism__taxon_id	9606
+donor__1__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+donor__1__sex	female
+donor__1__status	released
+donor__1__submitted_by	/users/81a6cc12-2847-4e2e-8f2c-f566699eb29e/
+donor__1__uuid	5a7f723c-598b-4776-a8e4-19efdfc15f64
+donor__2__accession	ENCDO060AAA
+donor__2__age	32
+donor__2__age_display	32 year
+donor__2__age_units	year
+donor__2__aliases	michael-snyder:STL011
+donor__2__aliases	roadmap-epigenomics:STL011_donor
+donor__2__alternate_accessions	ENCDO124IXS
+donor__2__award	/awards/U41HG006992/
+donor__2__date_created	2013-09-13T13:28:20.291601-08:00
+donor__2__ethnicity	Caucasian
+donor__2__external_ids	GEO:SAMN04284601
+donor__2__lab	/labs/michael-snyder/
+donor__2__life_stage	adult
+donor__2__organism__name	human
+donor__2__organism__scientific_name	Homo sapiens
+donor__2__organism__status	released
+donor__2__organism__taxon_id	9606
+donor__2__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+donor__2__sex	male
+donor__2__status	released
+donor__2__submitted_by	/users/81a6cc12-2847-4e2e-8f2c-f566699eb29e/
+donor__2__uuid	b7f644e9-630a-4d84-bf3f-8fdffb7b100f
+experiment__aliases	michael-snyder:liver-Rad21_ab992_gaiix
+experiment__assay_slims	DNA binding
+experiment__assay_term_id	OBI:0000716
+experiment__assay_term_name	ChIP-seq
+experiment__assay_title	TF ChIP-seq
+experiment__award__description	We propose to use our high-throughput production facility for genome-wide identification of the chromosomal locations of regulatory elements in human and mouse cells. Sequence-specific and general transcription factors will be mapped across the genome using chromatin immunoprecipitation followed by DNA sequencing (ChlP-Seq). Long noncoding RNAs (IncRNAs) will be mapped using ChlRP-seq, a method by which specific chromatin-bound RNAs and their associated regions are isolated using oligonucleotides followed by sequencing of the precipitated DNA. The results obtained from our genome wide mapping experiments will greatly advance the efforts of the ENCODE consortium to comprehensively identify all functional elements in the human genome. Our experimental data will be subjected to stringent quality metrics already established by the consortium and the results made publicly available in a timely manner. Targeted biological validation experiments will be performed, along with integrative analyses. All experiments and analyses will be performed by a highly experienced and well-integrated team of experts that has already established a successful working relationship. We expect our center to contribute greatly to the annotation of the human and mouse genomes.
+experiment__award__end_date	2016-07-31
+experiment__award__name	U54HG006996
+experiment__award__pi__title	Michael Snyder
+experiment__award__pi__uuid	27e105ca-c741-4459-bf17-90e003508639
+experiment__award__project	ENCODE
+experiment__award__rfa	ENCODE3
+experiment__award__start_date	2012-09-21
+experiment__award__status	disabled
+experiment__award__title	PRODUCTION CENTER FOR MAPPING REGULATORY REGIONS OF THE HUMAN GENOME
+experiment__award__url	http://projectreporter.nih.gov/project_info_details.cfm?aid=8402423
+experiment__award__uuid	4d462953-2da5-4fcf-a695-7206f2d5cf45
+experiment__award__viewing_group	ENCODE3
+experiment__date_created	2014-07-30T21:36:05.018354+00:00
+experiment__date_released	2017-04-14
+experiment__date_submitted	2014-07-30
+experiment__dbxrefs	GEO:GSE127411
+experiment__description	RAD21 ChIP-seq on human liver
+experiment__experiment_classification	functional genomics assay
+experiment__hub	/experiments/ENCSR635OSG/@@hub/hub.txt
+experiment__internal_status	pipeline completed
+experiment__internal_tags	ENCYCLOPEDIAv5
+experiment__lab__address1	Department of Genetics
+experiment__lab__address2	300 Pasteur Drive; MC5120
+experiment__lab__awards	/awards/RC2HG005602/
+experiment__lab__awards	/awards/U01HG007919/
+experiment__lab__awards	/awards/U54HG004558/
+experiment__lab__awards	/awards/U54HG006996/
+experiment__lab__awards	/awards/UM1HG009442/
+experiment__lab__city	Stanford
+experiment__lab__country	USA
+experiment__lab__fax	650-725-1534
+experiment__lab__institute_label	Stanford
+experiment__lab__institute_name	Stanford University
+experiment__lab__name	michael-snyder
+experiment__lab__phone1	650-723-4668
+experiment__lab__phone2	650-736-8099
+experiment__lab__pi	/users/27e105ca-c741-4459-bf17-90e003508639/
+experiment__lab__postal_code	94305-5120
+experiment__lab__state	CA
+experiment__lab__status	current
+experiment__lab__title	Michael Snyder, Stanford
+experiment__lab__uuid	72a9c49a-4e17-4df1-96d1-fd19aa46b175
+experiment__month_released	April, 2017
+experiment__replication_type	anisogenic
+experiment__status	released
+experiment__submitted_by__lab	/labs/michael-snyder/
+experiment__submitted_by__title	Denis Salins
+experiment__submitted_by__uuid	60bc1c02-53ad-44ff-8b9c-3cfc62ac1c1b
+experiment__submitter_comment	IMPORTANT! Bioreplicate 2 was previously annotated as liver from a 4 year old female. It has now been corrected to be liver from a 32 year old adult male.
+experiment__uuid	9db37c50-ed0f-4454-83c2-06ca07841983
+file__accession	ENCFF857VSJ
+file__analysis_step	/analysis-steps/tf-idr-peaks-to-bigbed-step-v-1/
+file__analysis_step	/analysis-steps/tf-idr-step-v-1/
+file__analysis_step	/analysis-steps/tf-macs2-signal-calling-step-v-1/
+file__analysis_step	/analysis-steps/tf-peaks-to-bigbed-step-v-1/
+file__analysis_step	/analysis-steps/tf-spp-peak-calling-step-v-1/
+file__assembly	hg19
+file__biological_replicates	1
+file__biological_replicates	2
+file__cloud_metadata__file_size	373126
+file__cloud_metadata__md5sum_base64	QFyLSq3ufpTbOgwOOTIMTA==
+file__cloud_metadata__url	https://encode-public.s3.amazonaws.com/2017/04/07/c6f22076-5bbd-4baf-bc5e-13e55d3479aa/ENCFF857VSJ.bed.gz
+file__content_md5sum	2b937499106769fc71de27c75ce9d743
+file__date_created	2017-04-07T01:41:27.007409+00:00
+file__experiment	ENCSR635OSG
+file__format	bed
+file__format_specifications	/documents/948203bb-8eb2-42a2-8b12-1c10f356c998/
+file__format_type	narrowPeak
+file__href	/files/ENCFF857VSJ/@@download/ENCFF857VSJ.bed.gz
+file__md5sum	405c8b4aadee7e94db3a0c0e39320c4c
+file__output_category	annotation
+file__output_type	conservative idr thresholded peaks
+file__quality_metrics	/idr-quality-metrics/04953d5a-4447-4a2f-ac4f-35594fbcc466/
+file__replicate_libraries	/libraries/ENCLB377FLO/
+file__replicate_libraries	/libraries/ENCLB378GGD/
+file__s3_uri	s3://encode-public/2017/04/07/c6f22076-5bbd-4baf-bc5e-13e55d3479aa/ENCFF857VSJ.bed.gz
+file__size	373126
+file__status	released
+file__step_run	/analysis-step-runs/a0335db9-e449-42f6-8180-b84155a1a2a6/
+file__submitted_by__lab	/labs/j-michael-cherry/
+file__submitted_by__title	Esther Chan
+file__submitted_by__uuid	4c23ec32-c7c8-4ac0-affb-04befcc881d4
+file__submitted_file_name	project-BpBZvb003694v3fj3QJGK3Zb:/peaks_TF_hg19/ENCSR635OSG/peaks/idr2/IDR_final_conservative.narrowPeak.gz
+file__technical_replicates	1_1
+file__technical_replicates	2_1
+file__title	ENCFF857VSJ
+file__type	bed narrowPeak
+file__uuid	c6f22076-5bbd-4baf-bc5e-13e55d3479aa
+manually_curated__download_date	2019-07-25T13:36:12.408+02:00
+manually_curated__local_file_size	1339097
+manually_curated__local_md5	2b937499106769fc71de27c75ce9d743
+manually_curated__origin_file_size	373126
+manually_curated__origin_last_modified_date	2017-04-14
+manually_curated__origin_md5	405c8b4aadee7e94db3a0c0e39320c4c
+platform__aliases	encode:GAIIx
+platform__aliases	encode:Illumina_GA2x
+platform__date_created	2013-11-14T22:17:00.269234+00:00
+platform__dbxrefs	UCSC-ENCODE-cv:Illumina_GA2x
+platform__status	released
+platform__submitted_by	/users/ff7b77e7-bb55-4307-b665-814c9f1e65fb/
+platform__term_id	OBI:0002000
+platform__term_name	Illumina Genome Analyzer IIx
+platform__title	Illumina Genome Analyzer IIx
+platform__url	http://www.illumina.com/documents/products/datasheets/datasheet_genome_analyzerIIx.pdf
+platform__uuid	7efe9ddc-bbe6-457d-bc98-f8bac2478bda
+replicate__1__biological_replicate_number	1
+replicate__1__date_created	2014-07-30T21:36:05.313600+00:00
+replicate__1__experiment	/experiments/ENCSR635OSG/
+replicate__1__libraries__accession	ENCLB377FLO
+replicate__1__libraries__aliases	michael-snyder:Rad21_ab992_Liver_Rep1
+replicate__1__libraries__antibodies	/antibodies/ENCAB000AKG/
+replicate__1__libraries__award	/awards/U54HG006996/
+replicate__1__libraries__biosample__accession	ENCBS045RNA
+replicate__1__libraries__biosample__aliases	thomas-gingeras:098WC
+replicate__1__libraries__biosample__award	/awards/U54HG004557/
+replicate__1__libraries__biosample__biosample_ontology	/biosample-types/tissue_UBERON_0002107/
+replicate__1__libraries__biosample__date_created	2014-01-09T17:29:18.807964+00:00
+replicate__1__libraries__biosample__date_obtained	2012-12-01
+replicate__1__libraries__biosample__dbxrefs	GEO:SAMN04284274
+replicate__1__libraries__biosample__dbxrefs	UCSC-ENCODE-cv:Liver_STL004
+replicate__1__libraries__biosample__description	Human liver Tissue obtained from a healthy 6 year old Caucasian female donor
+replicate__1__libraries__biosample__donor__accession	ENCDO059AAA
+replicate__1__libraries__biosample__donor__age	6
+replicate__1__libraries__biosample__donor__age_units	year
+replicate__1__libraries__biosample__donor__aliases	michael-snyder:STL004
+replicate__1__libraries__biosample__donor__award	/awards/U41HG006992/
+replicate__1__libraries__biosample__donor__date_created	2013-09-13T13:28:16.650346-08:00
+replicate__1__libraries__biosample__donor__ethnicity	Caucasian
+replicate__1__libraries__biosample__donor__external_ids	GEO:SAMN04284558
+replicate__1__libraries__biosample__donor__lab	/labs/michael-snyder/
+replicate__1__libraries__biosample__donor__life_stage	child
+replicate__1__libraries__biosample__donor__organism__name	human
+replicate__1__libraries__biosample__donor__organism__scientific_name	Homo sapiens
+replicate__1__libraries__biosample__donor__organism__status	released
+replicate__1__libraries__biosample__donor__organism__taxon_id	9606
+replicate__1__libraries__biosample__donor__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicate__1__libraries__biosample__donor__sex	female
+replicate__1__libraries__biosample__donor__status	released
+replicate__1__libraries__biosample__donor__submitted_by	/users/81a6cc12-2847-4e2e-8f2c-f566699eb29e/
+replicate__1__libraries__biosample__donor__uuid	5a7f723c-598b-4776-a8e4-19efdfc15f64
+replicate__1__libraries__biosample__health_status	healthy
+replicate__1__libraries__biosample__lab	/labs/thomas-gingeras/
+replicate__1__libraries__biosample__life_stage	child
+replicate__1__libraries__biosample__notes	Sent tissue section from Snyder Lab
+replicate__1__libraries__biosample__source__description	Michael Snyder at Stanford University
+replicate__1__libraries__biosample__source__name	michael-snyder
+replicate__1__libraries__biosample__source__status	released
+replicate__1__libraries__biosample__source__title	Michael Snyder
+replicate__1__libraries__biosample__source__url	http://snyderlab.stanford.edu
+replicate__1__libraries__biosample__source__uuid	45be6f13-5346-4952-ad74-141540384381
+replicate__1__libraries__biosample__status	released
+replicate__1__libraries__biosample__submitted_by__lab	/labs/thomas-gingeras/
+replicate__1__libraries__biosample__submitted_by__title	Carrie Davis
+replicate__1__libraries__biosample__submitted_by__uuid	0abbd494-b852-433c-b360-93996f679dae
+replicate__1__libraries__biosample__summary	Homo sapiens female child (6 years) liver tissue
+replicate__1__libraries__biosample__uuid	0bb1ae6a-0e9f-4d7b-bdca-4652c1bfd408
+replicate__1__libraries__date_created	2014-07-30T21:36:05.189158+00:00
+replicate__1__libraries__dbxrefs	GEO:GSM3634249
+replicate__1__libraries__lab	/labs/michael-snyder/
+replicate__1__libraries__nucleic_acid_term_id	SO:0000352
+replicate__1__libraries__nucleic_acid_term_name	DNA
+replicate__1__libraries__replicates	/replicates/4874c170-7124-4822-a058-4bb04ce21d74/
+replicate__1__libraries__size_range	150-350
+replicate__1__libraries__status	released
+replicate__1__libraries__strand_specificity	false
+replicate__1__libraries__submitted_by	/users/60bc1c02-53ad-44ff-8b9c-3cfc62ac1c1b/
+replicate__1__libraries__uuid	10f6f51f-819c-4072-b30f-3bd2a0844a0e
+replicate__1__library__accession	ENCLB377FLO
+replicate__1__library__aliases	michael-snyder:Rad21_ab992_Liver_Rep1
+replicate__1__library__antibodies	/antibodies/ENCAB000AKG/
+replicate__1__library__award	/awards/U54HG006996/
+replicate__1__library__date_created	2014-07-30T21:36:05.189158+00:00
+replicate__1__library__dbxrefs	GEO:GSM3634249
+replicate__1__library__lab	/labs/michael-snyder/
+replicate__1__library__nucleic_acid_term_id	SO:0000352
+replicate__1__library__nucleic_acid_term_name	DNA
+replicate__1__library__replicates	/replicates/4874c170-7124-4822-a058-4bb04ce21d74/
+replicate__1__library__size_range	150-350
+replicate__1__library__status	released
+replicate__1__library__strand_specificity	false
+replicate__1__library__submitted_by	/users/60bc1c02-53ad-44ff-8b9c-3cfc62ac1c1b/
+replicate__1__library__uuid	10f6f51f-819c-4072-b30f-3bd2a0844a0e
+replicate__1__notes	{}
+replicate__1__status	released
+replicate__1__submitted_by	/users/60bc1c02-53ad-44ff-8b9c-3cfc62ac1c1b/
+replicate__1__technical_replicate_number	1
+replicate__1__uuid	4874c170-7124-4822-a058-4bb04ce21d74
+replicate__2__biological_replicate_number	2
+replicate__2__date_created	2014-09-24T19:13:42.338514+00:00
+replicate__2__experiment	/experiments/ENCSR635OSG/
+replicate__2__libraries__accession	ENCLB378GGD
+replicate__2__libraries__aliases	michael-snyder:Rad21_ab992_Liver_Rep2
+replicate__2__libraries__antibodies	/antibodies/ENCAB000AKG/
+replicate__2__libraries__award	/awards/U54HG006996/
+replicate__2__libraries__biosample__accession	ENCBS046RNA
+replicate__2__libraries__biosample__aliases	roadmap-epigenomics:Adult Liver_Dec-30-2012_19829
+replicate__2__libraries__biosample__aliases	roadmap-epigenomics:STL011LI-01
+replicate__2__libraries__biosample__aliases	thomas-gingeras:099WC
+replicate__2__libraries__biosample__alternate_accessions	ENCBS954ZVV
+replicate__2__libraries__biosample__award	/awards/U54HG004557/
+replicate__2__libraries__biosample__biosample_ontology	/biosample-types/tissue_UBERON_0002107/
+replicate__2__libraries__biosample__date_created	2014-01-09T17:29:19.881978+00:00
+replicate__2__libraries__biosample__date_obtained	2012-05-01
+replicate__2__libraries__biosample__dbxrefs	GEO:SAMN04284275
+replicate__2__libraries__biosample__dbxrefs	UCSC-ENCODE-cv:Liver_STL011
+replicate__2__libraries__biosample__description	Human liver Tissue obtained from a healthy, 32 year old Caucasian male donor
+replicate__2__libraries__biosample__donor__accession	ENCDO060AAA
+replicate__2__libraries__biosample__donor__age	32
+replicate__2__libraries__biosample__donor__age_units	year
+replicate__2__libraries__biosample__donor__aliases	michael-snyder:STL011
+replicate__2__libraries__biosample__donor__aliases	roadmap-epigenomics:STL011_donor
+replicate__2__libraries__biosample__donor__alternate_accessions	ENCDO124IXS
+replicate__2__libraries__biosample__donor__award	/awards/U41HG006992/
+replicate__2__libraries__biosample__donor__date_created	2013-09-13T13:28:20.291601-08:00
+replicate__2__libraries__biosample__donor__ethnicity	Caucasian
+replicate__2__libraries__biosample__donor__external_ids	GEO:SAMN04284601
+replicate__2__libraries__biosample__donor__lab	/labs/michael-snyder/
+replicate__2__libraries__biosample__donor__life_stage	adult
+replicate__2__libraries__biosample__donor__organism__name	human
+replicate__2__libraries__biosample__donor__organism__scientific_name	Homo sapiens
+replicate__2__libraries__biosample__donor__organism__status	released
+replicate__2__libraries__biosample__donor__organism__taxon_id	9606
+replicate__2__libraries__biosample__donor__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+replicate__2__libraries__biosample__donor__sex	male
+replicate__2__libraries__biosample__donor__status	released
+replicate__2__libraries__biosample__donor__submitted_by	/users/81a6cc12-2847-4e2e-8f2c-f566699eb29e/
+replicate__2__libraries__biosample__donor__uuid	b7f644e9-630a-4d84-bf3f-8fdffb7b100f
+replicate__2__libraries__biosample__health_status	healthy with non-obstructive CAD (coronary artery disease)
+replicate__2__libraries__biosample__lab	/labs/thomas-gingeras/
+replicate__2__libraries__biosample__life_stage	adult
+replicate__2__libraries__biosample__notes	Sent tissue section from Snyder Lab
+replicate__2__libraries__biosample__source__description	Michael Snyder at Stanford University
+replicate__2__libraries__biosample__source__name	michael-snyder
+replicate__2__libraries__biosample__source__status	released
+replicate__2__libraries__biosample__source__title	Michael Snyder
+replicate__2__libraries__biosample__source__url	http://snyderlab.stanford.edu
+replicate__2__libraries__biosample__source__uuid	45be6f13-5346-4952-ad74-141540384381
+replicate__2__libraries__biosample__status	released
+replicate__2__libraries__biosample__submitted_by__lab	/labs/thomas-gingeras/
+replicate__2__libraries__biosample__submitted_by__title	Carrie Davis
+replicate__2__libraries__biosample__submitted_by__uuid	0abbd494-b852-433c-b360-93996f679dae
+replicate__2__libraries__biosample__submitter_comment	collection_method: autopsy
+replicate__2__libraries__biosample__summary	Homo sapiens male adult (32 years) liver tissue
+replicate__2__libraries__biosample__url	http://genboree.org/java-bin/project.jsp?projectName=XML%20Submissions%2FUCSD%2FSAMPLE%2FEDACC.15104
+replicate__2__libraries__biosample__uuid	06213179-d4b6-4fcb-af05-aad286d735c8
+replicate__2__libraries__date_created	2014-09-24T19:13:32.673936+00:00
+replicate__2__libraries__dbxrefs	GEO:GSM3634250
+replicate__2__libraries__lab	/labs/michael-snyder/
+replicate__2__libraries__nucleic_acid_term_id	SO:0000352
+replicate__2__libraries__nucleic_acid_term_name	DNA
+replicate__2__libraries__replicates	/replicates/d42ff80d-67fd-45ee-9159-25aa08f60529/
+replicate__2__libraries__size_range	150-350
+replicate__2__libraries__status	released
+replicate__2__libraries__strand_specificity	false
+replicate__2__libraries__submitted_by	/users/4c23ec32-c7c8-4ac0-affb-04befcc881d4/
+replicate__2__libraries__uuid	f105d98e-274b-441b-bb0e-33b5f99c4f95
+replicate__2__library__accession	ENCLB378GGD
+replicate__2__library__aliases	michael-snyder:Rad21_ab992_Liver_Rep2
+replicate__2__library__antibodies	/antibodies/ENCAB000AKG/
+replicate__2__library__award	/awards/U54HG006996/
+replicate__2__library__date_created	2014-09-24T19:13:32.673936+00:00
+replicate__2__library__dbxrefs	GEO:GSM3634250
+replicate__2__library__lab	/labs/michael-snyder/
+replicate__2__library__nucleic_acid_term_id	SO:0000352
+replicate__2__library__nucleic_acid_term_name	DNA
+replicate__2__library__replicates	/replicates/d42ff80d-67fd-45ee-9159-25aa08f60529/
+replicate__2__library__size_range	150-350
+replicate__2__library__status	released
+replicate__2__library__strand_specificity	false
+replicate__2__library__submitted_by	/users/4c23ec32-c7c8-4ac0-affb-04befcc881d4/
+replicate__2__library__uuid	f105d98e-274b-441b-bb0e-33b5f99c4f95
+replicate__2__notes	{}
+replicate__2__status	released
+replicate__2__submitted_by	/users/4c23ec32-c7c8-4ac0-affb-04befcc881d4/
+replicate__2__technical_replicate_number	1
+replicate__2__uuid	d42ff80d-67fd-45ee-9159-25aa08f60529
+target__dbxref	ENSEMBL:ENSG00000164754
+target__dbxref	GeneID:5885
+target__dbxref	HGNC:KIAA0078
+target__dbxref	HGNC:SCC1
+target__dbxref	HGNC:hHR21
+target__dbxref	UniProtKB:O60216
+target__genes__dbxrefs	ENSEMBL:ENSG00000164754
+target__genes__dbxrefs	HGNC:9811
+target__genes__dbxrefs	MIM:606462
+target__genes__dbxrefs	UniProtKB:A0A024R9J0
+target__genes__dbxrefs	UniProtKB:O60216
+target__genes__dbxrefs	Vega:OTTHUMG00000164959
+target__genes__geneid	5885
+target__genes__go_annotations__go_aspect	C
+target__genes__go_annotations__go_aspect	F
+target__genes__go_annotations__go_aspect	P
+target__genes__go_annotations__go_evidence_code	HDA
+target__genes__go_annotations__go_evidence_code	IBA
+target__genes__go_annotations__go_evidence_code	IDA
+target__genes__go_annotations__go_evidence_code	IEA
+target__genes__go_annotations__go_evidence_code	IMP
+target__genes__go_annotations__go_evidence_code	IPI
+target__genes__go_annotations__go_evidence_code	TAS
+target__genes__go_annotations__go_id	GO:0000775
+target__genes__go_annotations__go_id	GO:0000785
+target__genes__go_annotations__go_id	GO:0001228
+target__genes__go_annotations__go_id	GO:0003682
+target__genes__go_annotations__go_id	GO:0005515
+target__genes__go_annotations__go_id	GO:0005654
+target__genes__go_annotations__go_id	GO:0005694
+target__genes__go_annotations__go_id	GO:0005829
+target__genes__go_annotations__go_id	GO:0006302
+target__genes__go_annotations__go_id	GO:0006310
+target__genes__go_annotations__go_id	GO:0006357
+target__genes__go_annotations__go_id	GO:0006366
+target__genes__go_annotations__go_id	GO:0006915
+target__genes__go_annotations__go_id	GO:0007059
+target__genes__go_annotations__go_id	GO:0007062
+target__genes__go_annotations__go_id	GO:0007131
+target__genes__go_annotations__go_id	GO:0008278
+target__genes__go_annotations__go_id	GO:0010972
+target__genes__go_annotations__go_id	GO:0016020
+target__genes__go_annotations__go_id	GO:0016363
+target__genes__go_annotations__go_id	GO:0030893
+target__genes__go_annotations__go_id	GO:0044877
+target__genes__go_annotations__go_id	GO:0045841
+target__genes__go_annotations__go_id	GO:0045876
+target__genes__go_annotations__go_id	GO:0045944
+target__genes__go_annotations__go_id	GO:0051301
+target__genes__go_annotations__go_id	GO:0051321
+target__genes__go_annotations__go_id	GO:0071168
+target__genes__go_annotations__go_name	DNA recombination
+target__genes__go_annotations__go_name	DNA-binding transcription activator activity, RNA polymerase II-specific
+target__genes__go_annotations__go_name	apoptotic process
+target__genes__go_annotations__go_name	cell division
+target__genes__go_annotations__go_name	chromatin
+target__genes__go_annotations__go_name	chromatin binding
+target__genes__go_annotations__go_name	chromosome
+target__genes__go_annotations__go_name	chromosome segregation
+target__genes__go_annotations__go_name	chromosome, centromeric region
+target__genes__go_annotations__go_name	cohesin complex
+target__genes__go_annotations__go_name	cytosol
+target__genes__go_annotations__go_name	double-strand break repair
+target__genes__go_annotations__go_name	meiotic cell cycle
+target__genes__go_annotations__go_name	meiotic cohesin complex
+target__genes__go_annotations__go_name	membrane
+target__genes__go_annotations__go_name	negative regulation of G2/M transition of mitotic cell cycle
+target__genes__go_annotations__go_name	negative regulation of mitotic metaphase/anaphase transition
+target__genes__go_annotations__go_name	nuclear matrix
+target__genes__go_annotations__go_name	nucleoplasm
+target__genes__go_annotations__go_name	positive regulation of sister chromatid cohesion
+target__genes__go_annotations__go_name	positive regulation of transcription by RNA polymerase II
+target__genes__go_annotations__go_name	protein binding
+target__genes__go_annotations__go_name	protein localization to chromatin
+target__genes__go_annotations__go_name	protein-containing complex binding
+target__genes__go_annotations__go_name	reciprocal meiotic recombination
+target__genes__go_annotations__go_name	regulation of transcription by RNA polymerase II
+target__genes__go_annotations__go_name	sister chromatid cohesion
+target__genes__go_annotations__go_name	transcription by RNA polymerase II
+target__genes__name	RAD21 cohesin complex component
+target__genes__ncbi_entrez_status	live
+target__genes__organism	/organisms/human/
+target__genes__status	released
+target__genes__symbol	RAD21
+target__genes__synonyms	CDLS4
+target__genes__synonyms	HR21
+target__genes__synonyms	HRAD21
+target__genes__synonyms	MCD1
+target__genes__synonyms	NXP1
+target__genes__synonyms	SCC1
+target__genes__synonyms	hHR21
+target__genes__targets	/targets/3xFLAG-RAD21-human/
+target__genes__targets	/targets/CTCF%2BRAD21-human/
+target__genes__targets	/targets/RAD21-human/
+target__genes__targets	/targets/eGFP-RAD21-human/
+target__genes__title	RAD21 (Homo sapiens)
+target__genes__uuid	afee3521-34ac-4d22-afda-08159685c8f7
+target__investigated_as	cohesin
+target__label	RAD21
+target__name	RAD21-human
+target__organism__name	human
+target__organism__scientific_name	Homo sapiens
+target__organism__status	released
+target__organism__taxon_id	9606
+target__organism__uuid	7745b647-ff15-4ff3-9ced-b897d4e2983c
+target__status	released
+target__title	RAD21 (Homo sapiens)
+target__uuid	909133b9-786c-424e-b081-0fe540bda118
