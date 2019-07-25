@@ -4,6 +4,8 @@ import java.io.File
 
 import it.polimi.genomics.metadata.database.FileDatabase
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
+import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler
+import it.polimi.genomics.metadata.step.MapperStep.logger
 import it.polimi.genomics.metadata.step._
 import it.polimi.genomics.metadata.step.utils.ExecutionLevel.{ExecutionLevel, _}
 import it.polimi.genomics.metadata.step.utils.{ParameterUtil, SchemaLocation, SchemaValidator}
@@ -417,6 +419,15 @@ object Program extends App {
   }
 
   def executeLevel(sources: Seq[Source], level: ExecutionLevel, parallelExecution: Boolean): Unit = {
+
+    //new lines to test
+    if(level == Map) {
+      DbHandler.setDatabase
+      DbHandler.setDWViews
+      DbHandler.setFlattenMaterialized
+      logger.info("Database has been set")
+    }
+
     val integrateThreads = sources.filter(_.isEnabled(level)).map(source => {
       new Thread {
         override def run(): Unit = {
@@ -445,6 +456,13 @@ object Program extends App {
     }
     else
       integrateThreads.foreach(_.go())
+
+    //new lines to test
+    if(level == Map) {
+      DbHandler.refreshFlattenMaterialized
+      DbHandler.setUnifiedPair
+      DbHandler.closeDatabase()
+    }
 
     val t3 = System.nanoTime()
     logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2, t3)}")
