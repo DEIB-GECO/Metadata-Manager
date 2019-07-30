@@ -54,10 +54,10 @@ object MapperStep extends Step {
   override def execute(source: Source, parallelExecution: Boolean): Unit = {
     if (source.mapperEnabled) {
 
-      DbHandler.setDatabase
-      DbHandler.setDWViews
-      DbHandler.setFlattenMaterialized
-      logger.info("Database has been set")
+      //DbHandler.setDatabase
+      //DbHandler.setDWViews
+      //DbHandler.setFlattenMaterialized
+      //logger.info("Database has been set")
 
       logger.info("Starting mapper for on folder: " + source.outputFolder)
 
@@ -112,10 +112,9 @@ object MapperStep extends Step {
         }
       }
 
-      DbHandler.refreshFlattenMaterialized
-      DbHandler.setUnifiedPair
-
-      DbHandler.closeDatabase()
+      //DbHandler.refreshFlattenMaterialized
+      //DbHandler.setUnifiedPair
+      //DbHandler.closeDatabase()
 
 
       logger.info(s"Source ${source.name} mapping finished")
