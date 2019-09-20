@@ -2,6 +2,8 @@ package it.polimi.genomics.metadata.mapper.TCGA.Table
 
 import it.polimi.genomics.metadata.mapper.BioSample
 
+import scala.util.Try
+
 class BioSampleTCGA extends TCGATable with BioSample {
 
   override def setParameter(param: String, dest: String, insertMethod: (String, String) => String): Unit = {
@@ -9,29 +11,45 @@ class BioSampleTCGA extends TCGATable with BioSample {
       case "SOURCEID" => this.sourceId = insertMethod(this.sourceId, param)
       case "TYPES" => this.types = insertMethod(this.types, param)
       case "TISSUE" => {
-        if (conf.getBoolean("import.rules.type")) {
-          this.tissue = if (this.types.equals("tissue")) insertMethod(this.tissue, param) else null
+        /*if (conf.getBoolean("import.rules.type")) {
+          if (this.types != null && this.types.equals("tissue") && !param.equalsIgnoreCase("none"))
+            this.tissue = insertMethod(this.tissue, param)
+          else
+            this.tissue = null
         } else {
           this.tissue = insertMethod(this.tissue, param)
-        }
-      }
-      case "CELLLINE" => {
-        if (conf.getBoolean("import.rules.type")) {
-          if (this.types!=null && !this.types.equals("tissue"))
-            this.cellLine = insertMethod(this.cellLine, param)
+        }*/
+
+
+          if (!param.equalsIgnoreCase("none") && !param.equalsIgnoreCase("unknown primary site"))
+            this.tissue = insertMethod(this.tissue, param)
           else
-            this.cellLine = null
+            this.tissue = null
+
+
+      }
+      case "CELL" => {
+       /* if (conf.getBoolean("import.rules.type")) {
+          if (this.types != null && !this.types.equals("tissue") && !param.equalsIgnoreCase("none"))
+            this.cell = insertMethod(this.cell, param)
+          else
+            this.cell = null
         } else {
-          this.cellLine = insertMethod(this.cellLine, param)
-        }
+          this.cell = insertMethod(this.cell, param)
+        }*/
+
+        if (!param.equalsIgnoreCase("none"))
+          this.cell = insertMethod(this.cell, param)
+        else
+          this.cell = null
       }
       case "ISHEALTHY" => {
-        if (param == "normal")
+        if (param.toUpperCase == "NORMAL" || param.toUpperCase == "HEALTHY")
           this.isHealthy = Some(true)
-        else if (param == "tumoral")
+        else //if (param.toUpperCase == "TUMORAL")
           this.isHealthy = Some(false)
-        else
-          this.isHealthy = None
+       // else
+       //   this.isHealthy = None
         /*if (param == "null") this.isHealthy = false
         else
           param.toUpperCase match {
@@ -44,12 +62,15 @@ class BioSampleTCGA extends TCGATable with BioSample {
           }*/
       }
       case "DISEASE" => {
-      //  if (conf.getBoolean("import.rules.is_healthy")) {
-      //    this.disease = if (!this.isHealthy) insertMethod(this.disease, param) else null
-      //  } else {
-          this.disease = insertMethod(this.disease, param)
-      //  }
+        if (param.toUpperCase == "HEALTHY")
+          this.disease = None
+        else{
+          val a: String = this.disease.getOrElse(null)
+          val b: String = insertMethod(a,param)
+          this.disease = Some(b)
+        }
       }
+      case "ALTBIOSAMPLESOURCEID" => this.altBiosampleSourceId = insertMethod(this.altBiosampleSourceId, param)
       case _ => noMatching(dest)
     }
   }

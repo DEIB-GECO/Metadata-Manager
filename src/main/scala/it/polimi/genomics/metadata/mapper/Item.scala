@@ -12,15 +12,13 @@ trait Item extends Table{
 
   var sourceId : String = _
 
-//  var dataType: String = _
-
-//  var format : String = _
-
   var size : Long = _
 
   var date : String = _
 
   var checksum : String = _
+
+  var contentType : String = _
 
   var pipeline : String = _
 
@@ -29,6 +27,12 @@ trait Item extends Table{
   var sourceUrl : String = _
 
   var localUrl : String = _
+
+  var fileName : String = _
+
+  var sourcePage : String = _
+
+  var altItemSourceId : String = _
 
   _hasForeignKeys = true
 
@@ -40,19 +44,22 @@ trait Item extends Table{
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.insertItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,
+      this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName,this.sourcePage,this.altItemSourceId)
     Statistics.itemInserted += 1
     id
   }
 
   override def update(): Int = {
-    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.updateItem(experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,
+      this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName,this.sourcePage,this.altItemSourceId)
     Statistics.itemUpdated += 1
     id
   }
 
   override def updateById(): Unit = {
-    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,this.checksum,this.platform,this.pipeline,this.sourceUrl,this.localUrl)
+    val id = dbHandler.updateItemById(this.primaryKey, experimentTypeId,datasetId,this.sourceId,this.size,this.date,
+      this.checksum,this.contentType,this.platform,this.pipeline,this.sourceUrl,this.localUrl,this.fileName,this.sourcePage,this.altItemSourceId)
     Statistics.itemUpdated += 1
   }
 
@@ -106,7 +113,7 @@ trait Item extends Table{
 //    }
 //  }
 
-  def convertTo(values: Seq[(Int, Int, Int, String, Option[Long], Option[String], Option[String], Option[String], Option[String])]): Unit = {
+ /* def convertTo(values: Seq[(Int, Int, Int, String, Option[Long], Option[String], Option[String], Option[String], Option[String])]): Unit = {
     try {
       this.checkValueLength(values)
       if (values.length > 1)
@@ -126,15 +133,15 @@ trait Item extends Table{
     } catch {
       case notTuple: NoTupleInDatabaseException => logger.error(s"Item: ${notTuple.message}")
     }
-  }
+  }*/
 
   def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "item"
-    write.append(getMessage(tableName, "source_id", this.sourceId))
+    write.append(getMessage(tableName, "item_source_id", this.sourceId))
 
     if(this.size != 0) write.append(getMessage(tableName, "size", this.size))
-    if(this.pipeline != null) write.append(getMessage(tableName, "pipeline", this.pipeline))
+    if(this.pipeline != null) write.append(getMessage(tableName, "pipeline", this.pipeline))  //TODO add checksum and contentType
     if(this.platform != null) write.append(getMessage(tableName, "platform", this.platform))
     if(this.sourceUrl != null) write.append(getMessage(tableName, "source_url", this.sourceUrl))
     if(this.localUrl != null) write.append(getMessage(tableName, "source_url", this.localUrl))

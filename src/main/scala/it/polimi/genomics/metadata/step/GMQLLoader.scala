@@ -6,7 +6,7 @@ import java.util
 import it.polimi.genomics.core.DataStructures.IRDataSet
 import it.polimi.genomics.core.GDMSUserClass
 import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
-import it.polimi.genomics.metadata.step.utils.DatasetNameUtil
+import it.polimi.genomics.metadata.step.utils.{DatasetNameUtil, DirectoryNamingUtil}
 import it.polimi.genomics.manager.ProfilerLauncher
 import it.polimi.genomics.metadata.step.xml.Source
 import it.polimi.genomics.repository.{GMQLRepository, GMQLSample, Utilities}
@@ -41,7 +41,7 @@ class GMQLLoader {
     source.datasets.foreach(dataset => {
       logger.debug("dataset " + dataset.name)
       if (dataset.loadEnabled) {
-        val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + "Transformations"
+        val path = source.outputFolder + File.separator + dataset.outputFolder + File.separator + DirectoryNamingUtil.flattenFolderName
 
         val listAdd = new java.util.ArrayList[GMQLSample]()
 
@@ -66,35 +66,36 @@ class GMQLLoader {
           //if repo exists I do DELETE THEN ADD
           if (dsExists(gmqlUser, datasetName))
             try {
-              repo.deleteDS(datasetName, gmqlUser)
+              // repo.deleteDS(datasetName, gmqlUser)
+              logger.info("The dataset exists, skipped: " + datasetName)
             } catch {
               //should be GMQLDSNotFound but dont know yet where it is.
               case e: Exception => logger.info("Dataset " + datasetName + " is not defined before!!")
             }
+          else
+            try {
+              repo.importDs(
+                datasetName,
+                gmqlUser,
+                GDMSUserClass.PUBLIC,
+                listAdd,
+                path + File.separator + dataset.name + ".schema")
+              logger.info("import for dataset " + dataset.name + " completed")
+              ProfilerLauncher.profileDS(gmqlUser, datasetName)
+              logger.info("profiler for dataset " + dataset.name + " completed")
+              val description =
+                if (dataset.parameters.exists(_._1 == "loading_description"))
+                  Some(dataset.parameters.filter(_._1 == "loading_description").head._2)
+                else
+                  None
+              if (description.nonEmpty)
+                repo.setDatasetMeta(datasetName, gmqlUser, Map(" Description" -> description.get))
+              repo.setDatasetMeta(datasetName, gmqlUser, Map(" Download date" -> FileDatabase.getLastDownloadDate(datasetId)))
 
-          try {
-            repo.importDs(
-              datasetName,
-              gmqlUser,
-              GDMSUserClass.PUBLIC,
-              listAdd,
-              path + File.separator + dataset.name + ".schema")
-            logger.info("import for dataset " + dataset.name + " completed")
-            ProfilerLauncher.profileDS(gmqlUser, datasetName)
-            logger.info("profiler for dataset " + dataset.name + " completed")
-            val description =
-              if (dataset.parameters.exists(_._1 == "loading_description"))
-                Some(dataset.parameters.filter(_._1 == "loading_description").head._2)
-              else
-                None
-            if (description.nonEmpty)
-              repo.setDatasetMeta(datasetName, gmqlUser, Map(" Description" -> description.get))
-            repo.setDatasetMeta(datasetName, gmqlUser, Map(" Download date" -> FileDatabase.getLastDownloadDate(datasetId)))
-
-          }
-          catch {
-            case e: Throwable => logger.error("import failed: ", e)
-          }
+            }
+            catch {
+              case e: Throwable => logger.error("import failed: ", e)
+            }
         }
         else
           logger.info("dataset " + dataset.name + " has no files to be loaded")

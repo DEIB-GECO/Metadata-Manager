@@ -1,0 +1,175 @@
+<?xml version="1.0" ?>
+<root>
+    <table name="DONORS">
+        <mapping>
+            <source_key>geo_id</source_key><!--><-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>organism</source_key>
+            <global_key>species</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key>not_existing</source_key>
+            <global_key>age</global_key>
+        </mapping>-->
+        <!-- <mapping method="MANUAL">
+             <source_key>null</source_key>
+             <global_key>gender</global_key>
+         </mapping>-->
+        <!--   <mapping method="MANUAL">
+               <source_key>null</source_key>
+               <global_key>ethnicity</global_key>
+           </mapping>-->
+    </table>
+    <table name="BIOSAMPLES">
+        <mapping>
+            <source_key>geo_id</source_key><!--><-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+               <source_key>cell line</source_key>
+               <global_key>types</global_key>
+           </mapping>
+        <mapping>
+             <source_key>tissue_origin</source_key>
+             <global_key>tissue</global_key>
+         </mapping>
+        <mapping>
+              <source_key>cell_line</source_key>
+              <global_key>cell</global_key>
+          </mapping>
+        <mapping>
+              <source_key>disease</source_key>
+              <global_key>isHealthy</global_key>
+          </mapping>
+        <mapping>
+              <source_key>disease</source_key>
+              <global_key>disease</global_key>
+          </mapping>
+    </table>
+    <table name="REPLICATES">
+        <mapping>
+            <source_key>geo_id</source_key><!--><-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>1</source_key>
+            <global_key>bioReplicateNum</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>1</source_key>
+            <global_key>techReplicateNum</global_key>
+        </mapping>
+    </table>
+    <table name="EXPERIMENTSTYPE">
+        <mapping method="MANUAL"><!--><-->
+            <source_key>Chip-seq</source_key>
+            <global_key>technique</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+              <source_key>histone mark</source_key>
+              <global_key>feature</global_key>
+          </mapping>
+        <mapping>
+            <source_key>histone_mark</source_key>
+            <global_key>target</global_key>
+        </mapping>
+        <!--   <mapping method="MANUAL">
+              <source_key>null</source_key>
+              <global_key>antibody</global_key>
+          </mapping>-->
+    </table>
+    <table name="PROJECTS">
+        <mapping method="MANUAL">
+            <source_key>Cistrome</source_key>
+            <global_key>projectName</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>Cistrome</source_key>
+            <global_key>programName</global_key>
+        </mapping>
+    </table>
+    <table name="CASES">
+        <mapping>
+            <source_key>name</source_key><!--><-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key>contact</source_key>
+            <global_key>sourceSite</global_key>
+        </mapping>-->
+        <!--<mapping>
+            <source_key>original_url</source_key>
+            <global_key>externalRef</global_key>
+        </mapping>-->
+    </table>
+    <table name="DATASETS">
+        <mapping method="PREDEFINED">
+            <source_key>dataset_name</source_key>
+            <global_key>name</global_key>
+        </mapping>
+        <!-- <mapping method="MANUAL">
+             <source_key>null</source_key>
+             <global_key>dataType</global_key>
+         </mapping>-->
+        <mapping method="MANUAL">
+            <source_key>bed</source_key>
+            <global_key>format</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>GRCh38</source_key>
+            <global_key>assembly</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>false</source_key>
+            <global_key>isAnn</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key>annotation_type</source_key>
+            <global_key>annotation</global_key>
+        </mapping>-->
+    </table>
+    <table name="ITEMS">
+        <mapping method="REMOVE" rem_character=".bed">
+            <source_key>name</source_key><!-->generate metadata from name of file<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>region_file_size</source_key>
+            <global_key>size</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>http://cistrome.org/db/#/bdown</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file_name</source_key>
+            <global_key>fileName</global_key>
+        </mapping>
+        <!--   <mapping method="MANUAL">
+               <source_key>null</source_key>
+               <global_key>platform</global_key>
+           </mapping> -->
+        <!--   <mapping method="MANUAL">
+              <source_key>null</source_key>
+              <global_key>pipeline</global_key>
+          </mapping>-->
+        <!--<mapping method="MANUAL">
+            <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="PREDEFINED-CONCAT" concat_character="">
+            <source_key>dataset_name</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="/">
+            <source_key>file__accession</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="MANUAL-CONCAT" concat_character="">
+            <source_key>/region</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>-->
+    </table>
+</root>

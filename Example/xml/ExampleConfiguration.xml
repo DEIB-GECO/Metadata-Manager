@@ -6,13 +6,14 @@
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example</base_working_directory>
         <gcm_config_file>/Users/canakoglu/GMQL-sources/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
+        <flattener_rule_base>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example/cleaner_rule_base.txt</flattener_rule_base>
         <download_enabled>true</download_enabled>
         <transform_enabled>true</transform_enabled>
         <cleaner_enabled>true</cleaner_enabled>
         <mapper_enabled>true</mapper_enabled>
         <enricher_enabled>true</enricher_enabled>
         <flattener_enabled>true</flattener_enabled>
-        <load_enabled>false</load_enabled>
+        <load_enabled>true</load_enabled>
         <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
@@ -60,7 +61,7 @@
                     <description>we specified frame embedded and format json in encode for importing metadata
                     </description>
                     <key>json_suffix</key>
-                    <value>/?frame=embedded&amp;format=json/</value>
+                    <value>/?format=json</value>
                 </parameter>
                 <parameter>
                     <description>Found this field to be not useful and too many fields</description>
@@ -122,7 +123,7 @@
                     <description>to exclude GRCh38 references</description>
                     <type>exclusion</type>
                     <key>Assembly</key>
-                    <value>GRCh38</value>
+                    <value>hg19</value>
                 </parameter>
                 <!--<parameter>-->
                     <!--<description>to exclude</description>-->
@@ -133,7 +134,7 @@
                 <parameter>
                     <description>Cleaner definition rule base file</description>
                     <key>rule_base</key>
-                    <value>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example/example_for_cleaner/rules.txt</value>
+                    <value>/Users/canakoglu/GMQL-sources/GMQL-Importer/Example/examples_meta/ENCODE_rules.txt</value>
                 </parameter>
                 <parameter>
                     <description>Mappings </description>
@@ -186,13 +187,14 @@
                         <parameter>
                             <type>url_generation</type>
                             <key>files.file_type</key>
-                            <value>bed+broadPeak</value>
+                            <value>bed+narrowPeak</value>
                         </parameter>
                         <parameter>
                             <description>this ones are to reduce the downloaded files</description>
                             <type>url_generation</type>
                             <key>files.accession</key>
-                            <value>ENCFF001SSQ</value>
+                            <!--<value>ENCFF001SSQ</value>-->
+                            <value>ENCFF429VMY</value>
                         </parameter>
 
                     </parameter_list>

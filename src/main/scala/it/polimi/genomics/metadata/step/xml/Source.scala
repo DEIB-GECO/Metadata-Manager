@@ -36,7 +36,8 @@ case class Source(
                         cleanerEnabled: Boolean,
                         mapperEnabled: Boolean,
                         enricherEnabled: Boolean,
-                        flattenerEnabled: Boolean
+                        flattenerEnabled: Boolean,
+                        flattenerRulePath: String
                      ) {
 
   def isEnabled(key: ExecutionLevel): Boolean = key match {

@@ -1,9 +1,16 @@
 package it.polimi.genomics.metadata.mapper.Utils
 
+import java.util
+
+import collection.JavaConverters._
 import com.typesafe.config.ConfigFactory
+import it.polimi.genomics.metadata.Program.logger
 import it.polimi.genomics.metadata.mapper.Predefined
-import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler
 import org.apache.log4j.Logger
+import org.openqa.selenium.{By, WebElement}
+import org.openqa.selenium.htmlunit.HtmlUnitDriver
+
+import scala.collection.mutable
 
 object InsertMethod {
   private val logger: Logger = Logger.getLogger(this.getClass)
@@ -14,11 +21,12 @@ object InsertMethod {
     methods.split("-").foldLeft(newParam) { case (acc, method) => {
       method.toUpperCase() match {
         case "DEFAULT" => acc
-        case "MANUALLY" => if (sourceKey == "null") null else sourceKey
+        case "MANUAL" => if (sourceKey == "null") null else sourceKey
         case "CONCAT" => if (actualParam == null) acc else actualParam.concat(concatCharacter + acc)
         case "CHECKPREC" => if (actualParam == null) acc else actualParam
-        case "SELECTCASETCGA" => if (actualParam == null) DbHandler.getSourceSiteByCode(acc) else actualParam.concat(concatCharacter + DbHandler.getSourceSiteByCode(acc))
-        case "REMOVE" => this.remove(remCharacter, acc)
+        case "SELECTCASETCGA" => if (actualParam == null) getSourceSiteByCode(acc) else actualParam.concat(concatCharacter + getSourceSiteByCode(acc))
+        case "SOURCEPAGEGDC" => acc.split(",").map(x => conf.getString("import.gdc_source_page") + x).mkString(",")
+        case "REMOVE" => this.remove(remCharacter, newParam) //this is only used in TCGA2BED mapping
         case "SUB" => this.replace(subCharacter, newCharacter, acc)
         case "UPPERCASE" => acc.toUpperCase()
         case "LOWERCASE" => acc.toLowerCase()
@@ -32,7 +40,6 @@ object InsertMethod {
             logger.error("Method PREDEFINED failed for sourceKey: " + sourceKey)
             actualParam
         }
-
         case _ => {
           logger.error("Method " + method + " not found");
           actualParam
@@ -101,5 +108,35 @@ object InsertMethod {
   private def toArrayInt(list: Array[String]): Array[Float] = list.map(_.toFloat)
 
   private def average(list: Array[Float]): Float = list.sum / list.length
+
+  private def getSourceSiteByCode(code: String): String = {
+    try{
+      val driver = new HtmlUnitDriver
+      driver.get(conf.getString("import.tcga_tss_codes"))
+      val peers: util.List[WebElement] = driver.findElementsByXPath("//table")
+      val table: WebElement = peers.get(1)
+      val tr_elements: mutable.Seq[WebElement] = table.findElements(By.xpath("//tr")).asScala
+
+      val tss: mutable.Seq[WebElement] = tr_elements.slice(6, tr_elements.length)
+      val tss_map = collection.mutable.Map[String, (String, String, String)]()
+
+      for (e: WebElement <- tss) {
+        val one = e.findElements(By.xpath("td")).asScala
+        val tup = (one(0).getText, one(1).getText, one(2).getText, one(3).getText): Tuple4[String, String, String, String]
+        tss_map += (tup._1 -> (tup._2, tup._3, tup._4))
+      }
+
+      tss_map.get(code.toUpperCase).get._1
+    }
+    catch{
+      case e: Exception =>
+        logger.warn("Something went wrong when retrieving tss code translation for TCGA.")
+      code
+    }
+
+
+  }
+
+
 
 }

@@ -69,11 +69,11 @@ class XMLReaderEncode(val path: String, val replicates: ReplicateList, val biosa
             app += settingRetriver.getNewCharacter(xi)
             app += settingRetriver.getRemCharacter(xi)
 
-            if((xi \ "source_key").text == "replicates__X__uuid")
+            if((xi \ "source_key").text == "replicate__X__uuid")
               states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.UuidList(position)
-            if((xi \ "source_key").text == "replicates__X__biological_replicate_number")
+            if((xi \ "source_key").text == "replicate__X__biological_replicate_number")
               states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.BiologicalReplicateNumberList(position)
-            if((xi \ "source_key").text == "replicates__X__technical_replicate_number")
+            if((xi \ "source_key").text == "replicate__X__technical_replicate_number")
               states += ((xi \ "source_key").text  + "__" + replicates.TechnicalReplicateNumberList(position)).replaceAll("X", replicates.BiologicalReplicateNumberList(position)) -> replicates.TechnicalReplicateNumberList(position)
             operations += app.toList
           }

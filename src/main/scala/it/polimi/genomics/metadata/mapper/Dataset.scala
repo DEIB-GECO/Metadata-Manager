@@ -14,8 +14,6 @@ trait Dataset extends Table{
 
   var isAnn: Boolean = _
 
-  var annotation: String = _
-
   _hasForeignKeys = false
 
 //  _foreignKeysTables = List("PROJECTS")
@@ -25,15 +23,15 @@ trait Dataset extends Table{
   _dependenciesTables = List("DATASETS", "DONORS")
 
   override def insert() : Int ={
-    dbHandler.insertDataset(this.name,this.dataType,this.format,this.assembly,this.isAnn,this.annotation)
+    dbHandler.insertDataset(this.name,this.dataType,this.format,this.assembly,this.isAnn)
   }
 
   override def update() : Int ={
-    dbHandler.updateDataset(this.name,this.dataType,this.format,this.assembly,this.isAnn,this.annotation)
+    dbHandler.updateDataset(this.name,this.dataType,this.format,this.assembly,this.isAnn)
   }
 
   override def updateById() : Unit ={
-    dbHandler.updateDatasetById(primaryKey,this.name,this.dataType,this.format,this.assembly,this.isAnn,this.annotation)
+    dbHandler.updateDatasetById(primaryKey,this.name,this.dataType,this.format,this.assembly,this.isAnn)
   }
 
   /*override def setForeignKeys(table: Table): Unit = {
@@ -49,18 +47,18 @@ trait Dataset extends Table{
   }
 
   override def checkConsistency(): Boolean = {
-    if(this.dataType != null || this.format!=null || this.assembly!=null || this.annotation!=null) true else false
+    if(this.dataType != null || this.format!=null || this.assembly!=null) true else false
   }
 
   override def checkDependenciesSatisfaction(table: Table): Boolean = {
     try {
       table match {
         case dataset: Dataset => {
-          if (dataset.isAnn && dataset.annotation == null) {
+          /*if (dataset.isAnn) {
             Statistics.constraintsViolated += 1
             this.logger.warn("Dataset annotation constraints violated")
             return false
-          }
+          }*/
           true
         }
         case donor: Donor => {
@@ -81,7 +79,7 @@ trait Dataset extends Table{
     }
   }
 
-  def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Option[Boolean], Option[String])]): Unit = {
+/*  def convertTo(values: Seq[(Int, String, Option[String], Option[String], Option[String], Option[Boolean])]): Unit = {
     if(values.length > 1)
       logger.error(s"Too many values: ${values.length}")
     else {
@@ -92,11 +90,10 @@ trait Dataset extends Table{
       if(value._4.isDefined) this.format = value._4.get
       if(value._5.isDefined) this.assembly = value._5.get
       if(value._6.isDefined) this.isAnn = value._6.get
-      if(value._7.isDefined) this.annotation = value._7.get
     }
-  }
+  }*/
 
-  def writeInFile(path: String): Unit = {
+ /* def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "dataset"
     write.append(getMessage(tableName, "name", this.name))
@@ -104,7 +101,6 @@ trait Dataset extends Table{
     if(this.format != null) write.append(getMessage(tableName, "format", this.format))
     if(this.assembly != null) write.append(getMessage(tableName, "assembly", this.assembly))
     write.append(getMessage(tableName, "is_ann", this.isAnn))
-    if(this.annotation != null) write.append(getMessage(tableName, "annotation", this.annotation))
     flushAndClose(write)
-  }
+  }*/
 }

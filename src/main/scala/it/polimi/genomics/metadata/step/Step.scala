@@ -18,9 +18,9 @@ object Step {
   def getLevelExecutable(key: ExecutionLevel): Step = key match {
     case Transform => TransformerStep
     case Clean => CleanerStep
-    //    case Map => Mapper
+    case Map => MapperStep
     //    case Enrich => enricherEnabled
-    //    case Flatten => flattenerEnabled
+    case Flatten => FlattenerStep
     case _ => new Step {
       override def execute(source: Source, parallelExecution: Boolean): Unit = {
         logger.error("Unknown level please check and correct the implementation")

@@ -4,10 +4,39 @@ import java.io.File
 
 object Utils {
 
-  def getListOfFiles(dir: File): Array[File] = {
-    val filesList = dir.listFiles
-    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfFiles)
-    res.filter(_.getName.contains(".bed.meta"))
+  def getListOfSubDirectories(directoryName: String): Array[String] = {
+    (new File(directoryName))
+      .listFiles
+      .filter(_.isDirectory)
+      .map(_.getName)
+  }
+
+  def getListOfMetaFiles(dir: File): Array[File] = {
+    val filesList: Array[File] = dir.listFiles
+    //println(dir + "---------" + filesList)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfMetaFiles)
+    res.filter(_.getName.contains(".meta"))
+  }
+
+  def getListOfBEDFiles(dir: File): Array[File] = {
+    val filesList: Array[File] = dir.listFiles
+    //println(dir + "---------" + filesList)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfBEDFiles)
+    res.filter(_.getName.endsWith(".bed"))
+  }
+
+  def getListOfGDMFiles(dir: File): Array[File] = {
+    val filesList: Array[File] = dir.listFiles
+    //println(dir + "---------" + filesList)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getListOfGDMFiles)
+    res.filter(_.getName.endsWith(".gdm"))
+  }
+
+  def getSchemaFile(dir: File): Array[File] = {
+    val filesList: Array[File] = dir.listFiles
+    //println(dir + "---------" + filesList)
+    val res = filesList ++ filesList.filter(_.isDirectory).flatMap(getSchemaFile)
+    res.filter(_.getName.endsWith(".schema"))
   }
 
   def buildRulePair(input_string: String): (String, String) = {

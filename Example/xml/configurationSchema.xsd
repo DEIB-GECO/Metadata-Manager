@@ -21,7 +21,37 @@
             </xs:element>
             <xs:element type="xs:string" name="gcm_config_file">
                 <xs:annotation>
-                    <xs:documentation>Gcm database configuration</xs:documentation>
+                    <xs:documentation>GCM configuration file path</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="mapper_source">
+                <xs:annotation>
+                    <xs:documentation>name of the source parameter to run mapper with correct method (ENCODE,TCGA,ANN,CISTROME,TADS_RAO,TADS_COMB)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="database_connection_url">
+                <xs:annotation>
+                    <xs:documentation>database_connection_url</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="database_connection_user">
+                <xs:annotation>
+                    <xs:documentation>database_connection_user</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="database_connection_pw">
+                <xs:annotation>
+                    <xs:documentation>database_connection_pw</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="database_connection_driver">
+                <xs:annotation>
+                    <xs:documentation>database_connection_driver</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="flattener_rule_base">
+                <xs:annotation>
+                    <xs:documentation>Flattener rule base</xs:documentation>
                 </xs:annotation>
             </xs:element>
             <xs:element type="xs:boolean" name="download_enabled">

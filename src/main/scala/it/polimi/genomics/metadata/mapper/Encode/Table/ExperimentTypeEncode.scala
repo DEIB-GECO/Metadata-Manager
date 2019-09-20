@@ -24,22 +24,22 @@ class ExperimentTypeEncode(encodeTableId: EncodeTableId) extends EncodeTable(enc
 
   override def insert(): Int = {
     val id: Int = super.insert()
-    if(conf.getBoolean("import.support_table_insert"))
-      insertOrUpdateOntologicTuple(id)
+   // if(conf.getBoolean("import.support_table_insert"))
+    //  insertOrUpdateOntologicTuple(id)
     id
   }
 
   override def updateById(): Unit = {
     super.updateById()
-    if(conf.getBoolean("import.support_table_insert"))
-      insertOrUpdateOntologicTuple(this.primaryKey)
+  //  if(conf.getBoolean("import.support_table_insert"))
+   //   insertOrUpdateOntologicTuple(this.primaryKey)
   }
 
-  def insertOrUpdateOntologicTuple(id: Int): Unit = {
-    if(dbHandler.checkInsertOntology(id, "experiment_type", "technique"))
-      dbHandler.insertOntology(id, "experiment_type", "technique", this.ontologicalCode.split('*')(0), this.technique, this.ontologicalCode.split('*')(1))
-    else
-      dbHandler.updateOntology(id, "experiment_type", "technique", this.ontologicalCode.split('*')(0), this.technique, this.ontologicalCode.split('*')(1))
-  }
+/* def insertOrUpdateOntologicTuple(id: Int): Unit = {
+   if(dbHandler.checkInsertOntology(id, "experiment_type", "technique"))
+     dbHandler.insertOntology(id, "experiment_type", "technique", this.ontologicalCode.split('*')(0), this.technique, this.ontologicalCode.split('*')(1))
+   else
+     dbHandler.updateOntology(id, "experiment_type", "technique", this.ontologicalCode.split('*')(0), this.technique, this.ontologicalCode.split('*')(1))
+ }*/
 
 }

@@ -2,11 +2,13 @@ package it.polimi.genomics.metadata
 
 import java.io.File
 
-import it.polimi.genomics.metadata.downloader_transformer.Downloader
-import it.polimi.genomics.metadata.step.utils.ExecutionLevel.{ExecutionLevel, _}
-import it.polimi.genomics.metadata.step._
-import it.polimi.genomics.metadata.step.utils.{ParameterUtil, SchemaLocation, SchemaValidator}
 import it.polimi.genomics.metadata.database.FileDatabase
+import it.polimi.genomics.metadata.downloader_transformer.Downloader
+import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler
+import it.polimi.genomics.metadata.step.MapperStep.logger
+import it.polimi.genomics.metadata.step._
+import it.polimi.genomics.metadata.step.utils.ExecutionLevel.{ExecutionLevel, _}
+import it.polimi.genomics.metadata.step.utils.{ParameterUtil, SchemaLocation, SchemaValidator}
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
 import it.polimi.genomics.repository.Utilities
 import org.apache.log4j._
@@ -46,60 +48,67 @@ object Program extends App {
   console3.activateOptions()
   Logger.getLogger("slick").addAppender(console3)
 
-  //    BasicConfigurator.configure()
-  if (args.length == 0) {
-    logger.info("no arguments specified, run with help for more information")
-  }
-  else {
-    if (args.contains("help")) {
-      logger.info("GMQLImporter help:\n"
-        + "\t Run with configuration_xml_path and gmql_conf_folder as arguments\n"
-        + "\t\t -Will run whole process defined in xml file\n"
-        + "\t Add log\n"
-        + "\t\t-Shows how many runs the program has executed\n"
-        + "\t Add log -n\n"
-        + "\t\t-Shows log and statistics n-th last runs, 1 for last run and use comma as separator if multiple runs requested\n"
-        + "\t Add -retry\n"
-        + "\t\t-Tries to download failed files only for each dataset with download enabled\n"
-      )
+
+  try {
+    //    BasicConfigurator.configure()
+    if (args.length == 0) {
+      logger.info("no arguments specified, run with help for more information")
     }
-    else if (args.length > 1) {
-      val xmlPath = args.head
-      val gmqlConfPath = args.drop(1).head
-      logger.info(s"path for the xml file = $xmlPath")
-      logger.info(s"path for the gmql Configuration folder = $gmqlConfPath")
-      if (xmlPath.endsWith(".xml") && new File(gmqlConfPath).isDirectory) {
-        if (args.contains("log")) {
-          val runs =
-            if (args.exists(arg => {
-              arg.contains("--")
-            }))
-              args.filter(arg => {
+    else {
+      if (args.contains("help")) {
+        logger.info("GMQLImporter help:\n"
+          + "\t Run with configuration_xml_path and gmql_conf_folder as arguments\n"
+          + "\t\t -Will run whole process defined in xml file\n"
+          + "\t Add log\n"
+          + "\t\t-Shows how many runs the program has executed\n"
+          + "\t Add log -n\n"
+          + "\t\t-Shows log and statistics n-th last runs, 1 for last run and use comma as separator if multiple runs requested\n"
+          + "\t Add -retry\n"
+          + "\t\t-Tries to download failed files only for each dataset with download enabled\n"
+        )
+      }
+      else if (args.length > 1) {
+        val xmlPath = args.head
+        val gmqlConfPath = args.drop(1).head
+        logger.info(s"path for the xml file = $xmlPath")
+        logger.info(s"path for the gmql Configuration folder = $gmqlConfPath")
+        if (xmlPath.endsWith(".xml") && new File(gmqlConfPath).isDirectory) {
+          if (args.contains("log")) {
+            val runs =
+              if (args.exists(arg => {
                 arg.contains("--")
-              }).head.replace("--", "")
-            else
-              "0"
-          try {
-            for (run <- runs.split(",")) {
-              val runId = Integer.parseInt(run)
-              showDatabaseLog(args.head, args.drop(1).head.toString, runId)
+              }))
+                args.filter(arg => {
+                  arg.contains("--")
+                }).head.replace("--", "")
+              else
+                "0"
+            try {
+              for (run <- runs.split(",")) {
+                val runId = Integer.parseInt(run)
+                showDatabaseLog(args.head, args.drop(1).head.toString, runId)
+              }
+            }
+            catch {
+              case e: NumberFormatException =>
+                logger.warn("Defined run must be integer value.")
             }
           }
-          catch {
-            case e: NumberFormatException =>
-              logger.warn("Defined run must be integer value.")
+          else {
+            val t0: Long = System.nanoTime()
+            runGMQLImporter(args.head, args.drop(1).head.toString, args.contains("-retry"))
+            val t1 = System.nanoTime()
+            logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
           }
         }
-        else {
-          val t0: Long = System.nanoTime()
-          runGMQLImporter(args.head, args.drop(1).head.toString, args.contains("-retry"))
-          val t1 = System.nanoTime()
-          logger.info(s"Total time for the run ${getTotalTimeFormatted(t0, t1)}")
-        }
+        else
+          logger.warn("No configuration file or gmql_conf folder specified")
       }
-      else
-        logger.warn("No configuration file or gmql_conf folder specified")
     }
+  }
+  catch {
+    case e: Exception =>
+      logger.error("Unknown error: ", e)
   }
 
 
@@ -198,17 +207,23 @@ object Program extends App {
     if (new File(xmlConfigPath).exists()) {
       val schemaUrl =
         "https://raw.githubusercontent.com/DEIB-GECO/GMQL-Importer/master/Example/xml/configurationSchema.xsd"
-      if (SchemaValidator.validate(xmlConfigPath, schemaUrl)) {
+//      if (SchemaValidator.validate(xmlConfigPath, schemaUrl)) {
+      if (true) {
 
         logger.info("Xml file is valid for the schema")
         val file: Elem = XML.loadFile(xmlConfigPath)
         val outputFolder = (file \\ "settings" \ "base_working_directory").text
+        ParameterUtil.gcmConfigFile = (file \\ "settings" \ "gcm_config_file").text
+        ParameterUtil.mapperSource = (file \\ "settings" \ "mapper_source").text
+        ParameterUtil.dbConnectionUrl = (file \\ "settings" \ "database_connection_url").text
+        ParameterUtil.dbConnectionUser = (file \\ "settings" \ "database_connection_user").text
+        ParameterUtil.dbConnectionPw = (file \\ "settings" \ "database_connection_pw").text
+        ParameterUtil.dbConnectionDriver = (file \\ "settings" \ "database_connection_driver").text
 
         val downloadEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "download_enabled").text)) true else false
         val transformEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "transform_enabled").text)) true else false
-
         val cleanerEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "cleaner_enabled").text)) true else false
         val mapperEnabled =
@@ -217,7 +232,6 @@ object Program extends App {
           if ("true".equalsIgnoreCase((file \\ "settings" \ "enricher_enabled").text)) true else false
         val flattenerEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "flattener_enabled").text)) true else false
-
         val loadEnabled =
           if ("true".equalsIgnoreCase((file \\ "settings" \ "load_enabled").text)) true else false
         val parallelExecution =
@@ -244,7 +258,7 @@ object Program extends App {
         fa2.setThreshold(Level.DEBUG)
         fa2.setAppend(true)
         fa2.activateOptions()
-        Logger.getLogger("it.polimi.genomics.importer").addAppender(fa2)
+        Logger.getLogger("it.polimi.genomics").addAppender(fa2)
         //to continue consistency of xml configuration is needed.
         if (checkConsistencyConfigurationXml(sources, loadEnabled, transformEnabled)) {
           //start DTL
@@ -290,6 +304,10 @@ object Program extends App {
             executeLevel(sources, Transform, parallelExecution)
           if (cleanerEnabled)
             executeLevel(sources, Clean, parallelExecution)
+          if (mapperEnabled)
+            executeLevel(sources, Map, parallelExecution)
+          if (flattenerEnabled)
+            executeLevel(sources, Flatten, parallelExecution)
 
 
           if (loadEnabled) {
@@ -362,6 +380,15 @@ object Program extends App {
     val downloadThreads = sources.filter(_.downloadEnabled).map(source => {
       new Thread {
         override def run(): Unit = {
+          try {
+            go()
+          } catch {
+            case e: Exception =>
+              logger.error("Unknown error in the thread: ", e)
+          }
+        }
+
+        def go(): Unit = {
           val t0Source = System.nanoTime()
           if (!retryDownload) {
             logger.info(s"Starting download for ${source.name}")
@@ -375,6 +402,7 @@ object Program extends App {
           }
           val t1Source = System.nanoTime()
           logger.info(s"Total time download source ${source.name}: ${getTotalTimeFormatted(t0Source, t1Source)}")
+
         }
       }
     })
@@ -384,21 +412,36 @@ object Program extends App {
       downloadThreads.foreach(_.join())
     }
     else
-      downloadThreads.foreach(thread => {
-        thread.start()
-        thread.join()
-      })
+      downloadThreads.foreach(_.go())
     val t1 = System.nanoTime()
     logger.info(s"Total time for downloads: ${getTotalTimeFormatted(t0, t1)}")
 
   }
 
   def executeLevel(sources: Seq[Source], level: ExecutionLevel, parallelExecution: Boolean): Unit = {
+
+    //new lines to test
+    if(level == Map) {
+      DbHandler.setDatabase
+      DbHandler.setDWViews
+      DbHandler.setFlattenMaterialized
+      logger.info("Database has been set")
+    }
+
     val integrateThreads = sources.filter(_.isEnabled(level)).map(source => {
       new Thread {
         override def run(): Unit = {
+          try {
+            go()
+          } catch {
+            case e: Exception =>
+              logger.error("Unknown error in the thread: ", e)
+          }
+        }
+
+        def go(): Unit = {
           val t0Source = System.nanoTime()
-          logger.info(s"Starting $level for ${source.name}")
+          logger.info(s"Starting $level for source: ${source.name}")
           Step.getLevelExecutable(level).execute(source, parallelExecution)
           logger.info(s"$level for ${source.name} Finished")
           val t1Source = System.nanoTime()
@@ -412,10 +455,15 @@ object Program extends App {
       integrateThreads.foreach(_.join())
     }
     else
-      integrateThreads.foreach(thread => {
-        thread.start()
-        thread.join()
-      })
+      integrateThreads.foreach(_.go())
+
+    //new lines to test
+    if(level == Map) {
+      DbHandler.refreshFlattenMaterialized
+      DbHandler.setUnifiedPair
+      DbHandler.closeDatabase()
+    }
+
     val t3 = System.nanoTime()
     logger.info(s"Total time for transformations: ${getTotalTimeFormatted(t2, t3)}")
   }
@@ -472,6 +520,8 @@ object Program extends App {
   def loadSources(xmlConfigPath: String): Seq[Source] = {
     val file: Elem = XML.loadFile(xmlConfigPath)
     val outputFolder = (file \\ "settings" \ "base_working_directory").text
+    val flattenerRuleBase = (file \\ "settings" \ "flattener_rule_base").text
+
     //load sources
     val sources = (file \\ "source_list" \ "source").map { source =>
       val gmqlSource = Source(
@@ -505,7 +555,8 @@ object Program extends App {
         if ((source \ "cleaner_enabled").text.toLowerCase == "true") true else false,
         if ((source \ "mapper_enabled").text.toLowerCase == "true") true else false,
         if ((source \ "enricher_enabled").text.toLowerCase == "true") true else false,
-        if ((source \ "flattener_enabled").text.toLowerCase == "true") true else false
+        if ((source \ "flattener_enabled").text.toLowerCase == "true") true else false,
+        flattenerRuleBase
       )
       gmqlSource.datasets.foreach(_.source = gmqlSource)
       gmqlSource

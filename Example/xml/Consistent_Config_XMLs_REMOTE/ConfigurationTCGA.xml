@@ -1,0 +1,805 @@
+<?xml version="1.0"?>
+<root   xmlns="http://polimi.it/GDMImporter"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+    <settings>
+        <!--BASE WORKING FOLDER FOR THE IMPORTER-->
+        <base_working_directory>/home/hduser/gmql_importer/</base_working_directory>
+        <gcm_config_file>/home/hduser/gmql_importer/conf/application.conf</gcm_config_file>
+        <flattener_rule_base>/home/hduser/GMQL-sources/Metadata-Manager/Example/flattener_rule_base.txt</flattener_rule_base>
+        <download_enabled>false</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>false</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>true</flattener_enabled>
+        <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
+    </settings>
+    <source_list>
+        <source name="HG19_TCGA">
+            <url>bioinf.iasi.cnr.it</url>
+            <source_working_directory>HG19_TCGA</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.default.FtpDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.default.NullTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
+            <load_enabled>true</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>
+                    <key>metadata_replacement</key>
+                    <value>xml/metadataReplacementTcga.xml</value>
+                </parameter>
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For logging in ftp on tcga2bed we need this anonymous user</description>
+                    <key>username</key>
+                    <value>anonymous</value>
+                </parameter>
+                <parameter>
+                    <description>And also the corresponding null password</description>
+                    <key>password</key>
+                    <value/>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+                <!--<parameter>
+                    <description>Cleaner definition rule base file</description>
+                    <key>rule_base</key>
+                    <value>/home/hduser/gmql_importer/TCGA_rules.txt</value>
+                </parameter>-->
+            </parameter_list>
+            <dataset_list>
+                <!--THE SCHEMA URL HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <dataset name="cnv">
+                    <dataset_working_directory>cnv</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/acc/cnv/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_cnv</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of copy number variations.&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                A copy number variation (CNV) is the number of copies of a given gene per cell.&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the CNV file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (retrieved from the 2. field of the TCGA CNV file, e.g., "1")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from the 3. field of the TCGA CNV file, e.g., 61735)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (retrieved from the 4. field of the TCGA CNV file, e.g., 1628826)&lt;/li&gt;
+                                &lt;li&gt;strand (unknown, set to '*')&lt;/li&gt;
+                                &lt;li&gt;Num_Probes (retrieved from the 5. field of the TCGA CNV file, e.g., 229)&lt;/li&gt;
+                                &lt;li&gt;Segment_Mean (retrieved from the 6. field of the TCGA CNV file, e.g., 0.1756)&lt;/li&gt;
+                                &lt;li&gt;is_nocnv ('Y' if the current line refers to the "nocnv_hg19.seg" file, 'N' otherwise)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the cnv folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/cnv</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="dnamethylation">
+                    <dataset_working_directory>dnamethylation</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/dnamethylation27/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_dnamethylation</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains data on methylation beta value.&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                DNA methylation, which consists in deep sequencing of bisulfite-treated DNA. DNA methylation can be defined as the covalent modification of cytosine bases at the C-5 position, generally within a CpG sequence context. If DNA methylation occurs in promoter regions, it is an epigenetic mark that represents the inactivity of the transcripts. Both the HumanMethylation27 and HumanMethylation450 DNA methylation platforms are considered.&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the DNA Methylation file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (retrieved from the 4. field of the TCGA DNA methylation file, e.g., "16")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from the 5. field of the TCGA DNA methylation file, e.g., 28890100)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (equal to chromStart, since methylation involve a single base and the used genomic coordinate system is 1-based)&lt;/li&gt;
+                                &lt;li&gt;strand (retrieved from NCBI Entrez Gene database1, based on the Entrez Gene ID retrieved from HUGO Gene Nomenclature Committee (HGNC)2 according to the human gene symbol provided in field 7, e.g., '+'')&lt;/li&gt;
+                                &lt;li&gt;composite_element_ref (retrieved from the 1. field of the TCGA DNA methylation file, e.g., “cg00000292”)&lt;/li&gt;
+                                &lt;li&gt;beta_value (retrieved from the 2. field of the TCGA DNA methylation file, e.g., 0.834741168636629)&lt;/li&gt;
+                                &lt;li&gt;gene_symbol (retrieved from the 3. field of the TCGA DNA methylation file, e.g., "ATP2A1")&lt;/li&gt;
+                                &lt;li&gt;entrez_gene_id (retrieved from HUGO Gene Nomenclature Committee (HGNC)2 according to the human gene symbol provided in field 7)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the dnamethylation folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/dnamethylation.*</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="dnaseq">
+                    <dataset_working_directory>dnaseq</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/dnaseq/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_dnaseq</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains data on mDNA sequencing.&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                This type of next generation sequencing (NGS) experiment discovers mutations by aligning DNA sequences derived from tumor samples to sequences derived from normal samples and a reference sequence.&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the DNA-seq .maf file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (i.e., the name of the chromosome, e.g., chr3, chrY, chr2_random, retrieved from the 5. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;chromStart (i.e., the starting position of the feature in the chromosome or scaffold, e.g., 999, retrieved from the 6. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (i.e., the ending position of the feature in the chromosome or scaffold, e.g., 1000, retrieved from the 7. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;strand (i.e., it defines the strand, either '+' or '-'., retrieved from the 8. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;hugo_symbol (i.e., the symbol of the gene related to the reported variant, if it exists, e.g., "EGFR", retrieved from the 1. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;entrez_gene_id (i.e., the Entrez gene ID of the gene related to the reported variant, if it exists, e.g., "1956", retrieved from the 2. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;variant_classification (i.e., the classification of the reported variant, e.g., "Missense_Mutation", retrieved from the 9. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;variant_type (i.e., the type of mutation, e.g., "INS", retrieved from the 10. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;reference_allele (i.e., the plus strand reference allele at this position, e.g., "A", retrieved from the 11. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;tumor_seq_allele1 (i.e., the tumor sequencing (discovery) allele 1, e.g., "C", retrieved from the 12. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;tumor_seq_allele2 (i.e., the tumor sequencing (discovery) allele 2, e.g., "G", retrieved from the 13. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;dbsnp_rs (i.e., the latest dbSNP rs ID, e.g., "rs12345", retrieved from the 14. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;tumor_sample_barcode (i.e., the BCR aliquot barcode for the tumor sample, e.g., "TCGA-02-0021-01A-01D-0002-04", retrieved from the 16. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;matched_norm_sample_barcode (i.e., the BCR aliquot barcode for the matched normal sample, e.g., "TCGA-02-0021-10A-01D-0002-04", retrieved from the 17. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;match_norm_seq_allele1 (i.e., the Matched normal sequencing allele 1, e.g., "T", retrieved from the 18. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;match_norm_seq_allele2 (i.e., the Matched normal sequencing allele 2, e.g., "ACGT", retrieved from the 19. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;li&gt;matched_norm_sample_uuid (i.e., the BCR aliquot UUID for matched normal, e.g., "567e8487-e29b-32d4-a716-446655443246", retrieved from the 34. field of the TCGA maf file)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the dnaseq folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/dnaseq</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="mirnaseq_isoform">
+                    <dataset_working_directory>mirnaseq_isoform</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/mirnaseq/isoform.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_mirnaseq_isoform</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of miRNA-Seq: Isoform quantification (i.e., the calculated expression for each individual miRNA sequence isoform observed).&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                miRNA-Seq data are derived from the sequencing of micro RNAs (miRNA); they contain information about both nucleotide sequence and expression.&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the miRNA-seq Mirna quantification file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (retrieved from the 2. field of the TCGA miRNA-Seq file, part just after the first ":", e.g., "9")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from the 2. field of the TCGA miRNA-Seq file, part just after the second ":", e.g.,96938243)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (retrieved from the 2. field of the TCGA miRNA-Seq file, part just before the third ":", e.g., 96938264)&lt;/li&gt;
+                                &lt;li&gt;strand (retrieved from the 2. field of the TCGA miRNA-Seq file, part just after the third ":", e.g., '+')&lt;/li&gt;
+                                &lt;li&gt;genome_version (retrieved from the 2. field of the TCGA miRNA-Seq file, part just before the first ":", e.g., "hg19")&lt;/li&gt;
+                                &lt;li&gt;mirna_id (retrieved from the 1. field of the TCGA miRNA-Seq file, e.g., "has-let-7a-1")&lt;/li&gt;
+                                &lt;li&gt;read_count (retrieved from the 3. field of the TCGA miRNA-Seq file, e.g., 4)&lt;/li&gt;
+                                &lt;li&gt;reads_per_million_miRNA_mapped (retrieved from the 4. field of the TCGA miRNA-Seq file, e.g., 0.707702)&lt;/li&gt;
+                                &lt;li&gt;cross-mapped (retrieved from the 5. field of the TCGA miRNA-Seq file, e.g., 'N')&lt;/li&gt;
+                                &lt;li&gt;miRNA_region (retrieved from the 6. field of the TCGA miRNA-Seq file, e.g., "mature, MIMAT0000062")&lt;/li&gt;
+                                &lt;li&gt;entrez_gene_id (retrieved from HUGO Gene Nomenclature Committee (HGNC)11 starting from the mirna_id provided in field 6)&lt;/li&gt;
+                                &lt;li&gt;gene_symbol (retrieved from HUGO Gene Nomenclature Committee (HGNC)11 starting from the mirna_id provided in field 6)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the mirnaseq/isoform.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/mirnaseq/isoform.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="mirnaseq_mirna">
+                    <dataset_working_directory>mirnaseq_mirna</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/mirnaseq/mirna.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_mirnaseq_mirna</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of miRNA-Seq: miRNA quantification (i.e., the calculated expression for all reads aligning to a particular miRNA).&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                miRNA-Seq data are derived from the sequencing of micro RNAs (miRNA); they contain information about both nucleotide sequence and expression.&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the miRNA-seq Mirna quantification file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (retrieved from miRBase database9, according to the miRNA id provided in field 5, e.g., "chr9")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from miRBase database9, according to the miRNA id provided in field 5, e.g., 94175957)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (retrieved from miRBase database9, according to the miRNA id provided in field 5, e.g., 94176036)&lt;/li&gt;
+                                &lt;li&gt;strand (retrieved from miRBase database9, according to the miRNA id provided in field 5, e.g., '+')&lt;/li&gt;
+                                &lt;li&gt;mirna_id (retrieved from the 1. field of the TCGA miRNA-Seq file, e.g., "hsa-let-7a-1")&lt;/li&gt;
+                                &lt;li&gt;read_count (retrieved from the 2. field of the TCGA miRNA -Seq file, e.g., 29726)&lt;/li&gt;
+                                &lt;li&gt;reads_per_million_miRNA_mapped (retrieved from the 3. field of the TCGA miRNA -Seq file, e.g., 12429.699816)&lt;/li&gt;
+                                &lt;li&gt;cross-mapped (retrieved from the 4. field of the TCGA miRNA -Seq file, e.g., 'N')&lt;/li&gt;
+                                &lt;li&gt;entrez_gene_id (retrieved from HUGO Gene Nomenclature Committee (HGNC)10 starting from the mirna_id provided in field 5)&lt;/li&gt;
+                                &lt;li&gt;gene_symbol (retrieved from HUGO Gene Nomenclature Committee (HGNC)10 starting from the mirna_id provided in field 6)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the mirnaseq/mirna.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/mirnaseq/mirna.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseq_exon">
+                    <dataset_working_directory>rnaseq_exon</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseq/exon.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_rnaseq_exon</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of RNA-Seq: Exon quantification (i.e., the calculated expression signal of a particular composite exon of a gene).&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                RNA-Seq data contain information about both nucleotide sequence and gene expression that is quantified by using the RPKM (Reads Per Kilobase of exon model per Million mapped reads) method.&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the RNA-seq Exon quantification file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (retrieved from the 1. field of the TCGA RNA-Seq file, part before the first ":", e.g., "chr1")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from the 1. field of the TCGA RNA-Seq file, part just after the first ":", e.g., 11874)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (retrieved from the 1. field of the TCGA RNA-Seq file, part just before the second ":", e.g.,12227)&lt;/li&gt;
+                                &lt;li&gt;strand (retrieved from the 1. field of the TCGA RNA-Seq file, part just after the second ":", e.g., '+')&lt;/li&gt;
+                                &lt;li&gt;raw_counts (retrieved from the 2. field of the TCGA RNA-Seq file, e.g., 150)&lt;/li&gt;
+                                &lt;li&gt;median_length_normalized (retrieved from the 3. field of the TCGA RNA-Seq file, e.g., 0.423728813559322)&lt;/li&gt;
+                                &lt;li&gt;rpkm (retrieved from the 4. field of the TCGA RNA-Seq file, e.g., 0.11967890206108)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the rnaseq/exon.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseq/exon.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseq_gene">
+                    <dataset_working_directory>rnaseq_gene</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseq/gene.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_rnaseq_gene</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of RNA-Seq: Gene quantification (i.e., the calculated expression signal of a gene).&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                RNA-Seq data contain information about both nucleotide sequence and gene expression that is quantified by using the RPKM (Reads Per Kilobase of exon model per Million mapped reads) method.&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the RNA-seq Gene quantification file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;(retrieved from NCBI Entrez Gene database3, according to the entrez gene id provided in field 6, e.g., "chr4")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from NCBI Entrez Gene database3, according to the entrez gene id provided in field 6, e.g., 109740692)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (retrieved from NCBI Entrez Gene database3, according to the entrez gene id provided in field 6, e.g., 109802225)&lt;/li&gt;
+                                &lt;li&gt;strand (retrieved from NCBI Entrez Gene database3, according to the entrez gene id provided in field 6, e.g., '-')&lt;/li&gt;
+                                &lt;li&gt;gene_symbol (retrieved from the 1. field of the TCGA RNA-Seq file, part before "|", e.g., "CFI")&lt;/li&gt;
+                                &lt;li&gt;entrez_gene_id (retrieved from the 1. field of the TCGA RNA-Seq file, part after "|", e.g., "3426")&lt;/li&gt;
+                                &lt;li&gt;raw_counts (retrieved from the 2. field of the TCGA RNA-Seq file, e.g., 2032)&lt;/li&gt;
+                                &lt;li&gt;median_length_normalized (retrieved from the 3. field of the TCGA RNA-Seq file, e.g., 46.6146072576941)&lt;/li&gt;
+                                &lt;li&gt;rpkm (retrieved from the 4. field of the TCGA RNA-Seq file, e.g., 8.95924060998011)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the rnaseq/gene.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseq/gene.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseq_spljxn">
+                    <dataset_working_directory>rnaseq_spljxn</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseq/spljxn.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_rnaseq_spljxn</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of RNA-Seq: Splice junction (Spljxn) quantification (i.e., the calculated expression signal of a particular composite splice junction of a gene).&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                RNA-Seq data contain information about both nucleotide sequence and gene expression that is quantified by using the RPKM (Reads Per Kilobase of exon model per Million mapped reads) method.&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the RNA-seq Spljxn quantification file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (retrieved from the 1. field of the TCGA RNA-Seq file, part just before the first ":", e.g., "chr1")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from the 1. field of the TCGA RNA-Seq file, part just after the first ":", e.g., 12227)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (retrieved from the 1. field of the TCGA RNA-Seq file, part just after the third ":", e.g., 12595)&lt;/li&gt;
+                                &lt;li&gt;strand (retrieved from the 1. field of the TCGA RNA-Seq file, part just after the second ":", e.g., '+')&lt;/li&gt;
+                                &lt;li&gt;raw_counts (retrieved from the 2. field of the TCGA RNA-Seq file, e.g., 0)&lt;/li&gt;
+                                &lt;li&gt;inner_left = chromStart + 1&lt;/li&gt;
+                                &lt;li&gt;inner_right = chromEnd - 1&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the rnaseq/spljxn.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseq/spljxn.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_exon">
+                    <dataset_working_directory>rnaseqv2_exon</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseqv2/exon.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_rnaseqv2_exon</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of RNA-Seq Version 2: Exon quantification (i.e., the calculated expression signal of a particular composite exon of a gene).&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                RNA-Seq Version 2 is similar to RNA-Seq in that it uses sequencing data to determine gene expression levels. RNA-Seq V2 experimental files contain data obtained with a different normalization technique than in RNA-Seq files, which is based on RSEM (RNA-Seq by Expectation Maximization).&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the RNA-seq V2 Exon quantification file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (retrieved from the 1. field of the TCGA RNA-Seq V2 file, part just before the first ":", e.g., "chr1")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from the 1. field of the TCGA RNA-Seq V2 file, part just after the first ":", e.g., 11874)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (retrieved from the 1. field of the TCGA RNA-Seq V2 file, part just before the second ":", e.g., 12227)&lt;/li&gt;
+                                &lt;li&gt;strand (retrieved from the 1. field of the TCGA RNA-Seq V2 file, part just after the second ":", e.g., '+')&lt;/li&gt;
+                                &lt;li&gt;raw_counts (retrieved from the 2. field of the TCGA RNA-Seq V2 file, e.g., 150)&lt;/li&gt;
+                                &lt;li&gt;median _length_normalized (retrieved from the 3. field of the TCGA RNA-Seq V2 file, e.g., 0.423728813559322)&lt;/li&gt;
+                                &lt;li&gt;rpkm (retrieved from the 4. field of the TCGA RNA-Seq V2 file, e.g., 0.11967890206108)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the rnaseq2/exon.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/exon.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_gene">
+                    <dataset_working_directory>rnaseqv2_gene</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseqv2/gene.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_rnaseqv2_gene</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of RNA-Seq Version 2: Rsem gene results (i.e., the raw expression signal for the expression of a gene) and Rsem gene normalized results (i.e., the normalized results for the expression of a gene).&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                RNA-Seq Version 2 is similar to RNA-Seq in that it uses sequencing data to determine gene expression levels. RNA-Seq V2 experimental files contain data obtained with a different normalization technique than in RNA-Seq files, which is based on RSEM (RNA-Seq by Expectation Maximization).&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the RNA-seq V2 Gene quantification file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (retrieved from NCBI Entrez Gene database5, according to the entrez gene id provided in field 6, e.g., "chr4")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from NCBI Entrez Gene database5, according to the entrez gene id provided in field 6, e.g., 109740692)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (retrieved from NCBI Entrez Gene database5, according to the entrez gene id provided in field 6, e.g., 109802225)&lt;/li&gt;
+                                &lt;li&gt;strand (retrieved from NCBI Entrez Gene database5, according to the entrez gene id provided in field 6, e.g., '-')&lt;/li&gt;
+                                &lt;li&gt;gene_symbol (retrieved from the 1. field of the TCGA RNA-Seq V2 gene results file, part just before "|"; it represents the symbol of the quantified gene, e.g., "CFI")&lt;/li&gt;
+                                &lt;li&gt;entrez_gene_id (retrieved from the 1. field of the TCGA RNA-Seq V2 gene results file, part just after "|"; it represents the Entrez gene ID of the quantified gene, e.g., "3426")&lt;/li&gt;
+                                &lt;li&gt;raw_count(*) (retrieved from the 2. field of the TCGA RNA-Seq V2 gene results file, e.g., 131.00)&lt;/li&gt;
+                                &lt;li&gt;scaled_estimate(*) (retrieved from the 3. field of the TCGA RNA-Seq V2 gene results file, e.g., 2.18150649130347e-06)&lt;/li&gt;
+                                &lt;li&gt;transcript_id (retrieved from the 4. field of the TCGA RNA-Seq V2 gene results file, this field may include multiple transcript ids delimitated by comma ",", e.g., uc003hzq.2,uc003hzr.3,uc003hzs.3,uc011cft.1)&lt;/li&gt;
+                                &lt;li&gt;normalized_count (retrieved from the 2. field of the TCGA RNA-Seq V2 gene result normalized file, e.g., 45.1503)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the rnaseqv2/gene.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/gene.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_isoform">
+                    <dataset_working_directory>rnaseqv2_isoform</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseqv2/isoform.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_rnaseqv2_isoform</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of RNA-Seq Version 2: Rsem isoform results (i.e., the raw expression signal of individual isoforms (transcripts)) and Rsem isoform normalized results (i.e., the normalized expression signal of individual isoforms (transcripts)).&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                RNA-Seq Version 2 is similar to RNA-Seq in that it uses sequencing data to determine gene expression levels. RNA-Seq V2 experimental files contain data obtained with a different normalization technique than in RNA-Seq files, which is based on RSEM (RNA-Seq by Expectation Maximization).&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the RNA-seq V2 isoform quantification file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                                &lt;li&gt;chrom (retrieved from NCBI Entrez Gene database7, according to the entrez gene id retrieved from UCSC database8 based on the UCSC isoforms_id provided in 1. field of the TCGA RNA-Seq isoform results V2 file, e.g., "chr17")&lt;/li&gt;
+                                &lt;li&gt;chromStart (retrieved from NCBI Entrez Gene database7, according to the entrez gene id retrieved from UCSC database8 based on the UCSC isoforms_id provided in 1. field of the TCGA RNA-Seq isoform results V2 file , e.g., 8310238)&lt;/li&gt;
+                                &lt;li&gt;chromEnd (retrieved from NCBI Entrez Gene database7, according to the entrez gene id retrieved from UCSC database8 based on the UCSC isoforms_id provided in 1. field of the TCGA RNA-Seq isoform results V2 file, e.g., 8322516)&lt;/li&gt;
+                                &lt;li&gt;strand (retrieved from NCBI Entrez Gene database7, according to the entrez gene id retrieved from UCSC database8 based on the UCSC isoforms_id provided in 1. field of the TCGA RNA-Seq isoform results V2 file e.g., '+')&lt;/li&gt;
+                                &lt;li&gt;gene_symbol (retrieved from NCBI Entrez Gene database7, according to the entrez gene id retrieved from UCSC database8 based on the UCSC isoforms_id provided in 1. field of the TCGA RNA-Seq isoform results V2 file, e.g., "ARHGEF15")&lt;/li&gt;
+                                &lt;li&gt;entrez_gene_id (retrieved from NCBI Entrez Gene database7, according to the entrez gene id retrieved from UCSC database8 based on the UCSC isoforms_id provided in 1. field of the TCGA RNA-Seq isoform results V2 file, e.g., "22899")&lt;/li&gt;
+                                &lt;li&gt;transcript_id (retrieved from the 1. field "isoform_id" of the TCGA RNA-Seq V2 isoform results file, e.g., uc002glb.1)&lt;/li&gt;
+                                &lt;li&gt;raw_count(*) (retrieved from the 2. field of the TCGA RNA-Seq V2 isoform results file, e.g., 8.31)&lt;/li&gt;
+                                &lt;li&gt;scaled_estimate(*) (retrieved from the 3. field of the TCGA RNA-Seq isoform results V2 file, e.g., 1.42848669335672e-07)&lt;/li&gt;
+                                &lt;li&gt;normalized_count (retrieved from the 2. field of the TCGA RNA-Seq V2 isoform result normalized file, e.g., 3.2186)&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the rnaseqv2/isoform.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/isoform.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="rnaseqv2_spljxn">
+                    <dataset_working_directory>rnaseqv2_spljxn</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinf.iasi.cnr.it/bed/lusc/rnaseqv2/spljxn.quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_TCGA_rnaseqv2_spljxn</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of RNA-Seq Version 2: Rsem isoform results (i.e., the raw expression signal of individual isoforms (transcripts)) and Rsem isoform normalized results (i.e., the normalized expression signal of individual isoforms (transcripts)).&lt;br&gt;
+                                It is directly derived from data available on the old TCGA portal and transformed into GDM format through the TCGA2BED pipeline.&lt;br&gt;
+                                Documentation is available at http://bioinf.iasi.cnr.it/tcga2bed/data/TCGA2BED_format_definition.pdf.&lt;br&gt;
+                                &lt;br&gt;
+                                RNA-Seq Version 2 is similar to RNA-Seq in that it uses sequencing data to determine gene expression levels. RNA-Seq V2 experimental files contain data obtained with a different normalization technique than in RNA-Seq files, which is based on RSEM (RNA-Seq by Expectation Maximization).&lt;br&gt;
+                                &lt;br&gt;
+                                The dataset includes tab separated BED files, in which the RNA-seq V2 Spljxn quantification file is converted, with the following fields:&lt;br&gt;
+                                &lt;ol&gt;
+                               &lt;li&gt;chrom (retrieved from the 1. field of the TCGA RNA-Seq V2 file, part just before the first ":", e.g., "chr1")&lt;/li&gt;
+                               &lt;li&gt;chromStart (retrieved from the 1. field of the TCGA RNA-Seq V2 file, part just after the first ":", e.g., 12227)&lt;/li&gt;
+                               &lt;li&gt;chromEnd (retrieved from the 1. field of the TCGA RNA-Seq file V2, part just before the third ":", e.g., 12595)&lt;/li&gt;
+                               &lt;li&gt;strand (retrieved from the 1. field of the TCGA RNA-Seq V2 file, part just after the second ":",, e.g., '+')&lt;/li&gt;
+                               &lt;li&gt;raw_counts (retrieved from the 2. field of the TCGA RNA-Seq V2 file, e.g., 0)&lt;/li&gt;
+                               &lt;li&gt;inner_left = chromStart + 1&lt;/li&gt;
+                               &lt;li&gt;inner_right = chromEnd - 1&lt;/li&gt;
+                                &lt;/ol&gt;
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the rnaseqv2/spljxn.quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/bed/.*/rnaseqv2/spljxn.quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the md5 hash-->
+                            <key>md5_checksum_tcga2bed</key>
+                            <value>md5table.txt</value>
+                        </parameter>
+                        <parameter>
+                            <!--used for tcga2bed to check the number of files-->
+                            <key>exp_info_tcga2bed</key>
+                            <value>exp_info.tsv</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+    </source_list>
+</root>

@@ -1,5 +1,7 @@
 package it.polimi.genomics.metadata.mapper.Encode.Utils
 
+import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler.conf
+
 import scala.collection.mutable.ListBuffer
 
 class ReplicateList(lines: Array[String], bioSampleList: BioSampleList) {
@@ -12,7 +14,7 @@ class ReplicateList(lines: Array[String], bioSampleList: BioSampleList) {
 
 
   bioSampleList.BiosampleList.foreach(bioReplicateNumber => {
-    val r = ("replicates__" + bioReplicateNumber +"__uuid").r
+    val r = ("replicate__" + bioReplicateNumber +"__uuid").r
     for(l <- lines){
       val mi = r.findAllIn(l)
       if(mi.hasNext) {
@@ -25,7 +27,7 @@ class ReplicateList(lines: Array[String], bioSampleList: BioSampleList) {
   })
 
   bioSampleList.BiosampleList.foreach(bioReplicateNumber => {
-    val r = ("replicates__" + bioReplicateNumber + "__technical_replicate_number").r
+    val r = ("replicate__" + bioReplicateNumber + "__technical_replicate_number").r
     for(l <- lines){
       val mi = r.findAllIn(l)
       if(mi.hasNext) {

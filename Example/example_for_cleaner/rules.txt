@@ -1,3 +1,1 @@
-aliases=>
-(replicate)s(.*)=>$1$2
-related.*=>
+/.*/.*=>

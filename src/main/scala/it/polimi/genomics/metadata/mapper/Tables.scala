@@ -43,8 +43,9 @@ trait Tables extends Enumeration {
   def insertTables(states: collection.mutable.Map[String, String], pairs: List[(String, String)]): Unit = {
 
     val conf = ConfigFactory.load()
-    val constraintsSatisfacted = this.checkTablesConstraintsSatisfaction()
-    if (!conf.getBoolean("import.constraints_activated") || constraintsSatisfacted) {
+    //val constraintsSatisfied = this.checkTablesConstraintsSatisfaction()
+    val constraintsSatisfied = true //ANNA: for now we don't have constraints
+    if (!conf.getBoolean("import.constraints_activated") || constraintsSatisfied) {
       var insert = true
       getOrderOfInsertion().map(t => this.selectTableByValue(t)).foreach { (table: Table) =>
         if (table.hasForeignKeys) {

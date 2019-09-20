@@ -17,11 +17,13 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   var tissueArray: Array[String] = new Array[String](quantity)
 
-  var cellLineArray: Array[String] = new Array[String](quantity)
+  var cellArray: Array[String] = new Array[String](quantity)
 
   var isHealthyArray: Array[Option[Boolean]] = new Array[Option[Boolean]](quantity)
 
-  var diseaseArray: Array[String] = new Array[String](quantity)
+  var diseaseArray: Array[Option[String]] = new Array[Option[String]](quantity)
+
+  var altBiosampleSourceIdArray: Array[String] = new Array[String](quantity)
 
   var ontologicalCode: Array[String] = new Array[String](quantity)
 
@@ -37,7 +39,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   var tissueInsertPosition: Int = 0
 
-  var cellLineInsertPosition: Int = 0
+  var cellInsertPosition: Int = 0
 
   var isHealthyInsertPosition: Int = 0
 
@@ -45,59 +47,62 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
   var ontologicalCodePosition: Int = 0
 
-  override def setParameter(param: String, dest: String, insertMethod: (String,String) => String): Unit = {
-    dest.toUpperCase match{
+  override def setParameter(param: String, dest: String, insertMethod: (String, String) => String): Unit = {
+    dest.toUpperCase match {
       case "SOURCEID" => {
-        this.sourceIdArray(insertPosition) = insertMethod(this.sourceIdArray(insertPosition),param);
+        this.sourceIdArray(insertPosition) = insertMethod(this.sourceIdArray(insertPosition), param);
         this.insertPosition = resetPosition(this.insertPosition, quantity)
       }
       case "TYPES" => {
-        this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition),param);
+        this.typesArray(typesInsertPosition) = insertMethod(this.typesArray(typesInsertPosition), param);
         this.typesInsertPosition = resetPosition(this.typesInsertPosition, quantity);
       }
       case "TISSUE" => {
-        if(conf.getBoolean("import.rules.type")) {
+        if (conf.getBoolean("import.rules.type")) {
           this.tissueArray(tissueInsertPosition) = if (typesArray(tissueInsertPosition).equals("tissue")) insertMethod(this.tissueArray(tissueInsertPosition), param) else null
         } else {
           this.tissueArray(tissueInsertPosition) = insertMethod(this.tissueArray(tissueInsertPosition), param)
         }
         this.tissueInsertPosition = resetPosition(this.tissueInsertPosition, quantity)
       }
-      case "CELLLINE" => {
-        if(conf.getBoolean("import.rules.type")) {
-          this.cellLineArray(cellLineInsertPosition) = if (typesArray(cellLineInsertPosition).contains("cell")) insertMethod(this.cellLineArray(cellLineInsertPosition), param) else null
+      case "CELL" => {
+        if (conf.getBoolean("import.rules.type")) {
+          this.cellArray(cellInsertPosition) = if (typesArray(cellInsertPosition).contains("cell")) insertMethod(this.cellArray(cellInsertPosition), param) else null
         }
-        else{
-          this.cellLineArray(cellLineInsertPosition) =insertMethod(this.cellLineArray(cellLineInsertPosition), param)
+        else {
+          this.cellArray(cellInsertPosition) = insertMethod(this.cellArray(cellInsertPosition), param)
         }
-        this.cellLineInsertPosition = resetPosition(this.cellLineInsertPosition, quantity)
+        this.cellInsertPosition = resetPosition(this.cellInsertPosition, quantity)
       }
       case "ISHEALTHY" => {
-        if(param.toLowerCase.startsWith("healthy") ||
+        if (param.toLowerCase.startsWith("healthy") ||
           param.toLowerCase.equals("control") ||
           param.toLowerCase.contains("normal") ||
           param.toLowerCase.startsWith("negative for"))
           this.isHealthyArray(isHealthyInsertPosition) = Some(true)
-        else if(param.toLowerCase.equals("unknown"))
+        else if (param.toLowerCase.equals("unknown"))
           this.isHealthyArray(isHealthyInsertPosition) = None
         else
           this.isHealthyArray(isHealthyInsertPosition) = Some(false)
         this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
       }
       case "DISEASE" => {
-
-        if(param.toLowerCase.startsWith("healthy") ||
+        if (param.toLowerCase.startsWith("healthy") ||
           param.toLowerCase.equals("control") ||
           param.toLowerCase.contains("normal") ||
           param.toLowerCase.startsWith("negative for") ||
           param.toLowerCase.equals("unknown"))
           this.diseaseArray(diseaseInsertPosition) = null
-        else
-          this.diseaseArray(diseaseInsertPosition) = insertMethod(this.diseaseArray(diseaseInsertPosition), param)
+        else {
+          val a: String = this.disease.getOrElse(null)
+          val b: String = insertMethod(a, param)
+          this.diseaseArray(diseaseInsertPosition) = Some(b)
+          //this.diseaseArray(diseaseInsertPosition) = Some(param)
+        }
         this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
       }
       case "ONTOLOGICALCODE" => {
-        this.ontologicalCode(ontologicalCodePosition) = insertMethod(this.ontologicalCode(ontologicalCodePosition),param)
+        this.ontologicalCode(ontologicalCodePosition) = insertMethod(this.ontologicalCode(ontologicalCodePosition), param)
         this.ontologicalCodePosition = resetPosition(ontologicalCodePosition, quantity)
       }
 
@@ -106,39 +111,38 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
   }
 
 
-
   override def nextPosition(globalKey: String, method: String): Unit = {
-      globalKey.toUpperCase match {
-        case "TYPES" => {
-          this.typesInsertPosition = resetPosition(typesInsertPosition, quantity)
-        }
-        case "TISSUE" => {
-          this.tissueInsertPosition = resetPosition(tissueInsertPosition, quantity)
-        }
-        case "CELLLINE" => {
-          this.cellLineInsertPosition = resetPosition(cellLineInsertPosition, quantity)
-        }
-        case "ISHEALTHY" => {
-          this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
-        }
-        case "DISEASE" => {
-          this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
-        }
-        case "ONTOLOGICALCODE" => {
-          this.ontologicalCodePosition = resetPosition(ontologicalCodePosition, quantity)
-        }
+    globalKey.toUpperCase match {
+      case "TYPES" => {
+        this.typesInsertPosition = resetPosition(typesInsertPosition, quantity)
       }
+      case "TISSUE" => {
+        this.tissueInsertPosition = resetPosition(tissueInsertPosition, quantity)
+      }
+      case "CELL" => {
+        this.cellInsertPosition = resetPosition(cellInsertPosition, quantity)
+      }
+      case "ISHEALTHY" => {
+        this.isHealthyInsertPosition = resetPosition(isHealthyInsertPosition, quantity)
+      }
+      case "DISEASE" => {
+        this.diseaseInsertPosition = resetPosition(diseaseInsertPosition, quantity)
+      }
+      case "ONTOLOGICALCODE" => {
+        this.ontologicalCodePosition = resetPosition(ontologicalCodePosition, quantity)
+      }
+    }
   }
 
-  override def insertRow(): Int ={
+  override def insertRow(): Int = {
     var id: Int = 0
     var position = 0
 
     val array = this.encodeTableId.techReplicateArray
-    for(sourcePosition <- 0 to sourceIdArray.length-1){
+    for (sourcePosition <- 0 to sourceIdArray.length - 1) {
       Statistics.biosampleInsertedOrUpdated += 1
       this.actualPosition = sourcePosition
-      if(this.checkInsert()) {
+      if (this.checkInsert()) {
         id = this.insert
       }
       else {
@@ -146,11 +150,13 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
       }
       val actualVal = array(position)
 
-      breakable { while(array(position) == actualVal && position < array.length) {
+      breakable {
+        while (array(position) == actualVal && position < array.length) {
           this.primaryKeys_(id)
           position += 1
           if (position >= array.length) break
-        } }
+        }
+      }
 
     }
     id
@@ -168,7 +174,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
               this.logger.warn(s"Biosample tissue constraints violated ${_filePath}")
               res = false
             }
-            else if (bioSamples.typesArray(position).contains("cell") && this.cellLineArray(position) == null) {
+            else if (bioSamples.typesArray(position).contains("cell") && this.cellArray(position) == null) {
               Statistics.constraintsViolated += 1
               this.logger.warn("Biosample cellLine constraints violated")
               res = false
@@ -194,22 +200,22 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
 
 
   override def insert(): Int = {
-    val id = dbHandler.insertBioSample(donorIdArray(actualPosition),this.sourceIdArray(actualPosition),this.typesArray(actualPosition),this.tissueArray(actualPosition),this.cellLineArray(actualPosition),this.isHealthyArray(actualPosition),this.diseaseArray(actualPosition))
-    if(conf.getBoolean("import.support_table_insert"))
-      insertOrUpdateOntologicTuple(id)
-     /* if(this.cellLineArray(actualPosition) != null && conf.getBoolean("import.support_table_insert"))
-      dbHandler.insertOntology(id, "biosample", "cell_line", ontologicalCode(actualPosition).split('*')(0), this.cellLineArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
-    if(this.tissueArray(actualPosition) != null && conf.getBoolean("import.support_table_insert"))
-      dbHandler.insertOntology(id, "biosample", "tissue", ontologicalCode(actualPosition).split('*')(0), this.tissueArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))*/
+    val id = dbHandler.insertBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition), this.altBiosampleSourceIdArray(actualPosition))
+   // if (conf.getBoolean("import.support_table_insert"))
+     // insertOrUpdateOntologicTuple(id)
+    /* if(this.cellLineArray(actualPosition) != null && conf.getBoolean("import.support_table_insert"))
+     dbHandler.insertOntology(id, "biosample", "cell_line", ontologicalCode(actualPosition).split('*')(0), this.cellLineArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
+   if(this.tissueArray(actualPosition) != null && conf.getBoolean("import.support_table_insert"))
+     dbHandler.insertOntology(id, "biosample", "tissue", ontologicalCode(actualPosition).split('*')(0), this.tissueArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))*/
     id
   }
 
- // override def insert(states: collection.mutable.Map[String, String]): Int = ???
+  // override def insert(states: collection.mutable.Map[String, String]): Int = ???
 
   override def update(): Int = {
-    val id = dbHandler.updateBioSample(donorIdArray(actualPosition),this.sourceIdArray(actualPosition),this.typesArray(actualPosition),this.tissueArray(actualPosition),this.cellLineArray(actualPosition),this.isHealthyArray(actualPosition),this.diseaseArray(actualPosition))
-    if(conf.getBoolean("import.support_table_insert"))
-      insertOrUpdateOntologicTuple(id)
+    val id = dbHandler.updateBioSample(donorIdArray(actualPosition), this.sourceIdArray(actualPosition), this.typesArray(actualPosition), this.tissueArray(actualPosition), this.cellArray(actualPosition), this.isHealthyArray(actualPosition), this.diseaseArray(actualPosition), this.altBiosampleSourceIdArray(actualPosition))
+   // if (conf.getBoolean("import.support_table_insert"))
+    //  insertOrUpdateOntologicTuple(id)
     id
   }
 
@@ -217,7 +223,7 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
     this.donorIdArray = table.primaryKeys.toArray
   }
 
-  override def checkInsert(): Boolean ={
+  override def checkInsert(): Boolean = {
     dbHandler.checkInsertBioSample(this.sourceIdArray(actualPosition))
   }
 
@@ -226,32 +232,33 @@ class BioSampleEncode(encodeTableId: EncodeTableId, quantity: Int) extends Encod
   }
 
   override def checkConsistency(): Boolean = {
-    this.sourceIdArray.foreach(source => if(source == null) false)
+    this.sourceIdArray.foreach(source => if (source == null) false)
     true
   }
 
-  override def writeInFile(path: String, biologicalReplicateNum: String = ""): Unit = {
+ /* override def writeInFile(path: String, biologicalReplicateNum: String = ""): Unit = {
     val write = getWriter(path)
     val tableName = "biosample"
-    write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "source_id"))
-    if(this.types != null) write.append(getMessageMultipleAttribute(this.types, tableName, biologicalReplicateNum, "type"))
-    if(this.tissue != null) write.append(getMessageMultipleAttribute(this.tissue, tableName, biologicalReplicateNum, "tissue"))
-    if(this.cellLine != null) write.append(getMessageMultipleAttribute(this.cellLine, tableName, biologicalReplicateNum, "cell_line"))
+    write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "biosample_source_id"))
+    if (this.types != null) write.append(getMessageMultipleAttribute(this.types, tableName, biologicalReplicateNum, "type"))
+    if (this.tissue != null) write.append(getMessageMultipleAttribute(this.tissue, tableName, biologicalReplicateNum, "tissue"))
+    if (this.cell != null) write.append(getMessageMultipleAttribute(this.cell, tableName, biologicalReplicateNum, "cell_line"))
     write.append(getMessageMultipleAttribute(this.isHealthy, tableName, biologicalReplicateNum, "is_healthy"))
-    if(this.disease != null) write.append(getMessageMultipleAttribute( this.disease, tableName, biologicalReplicateNum, "disease"))
+    if (this.disease != null) write.append(getMessageMultipleAttribute(this.disease, tableName, biologicalReplicateNum, "disease"))
     flushAndClose(write)
   }
+  */
 
-  def insertOrUpdateOntologicTuple(id: Int): Unit = {
-    if(this.cellLineArray(actualPosition) != null)
-      if(DbHandler.checkInsertOntology(id, "biosample", "cell_line"))
+  /*def insertOrUpdateOntologicTuple(id: Int): Unit = {
+    if (this.cellLineArray(actualPosition) != null)
+      if (DbHandler.checkInsertOntology(id, "biosample", "cell_line"))
         dbHandler.insertOntology(id, "biosample", "cell_line", ontologicalCode(actualPosition).split('*')(0), this.cellLineArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
       else
         dbHandler.updateOntology(id, "biosample", "cell_line", ontologicalCode(actualPosition).split('*')(0), this.cellLineArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
-    if(this.tissueArray(actualPosition) != null)
-      if(DbHandler.checkInsertOntology(id, "biosample", "tissue"))
+    if (this.tissueArray(actualPosition) != null)
+      if (DbHandler.checkInsertOntology(id, "biosample", "tissue"))
         dbHandler.insertOntology(id, "biosample", "tissue", ontologicalCode(actualPosition).split('*')(0), this.tissueArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
       else
         dbHandler.updateOntology(id, "biosample", "tissue", ontologicalCode(actualPosition).split('*')(0), this.tissueArray(actualPosition), ontologicalCode(actualPosition).split('*')(1))
-  }
+  }*/
 }

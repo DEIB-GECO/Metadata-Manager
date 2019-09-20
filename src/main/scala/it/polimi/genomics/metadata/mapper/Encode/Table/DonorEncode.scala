@@ -4,17 +4,21 @@ import it.polimi.genomics.metadata.mapper.Encode.EncodeTableId
 import it.polimi.genomics.metadata.mapper.Utils.Statistics
 import it.polimi.genomics.metadata.mapper.{Donor, Table}
 
+import scala.util.Try
+
 class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTable(encodeTableId) with Donor{
 
   val sourceIdArray: Array[String] = new Array[String](quantity)
 
   var speciesArray: Array[String] = new Array[String](quantity)
 
-  var ageArray: Array[Int] = new Array[Int](quantity)
+  var ageArray: Array[Option[Int]] = new Array[Option[Int]](quantity)
 
   var genderArray: Array[String] = new Array[String](quantity)
 
   var ethnicityArray: Array[String] = new Array[String](quantity)
+
+  val altDonorSourceIdArray: Array[String] = new Array[String](quantity)
 
   var actualPosition: Int = _
 
@@ -38,24 +42,9 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
         this.speciesArray(this.speciesInsertPosition) = insertMethod(this.speciesArray(this.speciesInsertPosition), param)
         this.speciesInsertPosition = resetPosition(speciesInsertPosition, quantity)
       }
-      case "AGE" => { /*param.split(" ")(1).toUpperCase() match {
-        case "YEAR" => {
-          this.ageArray(this.ageInsertPosition) = param.split(" ")(0).toInt * 365
-          this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
-        }
-        case "MONTH" => {
-          this.ageArray(this.ageInsertPosition) = param.split(" ")(0).toInt * 30
-          this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
-        }
-        case "DAY" => {
-          this.ageArray(this.ageInsertPosition) = param.split(" ")(0).toInt
-          this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
-
-        }
-        case _ => {
-          this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
-        }*/
-        this.ageArray(this.ageInsertPosition) = insertMethod(this.ageArray(this.ageInsertPosition).toString, param).toInt
+      case "AGE" => {
+        this.ageArray(this.ageInsertPosition) = Try(insertMethod(this.age.map(_.toString).getOrElse(null),param).toInt).toOption
+        //this.ageArray(this.ageInsertPosition) = Option(insertMethod(this.ageArray(this.ageInsertPosition).toString, param).toInt)
         this.ageInsertPosition = resetPosition(ageInsertPosition, quantity)
       }
       case "GENDER" => {
@@ -125,17 +114,17 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
   }
 
     override def insert(): Int ={
-    dbHandler.insertDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
+    dbHandler.insertDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition), this.altDonorSourceIdArray(actualPosition))
   }
 
  // override def insert(states: collection.mutable.Map[String, String]): Int = ???
 
   override def update(): Int ={
-    dbHandler.updateDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
+    dbHandler.updateDonor(this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition), this.altDonorSourceIdArray(actualPosition))
   }
 
   override def updateById(): Unit ={
-    dbHandler.updateDonorById(this.primaryKeys(actualPosition), this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition))
+    dbHandler.updateDonorById(this.primaryKeys(actualPosition), this.sourceIdArray(actualPosition),this.speciesArray(actualPosition),this.ageArray(actualPosition),this.genderArray(actualPosition),this.ethnicityArray(actualPosition), this.altDonorSourceIdArray(actualPosition))
   }
 
   override def setForeignKeys(table: Table): Unit = {
@@ -158,9 +147,9 @@ class DonorEncode(encodeTableId: EncodeTableId, quantity: Int) extends EncodeTab
     val write = getWriter(path)
     val tableName = "donor"
 
-    write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "source_id"))
+    write.append(getMessageMultipleAttribute(this.sourceId, tableName, biologicalReplicateNum, "donor_source_id"))
     if(this.species != null) write.append(getMessageMultipleAttribute(this.species, tableName, biologicalReplicateNum, "species"))
-    if(this.age != 0) write.append(getMessageMultipleAttribute(this.age, tableName, biologicalReplicateNum, "age"))
+    if(this.age != null) write.append(getMessageMultipleAttribute(this.age, tableName, biologicalReplicateNum, "age"))
     if(this.gender != null) write.append(getMessageMultipleAttribute(this.gender, tableName, biologicalReplicateNum, "gender"))
     if(this.ethnicity != null) write.append(getMessageMultipleAttribute(this.ethnicity, tableName, biologicalReplicateNum, "ethnicity"))
 

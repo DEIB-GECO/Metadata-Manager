@@ -43,7 +43,7 @@ class FromDbToTsv() {
   }
 
 
-  def run(oldPath: String, regex: Regex): Unit = {
+ /* def run(oldPath: String, regex: Regex): Unit = {
     val path = if(isNewFile) regex.replaceAllIn(oldPath, extension) else oldPath
     if(isNewFile) FileUtils.deleteQuietly(new File(path))
     logger.info(s"Start to read ${oldPath} file")
@@ -105,5 +105,6 @@ class FromDbToTsv() {
       }
     })
   }
+  */
 
 }

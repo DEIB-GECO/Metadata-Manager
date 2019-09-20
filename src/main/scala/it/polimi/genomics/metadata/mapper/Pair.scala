@@ -1,6 +1,6 @@
 package it.polimi.genomics.metadata.mapper
 
-import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler.{database, ontologyTable}
+import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler.{database}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration

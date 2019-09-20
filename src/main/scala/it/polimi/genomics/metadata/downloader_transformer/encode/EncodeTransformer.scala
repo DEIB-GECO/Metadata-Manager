@@ -3,17 +3,17 @@ package it.polimi.genomics.metadata.downloader_transformer.encode
 import java.io.{File, _}
 import java.util
 
+import it.polimi.genomics.metadata.database.{FILE_STATUS, FileDatabase, Stage}
 import it.polimi.genomics.metadata.downloader_transformer.Transformer
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Unzipper
-import it.polimi.genomics.metadata.database.{FILE_STATUS, FileDatabase, Stage}
-import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.step.xml
+import it.polimi.genomics.metadata.step.xml.Dataset
 import org.codehaus.jackson.map.MappingJsonFactory
 import org.codehaus.jackson.{JsonNode, JsonParser, JsonToken}
 import org.slf4j.LoggerFactory
 
+import scala.collection.JavaConverters._
 import scala.io.Source
-import collection.JavaConverters._
 
 
 /**
@@ -237,9 +237,9 @@ class EncodeTransformer extends Transformer {
           if (gmqlSource.parameters.exists(_._1 == "multiple_comma_separated") &&
             gmqlSource.parameters.filter(_._1 == "multiple_comma_separated").exists(_._2 == header(i)))
             for (value <- fields(i).split(", "))
-              writer.write(header(i) + "\t" + value + "\n")
+              writer.write(header(i) + "\t" + escapeCharacters(value) + "\n")
           else
-            writer.write(header(i) + "\t" + fields(i) + "\n")
+            writer.write(header(i) + "\t" + escapeCharacters(fields(i)) + "\n")
         }
       }
       writer.close()
@@ -282,7 +282,6 @@ class EncodeTransformer extends Transformer {
           //here is the regular case
 
           writePlatform(node, writer, replicateIds, metadataList, separator)
-
 
           printTree(node, "", writer, metadataList, separator, exclusion = true)
           writer.close()
@@ -390,19 +389,19 @@ class EncodeTransformer extends Transformer {
     * @param separator    separator string to use for separating the nested metadata
     */
   def writePlatform(rootNode: JsonNode, writer: PrintWriter, replicateIds: List[String],
-                      metaList: java.util.ArrayList[(String, String)], separator: String): Unit = {
+                    metaList: java.util.ArrayList[(String, String)], separator: String): Unit = {
     if (rootNode.has("files")) {
       val filesNode = rootNode.get("files")
       if (filesNode.isArray) {
         val files = filesNode.getElements
         while (files.hasNext) {
           val file = files.next()
-          if(file.has("platform") && file.has("biological_replicates")){
+          if (file.has("platform") && file.has("biological_replicates")) {
             val fileReplicates = file.get("biological_replicates")
-            if(fileReplicates.isArray){
+            if (fileReplicates.isArray) {
               val fileReplicateAsText = fileReplicates.getElements().asScala.map(_.asText()).toSet
               val hasIntersection = fileReplicateAsText.intersect(replicateIds.toSet).nonEmpty
-              if(hasIntersection)
+              if (hasIntersection)
                 printTree(file.get("platform"), s"platform", writer, metaList, separator, exclusion = false)
             }
           }
@@ -443,7 +442,7 @@ class EncodeTransformer extends Transformer {
     if (node.isValueNode && node.asText() != ""
       && !metaList.contains(node.asText(), parents)
     ) {
-      writer.write(parents + "\t" + node.asText() + "\n")
+      writer.write(parents + "\t" + escapeCharacters(node.asText()) + "\n")
       metaList.add((node.asText(), parents))
     }
     else {
@@ -472,6 +471,12 @@ class EncodeTransformer extends Transformer {
       }
     }
   }
+
+  def escapeCharacters(in: String) = in.replace('\t', ' ').replace('\n', ' ')
+
+  //other possibility escape the value
+  //  def escapeCharacters2(in:String) =  in.replace("\t", "\\t").replace("\n", "\\n")
+
 
   //  //--------------------------------------------SCHEMA SECTION----------------------------------------------------------
   //  /**

@@ -34,7 +34,7 @@ trait Project extends Table{
     if(this.projectName != null) true else false
   }
 
-  def convertTo(values: Seq[(String, Option[String])]): Unit = {
+ /* def convertTo(values: Seq[(String, Option[String])]): Unit = {
     if(values.length > 1)
       logger.error(s"Too many value: ${values.length}")
     else {
@@ -42,13 +42,14 @@ trait Project extends Table{
       this.projectName = value._1
       if(value._2.isDefined) this.programName = value._2.get
     }
-  }
+  }*/
 
-  def writeInFile(path: String): Unit = {
+ /* def writeInFile(path: String): Unit = {
     val write = getWriter(path)
     val tableName = "project"
     write.append(getMessage(tableName, "project_name", this.projectName))
     if(this.programName != null) write.append(getMessage(tableName, "program_name", this.programName))
     flushAndClose(write)
   }
+  */
 }

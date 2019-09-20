@@ -5,169 +5,186 @@
             <source_key>dataset_name</source_key>
             <global_key>name</global_key>
         </mapping>
-
-        <mapping>
-            <source_key>file__output_type</source_key> <!--peaks-->
+        <mapping method="MANUAL">
+            <source_key>peaks</source_key> <!--peaks-->
             <global_key>dataType</global_key>
         </mapping>
         <mapping>
-            <source_key>file__file_format_type</source_key> <!--narrowPeak, broadPeak-->
+            <source_key>file__format_type</source_key> <!--narrowPeak, broadPeak-->
             <global_key>format</global_key>
         </mapping>
         <mapping>
             <source_key>file__assembly</source_key>
             <global_key>assembly</global_key>
         </mapping>
-        <mapping method="MANUALLY">
+        <mapping method="MANUAL">
             <source_key>false</source_key>
             <global_key>isAnn</global_key>
         </mapping>
-        <mapping method="MANUALLY">
-            <source_key>null</source_key>
-            <global_key>annotation</global_key>
-        </mapping>
-
-
     </table>
     <table name="DONORS">
         <mapping>
-            <source_key>replicates__X__library__biosample__donor__accession</source_key>
+            <source_key>donor__X__accession</source_key>
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__donor__organism__scientific_name</source_key>
+            <source_key>donor__X__organism__scientific_name</source_key>
             <global_key>species</global_key>
         </mapping>
         <mapping method="DATETODAYS">
-            <source_key>replicates__X__library__biosample__age_display</source_key>
+            <source_key>donor__X__age_display</source_key>
             <global_key>age</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__donor__sex</source_key>
+            <source_key>donor__X__sex</source_key>
             <global_key>gender</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__donor__ethnicity</source_key>
+            <source_key>donor__X__ethnicity</source_key>
             <global_key>ethnicity</global_key>
         </mapping>
     </table>
     <table name="BIOSAMPLES">
         <mapping>
-            <source_key>replicates__X__library__biosample__accession</source_key>
+            <source_key>biosample__X__accession</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping>
-            <source_key>replicates__X__library__biosample__biosample_type</source_key>
+        <!--<mapping>
+            <source_key>biosample__X__type</source_key>
             <global_key>types</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
+            <source_key>biosample__X__term_name</source_key>
             <global_key>tissue</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__biosample_term_name</source_key>
-            <global_key>cellLine</global_key>
+            <source_key>biosample__X__term_name</source_key>
+            <global_key>cell</global_key>
+        </mapping> -->
+       <mapping>
+            <source_key>biosample__X__ontology__classification</source_key>
+            <global_key>types</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__health_status</source_key>
+            <source_key>biosample__X__ontology__term_name</source_key>
+            <global_key>tissue</global_key>
+        </mapping>
+        <mapping>
+            <source_key>biosample__X__ontology__term_name</source_key>
+            <global_key>cell</global_key>
+        </mapping>
+        <mapping>
+            <source_key>biosample__X__health_status</source_key>
             <global_key>isHealthy</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__library__biosample__health_status</source_key>
+            <source_key>biosample__X__health_status</source_key>
             <global_key>disease</global_key>
         </mapping>
-        <mapping method="ONTOLOGY">
-            <source_key>replicates__X__library__biosample__biosample_term_id</source_key>
+   <!--     <mapping method="ONTOLOGY">
+            <source_key>biosample__X__term_id</source_key>
             <global_key>ontologicalcode</global_key>
-        </mapping>
+        </mapping>-->
     </table>
     <table name="REPLICATES">
         <mapping>
-            <source_key>replicates__X__uuid</source_key>
+            <source_key>replicate__X__uuid</source_key>
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__biological_replicate_number</source_key>
+            <source_key>replicate__X__biological_replicate_number</source_key>
             <global_key>bioReplicateNum</global_key>
         </mapping>
         <mapping>
-            <source_key>replicates__X__technical_replicate_number</source_key>
+            <source_key>replicate__X__technical_replicate_number</source_key>
             <global_key>techReplicateNum</global_key>
         </mapping>
     </table>
     <table name="EXPERIMENTSTYPE">
         <mapping>
-            <source_key>assay_term_name</source_key>
+            <source_key>experiment__assay_term_name</source_key>
             <global_key>technique</global_key>
         </mapping>
         <mapping>
-            <source_key>file__replicate__experiment__target__investigated_as</source_key>
-            <global_key>feature</global_key>
-        </mapping>
-        <mapping method="CHECKPREC">
             <source_key>target__investigated_as</source_key>
             <global_key>feature</global_key>
         </mapping>
-        <mapping>
+        <mapping method="REMOVE" rem_character="eGFP-*3xFLAG-*FLAG-">
             <source_key>target__label</source_key>
             <global_key>target</global_key>
         </mapping>
-        <mapping method="CONCAT">
-            <source_key>replicates__X__antibody__title</source_key>
-            <global_key>antibody</global_key>
-        </mapping>
-        <mapping method="CONCAT">
-            <source_key>replicates__X__antibody__url</source_key>
+        <mapping>
+            <source_key>antibody__dbxrefs</source_key>
             <global_key>antibody</global_key>
         </mapping>
         <mapping method="ONTOLOGY">
-            <source_key>assay_term_id</source_key>
+            <source_key>experiment__assay_term_id</source_key>
             <global_key>ontologicalcode</global_key>
         </mapping>
     </table>
     <table name="PROJECTS">
-        <mapping method="MANUALLY">
+        <mapping method="MANUAL">
             <source_key>ENCODE</source_key>
-            <global_key>projectName</global_key>
+            <global_key>programName</global_key>
         </mapping>
         <mapping>
-            <source_key>award__project</source_key>
-            <global_key>programName</global_key>
+            <source_key>experiment__award__project</source_key>
+            <global_key>projectName</global_key>
         </mapping>
     </table>
     <table name="CASES">
         <mapping>
-            <source_key>accession</source_key>
+            <source_key>file__experiment</source_key>
             <global_key>sourceId</global_key>
         </mapping>
-        <mapping method="REMOVE-SUB" sub_character="-" new_character=" " rem_character="/*labs">
-            <source_key>submitted_by__lab</source_key>
+        <mapping>
+            <source_key>experiment__lab__title</source_key>
             <global_key>sourceSite</global_key>
         </mapping>
-        <mapping>
-            <source_key>dbxrefs</source_key>
+	<mapping method="MANUAL">
+            <source_key>https://www.encodeproject.org/experiments/</source_key>
             <global_key>externalRef</global_key>
         </mapping>
-    </table>
+        <mapping method="CONCAT" concat_character="">
+            <source_key>file__experiment</source_key>
+            <global_key>externalRef</global_key>
+        </mapping>
+        <mapping>
+            <source_key>experiment__dbxrefs</source_key>
+            <global_key>altCaseSourceId</global_key>
+        </mapping>
 
+    </table>
     <table name="ITEMS">
         <mapping>
             <source_key>file__accession</source_key>
             <global_key>sourceId</global_key>
         </mapping>
         <mapping>
-            <source_key>file__file_size</source_key>
+            <source_key>manually_curated__origin_file_size</source_key>
             <global_key>size</global_key>
         </mapping>
         <mapping>
-            <source_key>file__date_created</source_key>
+            <source_key>manually_curated__origin_last_modified_date</source_key>
             <global_key>date</global_key>
         </mapping>
         <mapping>
-            <source_key>file__md5sum</source_key>
+            <source_key>manually_curated__origin_md5</source_key>
             <global_key>checksum</global_key>
         </mapping>
-        <mapping method="MANUALLY">
+        <mapping>
+            <source_key>file__output_type</source_key>
+            <global_key>contentType</global_key>
+        </mapping>
+        <mapping>
+            <source_key>platform__term_name</source_key>
+            <global_key>platform</global_key>
+        </mapping>
+        <mapping>
+            <source_key>file__analysis_step</source_key>
+            <global_key>pipeline</global_key>
+        </mapping>
+        <mapping method="MANUAL">
             <source_key>https://www.encodeproject.org</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
@@ -175,8 +192,15 @@
             <source_key>file__href</source_key>
             <global_key>sourceUrl</global_key>
         </mapping>
-
-        <mapping method="MANUALLY">
+        <mapping method="MANUAL">
+            <source_key>https://www.encodeproject.org/files/</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="">
+            <source_key>file__accession</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
+        <mapping method="MANUAL">
             <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
             <global_key>localUrl</global_key>
         </mapping>
@@ -185,13 +209,16 @@
             <global_key>localUrl</global_key>
         </mapping>
         <mapping method="CONCAT" concat_character="/">
-            <source_key>file__accession</source_key>
+            <source_key>file_identifier</source_key>
             <global_key>localUrl</global_key>
         </mapping>
-        <mapping method="MANUALLY-CONCAT" concat_character="">
+        <mapping method="MANUAL-CONCAT" concat_character="">
             <source_key>/region</source_key>
             <global_key>localUrl</global_key>
         </mapping>
-
+        <mapping>
+            <source_key>file_name</source_key>
+            <global_key>fileName</global_key>
+        </mapping>
     </table>
-  </root>
+</root>

@@ -1,0 +1,417 @@
+<?xml version="1.0"?>
+<root   xmlns="http://polimi.it/GDMImporter"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+    <settings>
+        <!--BASE WORKING FOLDER FOR THE IMPORTER-->
+        <base_working_directory>/home/hduser/gmql_importer/</base_working_directory>
+        <gcm_config_file>/home/hduser/gmql_importer/conf/application.conf</gcm_config_file>
+        <download_enabled>true</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>false</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>false</flattener_enabled>
+        <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
+    </settings>
+    <source_list>
+        <source name="HG19_ENCODE">
+            <url>https://www.encodeproject.org/</url>
+            <source_working_directory>HG19_ENCODE</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
+            <load_enabled>true</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For downloading the metadata.tsv from encode we need to add this at the end of the url</description>
+                    <key>metadata_prefix</key>
+                    <value>metadata/</value>
+                </parameter>
+                <parameter>
+                    <description>This suffix is needed after all the filters to download the metadata.tsv</description>
+                    <key>metadata_suffix</key>
+                    <value>/metadata.tsv</value>
+                </parameter>
+                <parameter>
+                    <description>As we download the json for the experiment, we need this prefix in the URL</description>
+                    <key>json_prefix</key>
+                    <value>experiments/</value>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+                <parameter>
+                    <description>We specified frame embedded and format json in encode for importing metadata</description>
+                    <key>json_suffix</key>
+                    <value>/?frame=embedded&amp;format=json/</value>
+                </parameter>
+                <parameter>
+                    <description>metadata extraction method tsv or json.</description>
+                    <key>metadata_extraction</key>
+                    <value>json</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude archived files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>archived</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>revoked</value>
+                </parameter>
+				<parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>in progress</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude GRCh38 references</description>
+                    <type>exclusion</type>
+                    <key>Assembly</key>
+                    <value>GRCh38</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude files without biological replicates</description>
+                    <type>exclusion</type>
+                    <key>Biological replicate(s)</key>
+                    <value></value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit WARNING</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit INTERNAL_ACTION</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit NOT_COMPLIANT</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit ERROR</value>
+                </parameter>
+            </parameter_list>
+            <dataset_list>
+                <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <dataset name="broadPeak">
+                    <dataset_working_directory>broadPeak</dataset_working_directory>
+                    <schema_url location="local">schemas/broadPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_ENCODE_BROAD_2018_12</value>
+                        </parameter>
+						<parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>ENCODE data mapped to HG19 human genome.&lt;br&gt;
+                                Broad (or Regions) Peaks format is selected and archived/revoked data are avoided.&lt;br&gt;
+                                https://www.encodeproject.org/.</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>BroadPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+broadPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>Hg19 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>files.assembly</key>
+                            <value>hg19</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="narrowPeak">
+                    <dataset_working_directory>narrowPeak</dataset_working_directory>
+                    <schema_url location="local">schemas/narrowPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_ENCODE_NARROW_2018_12</value>
+                        </parameter>
+						<parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>ENCODE data mapped to HG19 human genome.&lt;br&gt;
+                                Narrow (or Point-Source) Peaks format is selected and archived/revoked data are avoided.&lt;br&gt;
+                                https://www.encodeproject.org/.</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>NarrowPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+narrowPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>Hg19 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>files.assembly</key>
+                            <value>hg19</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+        <!--I separated ENCODE in 2 diferent reference genomes to have a more "self explained" name in GMQL-->
+        <source name="GRCh38_ENCODE">
+            <url>https://www.encodeproject.org/</url>
+            <source_working_directory>GRCh38_ENCODE</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
+            <load_enabled>true</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For downloading the metadata.tsv from encode we need to add this at the end of the url</description>
+                    <key>metadata_prefix</key>
+                    <value>metadata/</value>
+                </parameter>
+                <parameter>
+                    <description>This suffix is needed after all the filters to download the metadata.tsv</description>
+                    <key>metadata_suffix</key>
+                    <value>/metadata.tsv</value>
+                </parameter>
+                <parameter>
+                    <description>As we download the json for the experiment, we need this prefix in the URL</description>
+                    <key>json_prefix</key>
+                    <value>experiments/</value>
+                </parameter>
+                <parameter>
+                    <description>We specified frame embedded and format json in encode for importing metadata</description>
+                    <key>json_suffix</key>
+                    <value>/?frame=embedded&amp;format=json/</value>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+                <parameter>
+                    <description>metadata extraction method tsv or json.</description>
+                    <key>metadata_extraction</key>
+                    <value>json</value>
+                </parameter>
+				<parameter>
+                    <description>to exclude archived files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>archived</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>revoked</value>
+                </parameter>
+				<parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>in progress</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude h19 references</description>
+                    <type>exclusion</type>
+                    <key>Assembly</key>
+                    <value>hg19</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude files without biological replicates</description>
+                    <type>exclusion</type>
+                    <key>Biological replicate(s)</key>
+                    <value></value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit WARNING</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit INTERNAL_ACTION</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit NOT_COMPLIANT</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit ERROR</value>
+                </parameter>
+            </parameter_list>
+            <dataset_list>
+                <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <dataset name="broadPeak">
+                    <dataset_working_directory>broadPeak</dataset_working_directory>
+                    <schema_url location="local">schemas/broadPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_ENCODE_BROAD_2018_12</value>
+                        </parameter>
+						<parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>ENCODE data mapped to GRCh38 human genome.&lt;br&gt;
+                                Broad (or Regions) Peaks format is selected and archived/revoked data are avoided.&lt;br&gt;
+                                https://www.encodeproject.org/.</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>BroadPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+broadPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>GRCh38 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>files.assembly</key>
+                            <value>GRCh38</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="narrowPeak">
+                    <dataset_working_directory>narrowPeak</dataset_working_directory>
+                    <schema_url location="local">schemas/narrowPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_ENCODE_NARROW_2018_12</value>
+                        </parameter>
+						<parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>ENCODE data mapped to GRCh38 human genome.&lt;br&gt;
+                                Narrow (or Point-Source) Peaks format is selected and archived/revoked data are avoided.&lt;br&gt;
+                                https://www.encodeproject.org/.</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>NarrowPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+narrowPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>GRCh38 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>files.assembly</key>
+                            <value>GRCh38</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+    </source_list>
+</root>

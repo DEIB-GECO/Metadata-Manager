@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<root xmlns="http://polimi.it/GDMImporter"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+    <settings>
+        <!--BASE WORKING FOLDER FOR THE IMPORTER-->
+        <base_working_directory>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta</base_working_directory>
+        <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
+        <mapper_source>ANN</mapper_source>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
+        <database_connection_user>geco</database_connection_user>
+        <database_connection_pw>geco78</database_connection_pw>
+        <database_connection_driver>org.postgresql.Driver</database_connection_driver>
+        <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/cleaner_rule_base.txt</flattener_rule_base>
+        <download_enabled>false</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>true</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>false</flattener_enabled>
+        <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
+    </settings>
+    <source_list>
+        <source name="GENCODE">
+            <url>http://egg2.wustl.edu/roadmap/data/</url>
+            <source_working_directory>annotations</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.roadmap.RoadmapDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.roadmap.RoadmapTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
+            <load_enabled>true</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>to know which user in gmql is going to be imported</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <key>metadata_replacement</key>
+                    <value>xml/metadataReplacementRoadmap.xml</value>
+                </parameter>
+                <parameter>
+                    <key>client_secrets_path</key>
+                    <value>/home/hduser/GMQL-sources/Metadata-Manager/client_secrets.json</value>
+                </parameter>
+                <parameter>
+                    <key>credential_directory</key>
+                    <value>
+                        /home/hduser/GMQL-sources/Metadata-Manager/.credentials/sheets.googleapis.com-GMQL-importer/
+                    </value>
+                </parameter>
+                <parameter>
+                    <description>Mappings</description>
+                    <key>mappings</key>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsAnnotations.xml</value>
+                </parameter>
+            </parameter_list>
+            <dataset_list>
+                <dataset name="genecode">
+                    <dataset_working_directory>exampleAnno</dataset_working_directory>
+                    <schema_url location="local">schemas/narrowPeak.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>false</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <key>loading_description</key>
+                            <value>HG19_ROADMAP_EPIGENOMICS_NARROW contains Roadmap Epigenomics data mapped to hg19
+                                human genome. It contains ChIP-seq and DNase narrow regions called using MACS2 in
+                                narrowPeak format files. The release date of this dataset is October 2013.
+                                http://www.roadmapepigenomics.org/
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <key>spreadsheet_url</key>
+                            <value>
+                                https://docs.google.com/spreadsheets/d/1yikGx4MsO9Ei36b64yOy9Vb6oPC5IBGlFbYEt-N6gOM/edit#gid=15
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <key>folder_regex</key>
+                            <value>http://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/</value>
+                        </parameter>
+                        <parameter>
+                            <key>files_regex</key>
+                            <value>.*\.narrowPeak.gz</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+
+            </dataset_list>
+        </source>
+    </source_list>
+</root>
