@@ -13,15 +13,15 @@
         <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/cleaner_rule_base.txt</flattener_rule_base>
         <download_enabled>false</download_enabled>
         <transform_enabled>false</transform_enabled>
-        <cleaner_enabled>false</cleaner_enabled>
-        <mapper_enabled>true</mapper_enabled>
+        <cleaner_enabled>true</cleaner_enabled>
+        <mapper_enabled>false</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
         <flattener_enabled>false</flattener_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
-        <source name="PROVA_ENCODE">
+        <source name="PROVA_ENCODE1">
             <url>https://www.encodeproject.org/</url>
             <source_working_directory>encode</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
@@ -178,7 +178,7 @@
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>PROVA_ENCODE</value>
+                            <value>PROVA_ENCODE1_narrow</value>
                         </parameter>
 						<parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -234,7 +234,7 @@
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>PROVA_ENCODE</value>
+                            <value>PROVA_ENCODE1_broad</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -271,7 +271,7 @@
                             <description>this ones are to reduce the downloaded files</description>
                             <type>url_generation</type>
                             <key>accession</key>
-                            <value>ENCSR635OSG</value>
+                            <value>ENCSR741GJT</value>
                             <!--<value>ENCSR726ZZX</value>-->
                         </parameter>
                     </parameter_list>
@@ -436,7 +436,7 @@
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>PROVA_ENCODE</value>
+                            <value>PROVA_ENCODE2_narrow</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -491,7 +491,7 @@
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>PROVA_ENCODE</value>
+                            <value>PROVA_ENCODE2_broad</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -528,7 +528,7 @@
                             <description>this ones are to reduce the downloaded files</description>
                             <type>url_generation</type>
                             <key>accession</key>
-                            <value>ENCSR726ZZX</value>
+                            <value>ENCSR311DQO</value>
                         </parameter>
                     </parameter_list>
                 </dataset>

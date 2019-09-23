@@ -28,6 +28,7 @@ object InsertMethod {
         case "SOURCEPAGEGDC" => acc.split(",").map(x => conf.getString("import.gdc_source_page") + x).mkString(",")
         case "REMOVE" => this.remove(remCharacter, newParam) //this is only used in TCGA2BED mapping
         case "SUB" => this.replace(subCharacter, newCharacter, acc)
+        case "SPLIT" => acc.split(",").head
         case "UPPERCASE" => acc.toUpperCase()
         case "LOWERCASE" => acc.toLowerCase()
         case "DATETODAYS" => this.selectDayByParam(newParam)

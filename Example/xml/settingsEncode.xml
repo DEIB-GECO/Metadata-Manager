@@ -113,8 +113,12 @@
             <source_key>target__label</source_key>
             <global_key>target</global_key>
         </mapping>
-        <mapping>
+        <mapping method="SPLIT">
             <source_key>antibody__dbxrefs</source_key>
+            <global_key>antibody</global_key>
+        </mapping>
+        <mapping method="CHECKPREC">
+            <source_key>antibody__accession</source_key>
             <global_key>antibody</global_key>
         </mapping>
         <mapping method="ONTOLOGY">
