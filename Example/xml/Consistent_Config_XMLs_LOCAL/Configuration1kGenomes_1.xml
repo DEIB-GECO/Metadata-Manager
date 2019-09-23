@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+<root   xmlns="http://polimi.it/GDMImporter"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+    <settings>
+        <!-- TODO change path so that it refers build deirectory -->
+        <base_working_directory>C:\Users\tomma\IntelliJ-Projects\Metadata-Manager\Example\examples_meta</base_working_directory> <!-- = outputFolder -->
+        <gcm_config_file>C:\Users\tomma\IntelliJ-Projects\Metadata-Manager\src\main\resources\application.conf</gcm_config_file>
+        <mapper_source>ENCODE</mapper_source> <!--TODO adjust mapper_source later on -->
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_tom</database_connection_url>
+        <database_connection_user>geco</database_connection_user>
+        <database_connection_pw>geco78</database_connection_pw>
+        <database_connection_driver>org.postgresql.Driver</database_connection_driver>
+        <flattener_rule_base>""</flattener_rule_base>
+        <download_enabled>true</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>false</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>false</flattener_enabled>
+        <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
+    </settings>
+    <source_list>
+        <source name="1kGenomes">
+            <url>speedtest.tele2.net</url>
+            <source_working_directory>1kGenomes</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.Test</downloader>
+            <transformer><!--TODO --></transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
+            <load_enabled>true</load_enabled>
+            <parameter_list>
+                <!-- DLP server -->
+<!--                <parameter>
+                    <description>For logging in ftp on tcga2bed we need this anonymous user</description>
+                    <key>username</key>
+                    <value>dlpuser@dlptest.com</value>
+                </parameter>
+                <parameter>
+                    <description>And also the corresponding null password</description>
+                    <key>password</key>
+                    <value>fLDScD4Ynth0p4OJ6bW6qCxjh</value>
+                </parameter>-->
+                <!-- tele2 -->
+                <parameter>
+                    <description>For logging in ftp on tcga2bed we need this anonymous user</description>
+                    <key>username</key>
+                    <value>anonymous</value>
+                </parameter>
+                <parameter>
+                    <description>And also the corresponding null password</description>
+                    <key>password</key>
+                    <value>anonymous</value>
+                </parameter>
+            <!--
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For downloading the metadata.tsv from encode we need to add this at the end of the url</description>
+                    <key>metadata_prefix</key>
+                    <value>metadata/</value>
+                </parameter>
+                <parameter>
+                    <description>This suffix is needed after all the filters to download the metadata.tsv</description>
+                    <key>metadata_suffix</key>
+                    <value>/metadata.tsv</value>
+                </parameter>
+                <parameter>
+                    <description>As we download the json for the experiment, we need this prefix in the URL</description>
+                    <key>json_prefix</key>
+                    <value>experiments/</value>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+                <parameter>
+                    <description>We specified frame embedded and format json in encode for importing metadata</description>
+                    <key>json_suffix</key>
+                    <value>/?frame=embedded&amp;format=json</value>
+                </parameter>
+                <parameter>
+                    <description>Excluding useless group of metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^contributing_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Excluding useless group of metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^original_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*analysis_step_version.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*derived_from.*$</value>
+                </parameter>  
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^.*revoked_files.*$</value>
+                </parameter>
+                <parameter>
+                    <description>Not useful metadata</description>
+                    <key>encode_metadata_exclusion</key>
+                    <value>^assembly$</value>
+                </parameter>
+                <parameter>
+                    <description>Xml file with the metadata key replacements.</description>
+                    <key>metadata_replacement</key>
+                    <value>xml/metadataReplacement.xml</value>
+                </parameter>
+                <parameter>
+                    <description>metadata extraction method tsv or json.</description>
+                    <key>metadata_extraction</key>
+                    <value>json</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude archived files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>archived</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>revoked</value>
+                </parameter>
+				<parameter>
+                    <description>to exclude revoked files</description>
+                    <type>exclusion</type>
+                    <key>File Status</key>
+                    <value>in progress</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude GRCh38 references</description>
+                    <type>exclusion</type>
+                    <key>Assembly</key>
+                    <value>GRCh38</value>
+                </parameter>
+                <parameter>
+                    <description>to exclude files without biological replicates</description>
+                    <type>exclusion</type>
+                    <key>Biological replicate(s)</key>
+                    <value></value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit WARNING</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit INTERNAL_ACTION</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit NOT_COMPLIANT</value>
+                </parameter>
+                <parameter>
+                    <key>multiple_comma_separated</key>
+                    <value>Audit ERROR</value>
+                </parameter>
+                <parameter>
+                    <description>Cleaner definition rule base file</description>
+                    <key>rule_base</key>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta/ENCODE_rules.txt</value>
+                </parameter>
+                <parameter>
+                    <description>Mappings</description>
+                    <key>mappings</key>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsEncode.xml</value>
+                </parameter>
+            -->
+            </parameter_list>
+            <dataset_list>
+                <dataset name="hg19_narrowPeak">
+                    <dataset_working_directory>h19</dataset_working_directory>  <!-- TODO check naming conventions-->
+                    <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                    <schema_url location="local">schemas/narrowPeak.schema</schema_url> <!--TODO the base is narrowPeak but I have a lot more region attributes... I have t develop my schema, right ? -->
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>Regular expression filtering the files to be downloaded based on their names</description>
+                            <key>files_regex</key>
+                            <value>(.*)KB(.*)</value>
+                        </parameter>
+                        <parameter>
+                            <description>Regular expression filtering the folder names to be explored based on their names</description>
+                            <key>folder_regex</key>
+                            <value>(.*)KB(.*)</value>
+                        </parameter>
+                        <!--
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>PROVA_ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>ENCODE data mapped to HG19 human genome.&lt;br&gt;
+                                Broad (or Regions) Peaks format is selected and archived/revoked data are avoided.&lt;br&gt;
+                                https://www.encodeproject.org/.</value>
+                        </parameter>
+                        <parameter>
+                            <description>Always should be experiment, but could be another type</description>
+                            <type>url_generation</type>
+                            <key>type</key>
+                            <value>Experiment</value>
+                        </parameter>
+                        <parameter>
+                            <description>BroadPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.file_type</key>
+                            <value>bed+narrowPeak</value>
+                        </parameter>
+                        <parameter>
+                            <description>Encode project is selected</description>
+                            <type>url_generation</type>
+                            <key>award.project</key>
+                            <value>ENCODE</value>
+                        </parameter>
+                        <parameter>
+                            <description>Hg19 reference genome is selected</description>
+                            <type>url_generation</type>
+                            <key>files.assembly</key>
+                            <value>hg19</value>
+                        </parameter>
+                        <parameter>
+                            <description>this ones are to reduce the downloaded files</description>
+                            <type>url_generation</type>
+                            <key>accession</key>
+                            <value>ENCSR726ZZX</value>
+                        </parameter>
+                        -->
+                    </parameter_list>
+                </dataset>
+                <!-- TODO dataset for grch38 -->
+            </dataset_list>
+        </source>
+        <!--I separated ENCODE in 2 different reference genomes to have a more "self explained" name in GMQL-->
+    </source_list>
+</root>
