@@ -3,6 +3,7 @@ package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.util.regex.Pattern
 
+import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}    // converts java.util.List into scala.util.List in order to use foreach
 
 
@@ -112,7 +113,7 @@ object DatasetFilter {
 
   }
 
-  def latestVariantsDirPathGRCH38(treeLocalPath: String): String ={
+  def dirPathLatestVariantsGRCH38(treeLocalPath: String): String ={
     // records related to GRCh38 directories and subdirectories
     val datasetPattern = (new DatasetPattern).filterPathGRCh38().filterPathExcludeSubdirs().filterDirectories().get()
     val fileReader = FileUtil.open(treeLocalPath).get
@@ -134,6 +135,8 @@ object DatasetFilter {
     sortedSubDirectories.last
   }
 
+
+
   def latestVariantsFromDir(directoryPath: String, treeLocalPath: String): List[String] = {
     // records from directoryPath
     val variantsPattern = (new DatasetPattern).filterPathInsideDir(directoryPath)
@@ -144,6 +147,18 @@ object DatasetFilter {
 //    debug
 //    writeFile("C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager-WorkDir\\MD\\filtered.tree.tsv", variantRecords)
     variantRecords
+  }
+
+  /**
+   * @param dataset a xml.Dataset having parameters "sequence_index_file_path" and "population_file_path" (the latter
+   *                can also be at source level)
+   * @return the paths of the metadata files relative to the given dataset
+   */
+  def metadataPaths(dataset : Dataset): List[String] ={
+    List(
+      dataset.getDatasetParameter("sequence_index_file_path").get,
+      dataset.getParameter("population_file_path").get
+    )
   }
 
 //  DEBUG

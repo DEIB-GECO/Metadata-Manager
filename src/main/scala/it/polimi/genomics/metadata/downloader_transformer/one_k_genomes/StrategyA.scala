@@ -58,7 +58,7 @@ class StrategyA {
 
   def filterLatestVariantsRecords(treeFilePath: String): List[String] = {
     // TODO adapt to h19
-    val latestDatasetDirPath = DatasetFilter.latestVariantsDirPathGRCH38(treeFilePath)
+    val latestDatasetDirPath = DatasetFilter.dirPathLatestVariantsGRCH38(treeFilePath)
     DatasetFilter.latestVariantsFromDir(latestDatasetDirPath, treeFilePath)
   }
 
