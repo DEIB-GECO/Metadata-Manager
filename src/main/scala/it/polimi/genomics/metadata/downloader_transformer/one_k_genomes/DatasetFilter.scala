@@ -14,6 +14,10 @@ import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}    // converts 
  */
 object DatasetFilter {
 
+  /**
+   * This class helps in the generation of regular expressions and java.util.regex.Pattern objects matching the
+   * records present in the tree file present at 1kGenomes FTP server. The generated regex or patterns can
+   * then be used for filtering the tree records and parse its content. */
   class DatasetPattern {
     val ANY_CHAR_SEQUENCE = "\\S+"
     val POSSIBLY_EMPTY_CHAR_SEQ = "\\S*"
@@ -36,13 +40,36 @@ object DatasetFilter {
     private var excludeSubDir = false
     private var customPathRegex = false
     private var pathEnding = ""
+    private var _splitTimestamp = false
 
+    /**
+     * Generic method to describe how the file path should begin without distinction between files or folders.
+     * This method is not designed to get regular expressions as argument.
+     *
+     * @throws IllegalArgumentException if curly braces appear in the argument. Curly braces are used in regex to
+     *                                  specify regex groups. If you need this capability use instead @filterPathWithRegex
+     */
     def filterPathBeginWith(path: String): DatasetPattern = {
+      if(path.contains("(") || path.contains(")") || path.contains(".*"))
+        throw new IllegalArgumentException("CURLY BRACES ARE RESERVED CHARACTERS. " +
+          "INSTEAD USE filterPathWithRegex IF YOU NEED TO SPECIFY GROUPS INSIDE THE FILE PATH")
       this.path = path
       this
     }
 
+    /**
+     * Similar to @filterPathBeginWith but the resulting regex will match only the content ***inside*** the folder given as
+     * argument while the folder itself is excluded.
+     * This method is not designed to get regular expressions as argument.
+     *
+     * @throws IllegalArgumentException if curly braces appear in the argument. Curly braces are used in regex to
+     *                                  specify regex groups. If you need this capability use instead @filterPathWithRegex
+     * @param dirPath path of a directory whose content must be included in the files extracted from the regex.
+     */
     def filterPathInsideDir(dirPath: String): DatasetPattern = {
+      if(path.contains("(") || path.contains(")") || path.contains(".*"))
+        throw new IllegalArgumentException("CURLY BRACES ARE RESERVED CHARACTERS. " +
+          "INSTEAD USE filterPathWithRegex IF YOU NEED TO SPECIFY GROUPS INSIDE THE FILE PATH")
       this.path = dirPath.endsWith("/") match {
         case true => dirPath
         case false => dirPath+"/"
@@ -50,6 +77,12 @@ object DatasetFilter {
       this
     }
 
+    /**
+     * This gives full control over the file path regex and allows to specify any number of grouping over the file path
+     * or to specify none.
+     *
+     * @param regex
+     */
     def filterPathWithRegex(regex: String): DatasetPattern = {
       customPathRegex = true
       this.path = regex
@@ -81,6 +114,11 @@ object DatasetFilter {
       fileType = DIRECTORY
       this
     }
+    
+    def splitTimestamp(): DatasetPattern = {
+      _splitTimestamp = true
+      this
+    }
 
     def get(): Pattern = {
       PatternMatch.createPattern(getRegex())
@@ -94,28 +132,43 @@ object DatasetFilter {
         else
           "(" + path + POSSIBLY_EMPTY_CHAR_SEQ + pathEnding + ")"
       }
-      val middle =
-        _path + BLANK +
-          "(" + fileType + ")" + BLANK +
-          "(" + size + ")" + BLANK +
-          "(" + dayOfWeek + ")" + BLANK +
-          "(" + month + ")" + BLANK +
-          "(" + dayOfMonth + ")" + BLANK +
-          "(" + time + ")" + BLANK +
-          "(" + year + ")"
+      val middle_1 =
+        BLANK +
+        "(" + fileType + ")" + BLANK +
+        "(" + size + ")" + BLANK
+      val timestamp = if (_splitTimestamp) {
+        "(" + dayOfWeek + ")" + BLANK +
+        "(" + month + ")" + BLANK +
+        "(" + dayOfMonth + ")" + BLANK +
+        "(" + time + ")" + BLANK +
+        "(" + year + ")"
+      } else {
+        "("+ dayOfWeek +  BLANK +
+          month +  BLANK +
+          dayOfMonth +  BLANK +
+          time +  BLANK +
+          year + ")"
+      }
       val ending = fileType match {
         case DIRECTORY => ""
         case FILE => BLANK + md5
         case _ => "(\\s+(\\S+))?" // optional md5 hash
       }
-      middle+ending
+      _path + middle_1 + timestamp + ending
     }
 
   }
 
-  def dirPathLatestVariantsGRCH38(treeLocalPath: String): String ={
-    // records related to GRCh38 directories and subdirectories
-    val datasetPattern = (new DatasetPattern).filterPathGRCh38().filterPathExcludeSubdirs().filterDirectories().get()
+  /**
+   * Given the base location of a dataset and a tree file, parses the names of the direct sub-directories to determine
+   * which contains the latest version of the dataset and returns its path.
+   *
+   * The method takes advantage of the knowledge on how data sets are organized inside 1kGenomes FTP server:
+   * old and new releases of the same data set are never overwritten, instead they're organized in sub-folders starting
+   * from a base directory location. Data sets for assemblies GRCh38 and hg19 are located at different base directory paths.
+   */
+  def latestVariantSubdirectory(baseDir: String, treeLocalPath: String): String ={
+    val datasetPattern = (new DatasetPattern).filterPathInsideDir(baseDir).filterPathExcludeSubdirs().filterDirectories().get()
     val fileReader = FileUtil.open(treeLocalPath).get
     val datasetDirsRecords = PatternMatch.getLinesMatching(datasetPattern, fileReader)
     fileReader.close()
@@ -137,7 +190,7 @@ object DatasetFilter {
 
 
 
-  def latestVariantsFromDir(directoryPath: String, treeLocalPath: String): List[String] = {
+  def variantsFromDir(directoryPath: String, treeLocalPath: String): List[String] = {
     // records from directoryPath
     val variantsPattern = (new DatasetPattern).filterPathInsideDir(directoryPath)
       .filterPathEndsWith(".vcf.gz").filterPathExcludeSubdirs().filterFiles().get()
@@ -159,6 +212,16 @@ object DatasetFilter {
       dataset.getDatasetParameter("sequence_index_file_path").get,
       dataset.getParameter("population_file_path").get
     )
+  }
+
+  /**
+   * This method simply returns the substring obtained by cutting the original string right after the last slash occurrence
+   * untill the end of the string.
+   */
+  def parseFilenameFromURL(filePath: String): String ={
+    if(filePath.endsWith("/"))
+      throw new IllegalArgumentException("YOU'RE PROBABLY USING THIS METHOD IMPROPERLY BY PASSING A DIRECTORY PATH AS ARGUMENT")
+    filePath.substring(filePath.lastIndexOf("/")+1)
   }
 
 //  DEBUG

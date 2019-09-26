@@ -25,27 +25,23 @@ class Test extends Downloader {
    * @param parallelExecution if the execution is in parallel or sequentially
    */
   override def download(source: xml.Source, parallelExecution: Boolean): Unit = {
+    if(!source.downloadEnabled)
+      return
+    logger.info("Starting download for: " + source.name)
+    createDirectory(source.outputFolder)
+    val sourceId = FileDatabase.sourceId(source.name)
+        // mark with the temporary status FILE_STATUS.COMPARE any file in the dataset
+    source.datasets.foreach(dataset => {
+      if (dataset.downloadEnabled) {
+        val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+        FileDatabase.markToCompare(datasetId, Stage.DOWNLOAD)
+      }
+    })
+        // get properties of all files in each dataset of the source and call Dataset.checkIfUpdate to decide
+        // if it needs to be downloaded
+        // for downloaded files call Dataset.markAsUpdated
 
-
-    //  exit
-    System.exit(0)
-/*    if (source.downloadEnabled) {
-      logger.info("Starting download for: " + source.name)
-      createDirectory(source.outputFolder)
-          // mark datasets as to compare (the mark to compare is done here because the iteration on ftp is based on ftp
-          // folders and not on the source datasets.)
-      val sourceId = FileDatabase.sourceId(source.name)
-      source.datasets.foreach(dataset => {
-        if (dataset.downloadEnabled) {
-          val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
-          FileDatabase.markToCompare(datasetId, Stage.DOWNLOAD)
-        }
-      })
-          // download
-      val workingDirectory = getBaseWorkingDirectory(source)
-      downloadTest(workingDirectory, source, parallelExecution)
-      // recursiveDownload(workingDirectory, source, parallelExecution)
-          // mark datasets as outdated
+        // call markAsOutdated on the dataset to mark with the status OUTDATED any file which wasn't present on the source
       source.datasets.foreach(dataset => {
         if (dataset.downloadEnabled) {
           val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
@@ -55,13 +51,8 @@ class Test extends Downloader {
       logger.info(s"Download for ${source.name} Finished.")
 
       downloadFailedFiles(source, parallelExecution)
-    }*/
   }
 
-  def testFTPHelper(source: xml.Source): Unit = {
-    val obj = new FTPHelper()
-    obj.test(source)
-  }
 /////////////////////////////////////////////////////////////////////////////////////////////////
   /**
    * gets the base working directory of an ftp directory
@@ -207,17 +198,17 @@ class Test extends Downloader {
     filesReturn
   }
 
-  private def createDirectory(path: String): Unit = {
-    logger.info("Searching: " + path)
-    if (!new java.io.File(path).exists) {
-      try {
-        new java.io.File(path).mkdirs()
-        logger.debug(s"$path created")
-      }
-      catch {
-        case ex: Exception => logger.warn(s"could not create the folder $path")
-      }
-    }
+  /**
+   * This method creates a folder at the given path and any necessary parent directory.
+   *
+   * @param dirPath the directory path of the folder to create.
+   * @throws SecurityException if a security don't allow the verification of the existence or the creation of the
+   *                           directory path given as argument
+   */
+  private def createDirectory(dirPath: String): Unit = {
+    val dir = new java.io.File(dirPath)
+    if(!dir.exists())
+      dir.mkdirs()
   }
 
   /**

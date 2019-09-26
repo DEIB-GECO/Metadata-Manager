@@ -40,9 +40,16 @@ object FileUtil {
     Try(Files.newBufferedReader(Paths.get(fullFilePath)))
   }
 
-  def createLocalDirectory(path: String): Try[Boolean] = {
-    if (!new java.io.File(path).exists){
-      Try(new java.io.File(path).mkdirs())
+  /**
+   * This method creates a folder at the given path and any necessary parent directory.
+   *
+   * @param dirPath the directory path of the folder to create.
+   * @throws SecurityException if a security don't allow the verification of the existence or the creation of the
+   *                           directory path given as argument
+   */
+  def createLocalDirectory(dirPath: String): Try[Boolean] = {
+    if (!new java.io.File(dirPath).exists){
+      Try(new java.io.File(dirPath).mkdirs())
     } else
       Try(true)
   }
