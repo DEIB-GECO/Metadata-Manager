@@ -1,7 +1,7 @@
 package it.polimi.genomics.metadata.util
 
-import java.io.BufferedReader
-import java.nio.file.{Files, Paths}
+import java.io.{BufferedReader, IOException}
+import java.nio.file.{DirectoryNotEmptyException, FileAlreadyExistsException, Files, InvalidPathException, LinkOption, Paths, StandardCopyOption}
 
 import scala.util.Try
 
@@ -44,14 +44,44 @@ object FileUtil {
    * This method creates a folder at the given path and any necessary parent directory.
    *
    * @param dirPath the directory path of the folder to create.
-   * @throws SecurityException if a security don't allow the verification of the existence or the creation of the
-   *                           directory path given as argument
+   *                No matter if it ends with a slash or not, neither the slash or backward-slash convention used
+   * @throws SecurityException    if a security don't allow the verification of the existence or the creation of the
+   *                              directory path given as argument
+   * @throws InvalidPathException if the argument is malformed
+   * @throws java.io.IOException  if an I/O error occurs
+   * @throws FileAlreadyExistsException if the specified path points to an already existing file
    */
-  def createLocalDirectory(dirPath: String): Try[Boolean] = {
-    if (!new java.io.File(dirPath).exists){
-      Try(new java.io.File(dirPath).mkdirs())
-    } else
-      Try(true)
+  def createLocalDirectory(dirPath: String): Unit = {
+    Files.createDirectories(Paths.get(dirPath))
+    // debug
+//    println(Paths.get(dirPath).toAbsolutePath.toString)
+  }
+
+  /**
+   * Copies a file to the specified destination replacing an already existing file with the same location. The file in the
+   * target location will have the same attributes of the source file. If the source file is a symbolic link to a file,
+   * the symbolic link is copied instead of the file itself.
+   * @throws DirectoryNotEmptyException: if the target file cannot be replaced because it is a non-empty directory
+   * @throws IOException: if an I/O error occurs when reading or writing
+   * @throws SecurityException: if the user doesn’t have read/write permission
+   * @throws InvalidPathException if the arguments are malformed paths
+   */
+  def copyFile(sourceFilePath: String, targetFilePath: String): Unit ={
+    val source = Paths.get(sourceFilePath)
+    val target = Paths.get(targetFilePath)
+    // create target containing directory to prevent java.nio.file.NoSuchFileException
+    createLocalDirectory(getContainingDirFromFilePath(targetFilePath))
+    Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS)
+  }
+
+  def getFileNameFromPath(filePath: String): String = {
+    val separatorIndex = Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\"))
+    filePath.substring(separatorIndex+1)
+  }
+
+  def getContainingDirFromFilePath(filePath: String): String = {
+    val separatorIndex = Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\"))
+    filePath.substring(0, separatorIndex+1)
   }
 
   def printFirstLines(reader: BufferedReader): Unit ={

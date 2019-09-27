@@ -224,6 +224,10 @@ object DatasetFilter {
     filePath.substring(filePath.lastIndexOf("/")+1)
   }
 
+  def getDownloadDir(dataset: Dataset): String ={
+    s"${dataset.source.outputFolder}/${dataset.outputFolder}/Downloads/"
+  }
+
 //  DEBUG
   def writeFile(where: String, content: List[String]): Unit ={
     // create & replace

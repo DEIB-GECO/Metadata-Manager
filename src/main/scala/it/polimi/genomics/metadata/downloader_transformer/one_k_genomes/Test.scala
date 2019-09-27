@@ -8,15 +8,17 @@ import it.polimi.genomics.metadata.downloader_transformer.Downloader
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Ftp
 import it.polimi.genomics.metadata.step.xml
 import it.polimi.genomics.metadata.step.xml.Dataset
+import it.polimi.genomics.metadata.util.FileUtil
 import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
+import scala.util.{Failure, Success}
 
 class Test extends Downloader {
 
   val logger = LoggerFactory.getLogger(this.getClass)
-
+/*
   /**
    * downloads the files from the source defined in the information
    * into the folder defined in the source
@@ -51,6 +53,43 @@ class Test extends Downloader {
       logger.info(s"Download for ${source.name} Finished.")
 
       downloadFailedFiles(source, parallelExecution)
+  }*/
+
+  override def download(source: xml.Source, parallelExecution: Boolean): Unit = {
+    if(!source.downloadEnabled )
+      return
+    logger.info("Starting download for: " + source.name)
+    val sourceId = FileDatabase.sourceId(source.name)
+    val dataset = source.datasets.last
+    println(s"Dataset: ${dataset.name}")
+    val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+    try {
+      val ftp = new FTPHelper(dataset)
+      // download tree
+      val treeLocalPath = ftp.testDownload("192.168.1.106", ".", "current.tree", "anonymous", "anonymous").get
+      // compute hash
+      val computedHash = FileUtil.md5Hash(treeLocalPath).get
+      // get latest records
+      val strategy = new StrategyA
+      val variantRecords = strategy.getRemoteVariantRecords(treeLocalPath, dataset)
+      println(s"VARIANT RECORDS FOUND: ${variantRecords.size}")
+      for (variant <- variantRecords) {
+        // check the info are ok
+        println(s"${variant._1} ${DatasetFilter.parseFilenameFromURL(filePath = variant._1)} ${variant._2} ${variant._3} ${variant._4}")
+      }
+      // download a variant file
+      val testRecordRelativePath = "ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz"
+      val urlPrefix = strategy.getURLPrefix(dataset)
+      val variantURL = s"$urlPrefix$testRecordRelativePath"
+      println("ATTEMPT TO DOWNLOAD "+variantURL)
+      ftp.downloadFile(url = variantURL)
+
+    } catch {
+      case ex: Exception => {
+        println("DOWNLOAD FAILED. DETAILS:")
+        println(ex.printStackTrace())
+      }
+    }
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

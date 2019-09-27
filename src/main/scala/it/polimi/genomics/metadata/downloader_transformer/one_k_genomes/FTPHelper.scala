@@ -1,63 +1,83 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
+import java.io.File
 import java.util.Calendar
 
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Ftp
 import it.polimi.genomics.metadata.step.xml
-import it.polimi.genomics.metadata.util.PatternMatch
+import it.polimi.genomics.metadata.step.xml.Dataset
+import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
 import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.util.{Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 /**
  *   Created by Tom on Sep, 2019
  */
-class FTPHelper {
+class FTPHelper(dataset: Dataset) {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   private val client = new Ftp()
-  val localDownloadDir = s"${sys.props.get("user.dir").get}/../Metadata-Manager-WorkDir/MD/"
-
-  // debug fields
-  val serverAddress = "ftp.1000genomes.ebi.ac.uk" // FTP server address without final slash
-  val optionalRemotePath = "vol1/ftp/"  //final slash is optional
-  val username = "anonymous"
-  val password = "anonymous"
-  val currentTime: Calendar = Calendar.getInstance()
-  val fileProperties: Map[String, Any] = Map("timestamp" -> currentTime, "size" -> 918)
-
+  private val username = dataset.getParameter("FTP_username").get
+  private val password = dataset.getParameter("FTP_password").get
 
   def test(source: xml.Source) : Unit = {
 
   }
 
-  def downloadFile(url: String, username: String, password: String): Option[String] = {
+  /**
+   * Tries to download the file at the given URL argument into the directory defined as:
+   * < xml config file -> settings -> base_working_directory>/< source name>/< dataset name>/Downloads/
+   * @param url the URL of the file to download
+   * @return the path to the file downloaded in the local file system if the operation succeeds, an exception otherwise
+   */
+  def downloadFile(url: String): Try[String] = {
     // split the ftp address in (base server address) + (optional path to a directory) + (filename)
     val parts = PatternMatch.matchParts(url, PatternMatch.createPattern("([^/]*)/(.*/)?(.*)"))
-    var output = None : Option[String]
-    if(parts.nonEmpty){
-      try {
-        val serverAddr = parts.head
-        val optionalPath = parts(1)
-        val filename = parts.last
-        client.connectWithAuth(serverAddr, username, password)
-        moveToLocation(optionalPath)
-        val outputFilePath = s"$localDownloadDir$filename"
-        client.downloadFile(filename, outputFilePath)
-        client.disconnect()
-        output = Some(outputFilePath)
-      } catch {
+    if(parts.isEmpty)
+      Failure(new IllegalArgumentException("INVALID ARGUMENT URL"))
+    try {
+      val serverAddr = parts.head
+      val optionalPath = parts(1)
+      val filename = parts.last
+      client.connectWithAuth(serverAddr, username, password)
+      moveToLocation(optionalPath)
+      val downloadDir = DatasetFilter.getDownloadDir(dataset)
+      FileUtil.createLocalDirectory(downloadDir)
+      val outputFilePath = s"$downloadDir$filename"
+      client.downloadFile(filename, outputFilePath)
+      client.disconnect()
+      Success(outputFilePath)
+    } catch {
 //        TODO retry
-        case ex: Exception =>
-          ex.printStackTrace()
-      }
-    } else throw new IllegalArgumentException("INVALID URL LOCATION")
-    output
+      case ex: Exception =>
+        ex.printStackTrace()
+        Failure(ex)
+    }
   }
 
-  def listContentLocation(url: String, username: String, password: String): Try[List[FTPFile]] = {
+  // DEVELOPMENT ONLY
+  def testDownload(serverBaseAddr: String, optionalPath: String, filename: String, user: String, passw: String): Try[String] = {
+    try {
+      client.connectWithAuth(serverBaseAddr, user, passw)
+      moveToLocation(optionalPath)
+      val downloadDir = DatasetFilter.getDownloadDir(dataset)
+      FileUtil.createLocalDirectory(downloadDir)
+      val outputFilePath = s"$downloadDir$filename"
+      client.downloadFile(filename, outputFilePath)
+      client.disconnect()
+      Success(outputFilePath)
+    } catch {
+      //        TODO retry
+      case ex: Exception =>
+        ex.printStackTrace()
+        Failure(ex)
+    }
+  }
+
+  def listContentLocation(url: String): Try[List[FTPFile]] = {
     // split the ftp address in (base server address) + (optional path to a directory)
     val parts = PatternMatch.matchParts(url, PatternMatch.createPattern("([^/]*)/(.*)"))
     if(parts.isEmpty)
@@ -72,6 +92,17 @@ class FTPHelper {
         client.disconnect()
         content
       })
+  }
+
+  // DEVELOPMENT ONLY
+  def testListContentLocation(serverBaseAddr: String, optionalPath: String, user: String, passw: String): Try[List[FTPFile]] = {
+    Try({
+      client.connectWithAuth(serverBaseAddr, user, passw)
+      moveToLocation(optionalPath)
+      val content = client.listFiles()
+      client.disconnect()
+      content
+    })
   }
 
   def readProperties(file: FTPFile) : Map[String, Any] = {
