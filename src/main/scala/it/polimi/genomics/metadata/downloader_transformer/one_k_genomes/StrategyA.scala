@@ -15,12 +15,23 @@ import scala.util.{Failure, Success}
 /**
  * Created by Tom on set, 2019
  *
+ * IMPORTANT NOTE ON TERMINOLOGY: In this context, "tree" file is the short from for indicating a text file hosted on
+ * 1kGenomes FTP server called "current.tree". This file is a sort of register containing name, type, size, last updated
+ * timestamp and hash of all files hosted on the server, one for each line.
+ *
+ * In this class, the tree is used to quickly scan the FTP server folders and sub-folders without having to actually
+ * navigate through all the directories of the server.
+ *
  * This class implements the preferred strategy to download and check updates for 1kGenomes datasets:
- * 1. Download a file describing the FTP tree structure
- * 2. Check against changes.
- * 3. If there're changes, determine of they refer to the files of interest for the dataset. If yes, scan the file to
+ * 1. Download the tree file which describes the structure of the FTP server.
+ * 2. Check the download tree against the local copy.
+ * 3. If there're changes, determine of they refer to the files of interest for the dataset. If yes, scan the tree to
  * understand if there're updated versions of the files already own, eventually download them and update the local copy
- * 3.1. Update the local copy of the FTP tree structure to the latest version and quit.
+ * 3.1. Update the local copy of the tree to the latest version and quit.
+ *
+ * The whole procedure fails and all dataset's files are marked as FILE_STATUS.FAILED if the download of the tree fails,
+ * or if the parsing of the tree doesn't return any info. If the parsing succeeds, the download of the single files may
+ * still fail due to network issues, and in such case the interested files will be marked with FILE_STATUS.FAILED.
  */
 class StrategyA extends Downloader {
 
@@ -58,8 +69,7 @@ class StrategyA extends Downloader {
           FileDatabase.markAsOutdated(datasetId, Stage.DOWNLOAD)
         } catch {
           case ex: Exception =>
-            println("ERROR WHILE FETCHING UPDATES FOR VARIANT FILES OF DATASET " + dataset.name + ". DETAILS:")
-            ex.printStackTrace()
+            logger.error("ERROR WHILE FETCHING UPDATES FOR VARIANT FILES OF DATASET " + dataset.name + ". DETAILS: ", ex)
             /* mark as failed at least the tree file even if it's updated to trigger the update of the whole dataset on
           the next run */
             markAllFilesAsFailed(datasetId)
@@ -125,8 +135,7 @@ class StrategyA extends Downloader {
           // download the file at proper location
           new FTPHelper(dataset).downloadFile(url = s"$urlPrefix${record._1}") match {
             case Failure(exception) =>
-              println("DOWNLOAD OF VARIANT FAILED. DETAILS: ")
-              exception.printStackTrace()
+              logger.error("DOWNLOAD OF VARIANT FAILED. DETAILS: ", exception)
               FileDatabase.markAsFailed(fileId)
             case Success(_) =>
               // then update the database
@@ -164,6 +173,9 @@ class StrategyA extends Downloader {
     val variantsWithHashes = latestRecords.map( record => {
       val parts = PatternMatch.matchParts(record, (new DatasetPattern).get())   // the pattern used affects the position and kind of info obtained
       // here is possible to return any of the field that populate the tree. I return file path, size, timestamp string and the hash.
+      if(parts.size < 4)
+        logger.error("THE PARSING OF RECORD: "+record+" DIDN'T PRODUCE THE EXPECTED NUMBER OF INFO. THE DOWNLOAD" +
+          "OF THE VARIANT FILE MAY FAIL.")
       (parts.head, parts(2), parts(3), parts.last)
     })
     variantsWithHashes
