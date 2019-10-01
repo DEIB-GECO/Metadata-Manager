@@ -4,7 +4,8 @@ import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.util.regex.Pattern
 
 import it.polimi.genomics.metadata.step.xml.Dataset
-import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}    // converts java.util.List into scala.util.List in order to use foreach
+import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
+import org.slf4j.{Logger, LoggerFactory}    // converts java.util.List into scala.util.List in order to use foreach
 
 
 /**
@@ -13,6 +14,8 @@ import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}    // converts 
  * Helper class capable of reading large files of ASCII characters and filtering each line against a regular expression
  */
 object DatasetFilter {
+
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   /**
    * This class helps in the generation of regular expressions and java.util.regex.Pattern objects matching the
@@ -27,7 +30,7 @@ object DatasetFilter {
     val DIRECTORY = "directory"
     val NO_SUBDIR = "[^/]*"
 
-    private var path: String = ANY_CHAR_SEQUENCE
+    private var path: String = ""
     private var fileType: String = ANY_CHAR_SEQUENCE
     private var size = ANY_CHAR_SEQUENCE
     private var dayOfWeek: String = ANY_CHAR_SEQUENCE
@@ -39,6 +42,7 @@ object DatasetFilter {
 
     private var excludeSubDir = false
     private var customPathRegex = false
+    private var insideDir: String = ""
     private var pathEnding = ""
     private var _splitTimestamp = false
 
@@ -67,10 +71,10 @@ object DatasetFilter {
      * @param dirPath path of a directory whose content must be included in the files extracted from the regex.
      */
     def filterPathInsideDir(dirPath: String): DatasetPattern = {
-      if(path.contains("(") || path.contains(")") || path.contains(".*"))
+      if(dirPath.contains("(") || dirPath.contains(")") || dirPath.contains(".*"))
         throw new IllegalArgumentException("CURLY BRACES ARE RESERVED CHARACTERS. " +
           "INSTEAD USE filterPathWithRegex IF YOU NEED TO SPECIFY GROUPS INSIDE THE FILE PATH")
-      this.path = dirPath.endsWith("/") match {
+      this.insideDir = dirPath.endsWith("/") match {
         case true => dirPath
         case false => dirPath+"/"
       }
@@ -81,17 +85,11 @@ object DatasetFilter {
      * This gives full control over the file path regex and allows to specify any number of grouping over the file path
      * or to specify none.
      *
-     * @param regex
+     * @param regex a regular expression String compatible with java regular expressions
      */
     def filterPathWithRegex(regex: String): DatasetPattern = {
       customPathRegex = true
       this.path = regex
-      this
-    }
-
-    def filterPathGRCh38(): DatasetPattern = {
-//      TODO get this from configuration file
-      path = "ftp/data_collections/1000_genomes_project/release/"
       this
     }
 
@@ -127,10 +125,13 @@ object DatasetFilter {
     def getRegex(): String = {
       val _path = if (customPathRegex) path
       else {
-        if (excludeSubDir)
-          "(" + path + NO_SUBDIR + pathEnding + ")"
-        else
-          "(" + path + POSSIBLY_EMPTY_CHAR_SEQ + pathEnding + ")"
+        "(" +
+        insideDir +
+        {if(excludeSubDir) NO_SUBDIR else POSSIBLY_EMPTY_CHAR_SEQ} +
+        path +
+        {if(excludeSubDir) NO_SUBDIR else POSSIBLY_EMPTY_CHAR_SEQ} +
+        pathEnding +
+        ")"
       }
       val middle_1 =
         BLANK +
@@ -173,29 +174,40 @@ object DatasetFilter {
     val datasetDirsRecords = PatternMatch.getLinesMatching(datasetPattern, fileReader)
     fileReader.close()
     // debug
-    println("FILTERED LINES:")
-    datasetDirsRecords.foreach {println}
+    logger.info("FILTERED LINES:")
+    datasetDirsRecords.foreach {logger.info}
     // list of direct subdirectories sorted by name
     val sortedSubDirectories = (for {
       record <- datasetDirsRecords
       partsOfRecord = PatternMatch.matchParts(record, (new DatasetPattern).get())
       if partsOfRecord.nonEmpty
     } yield partsOfRecord.head).sorted
-    println("SUBDIRS PATH:")
-    sortedSubDirectories.foreach {println}
+    logger.info("SUBDIRS PATH:")
+    sortedSubDirectories.foreach {logger.info}
     // choose the latest one
-    println(s"LATEST ONE IS :${sortedSubDirectories.last}")
+    logger.info(s"LATEST ONE IS :${sortedSubDirectories.last}")
     sortedSubDirectories.last
   }
 
 
 
-  def variantsFromDir(directoryPath: String, treeLocalPath: String): List[String] = {
-    // records from directoryPath
-    val variantsPattern = (new DatasetPattern).filterPathInsideDir(directoryPath)
-      .filterPathEndsWith(".vcf.gz").filterPathExcludeSubdirs().filterFiles().get()
+  def variantsFromDir(directoryPath: String, treeLocalPath: String, dataset: Dataset): List[String] = {
+    // get optional XML params to filter the variants of interest in a dataset (remote) directory
+    val startingChars = dataset.getParameter("filter_variants_starting_characters")
+    val endingChars = dataset.getParameter("filter_variants_ending_characters")
+    val excludeSubdirs = dataset.getParameter("exclude_subdirs_in_each_dataset_release").map(_.toBoolean)
+    val customPathRegex = dataset.getParameter("filter_variants_with_custom_path_regex")
+    // build pattern for the records
+    val variantsPattern = if(customPathRegex.isDefined)
+      (new DatasetPattern).filterPathWithRegex(customPathRegex.get).filterFiles()
+    else
+      (new DatasetPattern).filterPathInsideDir(directoryPath)
+      if(startingChars.isDefined) variantsPattern.filterPathBeginWith(startingChars.get)
+      if(endingChars.isDefined) variantsPattern.filterPathEndsWith(endingChars.get)
+      if(excludeSubdirs.getOrElse(false)) variantsPattern.filterPathExcludeSubdirs()
+      variantsPattern.filterFiles()
     val fileReader = FileUtil.open(treeLocalPath).get
-    val variantRecords = PatternMatch.getLinesMatching(variantsPattern, fileReader)
+    val variantRecords = PatternMatch.getLinesMatching(variantsPattern.get(), fileReader)
     fileReader.close()
 //    debug
 //    writeFile("C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager-WorkDir\\MD\\filtered.tree.tsv", variantRecords)

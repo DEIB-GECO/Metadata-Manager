@@ -86,6 +86,18 @@
                     <key>data_connection_timeout</key>
                     <value>1500</value>
                 </parameter>
+                <parameter>
+                    <key>filter_variants_starting_characters</key>
+                    <value>ALL.ch</value>
+                </parameter>
+                <parameter>
+                    <key>filter_variants_ending_characters</key>
+                    <value>.vcf.gz</value>
+                </parameter>
+                <parameter>
+                    <key>exclude_subdirs_in_each_dataset_release</key>
+                    <value>true</value>
+                </parameter>
                 <!--
                     <parameter>
                         <description>It is to know which user in GMQL is going to run the import</description>

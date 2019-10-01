@@ -163,7 +163,7 @@ class StrategyA extends Downloader {
       // select the subdir containing the latest version of this dataset
       val latestDatasetDirPath = DatasetFilter.latestVariantSubdirectory(baseRemoteDatasetDir, treeFilePath)
       // select the variant files within
-      DatasetFilter.variantsFromDir(latestDatasetDirPath, treeFilePath)
+      DatasetFilter.variantsFromDir(latestDatasetDirPath, treeFilePath, dataset)
     }
 
     val latestRecords = filterLatestVariantsRecords(treeFilePath, dataset)

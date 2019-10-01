@@ -25,7 +25,7 @@
         <source name="1kGenomes">
             <url>speedtest.tele2.net</url>
             <source_working_directory>1kGenomes</source_working_directory>
-            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.StrategyA</downloader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.Test</downloader>
             <transformer><!--TODO --></transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
@@ -85,6 +85,18 @@
                     <description>Timeout in milliseconds for the FTP data exchange socket when the data stream is interrupted</description>
                     <key>data_connection_timeout</key>
                     <value>1500</value>
+                </parameter>
+                <parameter>
+                    <key>filter_variants_starting_characters</key>
+                    <value>ALL.ch</value>
+                </parameter>
+                <parameter>
+                    <key>filter_variants_ending_characters</key>
+                    <value>.vcf.gz</value>
+                </parameter>
+                <parameter>
+                    <key>exclude_subdirs_in_each_dataset_release</key>
+                    <value>true</value>
                 </parameter>
                 <!--
                     <parameter>
