@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<root   xmlns="http://polimi.it/GDMImporter"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+    <settings>
+        <!--BASE WORKING FOLDER FOR THE IMPORTER-->
+        <base_working_directory>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta</base_working_directory>
+        <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
+        <mapper_source>TCGA</mapper_source>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
+        <database_connection_user>geco</database_connection_user>
+        <database_connection_pw>geco78</database_connection_pw>
+        <database_connection_driver>org.postgresql.Driver</database_connection_driver>
+        <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/flattener_rule_base.txt</flattener_rule_base>
+        <download_enabled>false</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>true</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>false</flattener_enabled>
+        <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
+    </settings>
+    <source_list>
+        <source name="GRCh38_TCGA_OPENGDC">
+            <!--url is the host in the FTPDownloader-->
+            <url>bioinformatics.iasi.cnr.it</url>
+            <source_working_directory>GRCh38_TCGA_OPENGDC</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.default.FtpDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.default.NullTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
+            <load_enabled>true</load_enabled>
+            <parameter_list>
+                <parameter>
+                    <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>
+                    <key>metadata_replacement</key>
+                    <value>xml/metadataReplacementTcga.xml</value>
+                </parameter>
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For logging in ftp on tcga2bed we need this anonymous user</description>
+                    <key>username</key>
+                    <value>anonymous</value>
+                </parameter>
+                <parameter>
+                    <description>And also the corresponding null password</description>
+                    <key>password</key>
+                    <value/>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+                <parameter>
+                    <description>Mappings</description>
+                    <key>mappings</key>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsTCGAOpenGDC.xml</value>
+                </parameter>
+            </parameter_list>
+            <dataset_list>
+                <!--THE SCHEMA URL HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <dataset name="copy_number_segment">
+                    <dataset_working_directory>copy_number_segment</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/copy_number_segment/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                    	<parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_TCGA_copy_number_2019_07</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains samples of copy number variations (copy number segment).&lt;br&gt;
+                                    A copy number variation (CNV) is a variation in the number of copies of a given genomic segment per cell.&lt;br&gt;
+                                    The considered experiments include both germline and somatic CNVs.&lt;br&gt;
+                                    &lt;br&gt;
+                                    It is directly derived from data available on the Genomic Data Commons portal and transformed into GDM format through the openGDC pipeline.&lt;br&gt;
+                                    Documentation is available at http://bioinf.iasi.cnr.it/opengdc/data/OpenGDC_format_definition.pdf.&lt;br&gt;
+                                    More details are described in the GDC Data User's Guide available at https://docs.gdc.cancer.gov/Data/PDF/Data_UG.pdf and at https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/CNV_Pipeline/.&lt;br&gt;
+                                    &lt;br&gt;
+                                    The dataset includes tab separated BED files, in which the CNV file is converted, with the following fields:&lt;br&gt;
+                                    &lt;ol&gt;
+                                    &lt;li&gt;chrom (equal to the 2. field of the GDC CNV file, e.g., "1")&lt;/li&gt;
+                                    &lt;li&gt;start (equal to the 3. field of the GDC CNV file, e.g., 61735)&lt;/li&gt;
+                                    &lt;li&gt;end (equal to the 4. field of the GDC CNV file, e.g., 1628826)&lt;/li&gt;
+                                    &lt;li&gt;strand (unknown, set to '*')&lt;/li&gt;
+                                    &lt;li&gt;num_probes (equal to the 5. field of the GDC CNV file, e.g., 229)&lt;/li&gt;
+                                    &lt;li&gt;segment_mean (equal to the 6. field of the GDC CNV file, e.g., 0.1756)&lt;/li&gt;
+                                    &lt;/ol&gt;</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the copy_number_segment folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/opengdc/bed/tcga/.*/copy_number_segment</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                    </parameter>
+                    </parameter_list>
+                </dataset>
+               <dataset name="gene_expression_quantification">
+                    <dataset_working_directory>gene_expression_quantification</dataset_working_directory>
+                    <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/gene_expression_quantification/header.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                    	<parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_TCGA_gene_expression_2019_07</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>This dataset contains data on gene expression quantification.&lt;br&gt;
+                                    It is directly derived from data available on the Genomic Data Commons portal and transformed into GDM format through the openGDC pipeline.&lt;br&gt;
+                                    Documentation is available at http://bioinf.iasi.cnr.it/opengdc/data/OpenGDC_format_definition.pdf.&lt;br&gt;
+                                    &lt;br&gt;
+                                    GDC provides gene expression quantification data in three files for each aliquot:&lt;br&gt;
+                                    -   FPKM (i.e., Fragments Per Kilobase of transcript per Million mapped reads)&lt;br&gt;
+                                    -   FPKM-UQ (i.e., Upper Quartile normalized FPKM values)&lt;br&gt;
+                                    -   counts (i.e., raw mapping counts of reads mapped to each gene)&lt;br&gt;
+                                    &lt;br&gt;
+                                    More details are described in the GDC Data User's Guide available at https://docs.gdc.cancer.gov/Data/PDF/Data_UG.pdf and at https://gdc.cancer.gov/about-data/data-harmonization-and-generation/genomic-data-harmonization/high-level-data-generation/rna-seq-quantification.&lt;br&gt;
+                                    &lt;br&gt;
+                                    The three original GDC files have been merged into one single BED file with the following fields:&lt;br&gt;
+                                    &lt;ol&gt;
+                                    &lt;li&gt;chrom (retrieved from GDC.h38 GENCODE v22 GTF annotation file according to the Ensembl ID of the gene, completed with "chr", e.g., "chr2")&lt;/li&gt;
+                                    &lt;li&gt;start (retrieved from GDC.h38 GENCODE v22 GTF annotation file5 according to the Ensembl ID of the gene, e.g., 32277910)&lt;/li&gt;
+                                    &lt;li&gt;end (retrieved from GDC.h38 GENCODE v22 GTF annotation file5 according to the Ensembl ID of the gene, e.g., 32316594)&lt;/li&gt;
+                                    &lt;li&gt;strand (retrieved from GDC.h38 GENCODE v22 GTF annotation file5 according to the Ensembl ID of the gene, e.g., '+')&lt;/li&gt;
+                                    &lt;li&gt;ensembl_gene_id (equal to the 1. field of any of the GDC gene expression quantification files, e.g., "ENSG00000119820.9")&lt;/li&gt;
+                                    &lt;li&gt;entrez_gene_id (retrieved from HUGO Gene Nomenclature Committee (HGNC) according to the Ensembl ID of the gene, e.g., "84272")&lt;/li&gt;
+                                    &lt;li&gt;gene_symbol (retrieved from GDC.h38 GENCODE v22 GTF annotation file5 according to the Ensembl ID of the gene, e.g., "YIPF4")&lt;/li&gt;
+                                    &lt;li&gt;type (retrieved from GDC.h38 GENCODE v22 GTF annotation files5 according to the Ensembl ID of the gene, e.g., "gene")&lt;/li&gt;
+                                    &lt;li&gt;htseq_count (equal to the 2. field of the GDC counts file, e.g., 1320)&lt;/li&gt;
+                                    &lt;li&gt;fpkm_uq (equal to the 2. field of the GDC FPKM-UQ file, e.g., 88737.5390983&lt;/li&gt;
+                                    &lt;li&gt;fpkm (equal to the 2. field of the GDC FPKM file, e.g., 2.44783943057)&lt;/li&gt;
+                                    &lt;/ol&gt;</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the gene_expression_quantification folders inside the bed directory</description>
+                            <key>folder_regex</key>
+                            <value>^/opengdc/bed/tcga/.*/gene_expression_quantification</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the .bed and .meta files to download</description>
+                            <key>files_regex</key>
+                            <value>.*\.bed(\.meta)?$</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+    </source_list>
+</root>

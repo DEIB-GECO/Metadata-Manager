@@ -20,7 +20,12 @@ class ExperimentTypeREP(repTableId: REPTableId) extends REPTable(repTableId) wit
       case _ => this.technique = insertMethod(this.technique, param)
     }
     case "FEATURE" => this.feature = insertMethod(this.feature,param)
-    case "TARGET" => this.target = insertMethod(this.target,param)
+
+    case "TARGET" => param.toUpperCase() match {
+      case "DNASE" => this.target = null
+      case _ => this.target = insertMethod(this.target,param)
+    }
+
     case "ANTIBODY" => this.antibody = insertMethod(this.antibody,param)
     case "ONTOLOGICALCODE" => this.ontologicalCode = insertMethod(this.ontologicalCode,param)
     case "ORIGINALKEY" => this.originalKey = insertMethod(this.originalKey, param)
