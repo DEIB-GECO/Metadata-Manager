@@ -6,7 +6,10 @@ package it.polimi.genomics.metadata.downloader_transformer.default.utils
 
 import java.io.{File, FileOutputStream, IOException, InputStream}
 
+import it.polimi.genomics.metadata.util.FileUtil
+import org.apache.commons.io.output.CountingOutputStream
 import org.apache.commons.net.ftp._
+import org.apache.commons.net.io.CopyStreamException
 
 import scala.util.Try
 
@@ -95,6 +98,42 @@ final class Ftp() {
       }
     os.close()
     res
+  }
+
+  /**
+   * Downloads a file at the given location. If a file already exists at the local path given as argument, it attempts to
+   * download and append only the missing part.
+   *
+   * @param remoteFileName the name of the remote file to download from the current working directory
+   * @param localPath the local path where to download the file.
+   * @return Success(true) if the file was downloaded completely, Failure(cause) otherwise. When calling this method
+   *         it's suggested to use match { case Failure(exception) => ... case Success() => ...}. Possible causes of
+   *         failure are:
+   * - FTPConnectionClosedException if something caused the server to reply with response code 421
+   *                                      (service not available). You're invited to try again later since this is
+   *                                      usually an only temporary condition.
+   * - CopyStreamException if an error occurred while transferring the file. You can call getTotalBytesTransferred()
+   *                             to know how many bytes have been successfully transferred.
+   * - IOException if an error occurs while sending or receiving a command to/from the server.
+   */
+  def downloadFileOrResume(remoteFileName: String, localPath: String, socketDataTimeoutMillis: Int = 1000): Try[Boolean] = {
+    client.setDataTimeout(socketDataTimeoutMillis)
+    val localFile = new File(localPath)
+    val outputStream = if (localFile.exists()) {
+      // append stream to end of file
+      client.setRestartOffset(localFile.length())
+      new FileOutputStream(localFile, true)
+    } else {
+      FileUtil.createLocalDirectory(localFile.getParent)
+      new FileOutputStream(localFile)
+    }
+//    val counterStreamWrapper = new CountingOutputStream(outputStream)
+    val downloadCompleted = Try({
+      client.retrieveFile(remoteFileName, outputStream)
+    })
+    outputStream.close()
+    //    println("FILE SIZE "+localFile.length()/1024+" KB")
+    downloadCompleted
   }
 
   def uploadFile(remote: String, input: InputStream): Boolean =

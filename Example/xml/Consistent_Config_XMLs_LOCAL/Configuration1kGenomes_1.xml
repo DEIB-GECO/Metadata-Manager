@@ -81,6 +81,11 @@
                     <key>url_prefix_tree_file_records</key>
                     <value>ftp.1000genomes.ebi.ac.uk/vol1/</value>
                 </parameter>
+                <parameter>
+                    <description>Timeout in milliseconds for the FTP data exchange socket when the data stream is interrupted</description>
+                    <key>data_connection_timeout</key>
+                    <value>1500</value>
+                </parameter>
                 <!--
                     <parameter>
                         <description>It is to know which user in GMQL is going to run the import</description>

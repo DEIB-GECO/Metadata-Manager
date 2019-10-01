@@ -133,9 +133,8 @@ class StrategyA extends Downloader {
         val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
         if (FileDatabase.checkIfUpdateFile(fileId, hash = record._4, originSize = record._2, originLastUpdate = record._3)) {
           // download the file at proper location
-          new FTPHelper(dataset).downloadFile(url = s"$urlPrefix${record._1}") match {
+          new FTPHelper(dataset).downloadFile(url = s"$urlPrefix${record._1}", FTPHelper.suggestDownloadAttemptsNum(record._2.toLong)) match {
             case Failure(exception) =>
-              logger.error("DOWNLOAD OF VARIANT FAILED. DETAILS: ", exception)
               FileDatabase.markAsFailed(fileId)
             case Success(_) =>
               // then update the database

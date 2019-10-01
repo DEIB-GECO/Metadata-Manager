@@ -1,13 +1,14 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
-import java.io.File
-import java.util.Calendar
+import java.io.IOException
+import java.nio.file.{Files, Paths}
 
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Ftp
 import it.polimi.genomics.metadata.step.xml
 import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
-import org.apache.commons.net.ftp.FTPFile
+import org.apache.commons.net.ftp.{FTPConnectionClosedException, FTPFile}
+import org.apache.commons.net.io.CopyStreamException
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.util.{Failure, Success, Try}
@@ -33,47 +34,106 @@ class FTPHelper(dataset: Dataset) {
    * @param url the URL of the file to download
    * @return the path to the file downloaded in the local file system if the operation succeeds, an exception otherwise
    */
-  def downloadFile(url: String): Try[String] = {
+  def downloadFile(url: String, numberOfAttempts: Int = 3): Try[String] = {
     // split the ftp address in (base server address) + (optional path to a directory) + (filename)
     val parts = PatternMatch.matchParts(url, PatternMatch.createPattern("([^/]*)/(.*/)?(.*)"))
-    if(parts.isEmpty)
-      Failure(new IllegalArgumentException("INVALID ARGUMENT URL"))
-    try {
-      val serverAddr = parts.head
-      val optionalPath = parts(1)
-      val filename = parts.last
-      client.connectWithAuth(serverAddr, username, password)
-      moveToLocation(optionalPath)
-      val downloadDir = DatasetFilter.getDownloadDir(dataset)
-      FileUtil.createLocalDirectory(downloadDir)
-      val outputFilePath = s"$downloadDir$filename"
-      client.downloadFile(filename, outputFilePath)
-      client.disconnect()
-      Success(outputFilePath)
-    } catch {
-//        TODO retry
-      case ex: Exception =>
-        ex.printStackTrace()
-        Failure(ex)
+    if (parts.isEmpty)
+      Failure(new IllegalArgumentException("CAN'T IDENTIFY URL PARTS OF : " + url))
+    val serverAddr = parts.head
+    val optionalPath = parts(1)
+    val filename = parts.last
+
+    val downloadDir = DatasetFilter.getDownloadDir(dataset)
+    FileUtil.createLocalDirectory(DatasetFilter.getDownloadDir(dataset))
+    val outputFilePath = s"$downloadDir$filename"
+    Files.deleteIfExists(Paths.get(outputFilePath))
+
+    def tryDownload(attemptsLeft: Int, lastException: Exception, socketDataTimeoutMillis: Int): Try[Boolean] = {
+      /* Wrap whole procedure in a Try to catch exception on connection/disconnection and operations other than the download */
+      Try({
+        /* if the download fails, retry attemptsLeft times before throwing an exception (the last one) */
+        if (attemptsLeft > 0) {
+          logger.debug("ATTEMPT: #"+(numberOfAttempts-attemptsLeft+1)+" OF "+numberOfAttempts)
+          client.connectWithAuth(serverAddr, username, password)
+          moveToLocation(optionalPath)
+          val result = client.downloadFileOrResume(filename, outputFilePath)
+          client.disconnect()
+          /* the following are the only expected exceptions happening during download that you can hope to recover from */
+          result match {
+            case Failure(ex: FTPConnectionClosedException) =>
+              logger.warn("DOWNLOAD BLOCKED. SERVER REPLIED WITH CODE 421. DETAILS: ", ex)
+              logger.warn("NEW ATTEMPT AFTER 1 MINUTE")
+              Thread.sleep(1000 * 60)
+              tryDownload(attemptsLeft - 1, ex, socketDataTimeoutMillis).get
+            case Failure(ex: CopyStreamException) =>
+              logger.warn("TRANSFER WAS INTERRUPTED. DETAILS: ", ex)
+              logger.warn("RETRYING DOWNLOAD IN 5 SECOND. SET DATA CONNECTION TIMEOUT + 1 sec")
+              Thread.sleep(5000)
+              tryDownload(attemptsLeft - 1, ex, socketDataTimeoutMillis+1000).get
+            case Failure(ex: IOException) =>
+              logger.warn("EXCEPTION WHILE DOWNLOADING. DETAILS: ", ex)
+              logger.warn("NEW ATTEMPT")
+              tryDownload(attemptsLeft - 1, ex, socketDataTimeoutMillis).get
+            case Success(_) => result.get
+          }
+        } else
+          throw lastException
+      })
+    }
+
+    logger.info("BEGIN DOWNLOAD OF "+url)
+    val downloadCompleted = tryDownload(numberOfAttempts, null, getDataConnectionTimeoutParam())
+
+    downloadCompleted match {
+      case Success(_) =>
+        logger.info("DOWNLOAD COMPLETED")
+        Success(outputFilePath)
+      case Failure(cause) =>
+        logger.debug("DOWNLOAD FAILED")
+        Failure(cause)
     }
   }
 
   // DEVELOPMENT ONLY
   def testDownload(serverBaseAddr: String, optionalPath: String, filename: String, user: String, passw: String): Try[String] = {
-    try {
-      client.connectWithAuth(serverBaseAddr, user, passw)
-      moveToLocation(optionalPath)
-      val downloadDir = DatasetFilter.getDownloadDir(dataset)
-      FileUtil.createLocalDirectory(downloadDir)
-      val outputFilePath = s"$downloadDir$filename"
-      client.downloadFile(filename, outputFilePath)
-      client.disconnect()
-      Success(outputFilePath)
-    } catch {
-      //        TODO retry
-      case ex: Exception =>
-        ex.printStackTrace()
-        Failure(ex)
+    val downloadDir = DatasetFilter.getDownloadDir(dataset)
+    FileUtil.createLocalDirectory(DatasetFilter.getDownloadDir(dataset))
+    val outputFilePath = s"$downloadDir$filename"
+
+    def tryDownload(attemptsLeft: Int, lastException: Exception): Try[Boolean] = {
+      /* Wrap whole procedure in a Try to catch exception on connection/disconnection and operations other than the download */
+      Try({
+        /* if the download fails, retry attemptsLeft times before throwing an exception (the last one) */
+        if (attemptsLeft > 0) {
+          client.connectWithAuth(serverBaseAddr, user, passw)
+          moveToLocation(optionalPath)
+          val result = client.downloadFileOrResume(filename, outputFilePath)
+          client.disconnect()
+          /* the following are the only expected exceptions happening during download that you can hope to recover from */
+          result match {
+            case Failure(ex: FTPConnectionClosedException) =>
+              println("RETRYING DOWNLOAD IN 1 MINUTE. SERVER REPLIED WITH CODE 421. DETAILS: ", ex)
+              Thread.sleep(1000 * 60)
+              tryDownload(attemptsLeft - 1, ex).get
+            case Failure(ex: CopyStreamException) =>
+              println("RETRYING DOWNLOAD IN 1 SECOND.TRANSFER WAS INTERRUPTED. DETAILS: ", ex)
+              Thread.sleep(1000)
+              tryDownload(attemptsLeft - 1, ex).get
+            case Failure(ex: IOException) =>
+              println("EXCEPTION WHILE DOWNLOADING. RETRYING. DETAILS: ", ex)
+              tryDownload(attemptsLeft - 1, ex).get
+            case Success(_) => result.get
+          }
+        } else
+          throw lastException
+      })
+    }
+
+    val downloadCompleted = tryDownload(3, null)
+
+    downloadCompleted match {
+      case Success(_) => Success(outputFilePath)
+      case Failure(cause) => Failure(cause)
     }
   }
 
@@ -124,9 +184,9 @@ class FTPHelper(dataset: Dataset) {
    */
   private def moveToLocation(pathFromFTPRoot: String) : Unit = {
     if(client.connected && pathFromFTPRoot.nonEmpty){
-      println(s"UPDATING WORKING DIRECTORY FROM ${client.workingDirectory()} TO $pathFromFTPRoot")
+      logger.info(s"UPDATING WORKING DIRECTORY FROM ${client.workingDirectory()} TO $pathFromFTPRoot")
       client.cd(pathFromFTPRoot).getOrElse(println("UPDATE FAILED"))
-      println("CURRENT WORKING DIRECTORY " + client.workingDirectory())
+      logger.info("CURRENT WORKING DIRECTORY " + client.workingDirectory())
     }
   }
 
@@ -179,6 +239,17 @@ class FTPHelper(dataset: Dataset) {
     for(name <- fileNames){
       println(name.getName)
     }
+  }
+
+  def getDataConnectionTimeoutParam(): Int = {
+    dataset.getParameter("data_connection_timeout").getOrElse("1000").toInt
+  }
+}
+
+object FTPHelper {
+  def suggestDownloadAttemptsNum(fileSizeInBytes: Long): Int ={
+    val sizeInMB = fileSizeInBytes / 1048576
+    (sizeInMB.floatValue()/200).ceil.toInt.max(3)
   }
 }
 

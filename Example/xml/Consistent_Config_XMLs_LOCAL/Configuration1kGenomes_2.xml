@@ -25,7 +25,7 @@
         <source name="1kGenomes">
             <url>speedtest.tele2.net</url>
             <source_working_directory>1kGenomes</source_working_directory>
-            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.Test</downloader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.StrategyA</downloader>
             <transformer><!--TODO --></transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
@@ -80,6 +80,11 @@
                     <description>The tree file contains records whose path is relative to some base FTP directory. This parameter is the URL of that directory</description>
                     <key>url_prefix_tree_file_records</key>
                     <value>ftp.1000genomes.ebi.ac.uk/vol1/</value>
+                </parameter>
+                <parameter>
+                    <description>Timeout in milliseconds for the FTP data exchange socket when the data stream is interrupted</description>
+                    <key>data_connection_timeout</key>
+                    <value>1500</value>
                 </parameter>
                 <!--
                     <parameter>

@@ -66,9 +66,12 @@ class Test extends Downloader {
     try {
       val ftp = new FTPHelper(dataset)
       // download tree
-      val treeLocalPath = ftp.testDownload("192.168.1.106", ".", "current.tree", "anonymous", "anonymous").get
+      val treeLocalPath = ftp.testDownload("ftp.1000genomes.ebi.ac.uk", "/vol1/ftp/release/20130502/", "ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz", "anonymous", "anonymous") match {
+        case Failure(exception) => exception.printStackTrace()
+        case Success(p) => p
+      }
       // compute hash
-      val computedHash = FileUtil.md5Hash(treeLocalPath).get
+      /*val computedHash = FileUtil.md5Hash(treeLocalPath).get
       // get latest records
       val strategy = new StrategyA
       val variantRecords = strategy.getRemoteVariantRecords(treeLocalPath, dataset)
@@ -76,13 +79,13 @@ class Test extends Downloader {
       for (variant <- variantRecords) {
         // check the info are ok
         println(s"${variant._1} ${DatasetFilter.parseFilenameFromURL(filePath = variant._1)} ${variant._2} ${variant._3} ${variant._4}")
-      }
+      }*/
       // download a variant file
-      val testRecordRelativePath = "ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz"
+      /*val testRecordRelativePath = "ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz"
       val urlPrefix = strategy.getURLPrefix(dataset)
-      val variantURL = s"$urlPrefix$testRecordRelativePath"
-      println("ATTEMPT TO DOWNLOAD "+variantURL)
-      ftp.downloadFile(url = variantURL)
+      val variantURL = s"$urlPrefix$testRecordRelativePath"*/
+//      println("ATTEMPT TO DOWNLOAD ")
+//      ftp.testDownload("ftp.1000genomes.ebi.ac.uk", "/vol1/ftp/release/20130502/", "ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz", "anonymous", "anonymous")
 
     } catch {
       case ex: Exception => {
