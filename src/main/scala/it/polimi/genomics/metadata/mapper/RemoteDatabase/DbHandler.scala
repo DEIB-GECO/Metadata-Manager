@@ -1249,7 +1249,8 @@ object DbHandler {
                 CREATE INDEX ON dw.item (lower(content_type));
                 CREATE INDEX ON dw.item (biological_replicate_count);
                 CREATE INDEX ON dw.item (technical_replicate_count);
-                CREATE INDEX ON dw.item (item_id);"""
+                CREATE INDEX ON dw.item (item_id);
+                CREATE INDEX ON dw.item (alt_item_source_id);"""
       val result = database.run(createItemViewIndexesDW)
       Await.result(result, Duration.Inf)
     } match {
