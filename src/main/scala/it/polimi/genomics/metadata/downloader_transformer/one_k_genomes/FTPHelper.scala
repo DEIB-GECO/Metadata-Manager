@@ -63,17 +63,24 @@ class FTPHelper(dataset: Dataset) {
           result match {
             case Failure(ex: FTPConnectionClosedException) =>
               logger.warn("DOWNLOAD BLOCKED. SERVER REPLIED WITH CODE 421. DETAILS: ", ex)
-              logger.warn("NEW ATTEMPT AFTER 1 MINUTE")
-              Thread.sleep(1000 * 60)
+              if(attemptsLeft - 1 > 0) {
+                logger.warn("NEW ATTEMPT IN 1 MINUTE")
+                Thread.sleep(1000 * 60)
+              }
               tryDownload(attemptsLeft - 1, ex, socketDataTimeoutMillis).get
             case Failure(ex: CopyStreamException) =>
               logger.warn("TRANSFER WAS INTERRUPTED. DETAILS: ", ex)
-              logger.warn("RETRYING DOWNLOAD IN 5 SECOND. SET DATA CONNECTION TIMEOUT + 1 sec")
-              Thread.sleep(5000)
+              if(attemptsLeft -1 > 0) {
+                logger.warn("RETRYING DOWNLOAD IN 5 SECOND. SET DATA CONNECTION TIMEOUT + 1 sec")
+                Thread.sleep(5000)
+              }
               tryDownload(attemptsLeft - 1, ex, socketDataTimeoutMillis+1000).get
             case Failure(ex: IOException) =>
-              logger.warn("EXCEPTION WHILE DOWNLOADING. DETAILS: ", ex)
-              logger.warn("NEW ATTEMPT")
+              logger.warn("EXCEPTION WHILE DOWNLOADING. CHECK CONNECTION TO INTERNET. DETAILS: ", ex)
+              if(attemptsLeft -1 > 0) {
+                logger.warn("NEW ATTEMPT IN 1 MINUTE")
+                Thread.sleep(1000 * 60)
+              }
               tryDownload(attemptsLeft - 1, ex, socketDataTimeoutMillis).get
             case Success(_) => result.get
           }
