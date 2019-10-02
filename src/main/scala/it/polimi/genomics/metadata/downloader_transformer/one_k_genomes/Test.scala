@@ -56,6 +56,7 @@ class Test extends Downloader {
   }*/
 
   override def download(source: xml.Source, parallelExecution: Boolean): Unit = {
+    logger.warn("!!!! THIS CLASS IS USED ONLY FOR DEBUG PURPOSES. IT'S NOT MEANT TO BE USED IN PRODUCTION !!!! ")
     if(!source.downloadEnabled )
       return
     logger.info("Starting download for: " + source.name)
