@@ -71,14 +71,14 @@ class Test extends Downloader {
       val computedHash = FileUtil.md5Hash(treeLocalPath).get
       // get latest records
       val strategy = new StrategyA
-      val variantRecords = strategy.getMetadataRecords(treeLocalPath, dataset)
+      val variantRecords = strategy.parseMetadataRecords(DatasetInfo.metadataRecords(treeLocalPath, dataset))
       println(s"METADATA RECORDS FOUND: ${variantRecords.size}")
       for (variant <- variantRecords) {
         // check the info are ok
-        println(s"${variant._1} ${DatasetFilter.parseFilenameFromURL(filePath = variant._1)} ${variant._2} ${variant._3} ${variant._4}")
+        println(s"${variant._1} ${DatasetInfo.parseFilenameFromURL(filePath = variant._1)} ${variant._2} ${variant._3} ${variant._4}")
       }
       // download metadata files
-      val urlPrefix = strategy.getURLPrefix(dataset)
+      val urlPrefix = strategy.getURLPrefixForRecords(dataset)
       variantRecords.foreach(record => {
         ftp.downloadFile(url = s"$urlPrefix${record._1}", FTPHelper.suggestDownloadAttemptsNum(record._2.toLong))
       })

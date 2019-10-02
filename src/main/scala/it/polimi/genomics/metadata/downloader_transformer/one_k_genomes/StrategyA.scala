@@ -4,7 +4,7 @@ import java.nio.file.{Files, Paths}
 
 import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
-import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DatasetFilter.DatasetPattern
+import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DatasetInfo.DatasetPattern
 import it.polimi.genomics.metadata.step.xml
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
 import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
@@ -97,7 +97,7 @@ class StrategyA extends Downloader {
     //      2
     val computedHash = FileUtil.md5Hash(treeLocalPath.get).get
     //      3
-    val fileId = FileDatabase.fileId(datasetId, treeURL, Stage.DOWNLOAD, DatasetFilter.parseFilenameFromURL(treeURL))
+    val fileId = FileDatabase.fileId(datasetId, treeURL, Stage.DOWNLOAD, DatasetInfo.parseFilenameFromURL(treeURL))
     // Hash is enough for comparing different versions of the file, so I left size and timestamp args blank
     if (!FileDatabase.checkIfUpdateFile(fileId, computedHash, "", ""))
       markAllFilesAsUpdated(datasetId)
@@ -114,8 +114,8 @@ class StrategyA extends Downloader {
   }
 
   /**
-   * Parses the tree file, searches for updated versions of the given dataset, download the updates and updates the
-   * database.
+   * Parses the tree file, searches for updated versions of the given dataset's variants, download the updates
+   * and updates the database.
    *
    * @param treeLocalPath path to the local tree file
    * @param dataset the dataset whom variants will be updated
@@ -123,18 +123,19 @@ class StrategyA extends Downloader {
    */
   private def fetchUpdatesForVariants(treeLocalPath: String, dataset: Dataset): Unit = {
     //        3
-    val variantRecords = getRemoteVariantRecords(treeLocalPath, dataset)
+    val variantRecords_asLines = DatasetInfo.latestVariantsRecords(treeLocalPath, dataset)
+    val variantRecords = parseVariantRecords(variantRecords_asLines)
     if (variantRecords.isEmpty) {
       throw new IllegalStateException("DOWNLOAD CAN'T CONTINUE: UNABLE TO EXTRACT VARIANT SET FROM TREE LOCAL FILE")
     } else {
       val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
-      val urlPrefix = getURLPrefix(dataset)
+      val urlPrefix = getURLPrefixForRecords(dataset)
       variantRecords.foreach(record => {
-        val filename = DatasetFilter.parseFilenameFromURL(filePath = record._1)
+        val filename = DatasetInfo.parseFilenameFromURL(filePath = record._1)
         val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
         if (FileDatabase.checkIfUpdateFile(fileId, hash = record._4, originSize = record._2, originLastUpdate = record._3)) {
           // download the file at proper location
-          new FTPHelper(dataset).downloadFile(url = s"$urlPrefix${record._1}", FTPHelper.suggestDownloadAttemptsNum(record._2.toLong)) match {
+          new FTPHelper(dataset).downloadFile(url = s"$urlPrefix${record._1}", record._2.toLong) match {
             case Failure(exception) =>
               FileDatabase.markAsFailed(fileId)
             case Success(_) =>
@@ -151,26 +152,53 @@ class StrategyA extends Downloader {
   }
 
   /**
-   * Given a tree file path, this method filters the records, selects the most recent version available of a dataset,
-   * then it parses the attributes present in the tree file, namely the file path, kind, size, timestamp and hash.
+   * Parses the tree file, searches for updated versions of the given dataset's metadata, download the updates
+   * and updates the database.
    *
-   * @param treeFilePath the path to the location of the tree file on the local filesystem
+   * @param treeLocalPath path to the local tree file
+   * @param dataset the dataset whom metadata will be updated
+   * @throws IllegalStateException if the parsing of the tree file returns an empty set of metadata files.
+   */
+  def fetchUpdatesForMeta(treeLocalPath: String, dataset: Dataset): Unit = {
+    //    3
+    val metaRecords_asLines = DatasetInfo.metadataRecords(treeLocalPath, dataset)
+    val metaRecords = parseMetadataRecords(metaRecords_asLines)
+    if (metaRecords.isEmpty) {
+      throw new IllegalStateException("DOWNLOAD CAN'T CONTINUE: UNABLE TO EXTRACT METADATA INFO FROM TREE LOCAL FILE")
+    } else {
+      val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
+      val urlPrefix = getURLPrefixForRecords(dataset)
+      metaRecords.foreach(record => {
+        val filename = DatasetInfo.parseFilenameFromURL(filePath = record._1)
+        val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
+        if (FileDatabase.checkIfUpdateFile(fileId, hash = record._4, originSize = record._2, originLastUpdate = record._3)) {
+          // download the file at proper location
+          new FTPHelper(dataset).downloadFile(url = s"$urlPrefix${record._1}", record._2.toLong) match {
+            case Failure(exception) =>
+              FileDatabase.markAsFailed(fileId)
+            case Success(_) =>
+              // then update the database
+              FileDatabase.markAsUpdated(fileId, size = record._2, hash = record._4)
+          }
+        }
+        /*
+        If instead the local copy is already up-to-date, I don't have to do anything 'cos in that case
+        FileDatabase.checkIfUpdateFile also sets the flag FILE_STATUS.UPDATED
+        */
+      })
+    }
+  }
+
+  /**
+   * This method extracts the needed information to compare them with the local dataset and to eventually download them.
+   *
+   * @param variantRecords a list of variant records belonging to the tree file
    * @return a list of tuples, one for each record, containing in order: file path, size and timestamp as Strings.
    */
-  def getRemoteVariantRecords(treeFilePath: String, dataset: Dataset): List[(String, String, String, String)] = {
-    def filterLatestVariantsRecords(treeFilePath: String, dataset: Dataset): List[String] = {
-      val baseRemoteDatasetDir = dataset.getParameter("dataset_remote_base_directory").getOrElse(
-        throw new NullPointerException("MISSING REQUIRED PARAMETER dataset_remote_base_directory AT DATASET LEVEL IN XML CONFIG FILE"))
-      // select the subdir containing the latest version of this dataset
-      val latestDatasetDirPath = DatasetFilter.latestVariantSubdirectory(baseRemoteDatasetDir, treeFilePath)
-      // select the variant files within
-      DatasetFilter.variantsFromDir(latestDatasetDirPath, treeFilePath, dataset)
-    }
-
-    val latestRecords = filterLatestVariantsRecords(treeFilePath, dataset)
-    if(latestRecords.isEmpty)
+  def parseVariantRecords(variantRecords: List[String]): List[(String, String, String, String)] = {
+    if(variantRecords.isEmpty)
       throw new IllegalArgumentException("NO VARIANTS FOUND. PLEASE REVIEW THE DATASET PARAMETER dataset_remote_base_directory OF YOUR XML CONFIG FILE")
-    val variantsWithHashes = latestRecords.map( record => {
+    val variantsWithHashes = variantRecords.map(record => {
       val parts = PatternMatch.matchParts(record, (new DatasetPattern).get())   // the pattern used affects the position and kind of info obtained
       // here is possible to return any of the field that populate the tree. I return file path, size, timestamp string and the hash.
       if(parts.size < 4)
@@ -181,44 +209,15 @@ class StrategyA extends Downloader {
     variantsWithHashes
   }
 
-  def fetchUpdatesForMeta(treeFilePath: String, dataset: Dataset): Unit = {
-    val metaRecords = getMetadataRecords(treeFilePath, dataset)
-    if (metaRecords.isEmpty) {
-      throw new IllegalStateException("DOWNLOAD CAN'T CONTINUE: UNABLE TO EXTRACT METADATA(S) FROM TREE LOCAL FILE")
-    } else {
-      val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
-      val urlPrefix = getURLPrefix(dataset)
-      metaRecords.foreach(record => {
-        val filename = DatasetFilter.parseFilenameFromURL(filePath = record._1)
-        val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
-        if (FileDatabase.checkIfUpdateFile(fileId, hash = record._4, originSize = record._2, originLastUpdate = record._3)) {
-          // download the file at proper location
-          new FTPHelper(dataset).downloadFile(url = s"$urlPrefix${record._1}", FTPHelper.suggestDownloadAttemptsNum(record._2.toLong)) match {
-            case Failure(exception) =>
-              FileDatabase.markAsFailed(fileId)
-            case Success(_) =>
-              // then update the database
-              FileDatabase.markAsUpdated(fileId, size = record._2, hash = record._4)
-          }
-        }
-        /*
-        If instead the local copy is already up-to-date, I don't have to do anything 'cos in that case
-        FileDatabase.checkIfUpdateFile also sets the flag FILE_STATUS.UPDATED
-        */
-      })
-    }
-  }
-
   /**
-   * Given a tree file path, this method filters the records by the metadata files specified in the XML config file,
-   * then it parses the attributes present in the tree file, namely the file path, kind, size, timestamp and hash.
+   * Obtains the records corresponding to the metadata files specified in the XML config file. Then it extracts the needed
+   * information to compare them with the local dataset and to eventually download them.
    *
-   * @param treeFilePath the path to the location of the tree file on the local filesystem
+   * @param metadataRecords a list of metadata records belonging to the tree file
    * @return a list of tuples, one for each metadata record, containing in order: file path, size and timestamp as Strings.
    */
-  def getMetadataRecords(treeFilePath: String, dataset: Dataset): List[(String, String, String, String)] = {
-    val metaRecords = DatasetFilter.metadataRecords(treeFilePath, dataset)
-    val metaWithDigests = metaRecords.map(record => {
+  def parseMetadataRecords(metadataRecords: List[String]): List[(String, String, String, String)] = {
+    val metaWithDigests = metadataRecords.map(record => {
       val parts = PatternMatch.matchParts(record, (new DatasetPattern).get()) // the pattern used affects the position and kind of info obtained
       // here is possible to return any of the field that populate the tree. I return file path, size, timestamp string and the hash.
       if(parts.size < 4)
@@ -239,7 +238,7 @@ class StrategyA extends Downloader {
       }
     } else {
       // copy to dataset's location otherwise
-      val newPath = s"${DatasetFilter.getDownloadDir(dataset)}${FileUtil.getFileNameFromPath(treeLocalPath.get)}"
+      val newPath = s"${DatasetInfo.getDownloadDir(dataset)}${FileUtil.getFileNameFromPath(treeLocalPath.get)}"
       if(!Files.exists(Paths.get(newPath)))
         FileUtil.copyFile(treeLocalPath.get, newPath)
       treeLocalPath = Some(newPath)
@@ -261,7 +260,13 @@ class StrategyA extends Downloader {
     }
   }
 
-  def getURLPrefix(dataset: Dataset): String = {
+  /**
+   * File locations described in the tree file are expressed as relative paths from a base remote address. This method
+   * reads and return that base address from XML config file.
+   * @param dataset
+   * @return
+   */
+  def getURLPrefixForRecords(dataset: Dataset): String = {
     dataset.getParameter("url_prefix_tree_file_records").getOrElse(
       throw new NullPointerException("REQUIRED PARAMETER url_prefix_tree_file_records IS MISSING FROM XML CONFIG FILE")
     )

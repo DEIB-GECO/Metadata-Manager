@@ -32,6 +32,7 @@ class FTPHelper(dataset: Dataset) {
    * Tries to download the file at the given URL argument into the directory defined as:
    * < xml config file -> settings -> base_working_directory>/< source name>/< dataset name>/Downloads/
    * @param url the URL of the file to download
+   * @param numberOfAttempts number of attempts to download the file before giving up
    * @return the path to the file downloaded in the local file system if the operation succeeds, an exception otherwise
    */
   def downloadFile(url: String, numberOfAttempts: Int = 3): Try[String] = {
@@ -43,8 +44,8 @@ class FTPHelper(dataset: Dataset) {
     val optionalPath = parts(1)
     val filename = parts.last
 
-    val downloadDir = DatasetFilter.getDownloadDir(dataset)
-    FileUtil.createLocalDirectory(DatasetFilter.getDownloadDir(dataset))
+    val downloadDir = DatasetInfo.getDownloadDir(dataset)
+    FileUtil.createLocalDirectory(DatasetInfo.getDownloadDir(dataset))
     val outputFilePath = s"$downloadDir$filename"
     Files.deleteIfExists(Paths.get(outputFilePath))
 
@@ -94,10 +95,22 @@ class FTPHelper(dataset: Dataset) {
     }
   }
 
+  /**
+   * Tries to download the file at the given URL argument into the directory defined as:
+   * < xml config file -> settings -> base_working_directory>/< source name>/< dataset name>/Downloads/.
+   * Calling this method is equal to calling FTPHelper.downloadFile(url, x) with x = FTPHelper.suggestDownloadAttemptsNum.
+   * @param url the URL of the file to download
+   * @param expectedFileSize this value is used to estimate a reasonable number of download attempts before giving up
+   * @return the path to the file downloaded in the local file system if the operation succeeds, an exception otherwise
+   */
+  def downloadFile(url: String, expectedFileSize: Long): Try[String] = {
+    downloadFile(url, FTPHelper.suggestDownloadAttemptsNum(expectedFileSize))
+  }
+
   // DEVELOPMENT ONLY
   def testDownload(serverBaseAddr: String, optionalPath: String, filename: String, user: String, passw: String): Try[String] = {
-    val downloadDir = DatasetFilter.getDownloadDir(dataset)
-    FileUtil.createLocalDirectory(DatasetFilter.getDownloadDir(dataset))
+    val downloadDir = DatasetInfo.getDownloadDir(dataset)
+    FileUtil.createLocalDirectory(DatasetInfo.getDownloadDir(dataset))
     val outputFilePath = s"$downloadDir$filename"
 
     def tryDownload(attemptsLeft: Int, lastException: Exception): Try[Boolean] = {

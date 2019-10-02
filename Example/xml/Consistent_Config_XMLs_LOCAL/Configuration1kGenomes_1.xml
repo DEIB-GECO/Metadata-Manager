@@ -23,7 +23,7 @@
     </settings>
     <source_list>
         <source name="1kGenomes">
-            <url>speedtest.tele2.net</url>
+            <url>ftp.1000genomes.ebi.ac.uk</url>
             <source_working_directory>1kGenomes</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.Test</downloader>
             <transformer><!--TODO --></transformer>
