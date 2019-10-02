@@ -126,11 +126,11 @@
                         </parameter>
                         <parameter>
                             <key>sequence_index_file_path</key>
-                            <value>ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/1000genomes.sequence.index</value>
+                            <value>ftp/data_collections/1000_genomes_project/1000genomes.sequence.index</value>
                         </parameter>
                         <parameter>
                             <key>population_file_path</key>
-                            <value>ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20131219.populations.tsv</value>
+                            <value>ftp/phase3/20131219.populations.tsv</value>
                         </parameter>
                         <!--
                         <parameter>
@@ -167,11 +167,11 @@
                         </parameter>
                         <parameter>
                             <key>sequence_index_file_path</key>
-                            <value>ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20130502.phase3.sequence.index</value>
+                            <value>ftp/phase3/20130502.phase3.sequence.index</value>
                         </parameter>
                         <parameter>
                             <key>population_file_path</key>
-                            <value>ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20131219.populations.tsv</value>
+                            <value>ftp/phase3/20131219.populations.tsv</value>
                         </parameter>
                     </parameter_list>
                 </dataset>

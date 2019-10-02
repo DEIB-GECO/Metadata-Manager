@@ -217,13 +217,30 @@ object DatasetFilter {
   /**
    * @param dataset a xml.Dataset having parameters "sequence_index_file_path" and "population_file_path" (the latter
    *                can also be at source level)
-   * @return the paths of the metadata files relative to the given dataset
+   * @return a List of Strings containing the value of those XML parameter.
    */
   def metadataPaths(dataset : Dataset): List[String] ={
     List(
-      dataset.getDatasetParameter("sequence_index_file_path").get,
-      dataset.getParameter("population_file_path").get
-    )
+      dataset.getDatasetParameter("sequence_index_file_path"),
+      dataset.getParameter("population_file_path")
+    ).filter(_.isDefined).map(option => option.get)
+  }
+
+  def metadataRecords(treeLocalPath: String, dataset: Dataset): List[String] = {
+    val metaPaths = metadataPaths(dataset)
+    val metaPatterns = metaPaths.map(singleMeta => {
+      // search and extract the matching record (exact match)
+      val metadataPattern = (new DatasetPattern).filterPathWithRegex(singleMeta).filterFiles()
+//      logger.debug("SEARCHING MATCHING METADATA RECORDS FOR "+singleMeta)
+//      logger.debug("WITH REGEX "+metadataPattern.getRegex())
+      metadataPattern.get()
+    })
+    metaPatterns.flatMap(pattern => {
+      val fileReader = FileUtil.open(treeLocalPath).get
+      val recordsOfMeta = PatternMatch.getLinesMatching(pattern, fileReader)
+      fileReader.close()
+      recordsOfMeta
+    })
   }
 
   /**

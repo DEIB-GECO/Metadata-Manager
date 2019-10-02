@@ -71,19 +71,17 @@ class Test extends Downloader {
       val computedHash = FileUtil.md5Hash(treeLocalPath).get
       // get latest records
       val strategy = new StrategyA
-      val variantRecords = strategy.getRemoteVariantRecords(treeLocalPath, dataset)
-      println(s"VARIANT RECORDS FOUND: ${variantRecords.size}")
+      val variantRecords = strategy.getMetadataRecords(treeLocalPath, dataset)
+      println(s"METADATA RECORDS FOUND: ${variantRecords.size}")
       for (variant <- variantRecords) {
         // check the info are ok
         println(s"${variant._1} ${DatasetFilter.parseFilenameFromURL(filePath = variant._1)} ${variant._2} ${variant._3} ${variant._4}")
       }
-      // download a variant file
-      /*val testRecordRelativePath = "ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz"
+      // download metadata files
       val urlPrefix = strategy.getURLPrefix(dataset)
-      val variantURL = s"$urlPrefix$testRecordRelativePath"*/
-//      println("ATTEMPT TO DOWNLOAD ")
-//      ftp.testDownload("ftp.1000genomes.ebi.ac.uk", "/vol1/ftp/release/20130502/", "ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz", "anonymous", "anonymous")
-
+      variantRecords.foreach(record => {
+        ftp.downloadFile(url = s"$urlPrefix${record._1}", FTPHelper.suggestDownloadAttemptsNum(record._2.toLong))
+      })
     } catch {
       case ex: Exception => {
         println("DOWNLOAD FAILED. DETAILS:")
