@@ -84,6 +84,17 @@ object FileUtil {
     filePath.substring(0, separatorIndex+1)
   }
 
+  /**
+   * @param filePath path to a file
+   * @return the size of the file in bytes
+   * @throws InvalidPathException if the arguments are malformed paths
+   * @throws IOException if an I/O error occurs when reading or writing
+   * @throws SecurityException: if the user doesn’t have read permission
+   */
+  def size(filePath: String): Long = {
+    Files.size(Paths.get(filePath))
+  }
+
   def printFirstLines(reader: BufferedReader): Unit ={
     try {
       if(reader.markSupported()) {

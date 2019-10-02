@@ -56,24 +56,22 @@ class StrategyA extends Downloader {
       return
     logger.info("Starting download for: " + source.name)
     val sourceId = FileDatabase.sourceId(source.name)
-    source.datasets.foreach(dataset => {
-      if (dataset.downloadEnabled) {
-        val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
-        // mark with the temporary status FILE_STATUS.COMPARE any file in the dataset
-        FileDatabase.markToCompare(datasetId, Stage.DOWNLOAD)
-        // download and compare local vs source versions of this same dataset
-        try {
-          fetchUpdatesForTreeFile(dataset)
-          /* call markAsOutdated on the dataset to mark with the status OUTDATED any file which was once in the local
-          copy but it's not any more present in the source */
-          FileDatabase.markAsOutdated(datasetId, Stage.DOWNLOAD)
-        } catch {
-          case ex: Exception =>
-            logger.error("ERROR WHILE FETCHING UPDATES FOR VARIANT FILES OF DATASET " + dataset.name + ". DETAILS: ", ex)
-            /* mark as failed at least the tree file even if it's updated to trigger the update of the whole dataset on
-          the next run */
-            markAllFilesAsFailed(datasetId)
-        }
+    source.datasets.filter(dataset => dataset.downloadEnabled).foreach(dataset => {
+      val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+      // mark with the temporary status FILE_STATUS.COMPARE any file in the dataset
+      FileDatabase.markToCompare(datasetId, Stage.DOWNLOAD)
+      // download and compare local vs source versions of this same dataset
+      try {
+        fetchUpdatesForTreeFile(dataset)
+        /* call markAsOutdated on the dataset to mark with the status OUTDATED any file which was once in the local
+        copy but it's not any more present in the source. Those files have currently the status FILE_STATUS.COMPARE */
+        FileDatabase.markAsOutdated(datasetId, Stage.DOWNLOAD)
+      } catch {
+        case ex: Exception =>
+          logger.error("ERROR WHILE FETCHING UPDATES FOR FILES OF DATASET " + dataset.name + ". DETAILS: ", ex)
+          /* mark as failed at least the tree file even if it's updated to trigger the update of the whole dataset on
+        the next run */
+          markAllFilesAsFailed(datasetId)
       }
     })
     logger.info(s"Download for ${source.name} Finished.")
@@ -98,8 +96,8 @@ class StrategyA extends Downloader {
     val computedHash = FileUtil.md5Hash(treeLocalPath.get).get
     //      3
     val fileId = FileDatabase.fileId(datasetId, treeURL, Stage.DOWNLOAD, DatasetInfo.parseFilenameFromURL(treeURL))
-    // Hash is enough for comparing different versions of the file, so I left size and timestamp args blank
-    if (!FileDatabase.checkIfUpdateFile(fileId, computedHash, "", ""))
+    // Hash is enough for comparing different versions of the file, but size is anyway required to comply with database's implementation
+    if (!FileDatabase.checkIfUpdateFile(fileId, computedHash, FileUtil.size(treeLocalPath.get).toString, ""))
       markAllFilesAsUpdated(datasetId)
     else {
       // update the dataset files...
@@ -228,6 +226,12 @@ class StrategyA extends Downloader {
     metaWithDigests
   }
 
+  /**
+   * The tree file is a single one for the entire FTP server. If already downloaded within this
+   * run, it's copied to the other datasets instead of being downloaded again.
+   * @param dataset the dataset requiring the tree file.
+   * @throws java.lang.Exception if this download fails.
+   */
   private def downloadOrCopyTreeFile(dataset: Dataset): Unit ={
     // download if never downloaded
     if(treeLocalPath.isEmpty) {
@@ -282,6 +286,43 @@ class StrategyA extends Downloader {
    * @param source            contains specific download and sorting info.
    * @param parallelExecution defines parallel or sequential execution
    */
-  override def downloadFailedFiles(source: Source, parallelExecution: Boolean): Unit = ???
+  override def downloadFailedFiles(source: Source, parallelExecution: Boolean): Unit = {
+    val sourceId = FileDatabase.sourceId(source.name)
+    source.datasets.filter(dataset => dataset.downloadEnabled).foreach(dataset => {
+      logger.info("BEGIN DOWNLOAD FAILED FILES FOR SOURCE:DATASET "+source.name+":"+dataset.name)
+      val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
+      val failedFiles = FileDatabase.getFailedFiles(datasetId, Stage.DOWNLOAD)
+      if(failedFiles.nonEmpty) {
+        val datasetTreeFileId = FileDatabase.fileId(datasetId, treeURL, Stage.DOWNLOAD, DatasetInfo.parseFilenameFromURL(treeURL))
+        val treeUpdateFailed = failedFiles.map(row => row._1).contains(datasetTreeFileId)
+        if (treeUpdateFailed) {
+          try {
+            /* Failing the update of the tree file, means that any file in this dataset have been updated,
+          * so it's necessary to repeat the whole update process. */
+            fetchUpdatesForTreeFile(dataset)
+            /* call markAsOutdated on the dataset to mark with the status OUTDATED any file which was once in the local
+            copy but it's not any more present in the source. Those files have currently the status FILE_STATUS.COMPARE */
+            FileDatabase.markAsOutdated(datasetId, Stage.DOWNLOAD)
+          } catch {
+            case ex: Exception =>
+              logger.error("ERROR WHILE FETCHING UPDATES FOR FILES OF DATASET " + dataset.name + ". DETAILS: ", ex)
+              markAllFilesAsFailed(datasetId)
+          }
+        } else {
+          // then only some file updates have failed
+          // the tree file is necessary for the following steps
+          try {
+            downloadOrCopyTreeFile(dataset)
+            fetchUpdatesForVariants(treeLocalPath.get, dataset)
+            fetchUpdatesForMeta(treeLocalPath.get, dataset)
+          } catch {
+            case ex: Exception =>
+              logger.error("ERROR WHILE FETCHING UPDATES FOR FILES OF DATASET " + dataset.name + ". DETAILS: ", ex)
+          }
+        }
+      }
+    })
+  }
+
 }
 
