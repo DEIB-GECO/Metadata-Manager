@@ -54,9 +54,9 @@ class StrategyA extends Downloader {
   override def download(source: xml.Source, parallelExecution: Boolean): Unit = {
     if(!source.downloadEnabled )
       return
-    logger.info("Starting download for: " + source.name)
     val sourceId = FileDatabase.sourceId(source.name)
     source.datasets.filter(dataset => dataset.downloadEnabled).foreach(dataset => {
+      logger.info("BEGIN DOWNLOAD FOR SOURCE:DATASET "+source.name+":"+dataset.name)
       val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
       // mark with the temporary status FILE_STATUS.COMPARE any file in the dataset
       FileDatabase.markToCompare(datasetId, Stage.DOWNLOAD)
@@ -128,9 +128,10 @@ class StrategyA extends Downloader {
     } else {
       val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
       val urlPrefix = DatasetInfo.getURLPrefixForRecords(dataset)
+//      val limited = List(variantRecords.minBy(elem => elem._2)) // takes smallest   // debug only
       variantRecords.foreach(record => {
         val filename = DatasetInfo.parseFilenameFromURL(fileURL = record._1)
-        val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
+        val fileId = FileDatabase.fileId(datasetId, url = s"$urlPrefix${record._1}", Stage.DOWNLOAD, filename)
         if (FileDatabase.checkIfUpdateFile(fileId, hash = record._4, originSize = record._2, originLastUpdate = record._3)) {
           // download the file at proper location
           new FTPHelper(dataset).downloadFile(url = s"$urlPrefix${record._1}", record._2.toLong) match {
@@ -168,7 +169,7 @@ class StrategyA extends Downloader {
       val urlPrefix = DatasetInfo.getURLPrefixForRecords(dataset)
       metaRecords.foreach(record => {
         val filename = DatasetInfo.parseFilenameFromURL(fileURL = record._1)
-        val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
+        val fileId = FileDatabase.fileId(datasetId, url = s"$urlPrefix${record._1}", Stage.DOWNLOAD, filename)
         if (FileDatabase.checkIfUpdateFile(fileId, hash = record._4, originSize = record._2, originLastUpdate = record._3)) {
           // download the file at proper location
           new FTPHelper(dataset).downloadFile(url = s"$urlPrefix${record._1}", record._2.toLong) match {
@@ -279,14 +280,16 @@ class StrategyA extends Downloader {
     source.datasets.filter(dataset => dataset.downloadEnabled).foreach(dataset => {
       logger.info("BEGIN DOWNLOAD FAILED FILES FOR SOURCE:DATASET "+source.name+":"+dataset.name)
       val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
-      val failedFiles = FileDatabase.getFailedFiles(datasetId, Stage.DOWNLOAD)
+      val failedFiles = FileDatabase.getFailedFiles(datasetId, Stage.DOWNLOAD)  // of type Seq[(fileId, name, copyNumber, url, hash)]
       if(failedFiles.nonEmpty) {
+        treeURL = dataset.getParameter("tree_file_url").getOrElse(throw new NullPointerException(
+          "REQUIRED PARAMETER \"tree_file_url\" MISSING FROM THE CONFIGURATION XML AT DATASET LEVEL"))
         val datasetTreeFileId = FileDatabase.fileId(datasetId, treeURL, Stage.DOWNLOAD, DatasetInfo.parseFilenameFromURL(treeURL))
         val treeUpdateFailed = failedFiles.map(row => row._1).contains(datasetTreeFileId)
         if (treeUpdateFailed) {
           try {
             /* Failing the update of the tree file, means that any file in this dataset have been updated,
-          * so it's necessary to repeat the whole update process. */
+            * so it's necessary to repeat the whole update process. */
             fetchUpdatesForTreeFile(dataset)
             /* call markAsOutdated on the dataset to mark with the status OUTDATED any file which was once in the local
             copy but it's not any more present in the source. Those files have currently the status FILE_STATUS.COMPARE */

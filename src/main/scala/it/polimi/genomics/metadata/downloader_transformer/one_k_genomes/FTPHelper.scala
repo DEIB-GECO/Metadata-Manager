@@ -242,10 +242,11 @@ class FTPHelper(dataset: Dataset) {
    */
   private def moveToLocation(pathFromFTPRoot: String) : Unit = {
     if(client.connected && pathFromFTPRoot.nonEmpty){
-      logger.info(s"UPDATING WORKING DIRECTORY FROM ${client.workingDirectory()} TO $pathFromFTPRoot")
-      client.cd(pathFromFTPRoot).getOrElse(println("UPDATE FAILED"))
-      logger.info("CURRENT WORKING DIRECTORY " + client.workingDirectory())
-    }
+//      logger.info(s"UPDATING WORKING DIRECTORY FROM ${client.workingDirectory()} TO $pathFromFTPRoot")
+      client.cd(pathFromFTPRoot).getOrElse(logger.debug("ATTEMPT TO REACH DIRECTORY "+pathFromFTPRoot+" FAILED"))
+//      logger.info("CURRENT WORKING DIRECTORY " + client.workingDirectory())
+    } else
+      logger.error("FTP CLIENT NOT CONNECTED OR EMPTY ARGUMENT: TARGET DIRECTORY")
   }
 
   def filterFilesOnly(files: List[FTPFile]): List[FTPFile] = {
