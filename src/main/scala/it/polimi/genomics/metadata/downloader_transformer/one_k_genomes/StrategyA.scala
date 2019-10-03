@@ -127,7 +127,7 @@ class StrategyA extends Downloader {
       throw new IllegalStateException("DOWNLOAD CAN'T CONTINUE: UNABLE TO EXTRACT VARIANT SET FROM TREE LOCAL FILE")
     } else {
       val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
-      val urlPrefix = getURLPrefixForRecords(dataset)
+      val urlPrefix = DatasetInfo.getURLPrefixForRecords(dataset)
       variantRecords.foreach(record => {
         val filename = DatasetInfo.parseFilenameFromURL(filePath = record._1)
         val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
@@ -165,7 +165,7 @@ class StrategyA extends Downloader {
       throw new IllegalStateException("DOWNLOAD CAN'T CONTINUE: UNABLE TO EXTRACT METADATA INFO FROM TREE LOCAL FILE")
     } else {
       val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
-      val urlPrefix = getURLPrefixForRecords(dataset)
+      val urlPrefix = DatasetInfo.getURLPrefixForRecords(dataset)
       metaRecords.foreach(record => {
         val filename = DatasetInfo.parseFilenameFromURL(filePath = record._1)
         val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
@@ -262,18 +262,6 @@ class StrategyA extends Downloader {
       // file contains fileID, name, copy number
       FileDatabase.markAsFailed(file._1)
     }
-  }
-
-  /**
-   * File locations described in the tree file are expressed as relative paths from a base remote address. This method
-   * reads and return that base address from XML config file.
-   * @param dataset
-   * @return
-   */
-  def getURLPrefixForRecords(dataset: Dataset): String = {
-    dataset.getParameter("url_prefix_tree_file_records").getOrElse(
-      throw new NullPointerException("REQUIRED PARAMETER url_prefix_tree_file_records IS MISSING FROM XML CONFIG FILE")
-    )
   }
 
   /**

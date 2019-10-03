@@ -185,6 +185,44 @@ class FTPHelper(dataset: Dataset) {
     })
   }
 
+  /**
+   * Explore the server depth-first starting from the given directory URL and returns list of directory URLs
+   * associated with the files contained in each.
+   *
+   * @param dirURL the directory where to start traversing the server. Parent and sibling directories won't be explored.
+   * @param fileNameRegex optional regular expression in Java form applied to the name of the files. If present, only
+   *                      the matching filenames will be included in the resulting List.
+   * @param excludeSubdirs flag telling whether to limit the exploration to the given argument directory URL
+   * @return a List of tuples, one for each directory traversed containing valid filenames. Each tuple contains the
+   *         URL of a directory or subdirectory, and a non-empty List of FTPFile(s). If excludeSubdirs is true, the
+   *         List produced by this method can only have size 1 or 0 (it's 0 if there aren't files with names matching
+   *         the regex or if the directory is empty).
+   */
+  def exploreServer(dirURL: String, fileNameRegex: Option[String], excludeSubdirs: Boolean): List[(String, List[FTPFile])] = {
+    def explore(currentDir: String): List[(String, List[FTPFile])] = {
+      logger.debug("SEARCHING MATCHING FILES IN DIRECTORY "+currentDir)
+      val dirContent = listContentLocation(currentDir).get
+      val files = filterFilesOnly(dirContent)
+      val filteredFiles = if(fileNameRegex.isDefined) filterByName(files , fileNameRegex.get) else files
+      /* Creates a tuple (directory URL, List[FTPFiles]) and wraps it inside a List if filteredFiles isn't empty.
+      * Wrapping the tuple in a List is necessary later on to concatenate tuples inside a unique List */
+      val dirURL_File_List = if(filteredFiles.nonEmpty) List((currentDir, filteredFiles)) else List.empty[(String, List[FTPFile])]
+      val subDirs = filterDirectoriesOnly(dirContent)
+      // concatenate the result of the recursive call on subdirectories
+      dirURL_File_List ++ (
+        if(excludeSubdirs || subDirs.isEmpty)
+          List.empty[(String, List[FTPFile])]
+        else {
+          subDirs.flatMap(subDirFile => {
+            val subDirURL = s"$currentDir${subDirFile.getName}/"
+            explore(subDirURL)
+          })
+        })
+    }
+
+    explore(dirURL)
+  }
+
   def readProperties(file: FTPFile) : Map[String, Any] = {
     val props = Map("timestamp" -> file.getTimestamp,
       "size" -> file.getSize)
@@ -228,9 +266,9 @@ class FTPHelper(dataset: Dataset) {
    * @return the filtered list of FTPFiles according to the regex given as argument. If regex is None, the same list
    *         of files in input is returned without changes.
    */
-  def filterByName(files: List[FTPFile], regex: Option[String]): List[FTPFile] = {
-    println(s"regex: $regex")
-    val filteredFiles = if(regex.isDefined) files.filter(_.getName.matches(regex.get)) else files
+  def filterByName(files: List[FTPFile], regex: String): List[FTPFile] = {
+//    println(s"regex: $regex")
+    val filteredFiles = files.filter(_.getName.matches(regex))
     /*      // uncomment for debugging
         System.out.println("UNFILTERED FILE NAMES")
         files.foreach(f => {

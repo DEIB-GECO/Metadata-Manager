@@ -65,12 +65,14 @@ class Test extends Downloader {
     println(s"Dataset: ${dataset.name}")
     val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
     try {
-      val ftp = new FTPHelper(dataset)
-      // download tree
-      val treeLocalPath = "Example/examples_meta/1kGenomes/GRCh38/Downloads/current.tree"
-      // compute hash
-      val computedHash = FileUtil.md5Hash(treeLocalPath).get
-      // get latest records
+      val latestVariantURLs = DatasetInfo.latestVariantsFTPFile(dataset)
+      println("NUMBER OF VARIANT FILE DIRECTORIES FOUND : "+latestVariantURLs.size)
+      latestVariantURLs.foreach(tuple => {
+        println("AT DIRECTORY URL "+tuple._1)
+        tuple._2.foreach(file => println(file.getName))
+      })
+
+      /*// get latest records
       val strategy = new StrategyA
       val variantRecords = strategy.parseMetadataRecords(DatasetInfo.metadataRecords(treeLocalPath, dataset))
       println(s"METADATA RECORDS FOUND: ${variantRecords.size}")
@@ -79,10 +81,10 @@ class Test extends Downloader {
         println(s"${variant._1} ${DatasetInfo.parseFilenameFromURL(filePath = variant._1)} ${variant._2} ${variant._3} ${variant._4}")
       }
       // download metadata files
-      val urlPrefix = strategy.getURLPrefixForRecords(dataset)
+      val urlPrefix = DatasetInfo.getURLPrefixForRecords(dataset)
       variantRecords.foreach(record => {
         ftp.downloadFile(url = s"$urlPrefix${record._1}", FTPHelper.suggestDownloadAttemptsNum(record._2.toLong))
-      })
+      })*/
     } catch {
       case ex: Exception => {
         println("DOWNLOAD FAILED. DETAILS:")

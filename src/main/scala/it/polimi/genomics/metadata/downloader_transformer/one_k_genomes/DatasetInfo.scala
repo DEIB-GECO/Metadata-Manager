@@ -1,17 +1,25 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
+import java.io
 import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.util.regex.Pattern
 
 import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
-import org.slf4j.{Logger, LoggerFactory}    // converts java.util.List into scala.util.List in order to use foreach
+import org.apache.commons.net.ftp.FTPFile
+import org.slf4j.{Logger, LoggerFactory}
+
+import scala.util.{Failure, Success, Try}    // converts java.util.List into scala.util.List in order to use foreach
 
 
 /**
  * Created by Tom on set, 2019
  *
- * Helper class capable of reading large files of ASCII characters and filtering each line against a regular expression
+ * This class permits to reach the server of 1kGenomes in order to search for data and metadata. The so identified files
+ * are provided along with location, size, last modified date and md5 digest.
+ * Data and metadata are provided either as records, i.e. strings describing the previously mentioned attributes, or as
+ * instances of FTPFile: object representation of a file hosted on a remote FTP server and containing the same attributes
+ * except for the md5 digest.
  */
 object DatasetInfo {
 
@@ -22,13 +30,7 @@ object DatasetInfo {
    * records present in the tree file present at 1kGenomes FTP server. The generated regex or patterns can
    * then be used for filtering the tree records and parse its content. */
   class DatasetPattern {
-    val ANY_CHAR_SEQUENCE = "\\S+"
-    val POSSIBLY_EMPTY_CHAR_SEQ = "\\S*"
-    val ANYTHING = ".*"
-    val BLANK = "\\s+"
-    val FILE = "file"
-    val DIRECTORY = "directory"
-    val NO_SUBDIR = "[^/]*"
+    import DatasetPattern._
 
     private var path: String = ""
     private var fileType: String = ANY_CHAR_SEQUENCE
@@ -159,7 +161,92 @@ object DatasetInfo {
     }
 
   }
+  object DatasetPattern {
+    val ANY_CHAR_SEQUENCE = "\\S+"
+    val POSSIBLY_EMPTY_CHAR_SEQ = "\\S*"
+    val ANYTHING = ".*"
+    val BLANK = "\\s+"
+    val FILE = "file"
+    val DIRECTORY = "directory"
+    val NO_SUBDIR = "[^/]*"
+  }
 
+  /**
+   * Given a dataset, traverses the associated remote dataset located on an FTP server and returns the most recent
+   * collection of variants available. The behaviour of this method is controllable though many (some optional) XML parameters:
+   * dataset_remote_base_directory
+   * filter_variants_starting_characters
+   * filter_variants_ending_characters
+   * exclude_subdirs_in_each_dataset_release
+   * filter_variants_with_custom_path_regex
+   *
+   * @param dataset the local dataset of interest.
+   * @return a List of tuples, one for each directory traversed containing valid filenames. Each tuple contains the
+   *         URL of a directory or subdirectory, and a non-empty List of FTPFile(s).
+   * @throws java.lang.NullPointerException if the dataset given as argument misses the required XML
+   *                                        parameter dataset_remote_base_directory
+   * @throws java.lang.Exception if an error occurs while accessing the server of listing the content of its directories
+   */
+  def latestVariantsFTPFile(dataset: Dataset): List[(String, List[FTPFile])] = {
+    /**
+     * Returns the name of the subdirectory housing the latest release of the dataset's variants
+     * @param baseDirURL the directory, containing all the releases of a dataset
+     * @param ftp an instance of FTPHelper
+     * @return the name of the subdirectory housing the most recent dataset's release
+     * @throws java.lang.Exception if it fails to list the content of the argument directory or if the directory is empty
+     */
+    def latestVariantSubdirectory(baseDirURL: String, ftp: FTPHelper): String = {
+      val baseDirContent = ftp.listContentLocation(baseDirURL).get
+      val releaseDirs = ftp.filterDirectoriesOnly(baseDirContent).map(ftpFile => ftpFile.getName).sorted
+      logger.info("RELEASE DIRS FOUND: ")
+      releaseDirs.foreach{ logger.info}
+      // choose the latest one
+      logger.info(s"LATEST ONE IS :${releaseDirs.last}")
+      releaseDirs.last
+    }
+
+    def variantsFromDir(dirURL: String, ftp: FTPHelper): List[(String, List[FTPFile])] = {
+      // get optional XML params to filter the variants of interest in a dataset (remote) directory
+      val startingChars = dataset.getParameter("filter_variants_starting_characters")
+      val endingChars = dataset.getParameter("filter_variants_ending_characters")
+      val excludeSubdirs = dataset.getParameter("exclude_subdirs_in_each_dataset_release").exists(_.toBoolean)
+      val customPathRegex = dataset.getParameter("filter_variants_with_custom_path_regex")
+      // build regex for filtering the file names
+      val variantNameRegex = customPathRegex.getOrElse(
+        startingChars.getOrElse("") +
+        DatasetPattern.POSSIBLY_EMPTY_CHAR_SEQ +
+        endingChars.getOrElse("")
+      )
+      // get files matching the regex inside this directory and eventually inside sub-directories
+      ftp.exploreServer(dirURL, Some(variantNameRegex), excludeSubdirs)
+    }
+
+    val urlPrefix = getURLPrefixForRecords(dataset)
+    val baseRemoteDatasetDir = dataset.getParameter("dataset_remote_base_directory").getOrElse(
+      throw new NullPointerException("MISSING REQUIRED PARAMETER dataset_remote_base_directory AT DATASET LEVEL IN XML CONFIG FILE"))
+    val ftp = new FTPHelper(dataset)
+    // select the subdir containing the latest version of this dataset
+    val variantsDirName = latestVariantSubdirectory(s"$urlPrefix$baseRemoteDatasetDir", ftp)
+    val variantsDirURL = s"$urlPrefix$baseRemoteDatasetDir$variantsDirName/"
+    variantsFromDir(variantsDirURL, ftp)
+  }
+
+  /**
+   * Given a dataset, uses a tree file to look at the content of the server and returns the records describing the
+   * most recent collection of variants available on the remote server for this dataset. The behaviour of this method
+   * is controllable though many (some optional) XML parameters:
+   * dataset_remote_base_directory
+   * filter_variants_starting_characters
+   * filter_variants_ending_characters
+   * exclude_subdirs_in_each_dataset_release
+   * filter_variants_with_custom_path_regex
+   *
+   * @param treeFilePath a tree file containing the records of all the files on the server. Each record must be formatted
+   *                     as file_path file_type size day_of_week month day_of_month hour:minutes:seconds year md5_digest_of_files_only
+   * @param dataset the local dataset of interest
+   * @return a List of records formatted as
+   *         file_path file_type size day_of_week month day_of_month hour:minutes:seconds year md5_digest
+   */
   def latestVariantsRecords(treeFilePath: String, dataset: Dataset): List[String] = {
     /**
      * Given the base location of a dataset and a tree file, parses the names of the direct sub-directories to determine
@@ -272,6 +359,18 @@ object DatasetInfo {
     if(filePath.endsWith("/"))
       throw new IllegalArgumentException("YOU'RE PROBABLY USING THIS METHOD IMPROPERLY BY PASSING A DIRECTORY PATH AS ARGUMENT")
     filePath.substring(filePath.lastIndexOf("/")+1)
+  }
+
+  /**
+   * File locations described in the tree file are expressed as relative paths from a base remote address. This method
+   * reads and return that base address from XML config file.
+   * @param dataset
+   * @return
+   */
+  def getURLPrefixForRecords(dataset: Dataset): String = {
+    dataset.getParameter("url_prefix_tree_file_records").getOrElse(
+      throw new NullPointerException("REQUIRED PARAMETER url_prefix_tree_file_records IS MISSING FROM XML CONFIG FILE")
+    )
   }
 
   def getDownloadDir(dataset: Dataset): String ={
