@@ -129,7 +129,7 @@ class StrategyA extends Downloader {
       val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
       val urlPrefix = DatasetInfo.getURLPrefixForRecords(dataset)
       variantRecords.foreach(record => {
-        val filename = DatasetInfo.parseFilenameFromURL(filePath = record._1)
+        val filename = DatasetInfo.parseFilenameFromURL(fileURL = record._1)
         val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
         if (FileDatabase.checkIfUpdateFile(fileId, hash = record._4, originSize = record._2, originLastUpdate = record._3)) {
           // download the file at proper location
@@ -167,7 +167,7 @@ class StrategyA extends Downloader {
       val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
       val urlPrefix = DatasetInfo.getURLPrefixForRecords(dataset)
       metaRecords.foreach(record => {
-        val filename = DatasetInfo.parseFilenameFromURL(filePath = record._1)
+        val filename = DatasetInfo.parseFilenameFromURL(fileURL = record._1)
         val fileId = FileDatabase.fileId(datasetId, url = record._1, Stage.DOWNLOAD, filename)
         if (FileDatabase.checkIfUpdateFile(fileId, hash = record._4, originSize = record._2, originLastUpdate = record._3)) {
           // download the file at proper location

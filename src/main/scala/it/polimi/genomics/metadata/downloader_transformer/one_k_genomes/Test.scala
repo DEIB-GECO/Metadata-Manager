@@ -65,7 +65,7 @@ class Test extends Downloader {
     println(s"Dataset: ${dataset.name}")
     val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
     try {
-      val latestVariantURLs = DatasetInfo.latestVariantsFTPFile(dataset)
+      val latestVariantURLs = DatasetInfo.metadataFTPFile(dataset)
       println("NUMBER OF VARIANT FILE DIRECTORIES FOUND : "+latestVariantURLs.size)
       latestVariantURLs.foreach(tuple => {
         println("AT DIRECTORY URL "+tuple._1)

@@ -334,6 +334,16 @@ object DatasetInfo {
     ).filter(_.isDefined).map(option => option.get)
   }
 
+  def metadataFTPFile(dataset: Dataset): IndexedSeq[(String, List[FTPFile])] = {
+    val urlPrefix = getURLPrefixForRecords(dataset)
+    val metaPaths = metadataPaths(dataset)
+    // format as a list of absolute URL to the containing directory and a list of filenames
+    val metaDirsURLs = metaPaths.map(relativeURL => urlPrefix + parseDirectoryFromURL(relativeURL))
+    val metaFileNames = metaPaths.map(relativeURL => parseFilenameFromURL(relativeURL))
+    val ftp = new FTPHelper(dataset)
+    metaPaths.indices.flatMap(i => ftp.exploreServer(metaDirsURLs(i), Some(metaFileNames(i)), true))
+  }
+
   def metadataRecords(treeLocalPath: String, dataset: Dataset): List[String] = {
     val metaPaths = metadataPaths(dataset)
     val metaPatterns = metaPaths.map(singleMeta => {
@@ -352,13 +362,22 @@ object DatasetInfo {
   }
 
   /**
-   * This method simply returns the substring obtained by cutting the original string right after the last slash occurrence
-   * untill the end of the string.
+   * This method simply returns the substring obtained by cutting the original string right after the last slash ("/")
+   * occurrence and until the end of the string.
    */
-  def parseFilenameFromURL(filePath: String): String ={
-    if(filePath.endsWith("/"))
+  def parseFilenameFromURL(fileURL: String): String ={
+    if(fileURL.endsWith("/"))
       throw new IllegalArgumentException("YOU'RE PROBABLY USING THIS METHOD IMPROPERLY BY PASSING A DIRECTORY PATH AS ARGUMENT")
-    filePath.substring(filePath.lastIndexOf("/")+1)
+    fileURL.substring(fileURL.lastIndexOf("/")+1)
+  }
+
+  /**
+   * This method simply returns the substring obtained by cutting the original string from the start until the last
+   * occurrence of the character /
+   * @throws java.lang.StringIndexOutOfBoundsException if the argument string doesn't contain any directory
+   */
+  def parseDirectoryFromURL(fileURL: String): String = {
+    fileURL.substring(0, fileURL.lastIndexOf("/"))+"/"
   }
 
   /**
