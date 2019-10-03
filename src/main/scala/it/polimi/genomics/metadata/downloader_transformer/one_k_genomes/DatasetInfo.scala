@@ -334,14 +334,14 @@ object DatasetInfo {
     ).filter(_.isDefined).map(option => option.get)
   }
 
-  def metadataFTPFile(dataset: Dataset): IndexedSeq[(String, List[FTPFile])] = {
+  def metadataFTPFile(dataset: Dataset): List[(String, List[FTPFile])] = {
     val urlPrefix = getURLPrefixForRecords(dataset)
     val metaPaths = metadataPaths(dataset)
     // format as a list of absolute URL to the containing directory and a list of filenames
     val metaDirsURLs = metaPaths.map(relativeURL => urlPrefix + parseDirectoryFromURL(relativeURL))
     val metaFileNames = metaPaths.map(relativeURL => parseFilenameFromURL(relativeURL))
     val ftp = new FTPHelper(dataset)
-    metaPaths.indices.flatMap(i => ftp.exploreServer(metaDirsURLs(i), Some(metaFileNames(i)), true))
+    metaPaths.indices.toList.flatMap(i => ftp.exploreServer(metaDirsURLs(i), Some(metaFileNames(i)), true))
   }
 
   def metadataRecords(treeLocalPath: String, dataset: Dataset): List[String] = {
