@@ -5,7 +5,8 @@ import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.util.regex.Pattern
 
 import it.polimi.genomics.metadata.step.xml.Dataset
-import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
+import it.polimi.genomics.metadata.util.{FTPHelper, FileUtil, PatternMatch}
+import org.apache.commons.cli.MissingArgumentException
 import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -223,7 +224,7 @@ object DatasetInfo {
 
     val urlPrefix = getURLPrefixForRecords(dataset)
     val baseRemoteDatasetDir = dataset.getParameter("dataset_remote_base_directory").getOrElse(
-      throw new NullPointerException("MISSING REQUIRED PARAMETER dataset_remote_base_directory AT DATASET LEVEL IN XML CONFIG FILE"))
+      throw new MissingArgumentException("MANDATORY PARAMETER dataset_remote_base_directory NOT FOUND AT DATASET LEVEL IN XML CONFIG FILE"))
     val ftp = new FTPHelper(dataset)
     // select the subdir containing the latest version of this dataset
     val variantsDirName = latestVariantSubdirectory(s"$urlPrefix$baseRemoteDatasetDir", ftp)
@@ -315,7 +316,7 @@ object DatasetInfo {
     }
 
     val baseRemoteDatasetDir = dataset.getParameter("dataset_remote_base_directory").getOrElse(
-      throw new NullPointerException("MISSING REQUIRED PARAMETER dataset_remote_base_directory AT DATASET LEVEL IN XML CONFIG FILE"))
+      throw new MissingArgumentException("MANDATORY PARAMETER dataset_remote_base_directory NOT FOUND AT DATASET LEVEL IN XML CONFIG FILE"))
     // select the subdir containing the latest version of this dataset
     val latestDatasetDirPath = latestVariantSubdirectory(baseRemoteDatasetDir, treeFilePath)
     // select the variant files within
@@ -388,7 +389,7 @@ object DatasetInfo {
    */
   def getURLPrefixForRecords(dataset: Dataset): String = {
     dataset.getParameter("url_prefix_tree_file_records").getOrElse(
-      throw new NullPointerException("REQUIRED PARAMETER url_prefix_tree_file_records IS MISSING FROM XML CONFIG FILE")
+      throw new MissingArgumentException("MANDATORY PARAMETER url_prefix_tree_file_records NOT FOUND IN XML CONFIG FILE")
     )
   }
 

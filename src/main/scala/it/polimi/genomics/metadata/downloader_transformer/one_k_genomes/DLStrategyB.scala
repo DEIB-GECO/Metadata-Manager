@@ -3,6 +3,7 @@ package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 import it.polimi.genomics.metadata.database.{FileDatabase, Stage}
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
+import it.polimi.genomics.metadata.util.FTPHelper
 import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.LoggerFactory
 
@@ -11,7 +12,7 @@ import scala.util.{Failure, Success}
 /**
  * Created by Tom on ott, 2019
  */
-class StrategyB extends Downloader {
+class DLStrategyB extends Downloader {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 

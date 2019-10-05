@@ -65,11 +65,11 @@ class Test extends Downloader {
     println(s"Dataset: ${dataset.name}")
     val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
     try {
-      val strategyB = new StrategyB
+      val strategyB = new DLStrategyB
       strategyB.fetchUpdatesForVariants(dataset)
 
       /*// get latest records
-      val strategy = new StrategyA
+      val strategy = new DLStrategyA
       val variantRecords = strategy.parseMetadataRecords(DatasetInfo.metadataRecords(treeLocalPath, dataset))
       println(s"METADATA RECORDS FOUND: ${variantRecords.size}")
       for (variant <- variantRecords) {

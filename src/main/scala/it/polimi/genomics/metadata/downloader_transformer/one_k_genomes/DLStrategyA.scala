@@ -7,7 +7,8 @@ import it.polimi.genomics.metadata.downloader_transformer.Downloader
 import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DatasetInfo.DatasetPattern
 import it.polimi.genomics.metadata.step.xml
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
-import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
+import it.polimi.genomics.metadata.util.{FTPHelper, FileUtil, PatternMatch}
+import org.apache.commons.cli.MissingArgumentException
 import org.slf4j.LoggerFactory
 
 import scala.util.{Failure, Success}
@@ -33,7 +34,7 @@ import scala.util.{Failure, Success}
  * or if the parsing of the tree doesn't return any info. If the parsing succeeds, the download of the single files may
  * still fail due to network issues, and in such case the interested files will be marked with FILE_STATUS.FAILED.
  */
-class StrategyA extends Downloader {
+class DLStrategyA extends Downloader {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -87,8 +88,8 @@ class StrategyA extends Downloader {
    */
   private def fetchUpdatesForTreeFile(dataset: Dataset): Unit = {
     // get required params from XML config file
-    treeURL = dataset.getParameter("tree_file_url").getOrElse(throw new NullPointerException(
-      "REQUIRED PARAMETER \"tree_file_url\" MISSING FROM THE CONFIGURATION XML AT DATASET LEVEL"))
+    treeURL = dataset.getParameter("tree_file_url").getOrElse(throw new MissingArgumentException(
+      "MANDATORY PARAMETER tree_file_url NOT FOUND IN CONFIGURATION XML AT DATASET LEVEL"))
     //    1
     val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
     downloadOrCopyTreeFile(dataset)
@@ -282,8 +283,8 @@ class StrategyA extends Downloader {
       val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
       val failedFiles = FileDatabase.getFailedFiles(datasetId, Stage.DOWNLOAD)  // of type Seq[(fileId, name, copyNumber, url, hash)]
       if(failedFiles.nonEmpty) {
-        treeURL = dataset.getParameter("tree_file_url").getOrElse(throw new NullPointerException(
-          "REQUIRED PARAMETER \"tree_file_url\" MISSING FROM THE CONFIGURATION XML AT DATASET LEVEL"))
+        treeURL = dataset.getParameter("tree_file_url").getOrElse(throw new MissingArgumentException(
+          "MANDATORY PARAMETER tree_file_url NOT FOUND IN THE CONFIGURATION XML AT DATASET LEVEL"))
         val datasetTreeFileId = FileDatabase.fileId(datasetId, treeURL, Stage.DOWNLOAD, DatasetInfo.parseFilenameFromURL(treeURL))
         val treeUpdateFailed = failedFiles.map(row => row._1).contains(datasetTreeFileId)
         if (treeUpdateFailed) {

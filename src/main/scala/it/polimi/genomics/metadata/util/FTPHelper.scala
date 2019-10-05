@@ -1,12 +1,13 @@
-package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
+package it.polimi.genomics.metadata.util
 
 import java.io.IOException
 import java.nio.file.{Files, Paths}
 
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Ftp
+import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DatasetInfo
 import it.polimi.genomics.metadata.step.xml
 import it.polimi.genomics.metadata.step.xml.Dataset
-import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
+import org.apache.commons.cli.MissingArgumentException
 import org.apache.commons.net.ftp.{FTPConnectionClosedException, FTPFile}
 import org.apache.commons.net.io.CopyStreamException
 import org.slf4j.{Logger, LoggerFactory}
@@ -21,8 +22,10 @@ class FTPHelper(dataset: Dataset) {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   private val client = new Ftp()
-  private val username = dataset.getParameter("FTP_username").get
-  private val password = dataset.getParameter("FTP_password").get
+  private val username = dataset.getParameter("FTP_username").getOrElse(
+    throw new MissingArgumentException("MANDATORY PARAMETER FTP_username NOT FOUND IN XML CONFIGURATION FILE"))
+  private val password = dataset.getParameter("FTP_password").getOrElse(
+    throw new MissingArgumentException("MANDATORY PARAMETER FTP_password NOT FOUND IN XML CONFIGURATION FILE"))
 
   def test(source: xml.Source) : Unit = {
 

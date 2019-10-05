@@ -25,7 +25,7 @@
         <source name="1kGenomes">
             <url>ftp.1000genomes.ebi.ac.uk</url>
             <source_working_directory>1kGenomes</source_working_directory>
-            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.StrategyA</downloader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DLStrategyA</downloader>
             <transformer><!--TODO --></transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
