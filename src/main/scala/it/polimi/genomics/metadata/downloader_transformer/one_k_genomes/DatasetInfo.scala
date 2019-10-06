@@ -397,15 +397,4 @@ object DatasetInfo {
     s"${dataset.source.outputFolder}/${dataset.outputFolder}/Downloads/"
   }
 
-//  DEBUG
-  def writeFile(where: String, content: List[String]): Unit ={
-    // create & replace
-    val writer = Files.newBufferedWriter(Paths.get(where), StandardOpenOption.CREATE,
-      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)
-    content.foreach(line => {
-      writer.write(line)
-      writer.newLine()
-    })
-    writer.close()
-  }
 }

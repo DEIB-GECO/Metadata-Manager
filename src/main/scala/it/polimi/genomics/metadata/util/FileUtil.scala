@@ -1,7 +1,7 @@
 package it.polimi.genomics.metadata.util
 
-import java.io.{BufferedReader, IOException}
-import java.nio.file.{DirectoryNotEmptyException, FileAlreadyExistsException, Files, InvalidPathException, LinkOption, Paths, StandardCopyOption}
+import java.io.{BufferedReader, BufferedWriter, IOException}
+import java.nio.file.{DirectoryNotEmptyException, FileAlreadyExistsException, Files, InvalidPathException, LinkOption, Paths, StandardCopyOption, StandardOpenOption}
 
 import scala.util.Try
 
@@ -112,5 +112,22 @@ object FileUtil {
         ex.printStackTrace()
       }
     }
+  }
+
+  def writeReplace(where: String, content: List[String]): Unit ={
+    // create & replace
+    val writer = Files.newBufferedWriter(Paths.get(where), StandardOpenOption.CREATE,
+      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)
+    content.foreach(line => {
+      writer.write(line)
+      writer.newLine()
+    })
+    writer.close()
+  }
+
+  def writeReplace(where: String): BufferedWriter = {
+    // create & replace
+    Files.newBufferedWriter(Paths.get(where), StandardOpenOption.CREATE,
+      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)
   }
 }
