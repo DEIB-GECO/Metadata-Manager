@@ -12,8 +12,8 @@
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
         <flattener_rule_base>""</flattener_rule_base>
-        <download_enabled>true</download_enabled>
-        <transform_enabled>false</transform_enabled>
+        <download_enabled>false</download_enabled>
+        <transform_enabled>true</transform_enabled>
         <cleaner_enabled>false</cleaner_enabled>
         <mapper_enabled>false</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
@@ -26,7 +26,7 @@
             <url>ftp.1000genomes.ebi.ac.uk</url>
             <source_working_directory>1kGenomes</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DLStrategyA</downloader>
-            <transformer><!--TODO --></transformer>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.OneKGTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
             <transform_enabled>true</transform_enabled>
@@ -153,7 +153,7 @@
                     <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url> <!--TODO the base is narrowPeak but I have a lot more region attributes... I have t develop my schema, right ? -->
                     <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
+                    <transform_enabled>false</transform_enabled>
                     <cleaner_enabled>true</cleaner_enabled>
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
