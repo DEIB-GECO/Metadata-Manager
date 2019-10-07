@@ -100,6 +100,11 @@ object TransformerStep extends Step {
               logger.info("Transformation for dataset: " + dataset.name)
 
               FileDatabase.delete(datasetId, Stage.TRANSFORM)
+              // detects one-to-many kind of files' transformation
+              val manyToManyConfigParam = source.parameters.filter(_._1 == "many_to_many_transform")
+              val isOneToManyTransform = if(manyToManyConfigParam.nonEmpty && manyToManyConfigParam.head._2.nonEmpty) {
+                manyToManyConfigParam.head._2.toBoolean
+              } else true
               //id, filename, copy number.
               val candidates = {
                 val tempCandidates: List[((String, Int), (Int, String, Int))] = FileDatabase.getFilesToProcess(datasetId, Stage.DOWNLOAD).toList.flatMap { file =>
@@ -111,9 +116,9 @@ object TransformerStep extends Step {
                   val candidates = transformationClass.getCandidateNames(originalFileName, dataset, source)
 
                   logger.info(s"candidates: $originalFileName, $candidates")
-
                   val files = candidates.map(candidateName => {
-                    (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, Stage.TRANSFORM, candidateName))
+                    /* source level paramter many-to-many-transform with default true, and false for my source */
+                    (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, Stage.TRANSFORM, candidateName, isOneToManyTransform))
                   })
 
                   files.map((_, file))

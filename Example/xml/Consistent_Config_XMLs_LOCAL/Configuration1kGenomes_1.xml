@@ -105,6 +105,13 @@
                         <value>public</value>
                     </parameter>
                     -->
+                                        <!--    TRANSFORMATION PARAMTERES   -->
+                <parameter>
+                    <description>Configures the Transformer class to work on input files which have a many-to-many
+                    relationship with the output</description>
+                    <key>many_to_many_transform</key>
+                    <value>false</value>
+                </parameter>
             </parameter_list>
             <dataset_list>
                 <dataset name="GRCh38">
