@@ -84,7 +84,7 @@
                 <parameter>
                     <description>Timeout in milliseconds for the FTP data exchange socket when the data stream is interrupted</description>
                     <key>data_connection_timeout</key>
-                    <value>1500</value>
+                    <value>2500</value>
                 </parameter>
                 <parameter>
                     <key>filter_variants_starting_characters</key>
