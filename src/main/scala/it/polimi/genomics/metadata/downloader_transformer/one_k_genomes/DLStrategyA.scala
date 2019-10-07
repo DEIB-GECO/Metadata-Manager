@@ -123,7 +123,7 @@ class DLStrategyA extends Downloader {
   private def fetchUpdatesForVariants(treeLocalPath: String, dataset: Dataset): Unit = {
     //        3
     val variantRecords_asLines = DatasetInfo.latestVariantsRecords(treeLocalPath, dataset)
-    val variantRecords = parseVariantRecords(variantRecords_asLines)
+    val variantRecords = parseVariantRecords(variantRecords_asLines).sortBy(record => record._2)  // sorting by size - from smallest to biggest - is done for debug purposes
     if (variantRecords.isEmpty) {
       throw new IllegalStateException("DOWNLOAD CAN'T CONTINUE: UNABLE TO EXTRACT VARIANT SET FROM TREE LOCAL FILE")
     } else {

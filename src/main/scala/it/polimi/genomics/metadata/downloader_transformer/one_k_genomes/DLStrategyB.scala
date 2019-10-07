@@ -56,13 +56,11 @@ class DLStrategyB extends Downloader {
     if (variantFiles.isEmpty) {
       throw new IllegalStateException("DOWNLOAD CAN'T CONTINUE: FTP SERVER TRAVERSAL DIDN'T RETURNED ANY VARIANT")
     } else {
-      // flatten information
-      val variantsInfo = flattenFTPFileInfo(variantFiles)
-      logger.info("VARIANTS FOUND: ")
-      variantsInfo.foreach(file => logger.info(file._1, file._3, file._4))
+      // flatten information (sorting by size - smallest to biggest - is done just for debug purposes)
+      val variantsInfo = flattenFTPFileInfo(variantFiles).sortBy(file => file._3)
+/*      logger.info("VARIANTS FOUND: ")
+      variantsInfo.foreach(file => logger.info(file._1, file._3, file._4))*/
       // check if update & download
-      logger.warn("RUNNING WITH JUST ONE VARIANT FOR DEBUG")
-//      val limited = List(variantsInfo.minBy(elem => elem._3)) // takes smallest   // debug only
       val datasetId = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
       variantsInfo.foreach(variant => {
         val fileId = FileDatabase.fileId(datasetId, url = variant._1, Stage.DOWNLOAD, variant._2)
