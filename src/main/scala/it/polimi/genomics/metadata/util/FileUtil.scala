@@ -114,20 +114,37 @@ object FileUtil {
     }
   }
 
-  def writeReplace(where: String, content: List[String]): Unit ={
+  def writeReplace(targetFilePath: String, content: List[String]): Unit ={
     // create & replace
-    val writer = Files.newBufferedWriter(Paths.get(where), StandardOpenOption.CREATE,
+    val writer = Files.newBufferedWriter(Paths.get(targetFilePath), StandardOpenOption.CREATE,
       StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)
-    content.foreach(line => {
-      writer.write(line)
+    // write all elements without last newLine
+    for(i <- 0 until content.length-1) {
+      writer.write(content(i))
       writer.newLine()
-    })
+    }
+    writer.write(content.last)
     writer.close()
   }
 
-  def writeReplace(where: String): BufferedWriter = {
+  def writeReplace(targetFilePath: String): BufferedWriter = {
     // create & replace
-    Files.newBufferedWriter(Paths.get(where), StandardOpenOption.CREATE,
+    Files.newBufferedWriter(Paths.get(targetFilePath), StandardOpenOption.CREATE,
       StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)
+  }
+
+  def writeAppend(targetFilePath: String, startOnNewLine: Boolean = false): BufferedWriter = {
+    val path = Paths.get(targetFilePath)
+    val writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE,
+      StandardOpenOption.WRITE, StandardOpenOption.APPEND)
+    if(startOnNewLine && Files.size(path)!=0)
+      writer.newLine()
+    writer
+  }
+
+  def createReplaceEmptyFile(targetFilePath: String): Unit ={
+    val path = Paths.get(targetFilePath)
+    Files.deleteIfExists(path)
+    Files.createFile(path)
   }
 }

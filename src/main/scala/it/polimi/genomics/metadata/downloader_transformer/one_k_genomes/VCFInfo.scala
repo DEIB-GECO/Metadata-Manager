@@ -68,6 +68,46 @@ object VCFInfo {
     val GT_NOT_PRESENT = "0"
   }
 
+  class MutationRepresentation(mutationParts: List[String]) {
+    def chr:String ={
+      mutationParts.head
+    }
+    def pos:String = {
+      mutationParts(1)
+    }
+    def id:String = {
+      mutationParts(2)
+    }
+    def ref:String ={
+      mutationParts(3)
+    }
+    def alt:String ={
+      mutationParts(4)
+    }
+    def qual:String ={
+      mutationParts(5)
+    }
+    def filter:String ={
+      mutationParts(6)
+    }
+    def info:String ={
+      mutationParts(7)
+    }
+    def format:String ={
+      mutationParts(8)
+    }
+    def customPart(sampleNum: Int):String ={
+      split(mutationParts(7))(sampleNum)
+    }
+    def genotype(sampleNum: Int): String ={
+      val c = customPart(sampleNum)
+      c.substring(0, c.indexOf(":"))
+    }
+    def genotype(sampleName: String, biosamples: List[String]): Unit = {
+      genotype(biosamples.indexOf(sampleName))
+    }
+  }
+
   /**
    * @param VCFFilePath the path (relative to the project's root dir) to a VCF file complete of genotype information.
    * @return an array of biosamples' names read from the heaser line of the argument VCF file given
