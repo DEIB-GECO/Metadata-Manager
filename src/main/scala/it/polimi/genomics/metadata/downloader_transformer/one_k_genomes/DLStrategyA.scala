@@ -108,6 +108,7 @@ class DLStrategyA extends Downloader {
       // then update the tree file
       /* Actually I already downloaded the tree file overwriting the old local copy if it was present, so
       I just need to notify it to the database. */
+      // TODO add size of file to be compliant with DB implementation (chekIfUpdate return true if I don't specify the size here)
       FileDatabase.markAsUpdated(fileId, "", computedHash)
     }
   }
@@ -124,6 +125,8 @@ class DLStrategyA extends Downloader {
     //        3
     val variantRecords_asLines = DatasetInfo.latestVariantsRecords(treeLocalPath, dataset)
     val variantRecords = parseVariantRecords(variantRecords_asLines).sortBy(record => record._2)  // sorting by size - from smallest to biggest - is done for debug purposes
+    //TODO print list of variant records sorted by size to check sorting... Maybe sorting on strings works differently
+    // adding .toLong in sortBy could do the trick
     if (variantRecords.isEmpty) {
       throw new IllegalStateException("DOWNLOAD CAN'T CONTINUE: UNABLE TO EXTRACT VARIANT SET FROM TREE LOCAL FILE")
     } else {
