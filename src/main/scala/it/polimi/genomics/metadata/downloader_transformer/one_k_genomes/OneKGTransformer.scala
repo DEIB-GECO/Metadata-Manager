@@ -1,21 +1,23 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
-import java.io.{BufferedReader, File, Reader}
-import java.nio.file.{Files, OpenOption, Paths, StandardCopyOption, StandardOpenOption}
-import java.util.regex.Pattern
+import java.io.File
 
 import it.polimi.genomics.metadata.downloader_transformer.Transformer
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Unzipper
-import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.VCFInfo.VariantPattern
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
-import it.polimi.genomics.metadata.util.{FTPHelper, FileUtil, PatternMatch}
+import it.polimi.genomics.metadata.util.FileUtil
 import org.apache.commons.cli.MissingArgumentException
 import org.slf4j.{Logger, LoggerFactory}
 
+import scala.collection.mutable.ListBuffer
+
 /**
  * Created by Tom on ott, 2019
+ *
+ * Transformer for source 1000Genomes
  */
 class OneKGTransformer extends Transformer {
+  import OneKGTransformer._
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
@@ -24,37 +26,42 @@ class OneKGTransformer extends Transformer {
   lazy val seqIndexMetaName:String = XMLParams.get._2
   lazy val populationMetaName:String = XMLParams.get._3
 
+  val extractedArchives = new ListBuffer[String]
+
+  val META_ALGORITHM_KEY = "algorithm"
 
   /**
-   * recieves .json and .bed.gz files and transform them to get metadata in .meta files and region in .bed files.
+   * From a downloaded file, writes the given candidate file as a metadata or region file.
    *
    * @param source           source where the files belong to.
    * @param originPath       path for the  "Downloads" folder without trailing file separator
    * @param destinationPath  path for the "Transformations" folder without trailing file separator
-   * @param originalFilename name of the file to be transformed
-   * @param filename         name of the file to create during this transformation
+   * @param originalFilename name of a compressed VCF file or metadata file
+   * @param filename         name of the region data or metadata file to create and populate with the attributes of the origin.
    * @return true if the transformation produced a file, false otherwise (the candidate filename will be marked as failed)
    */
   override def transform(source: Source, originPath: String, destinationPath: String, originalFilename: String, filename: String): Boolean = {
 //    println("TRANSFORM CALLED FOR ORIGINAL FILE "+originalFilename+" WITH EXPECTED OUTPUT "+filename)
     val originFilePath = originPath+File.separator+originalFilename
-    val writer = FileUtil.writeAppend(destinationPath+File.separator+filename, startOnNewLine = true)
-    // recognize original file kind
+    val targetFilePath = destinationPath+File.separator+filename
+    // recognize origin file kind
     originalFilename match {
       case this.seqIndexMetaName =>
         // TODO add metadata to metadata of filename
-      case variantCallFile =>
-        hasMetaExtension(filename) match {
-          case true => {
-            //TODO add metadata to filename
-          }
-          case false => {
-
-            //TODO add sample data to filename
-          }
+      case compressedVCF =>
+        val VCFFilePath = removeExtension(originFilePath)
+        if(!extractArchive(originFilePath, VCFFilePath))
+          return false
+        if (isMetadata(filename)) {
+          val writer = FileUtil.writeAppend(targetFilePath, startOnNewLine = true).get // throws exception if fails
+          writer.write(tabber(META_ALGORITHM_KEY, parseAlgorithmName(originalFilename)))
+          writer.close()
+        } else {
+          val sampleName = removeExtension(filename)
+          val sourceVCF = new VCFHelper(VCFFilePath)
+          sourceVCF.appendMutationsOf(sampleName, targetFilePath)
         }
     }
-    writer.close()
     true
   }
 
@@ -70,10 +77,10 @@ class OneKGTransformer extends Transformer {
   override def getCandidateNames(filename: String, dataset: Dataset, source: Source): List[String] = {
     // read XML config parameters here because I need Dataset
     initMetadataFileNames(dataset)
-    // recognize file kind
+    // decide what to return based on the kind of file
     val trueFilename = removeCopyNumber(filename)
     val downloadDirPath = dataset.fullDatasetOutputFolder+File.separator+"Downloads"+File.separator
-   trueFilename match {
+    trueFilename match {
       case this.treeFileName => List.empty[String]
       case this.populationMetaName =>
       //TODO build a dictionary or map with required info
@@ -82,32 +89,19 @@ class OneKGTransformer extends Transformer {
      // TODO scan sequence index file and return sample.gdm.meta
         List("a.gdm", "a.gdm.meta")
       case variantCallArchive =>
-        // then it's a variant call archive
-        // extract package
+        // unzip
         val archivePath = downloadDirPath+trueFilename
         val VCFFilePath = downloadDirPath+removeExtension(trueFilename)
-        logger.info("EXTRACTING "+trueFilename)
-        if(!Unzipper.unGzipIt(archivePath, VCFFilePath)) {  // replace existing file. Fails if directory exists with same name
-          logger.error("EXTRACTION FAILED. THE PACKAGE IS PROBABLY DAMAGED OR INCOMPLETE. " +
-            "SKIP TRANSFORMATION FOR THIS PACKAGE.")
-            List.empty[String]
-        }
+        if(!extractArchive(archivePath, VCFFilePath))
+          List.empty[String]
         // read sample names and output resulting filenames:
-        val sampleFiles = VCFInfo.biosamples(VCFFilePath).map(sample => s"$sample.gdm")
+        val sampleFiles = (new VCFHelper(VCFFilePath)).biosamples.map(sample => s"$sample.gdm")
         val metadataFiles = sampleFiles.map(sample => s"$sample.gdm.meta")
         sampleFiles:::metadataFiles
     }
   }
 
-  ///////////////////////////////   HELPER METHODS    ///////////////////////////////////////
-
-  def removeCopyNumber(filename: String): String = {
-    filename.replaceFirst("_\\d\\.", ".")
-  }
-
-  def removeExtension(filename: String): String ={
-    filename.substring(0, filename.lastIndexOf("."))
-  }
+  ///////////////////////////////   GENERIC HELPER METHODS    ///////////////////////////////////////
 
   def initMetadataFileNames(dataset: Dataset): Unit = {
     if (XMLParams.isEmpty) XMLParams = Some(
@@ -120,8 +114,58 @@ class OneKGTransformer extends Transformer {
     )
   }
 
-  def hasMetaExtension(filename: String): Boolean ={
+  /**
+   * Extracts the archive at the given destination file path as a single file, overwriting an already existing file with
+   * the same target file path. However if the same archive has already been extracted during this session,
+   * the extraction is skipped and the method returns true.
+   * The extraction fails if a directory already exists at the target file path.
+   */
+  def extractArchive(archivePath: String, extractedFilePath: String):Boolean ={
+    logger.info("EXTRACTING "+archivePath.substring(archivePath.lastIndexOf(File.separator)))
+    if(extractedArchives.contains(extractedFilePath))
+      true
+    else if(Unzipper.unGzipIt(archivePath, extractedFilePath)){
+      extractedArchives += extractedFilePath
+      true
+    } else {
+      logger.error("EXTRACTION FAILED. THE PACKAGE IS PROBABLY DAMAGED OR INCOMPLETE. " +
+        "SKIP TRANSFORMATION FOR THIS PACKAGE.")
+      false
+    }
+  }
+
+}
+object OneKGTransformer {
+
+  ///////////////////////////////   GENERIC HELPER METHODS    ///////////////////////////////////////
+
+  def removeCopyNumber(filename: String): String = {
+    filename.replaceFirst("_\\d\\.", ".")
+  }
+
+  def removeExtension(filename: String): String ={
+    filename.substring(0, filename.lastIndexOf("."))
+  }
+
+  def isMetadata(filename: String): Boolean ={
     filename.endsWith(".meta")
+  }
+
+  //////////////////////////////    SOURCE SPECIFIC METHODS  ////////////////////////////////////////
+
+  def parseAlgorithmName(VCFFileNameOrPath: String): String = {
+    val algorithmName = new ListBuffer[String]()
+    if(VCFFileNameOrPath.matches(".*callmom.*"))
+      algorithmName += "callMom"
+    if(VCFFileNameOrPath.matches(".*shapeit2.*"))
+      algorithmName += "ShapeIt2"
+    if(VCFFileNameOrPath.matches(".*mvncall.*"))
+      algorithmName += "Mvncall"
+    algorithmName.reduce((a1, a2) => a1+" + "+a2)
+  }
+
+  def tabber(words: String*): String ={
+    words.reduce((key, value) => key+"\t"+value)
   }
 
 }

@@ -114,6 +114,14 @@ object FileUtil {
     }
   }
 
+  /**
+   * @param targetFilePath a string describing the absolute location of a file in the local memory. If the file doesn't
+   *                       exist it's created, otherwise the existing file is erased and overwritten.
+   * @param content a List of strings. Each string is treated as a line of the file being written.
+   * @throws java.nio.file.InvalidPathException if the file path is not valid
+   * @throws java.io.IOException if an error occurs while writing the file
+   * @throws SecurityException if no rights to write the file
+   */
   def writeReplace(targetFilePath: String, content: List[String]): Unit ={
     // create & replace
     val writer = Files.newBufferedWriter(Paths.get(targetFilePath), StandardOpenOption.CREATE,
@@ -127,24 +135,71 @@ object FileUtil {
     writer.close()
   }
 
-  def writeReplace(targetFilePath: String): BufferedWriter = {
+  /**
+   * @param targetFilePath a string describing the absolute location of a file in the local memory. If the file doesn't
+   *                       exist it's created, otherwise the existing file is erased and overwritten.
+   * @return a BufferedWriter instance that can be used to write at the target file path.
+   * @throws java.nio.file.InvalidPathException if the file path is not valid
+   * @throws java.io.IOException if an error occurs while writing the file
+   * @throws SecurityException if no rights to write the file
+   */
+  def writeReplace(targetFilePath: String): Try[BufferedWriter] = {
     // create & replace
-    Files.newBufferedWriter(Paths.get(targetFilePath), StandardOpenOption.CREATE,
-      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)
+    Try(Files.newBufferedWriter(Paths.get(targetFilePath), StandardOpenOption.CREATE,
+      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE))
   }
 
-  def writeAppend(targetFilePath: String, startOnNewLine: Boolean = false): BufferedWriter = {
-    val path = Paths.get(targetFilePath)
-    val writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE,
-      StandardOpenOption.WRITE, StandardOpenOption.APPEND)
-    if(startOnNewLine && Files.size(path)!=0)
-      writer.newLine()
-    writer
+  /**
+   * @param targetFilePath a string describing the absolute location of a file in the local memory. If the file doesn't
+   *                       exist it's created, otherwise the returned BufferedReader instance starts at the end of the file.
+   * @param startOnNewLine decides if the returned BufferedReader instance should be prepared so as the first write operation
+   *                       writes on a new line or on the same line of the last byte of an existing file.
+   * @return a BufferedWriter instance that can be used to write at the target file path.
+   * @throws java.nio.file.InvalidPathException if the file path is not valid
+   * @throws java.io.IOException if an error occurs while writing the file
+   * @throws SecurityException if no rights to write the file
+   */
+  def writeAppend(targetFilePath: String, startOnNewLine: Boolean = false): Try[BufferedWriter] = {
+    Try({
+      val path = Paths.get(targetFilePath)
+      val writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE,
+        StandardOpenOption.WRITE, StandardOpenOption.APPEND)
+      if (startOnNewLine && Files.size(path) != 0)
+        writer.newLine()
+      writer
+    })
   }
 
+  /**
+   * @param targetFilePath a string describing the absolute location of a file in the local memory. If the file doesn't
+   *                       exist it's created, otherwise the returned BufferedReader instance starts at the end of the file.
+   * @throws java.nio.file.InvalidPathException if the file path is not valid
+   * @throws java.nio.file.DirectoryNotEmptyException if the targetFilePath exists and it is a directory
+   * @throws java.io.IOException if an error occurs while writing the file
+   * @throws SecurityException if no rights to write the file
+   */
   def createReplaceEmptyFile(targetFilePath: String): Unit ={
     val path = Paths.get(targetFilePath)
     Files.deleteIfExists(path)
     Files.createFile(path)
   }
+
+  /**
+   * High order function that performs the specified action for each line of the file being read.
+   * The BufferedReader instance is automatically closed once the end of the file is reached.
+   *
+   * @param reader a BufferedReader instance of the file to scan line per line
+   * @param doForEachLine the function to execute for each line of the file, starting from the specified reader position.
+   *                      The function takes as input parameter the current line.
+   * @throws java.io.IOException if an error occurs while reading the file
+   */
+  def scanFileAndClose(reader: BufferedReader, doForEachLine: (String) => Unit): Unit = {
+    var line = reader.readLine()
+    while (line != null) {
+      doForEachLine(line)
+      line = reader.readLine()
+    }
+    reader.close()
+  }
+
 }
