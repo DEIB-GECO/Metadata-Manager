@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmqlSchemaCollection name="one_k_genomes" xmlns="http://genomic.elet.polimi.it/entities">
+    <gmqlSchema type="TAB">
+        <field type="STRING">chrom</field>
+        <field type="LONG">start</field>
+        <field type="LONG">end</field>
+        <field type="STRING">strand</field>
+        <field type="STRING">id</field>
+        <field type="CHAR">ref</field>
+        <field type="DOUBLE">alt</field>
+        <filed type="STRING">ancestral_allele</field>
+        <filed type="DOUBLE">allele_freq</field>
+        <filed type="DOUBLE">allele_freq_AFR</field>
+    </gmqlSchema>
+</gmqlSchemaCollection>

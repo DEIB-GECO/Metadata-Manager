@@ -117,7 +117,7 @@
                 <dataset name="GRCh38">
                     <dataset_working_directory>GRCh38</dataset_working_directory>  <!-- TODO check naming conventions-->
                     <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
-                    <schema_url location="local">schemas/narrowPeak.schema</schema_url> <!--TODO the base is narrowPeak but I have a lot more region attributes... I have t develop my schema, right ? -->
+                    <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
                     <cleaner_enabled>true</cleaner_enabled>
