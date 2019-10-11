@@ -1,7 +1,7 @@
 package it.polimi.genomics.metadata.util
 
-import java.io.{BufferedReader, BufferedWriter, IOException}
-import java.nio.file.{DirectoryNotEmptyException, FileAlreadyExistsException, Files, InvalidPathException, LinkOption, Paths, StandardCopyOption, StandardOpenOption}
+import java.io.{BufferedReader, BufferedWriter, IOException, LineNumberReader}
+import java.nio.file._
 
 import scala.util.Try
 
@@ -107,10 +107,9 @@ object FileUtil {
       } else
         println("CAN'T READ FIRST LINES WITHOUT SIDE-EFFECTS")
     } catch {
-      case ex: java.io.IOException => {
+      case ex: java.io.IOException =>
         println("ERROR. FILE NOT ACCESSIBLE OR MARK INVALIDATED")
         ex.printStackTrace()
-      }
     }
   }
 
@@ -193,13 +192,76 @@ object FileUtil {
    *                      The function takes as input parameter the current line.
    * @throws java.io.IOException if an error occurs while reading the file
    */
-  def scanFileAndClose(reader: BufferedReader, doForEachLine: (String) => Unit): Unit = {
+  def scanFileAndClose(reader: BufferedReader, doForEachLine: String => Unit, progressNotifier: Option[RoughReadProgress] = None): Unit = {
     var line = reader.readLine()
+    val notifyProgress = progressNotifier.isDefined
     while (line != null) {
       doForEachLine(line)
       line = reader.readLine()
+      if(notifyProgress)
+        progressNotifier.get.advanceOneStep()
     }
     reader.close()
   }
 
+
+
+  /**
+   * Count the total number of lines in a file. Warning: this can take a while.
+   * Test results show that reading a 1.02GB with 106983 lines took about 4.5 seconds on an old machine.
+   *
+   * @param fullFilePath path to a file
+   * @return the number of lines in the file
+   * @throws InvalidPathException if the arguments are malformed paths
+   * @throws IOException if an I/O error occurs when reading or writing
+   * @throws SecurityException: if the user doesn’t have read permission
+   */
+  def countLines(fullFilePath: String): Try[Long] ={
+    Try({
+      val reader = Files.newBufferedReader(Paths.get(fullFilePath))
+      val counter = new LineNumberReader(reader)
+      while(counter.skip(Long.MaxValue) > 0) { }  // while the file has > Long.MaxValue lines, add quickly Long.MaxValue
+      while(counter.skip(Int.MaxValue) > 0) { }   // while the file has > Int.MaxValue lines, add quickly Int.MaxValue
+                                                  // doing the same with Short doesn't improve performances
+      val lineCount = counter.getLineNumber + 1 // +1 because counter starts counting from 0
+      counter.close()
+      lineCount
+    })
+  }
+}
+
+/**
+ * This class wraps a set of parameters required to estimate the current advancement of a large file reading process, and
+ * provides a method (advanceOneStep) which must be called every time a new line is read.
+ * The more totalLines is accurate and the progress steps are evenly distributed (i.e. lines of equal length), the more
+ * the progress estimate is accurate.
+ * Every time the total advancement increases of progressNotificationStep %, onProgress is called to notify the owner.
+ * @param totalLines total lines of the document to read
+ * @param progressNotificationStep the interval, in percentage points, at which the owner must be notified
+ * @param onProgress a fucntion receiving the current progress status, which gets automatically called at every
+ *                   progress increment in percentage point equal or greater than progressNotificationStep.
+ */
+class RoughReadProgress(totalLines: Long, progressNotificationStep: Double, onProgress: Double => Unit) {
+  var linesRead: Double = 0
+  var lastProgressNotified: Double = 0.0
+
+  def advanceOneStep(): Unit = {
+    linesRead +=1
+    val currentProgress = linesRead/totalLines*100
+    //      printf("LAST: %f\t ADV: %f %s \n", lastProgressNotified, currentProgress, "%")
+    if(currentProgress >= lastProgressNotified+progressNotificationStep){
+      lastProgressNotified = currentProgress
+      onProgress(currentProgress)
+    }
+  }
+
+}
+object RoughReadProgress {
+  /**
+   * Simple method printing the received advancement status value on the console as a floating point  number with
+   * decimal precision.
+   */
+  def notifyProgress(progress: Double): Unit = {
+    printf("ROUGHLY READ %.1f %% OF FILE\n", progress)
+  }
 }
