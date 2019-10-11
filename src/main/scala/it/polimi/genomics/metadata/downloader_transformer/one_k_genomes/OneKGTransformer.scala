@@ -58,7 +58,7 @@ class OneKGTransformer extends Transformer {
           writer.close()
         } else {
           val sampleName = removeExtension(filename)
-          val sourceVCF = new VCFHelper(VCFFilePath)
+          val sourceVCF = new VCFAdapter(VCFFilePath)
           sourceVCF.appendMutationsOf(sampleName, targetFilePath)
         }
     }
@@ -95,7 +95,7 @@ class OneKGTransformer extends Transformer {
         if(!extractArchive(archivePath, VCFFilePath))
           List.empty[String]
         // read sample names and output resulting filenames:
-        val sampleFiles = (new VCFHelper(VCFFilePath)).biosamples.map(sample => s"$sample.gdm")
+        val sampleFiles = (new VCFAdapter(VCFFilePath)).biosamples.map(sample => s"$sample.gdm")
         val metadataFiles = sampleFiles.map(sample => s"$sample.gdm.meta")
         sampleFiles:::metadataFiles
     }
@@ -166,6 +166,18 @@ object OneKGTransformer {
 
   def tabber(words: String*): String ={
     words.reduce((key, value) => key+"\t"+value)
+  }
+
+  def tabber(words: List[String]):String ={
+    words.reduce((key, value) => key+"\t"+value)
+  }
+
+  def tabberConcat(words: String*):String ={
+    "\t".concat(words.reduce((key, value) => key+"\t"+value))
+  }
+
+  def tabberConcat(words: List[String]):String ={
+    "\t".concat(words.reduce((key, value) => key+"\t"+value))
   }
 
 }

@@ -3,30 +3,7 @@ package it.polimi.genomics.metadata.util.vcf
 /**
  * Created by Tom on ott, 2019
  */
-class VCFFormat(formatKeyValuesMap: Map[String, String]) {
-  import VCFFormat._
-
-  def hasMutation:Boolean ={
-    genotype match {
-      case Some(gt) => gt.contains("1")
-      case None => false
-    }
-  }
-
-  def genotype: Option[String] = {
-    formatKeyValuesMap.get(GENOTYPE)
-  }
-
-  def getMap:Map[String, String] ={
-    formatKeyValuesMap
-  }
-
-  def get(formatKey: String): Option[String] ={
-    formatKeyValuesMap.get(formatKey)
-  }
-
-}
-object VCFFormat {
+object VCFFormatKeys {
   val GENOTYPE = "GT"
   val COPY_NUM_GT_IMPRECISE_EV = "CN"
   val COPY_NUM_LIKELIHOODS_NO_FREQ_PRIOR = "CNL"

@@ -4,18 +4,9 @@ package it.polimi.genomics.metadata.util.vcf
  * Created by Tom on ott, 2019
  *
  */
-class VCFInfo(infoKeyValueMap: Map[String, String]) {
+object VCFInfoKeys {
 
-  def getMap:Map[String, String] ={
-    infoKeyValueMap
-  }
-
-  def get(infoKey: String): Option[String] ={
-    infoKeyValueMap.get(infoKey)
-  }
-}
-object VCFInfo {
-
+  // keys
   val ANCESTRAL_ALLELE = "AA"
   val ALTERNATE_ALLELE_COUNT = "AC"
   val ALLELE_FREQUENCY = "AF"
@@ -26,15 +17,15 @@ object VCFInfo {
   val CONFID_INTERVAL_AROUND_POS = "CIPOS"
   val TOTAL_READ_DEPTH = "DP"
   val ALLELE_FREQUENCY_EAS = "EAS_AF"
-  val END_POS = "END"
+  val SV_END = "END"
   val ALLELE_FREQUENCY_EUR = "EUR_AF"
   val VARIANT_IN_EXON_PULL_DOWN_BOUNDARIES = "EX_TARGET"
   val SV_IMPRECISE = "IMPRECISE"
   val MERGED_CALLS = "MC"
   val MOBILE_ELEM_INFO = "MEINFO"
-  val END_POS_MITOCHONDRIAL_INS = "MEND"
-  val LENGTH_MITOCHONDRIAL_INS = "MLEN"
-  val START_POS_MITOCHONDRIAL_INS = "MSTART"
+  val MITOCHONDRIAL_INS_END = "MEND"
+  val MITOCHONDRIAL_INS_LENGTH = "MLEN"
+  val MITOCHONDRIAL_INS_START = "MSTART"
   val MULTI_ALLELIC_SITE = "MULTI_ALLELIC"
   val OLD_VARIANT_BEFORE_VT_NORM = "OLD_VARIANT"
   val ALLELE_FREQUENCY_SAN = "SAN_AF"
@@ -44,6 +35,8 @@ object VCFInfo {
   val PRECISE_TARGET_SITE_DUP = "TSD"
   val VARIANT_TYPE = "VT"
 
+  // other
+  val MOBILE_ELEM_INFO_PARTS_SEPARATOR = "|"
 
   val dictionary: Map[String, String] = Map(
     "AA"->"Ancestral Allele",
