@@ -1,7 +1,5 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
-import java.io
-import java.nio.file.{Files, Paths, StandardOpenOption}
 import java.util.regex.Pattern
 
 import it.polimi.genomics.metadata.step.xml.Dataset
@@ -9,8 +7,6 @@ import it.polimi.genomics.metadata.util.{FTPHelper, FileUtil, PatternMatch}
 import org.apache.commons.cli.MissingArgumentException
 import org.apache.commons.net.ftp.FTPFile
 import org.slf4j.{Logger, LoggerFactory}
-
-import scala.util.{Failure, Success, Try}    // converts java.util.List into scala.util.List in order to use foreach
 
 
 /**
@@ -30,6 +26,7 @@ object DatasetInfo {
    * This class helps in the generation of regular expressions and java.util.regex.Pattern objects matching the
    * records present in the tree file present at 1kGenomes FTP server. The generated regex or patterns can
    * then be used for filtering the tree records and parse its content. */
+  //noinspection VarCouldBeVal
   class DatasetPattern {
     import DatasetPattern._
 
@@ -77,9 +74,10 @@ object DatasetInfo {
       if(dirPath.contains("(") || dirPath.contains(")") || dirPath.contains(".*"))
         throw new IllegalArgumentException("CURLY BRACES ARE RESERVED CHARACTERS. " +
           "INSTEAD USE filterPathWithRegex IF YOU NEED TO SPECIFY GROUPS INSIDE THE FILE PATH")
-      this.insideDir = dirPath.endsWith("/") match {
-        case true => dirPath
-        case false => dirPath+"/"
+      this.insideDir = if (dirPath.endsWith("/")) {
+        dirPath
+      } else {
+        dirPath + "/"
       }
       this
     }
@@ -324,14 +322,15 @@ object DatasetInfo {
   }
 
   /**
-   * @param dataset a xml.Dataset having parameters "sequence_index_file_path" and "population_file_path" (the latter
-   *                can also be at source level)
+   * @param dataset a xml.Dataset having parameters "sequence_index_file_path" and "population_file_path" defined at
+   *                either ad dataset or source level
    * @return a List of Strings containing the value of those XML parameter.
    */
   def metadataPaths(dataset : Dataset): List[String] ={
     List(
-      dataset.getDatasetParameter("sequence_index_file_path"),
-      dataset.getParameter("population_file_path")
+      dataset.getParameter("sequence_index_file_path"),
+      dataset.getParameter("population_file_path"),
+      dataset.getParameter("individual_details_file_path")
     ).filter(_.isDefined).map(option => option.get)
   }
 
@@ -342,7 +341,7 @@ object DatasetInfo {
     val metaDirsURLs = metaPaths.map(relativeURL => urlPrefix + parseDirectoryFromURL(relativeURL))
     val metaFileNames = metaPaths.map(relativeURL => parseFilenameFromURL(relativeURL))
     val ftp = new FTPHelper(dataset)
-    metaPaths.indices.toList.flatMap(i => ftp.exploreServer(metaDirsURLs(i), Some(metaFileNames(i)), true))
+    metaPaths.indices.toList.flatMap(i => ftp.exploreServer(metaDirsURLs(i), Some(metaFileNames(i)), excludeSubdirs = true))
   }
 
   def metadataRecords(treeLocalPath: String, dataset: Dataset): List[String] = {
@@ -384,8 +383,10 @@ object DatasetInfo {
   /**
    * File locations described in the tree file are expressed as relative paths from a base remote address. This method
    * reads and return that base address from XML config file.
-   * @param dataset
-   * @return
+   * @param dataset a dataset instance having the XML parameter "url_prefix_tree_file_records"
+   * @return the URL prefix valid for all resources on the FTP server.
+   * @throws MissingArgumentException if the XML parameter "url_prefix_tree_file_records" is missing either at
+   *                                  dataset or source level.
    */
   def getURLPrefixForRecords(dataset: Dataset): String = {
     dataset.getParameter("url_prefix_tree_file_records").getOrElse(
@@ -393,6 +394,10 @@ object DatasetInfo {
     )
   }
 
+  /**
+   * @param dataset the dataset for which you want the download directory
+   * @return the local relative path to the default download directory for this dataset
+   */
   def getDownloadDir(dataset: Dataset): String ={
     s"${dataset.source.outputFolder}/${dataset.outputFolder}/Downloads/"
   }

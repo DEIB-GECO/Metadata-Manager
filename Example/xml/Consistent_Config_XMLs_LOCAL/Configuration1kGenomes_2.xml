@@ -36,7 +36,7 @@
             <flattener_enabled>true</flattener_enabled>
             <load_enabled>true</load_enabled>
             <parameter_list>
-                <!--    AUTHENTICATION  -->
+                <!--    AUTHENTICATION      -->
                 <parameter>
                     <description>Username for FTP connection authentication</description>
                     <key>FTP_username</key>
@@ -70,12 +70,21 @@
                     <key>password</key>
                     <value>anonymous</value>
                 </parameter>-->
-                <!--    OTHER   -->
+                <!--    AUXILIARY FILES TO DOWNLOAD & METADATA       -->
                 <parameter>
                     <description>URL of the file describing the whole FTP server structure, its folders and files' location, size, date, hash properties</description>
                     <key>tree_file_url</key>
                     <value>ftp.1000genomes.ebi.ac.uk/vol1/ftp/current.tree</value>
                 </parameter>
+                <parameter>
+                    <key>population_file_path</key>
+                    <value>ftp/phase3/20131219.populations.tsv</value>
+                </parameter>
+                <parameter>
+                    <key>individual_details_file_path</key>
+                    <value>ftp/release/20130502/integrated_call_samples_v2.20130502.ALL.ped</value>
+                </parameter>
+                <!--       DOWNLOAD PARAMETERS      -->
                 <parameter>
                     <description>The tree file contains records whose path is relative to some base FTP directory. This parameter is the URL of that directory</description>
                     <key>url_prefix_tree_file_records</key>
@@ -86,6 +95,7 @@
                     <key>data_connection_timeout</key>
                     <value>2500</value>
                 </parameter>
+                <!--        FILTERING OPTIONS FOR VARIANTS DOWNLOAD     -->
                 <parameter>
                     <key>filter_variants_starting_characters</key>
                     <value>ALL.ch</value>
@@ -105,7 +115,7 @@
                         <value>public</value>
                     </parameter>
                     -->
-                                    <!--    TRANSFORMATION PARAMTERES   -->
+                <!--    TRANSFORMATION PARAMETERS   -->
                 <parameter>
                     <description>Configures the Transformer class to work on input files which have a many-to-many
                         relationship with the output</description>
@@ -134,10 +144,6 @@
                         <parameter>
                             <key>sequence_index_file_path</key>
                             <value>ftp/data_collections/1000_genomes_project/1000genomes.sequence.index</value>
-                        </parameter>
-                        <parameter>
-                            <key>population_file_path</key>
-                            <value>ftp/phase3/20131219.populations.tsv</value>
                         </parameter>
                         <!--
                         <parameter>
@@ -175,10 +181,6 @@
                         <parameter>
                             <key>sequence_index_file_path</key>
                             <value>ftp/phase3/20130502.phase3.sequence.index</value>
-                        </parameter>
-                        <parameter>
-                            <key>population_file_path</key>
-                            <value>ftp/phase3/20131219.populations.tsv</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
