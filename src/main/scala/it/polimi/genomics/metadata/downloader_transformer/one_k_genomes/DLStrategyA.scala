@@ -108,8 +108,7 @@ class DLStrategyA extends Downloader {
       // then update the tree file
       /* Actually I already downloaded the tree file overwriting the old local copy if it was present, so
       I just need to notify it to the database. */
-      // TODO add size of file to be compliant with DB implementation (chekIfUpdate return true if I don't specify the size here)
-      FileDatabase.markAsUpdated(fileId, "", computedHash)
+      FileDatabase.markAsUpdated(fileId, FileUtil.size(treeLocalPath.get).toString, computedHash)
     }
   }
 
@@ -285,6 +284,7 @@ class DLStrategyA extends Downloader {
       logger.info("BEGIN DOWNLOAD FAILED FILES FOR SOURCE:DATASET "+source.name+":"+dataset.name)
       val datasetId = FileDatabase.datasetId(sourceId, dataset.name)
       val failedFiles = FileDatabase.getFailedFiles(datasetId, Stage.DOWNLOAD)  // of type Seq[(fileId, name, copyNumber, url, hash)]
+      /* BEWARE getFailedFiles returns fileIDs of files with status FAILED as well as those with both status UPDATED and size="" !!! */
       if(failedFiles.nonEmpty) {
         treeURL = dataset.getParameter("tree_file_url").getOrElse(throw new MissingArgumentException(
           "MANDATORY PARAMETER tree_file_url NOT FOUND IN THE CONFIGURATION XML AT DATASET LEVEL"))
