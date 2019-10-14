@@ -2,11 +2,10 @@ package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
 import java.io.BufferedReader
 
-import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress}
 import it.polimi.genomics.metadata.util.vcf.VCFMutation
+import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress}
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success}
 
 /**
@@ -20,7 +19,6 @@ object SchemaAdapter {
 
 
   def TESTcommonInfoAttributesPerFile(inputFiles: List[String]): List[(String, Set[String])] = {
-    import it.polimi.genomics.metadata.util.vcf.VCFInfoKeys._
 
     inputFiles.map(inputFile =>
       (inputFile, {
@@ -40,19 +38,42 @@ object SchemaAdapter {
     )
   }
 
-  def TESTcommonAttributesOverall(inputFiles: List[String], output: String): ListBuffer[String] ={
-    val perFileCommonAttrs = TESTcommonInfoAttributesPerFile(inputFiles)
-    var allAttrs = perFileCommonAttrs.head._2.toList.to[ListBuffer]
-    var commonAttrs = allAttrs.clone()
-    val writer = FileUtil.writeReplace(output).get
+  def TESTcommonAttributesOverall(inputFiles: List[String], output: String): Set[String] ={
+    var allAttrs = Set.empty[String]
+    val perFileCommonAttrs = inputFiles.map(inputFile =>
+      (inputFile, {
+        val reader = FileUtil.open(inputFile).get
+        val firstMutation = advanceAndGetFirstMutation(reader)
+        var setA = new VCFMutation(firstMutation).info.keySet
+        // add new attributes to the list of all attrs
+        allAttrs ++= setA
 
+        FileUtil.scanFileAndClose(reader, mutationLine => {
+          val m = new VCFMutation(mutationLine)
+          val setB = m.info.keySet
+          // add new attributes to the list of all attrs
+          allAttrs ++= setB
+          // update set of common attrs in file
+          val notInBSet = setA.diff(setB)
+          setA = setA.diff(notInBSet)
+        }, setupReadProgressCanary(inputFile))
+        println(inputFile+" has common attrs "+setA)
+        setA
+      })
+    )
+
+    val writer = FileUtil.writeReplace(output).get
+    val header = "file,\t"+allAttrs.reduce((at1, at2) => at1+",\t"+at2)
+    writer.write(header)
+    writer.newLine()
+
+    var commonOverallAttrs:Set[String] = allAttrs.map(elem => elem)
     perFileCommonAttrs.foreach(file => {
-      val perFileAttrs = file._2.toList
-      // add new attributes to the list of all attrs
-      val newAttrs = allAttrs.diff(perFileAttrs)
-      allAttrs ++= newAttrs
+      // write filename
+      writer.write(DatasetInfo.parseFilenameFromURL(file._1)+",\t")
       // write attributes of this file
-      writer.write(file._1+",\t")
+      val perFileAttrs = file._2
+      val newAttrs = commonOverallAttrs.diff(perFileAttrs)
       allAttrs.foreach(attr => {
         if(perFileAttrs.contains(attr))
           writer.write(attr)
@@ -60,13 +81,13 @@ object SchemaAdapter {
           writer.write("*")
         writer.write(",\t")
       })
-      writer.write("\n")
+      writer.newLine()
       // update common attrs list
-      commonAttrs --= newAttrs
+      commonOverallAttrs --= newAttrs
     })
     writer.close()
-    println("common attributes to files: "+commonAttrs)
-    commonAttrs
+    println("common attributes to files: "+commonOverallAttrs)
+    commonOverallAttrs
   }
 
 
