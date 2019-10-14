@@ -3,12 +3,16 @@ package it.polimi.genomics.metadata.util
 import java.io.{BufferedReader, BufferedWriter, IOException, LineNumberReader}
 import java.nio.file._
 
+import org.slf4j.{Logger, LoggerFactory}
+
 import scala.util.Try
 
 /**
  * Created by Tom on set, 2019
  */
 object FileUtil {
+
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   /**
    *
@@ -195,13 +199,16 @@ object FileUtil {
   def scanFileAndClose(reader: BufferedReader, doForEachLine: String => Unit, progressNotifier: Option[RoughReadProgress] = None): Unit = {
     var line = reader.readLine()
     val notifyProgress = progressNotifier.isDefined
-    while (line != null) {
-      doForEachLine(line)
-      line = reader.readLine()
-      if(notifyProgress)
-        progressNotifier.get.advanceOneStep()
+    try {
+      while (line != null) {
+        doForEachLine(line)
+        line = reader.readLine()
+        if (notifyProgress)
+          progressNotifier.get.advanceOneStep()
+      }
+    } finally {
+      reader.close()
     }
-    reader.close()
   }
 
 
