@@ -4,12 +4,13 @@ import java.io.File
 
 import it.polimi.genomics.metadata.database.FileDatabase
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
-import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.{SchemaAdapter, VCFAdapter}
+import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.{OneKGTransformer, SchemaAdapter, VCFAdapter}
 import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler
 import it.polimi.genomics.metadata.step._
 import it.polimi.genomics.metadata.step.utils.ExecutionLevel.{ExecutionLevel, _}
 import it.polimi.genomics.metadata.step.utils.{ParameterUtil, SchemaLocation, SchemaValidator}
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
+import it.polimi.genomics.metadata.util.{FileUtil, ManyToFewMap, PatternMatch}
 import it.polimi.genomics.repository.Utilities
 import org.apache.commons.lang.StringUtils
 import org.apache.log4j._
@@ -51,44 +52,6 @@ object Program extends App {
   console3.setThreshold(Level.WARN)
   console3.activateOptions()
   Logger.getLogger("slick").addAppender(console3)
-
-
-
-  val VCFgrch38chrX = "Example/examples_meta/1kGenomes/GRCh38/Downloads/ALL.chrX.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf/ALL.chrX.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf"
-  val VCFgrch38chr22 = "Example/examples_meta/1kGenomes/GRCh38/Downloads/ALL.chr22.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf/ALL.chr22.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf"
-  val VCFgrch38chr21 = "Example/examples_meta/1kGenomes/GRCh38/Downloads/ALL.chr21.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf/ALL.chr21.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf"
-  val VCFgrch38chr20 = "Example/examples_meta/1kGenomes/GRCh38/Downloads/ALL.chr20.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf/ALL.chr20.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf"
-
-  val VCFhg19chrMT = "Example/examples_meta/1kGenomes/hg19/Downloads/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf"
-  val VCFhg19chrY = "Example/examples_meta/1kGenomes/hg19/Downloads/ALL.chrY.phase3_integrated_v2a.20130502.genotypes.vcf/ALL.chrY.phase3_integrated_v2a.20130502.genotypes.vcf"
-  val VCFhg19chrX = "Example/examples_meta/1kGenomes/hg19/Downloads/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1b.20130502.genotypes.vcf/ALL.chrX.phase3_shapeit2_mvncall_integrated_v1b.20130502.genotypes.vcf"
-  val VCFhg19chr22 = "Example/examples_meta/1kGenomes/hg19/Downloads/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf"
-  val VCFhg19chr22_extra_anno = "Example/examples_meta/1kGenomes/hg19/Downloads/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5_extra_anno.20130502.genotypes.vcf/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5_extra_anno.20130502.genotypes.vcf"
-  val VCFhg19chr21 = "Example/examples_meta/1kGenomes/hg19/Downloads/ALL.chr21.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf/ALL.chr21.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf"
-  val VCFhg19chr20 = "Example/examples_meta/1kGenomes/hg19/Downloads/ALL.chr20.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf/ALL.chr20.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf"
-
-
-  val outputGRCh38 = "Example/examples_meta/1kGenomes/GRCh38/Downloads/GRCh38chr22_end.analysis.tsv"
-  val outputhg19 = "Example/examples_meta/1kGenomes/hg19/Downloads/hg19chrX_end_1.analysis.tsv"
-
-  val outputCommonAttr = "Example/examples_meta/1kGenomes/hg19/Downloads/common_attrs.cvs"
-
-  val sa = SchemaAdapter.TESTcommonAttributesOverall(List(
-    VCFgrch38chrX,
-    VCFgrch38chr22,
-    VCFgrch38chr21,
-    VCFgrch38chr20,
-    VCFhg19chrMT,
-    VCFhg19chrY,
-    VCFhg19chrX,
-    VCFhg19chr22,
-    VCFhg19chr21,
-    VCFhg19chr20
-  ), output = outputCommonAttr)
-
-  System.exit(0)
-
-
 
   try {
     //    BasicConfigurator.configure()

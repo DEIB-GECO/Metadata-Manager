@@ -4,8 +4,8 @@
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
         <!-- TODO change path so that it refers build deirectory -->
-        <base_working_directory>D:/Tom/IntelliJ-Projects/Metadata-Manager/Example/examples_meta</base_working_directory> <!-- = outputFolder -->
-        <gcm_config_file>D:/Tom/IntelliJ-Projects/Metadata-Manager/src/main/resources/application.conf</gcm_config_file>
+        <base_working_directory>D:\Tom\IntelliJ-Projects\Metadata-Manager\Example\examples_meta</base_working_directory> <!-- = outputFolder -->
+        <gcm_config_file>D:\Tom\IntelliJ-Projects\Metadata-Manager\src\main\resources\application.conf</gcm_config_file>
         <mapper_source>ENCODE</mapper_source> <!--TODO adjust mapper_source later on -->
         <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_tom</database_connection_url>
         <database_connection_user>geco</database_connection_user>
@@ -145,6 +145,10 @@
                             <key>sequence_index_file_path</key>
                             <value>ftp/data_collections/1000_genomes_project/1000genomes.sequence.index</value>
                         </parameter>
+                        <parameter>
+                            <key>assembly</key>
+                            <value>GRCh38</value>
+                        </parameter>
                         <!--
                         <parameter>
                             <description>The dataset name on the server</description>
@@ -181,6 +185,10 @@
                         <parameter>
                             <key>sequence_index_file_path</key>
                             <value>ftp/phase3/20130502.phase3.sequence.index</value>
+                        </parameter>
+                        <parameter>
+                            <key>assembly</key>
+                            <value>hg19</value>
                         </parameter>
                     </parameter_list>
                 </dataset>

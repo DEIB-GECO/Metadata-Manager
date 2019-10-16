@@ -6,6 +6,7 @@ import it.polimi.genomics.metadata.util.vcf.VCFMutation.{ALT_MULTI_VALUE_SEPARAT
 import it.polimi.genomics.metadata.util.vcf.{VCFInfoKeys, VCFMutation}
 import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress}
 import org.slf4j.{Logger, LoggerFactory}
+import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.VCFAdapter.OKGMutation
 
 import scala.util.{Failure, Success}
 
@@ -24,6 +25,7 @@ class VCFAdapter(VCFFilePath: String) {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val biosamples: List[String] = biosamples(VCFFilePath)
+  private var numberOfLinesInFile: Option[Long] = None
   val MISSING_VALUE_CODE = "*"
 
   ////////////////////////////////////  SAMPLE -> VARIANTS   ///////////////////////////////////////////////////////////
@@ -40,25 +42,33 @@ class VCFAdapter(VCFFilePath: String) {
     if(index == -1)
       false // the sample isn't listed in this VCF
     else {
-      val writer = FileUtil.writeAppend(toFilePath, startOnNewLine = true).get  // let it throw exception if failed
+      val writer = FileUtil.writeAppend(toFilePath).get  // let it throw exception if failed
+      var targetFileEmpty = FileUtil.size(toFilePath) == 0
       val reader = FileUtil.open(VCFFilePath).get    // let it throw exception if failed
       advanceAndGetHeaderLine(reader)   // advance reader and skip header line
       FileUtil.scanFileAndClose(reader, mutationLine => {
+        // read each mutation
         val mutation = new VCFMutation(mutationLine)
         val formatOfSample = mutation.format(sampleName, biosamples)
         if(formatOfSample.isMutated){
           val infoFields = mutation.info
-          writer.write(OneKGTransformer.tabber(
+          // write it if own by the sample
+          val line = OneKGTransformer.tabber(
             mutation.chr,
             mutation.pos,
-            //TODO mutation.end
+            mutation.end.toString,
             "+",   // strand (see class documentation for explanations)
             mutation.id,
             mutation.ref,
             mutation.alt,
             infoFields.getOrElse(VCFInfoKeys.ALLELE_FREQUENCY, MISSING_VALUE_CODE)
             //TODO go on with other attributes based on the desired schema for region data
-          ))
+          )
+          if(!targetFileEmpty)
+            writer.newLine()
+          else
+            targetFileEmpty = false
+          writer.write(line)
         }
       }, setupReadProgressCanary(VCFFilePath))
       writer.close()
@@ -117,13 +127,18 @@ class VCFAdapter(VCFFilePath: String) {
    * order to compute the necessary parameters.
    */
   private def setupReadProgressCanary(fullFilePath: String): Option[RoughReadProgress] ={
-    println("COUNTING LINES OF FILE: "+fullFilePath)
-    FileUtil.countLines(fullFilePath) match {
-      case Failure(_) =>
-        println("COUNT OF LINES IN FILE FAILED")
-        None
-      case Success(value) =>
-        Some(new RoughReadProgress(value, 1, RoughReadProgress.notifyProgress))
+    if(numberOfLinesInFile.isDefined)
+      Some(new RoughReadProgress(numberOfLinesInFile.get, 10, RoughReadProgress.notifyProgress))
+    else {
+      println("COUNTING LINES OF FILE: " + fullFilePath)
+      FileUtil.countLines(fullFilePath) match {
+        case Failure(_) =>
+          println("COUNT OF LINES IN FILE FAILED")
+          None
+        case Success(value) =>
+          numberOfLinesInFile = Some(value)
+          Some(new RoughReadProgress(value, 10, RoughReadProgress.notifyProgress))
+      }
     }
   }
 
@@ -156,7 +171,8 @@ class VCFAdapter(VCFFilePath: String) {
   def TESTForLengthAvailableInformation(inputFile: String, outputFile: String): Unit = {
     import VCFInfoKeys._
     import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.VCFAdapter.OKGMutation
-    val writer = FileUtil.writeAppend(outputFile, startOnNewLine = true).get
+    val writer = FileUtil.writeAppend(outputFile).get
+    var targetFileEmpty = FileUtil.size(outputFile) == 0
     val reader = FileUtil.open(inputFile).get
     advanceAndGetHeaderLine(reader)
     FileUtil.scanFileAndClose(reader, mutationLine => {
@@ -176,7 +192,10 @@ class VCFAdapter(VCFFilePath: String) {
       )
       val line = OneKGTransformer.tabber(m.chr, m.pos, m.end.toString, m.ref, m.alt)+OneKGTransformer.tabberConcat(infoString)+OneKGTransformer.tabberConcat(missingStuff)
       writer.write(line)
-      writer.newLine()
+      if(!targetFileEmpty)
+        writer.newLine()
+      else
+        targetFileEmpty = false
     }, setupReadProgressCanary(VCFFilePath))
     writer.close()
   }
