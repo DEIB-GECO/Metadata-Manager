@@ -27,9 +27,9 @@ class OneKGTransformer extends Transformer {
   private lazy val seqIndexMetaName:String = XMLParams.get._2
   private lazy val populationMetaName:String = XMLParams.get._3
   private lazy val individualDetailsMetaName:String = XMLParams.get._4
-  // remember extracted archives
-  private var extractedArchives: ListBuffer[String] = ListBuffer.empty[String]
-  private var VCFs: Map[String, VCFAdapter] = Map.empty[String, VCFAdapter]
+  // remember extracted archives & early transformed VCFs
+  private var extractedArchives: Map[String, String] = Map.empty[String, String]
+  private var transformedVCFs: ListBuffer[String] = ListBuffer.empty[String]
   // metadata
   private var sequencingMetadata: ManyToFewMap[String, List[String]] = _
   private var populationMetadata: Map[String, List[String]] = _
@@ -40,11 +40,15 @@ class OneKGTransformer extends Transformer {
   /**
    * From a downloaded file, writes the given candidate file as a metadata or region file.
    *
-   * @param source           source where the files belong to.
-   * @param originPath       path for the  "Downloads" folder without trailing file separator
-   * @param destinationPath  path for the "Transformations" folder without trailing file separator
-   * @param originalFilename name of a compressed VCF file or metadata file
-   * @param filename         name of the region data or metadata file to create and populate with the attributes of the origin.
+   * For 1000Genomes, when the target filename is a region file, the input can only be one of the compressed VCFs. To
+   * improve the execution time, the input VCFs are processed "once-and-for-all" converting all the mutations
+   * contained in it for all the samples and not just for the target sample received as argument "filename".
+   *
+   * @param source           representation of the source XMl element
+   * @param originPath       path for the  "Downloads" folder without trailing file separator and system dependent slash convention
+   * @param destinationPath  path for the "Transformations" folder without trailing file separator and system dependent slash convention
+   * @param originalFilename name of a compressed VCF file or metadata file with copy number
+   * @param filename         name of the region data or metadata file to create and populate with the attributes from originFilename
    * @return true if the transformation produced a file, false otherwise (the candidate filename will be marked as failed)
    */
   override def transform(source: Source, originPath: String, destinationPath: String, originalFilename: String, filename: String): Boolean = {
@@ -52,16 +56,18 @@ class OneKGTransformer extends Transformer {
     val targetFileName = filename
     val sourceFilePath = originPath+File.separator+sourceFileName
     val targetFilePath = destinationPath+File.separator+targetFileName
+    val transformationsDirPath = destinationPath+File.separator
 
     if (filename.endsWith(".gdm")) {
       // append region data
-      val unzippedVCFFilePath = removeExtension(sourceFilePath)
-      if(!extractArchive(sourceFilePath, unzippedVCFFilePath))
-        return false
-      else {
-        val sampleName = removeExtension(targetFileName)
-        val sourceVCF = VCFs(sourceFilePath)
-        sourceVCF.appendMutationsOf(sampleName, targetFilePath)
+      extractArchive(sourceFilePath, removeExtension(sourceFilePath)) match {
+        case None => return false
+        case Some(_VCFPath) =>
+          // the source file is completely transformed generating the target region files for all the samples available in the source file
+          if(!transformedVCFs.contains(_VCFPath)){
+            new VCFAdapter(_VCFPath).appendAllMutationsBySample(transformationsDirPath)
+            transformedVCFs += _VCFPath
+          }
       }
     } else {
       val sampleName = removeExtension(removeExtension(targetFileName))
@@ -87,27 +93,38 @@ class OneKGTransformer extends Transformer {
       writer.newLine()  // prevents TransformerStep from concatenating the attribute "manually_curated__local_file_size" on last line
       writer.close()
     }
-//  val loggerWriter = FileUtil.writeAppend("Example/examples_meta/1kGenomes/transform_log", true).get
-//  loggerWriter.write(targetFileName)
-//  loggerWriter.close()
-  true
+    true
   }
 
   /**
-   * by receiving an original filename returns the new GDM candidate name(s).
-   * The region file must be before than related meta file
+   * This is the 1st callback from the parent class Transformer. To each successfully downloaded file, it assigns a
+   * list of filenames, region and/or metadata files, that the transformation stage is going to produce once completed.
+   * The produced filenames must correspond to sample names with extension .gdm or .gdm.meta and the same filename
+   * can be returned even multiple times without any consequences.
+   * This method will be called once for every updated file in the origin dataset, but at the end of all the callbacks,
+   * only the output filenames having corresponding region and metadata files will be kept, stored in the database
+   * and issued as arguments to the method transform. Additionally, only the input filenames which produced at least
+   * one sample or region filename will be issued as arguments to the method transform together with the produced list.
    *
-   * @param filename original filename
-   * @param dataset  dataset where the file belongs to
-   * @param source   source where the files belong to.
-   * @return candidate names for the files derived from the original filename.
+   * Metadata files produce samplename.gdm.meta files, while region files produce samplename.gdm files.
+   *
+   * In the case of 1000Genomes, only the metadata files containing sequencing or individual details information contain
+   * also the sample names, so the list of metadata filenames is returned only when one of them is evaluated. The choice
+   * of which is irrelevant.
+   * Since the metadata files for 1000Genomes are few and relate to all the samples, the interesting attributes are stored
+   * as class variable for performance reasons.
+   *
+   * @param filename name of a file from the ones successfully produced during the download stage.
+   * @param dataset  dataset of origin of the file
+   * @param source   source of origin of this file
+   * @return a List of Strings, i.e. the names of the files expected from the future transformation of the argument filename.
    */
   override def getCandidateNames(filename: String, dataset: Dataset, source: Source): List[String] = {
     // read XML config parameters here because I need Dataset
     initMetadataFileNames(dataset)
     if(assembly.isEmpty)
       assembly = Some(getAssembly(dataset))
-    val downloadDirPath = s"${dataset.source.outputFolder}\\${dataset.outputFolder}\\Downloads\\"
+    val downloadDirPath = dataset.fullDatasetOutputFolder+File.separator+"Downloads"+File.separator
     val trueFilename = removeCopyNumber(filename)
     //noinspection ScalaUnusedSymbol
     trueFilename match {
@@ -126,14 +143,12 @@ class OneKGTransformer extends Transformer {
         individualsMetadata.keys.toList.map(sample => s"$sample.gdm.meta")
       case variantCallArchive =>
         // unzip
-        val archivePath = downloadDirPath+trueFilename
-        val VCFFilePath = downloadDirPath+removeExtension(trueFilename)
-        if(!extractArchive(archivePath, VCFFilePath))
-          List.empty[String]
-        // read sample names and output resulting filenames:
-        val vcf = new VCFAdapter(VCFFilePath)
-        VCFs += (archivePath -> vcf)
-        vcf.biosamples.map(sample => s"$sample.gdm")
+        extractArchive(downloadDirPath+trueFilename, downloadDirPath+removeExtension(trueFilename)) match {
+          case None => List.empty[String]
+          case Some(_VCFPath) =>
+            // read sample names and output resulting filenames:
+            new VCFAdapter(_VCFPath).biosamples.map(sample => s"$sample.gdm")
+        }
     }
   }
 
@@ -277,17 +292,25 @@ class OneKGTransformer extends Transformer {
    * the extraction is skipped and the method returns true.
    * The extraction fails if a directory already exists at the target file path.
    */
-  def extractArchive(archivePath: String, extractedFilePath: String):Boolean ={
+  def extractArchive(archivePath: String, extractedFilePath: String):Option[String] ={
+  //TODO REMOVE THIS
+
+//    if(archivePath == "C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chrX.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf.gz")
+//      return Some("C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chrX.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased_short.vcf")
+//    else if(archivePath == "C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chr22.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf.gz")
+//      return Some("C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chr22.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased_short.vcf")
+//    else
+
     logger.info("EXTRACTING "+archivePath.substring(archivePath.lastIndexOf(File.separator)))
-    if(extractedArchives.contains(extractedFilePath))
-      true
+    if(extractedArchives.contains(archivePath))
+      Some(extractedArchives(archivePath))
     else if(Unzipper.unGzipIt(archivePath, extractedFilePath)){
-      extractedArchives += extractedFilePath
-      true
+      extractedArchives += (archivePath -> extractedFilePath)
+      Some(extractedFilePath)
     } else {
       logger.error("EXTRACTION FAILED. THE PACKAGE IS PROBABLY DAMAGED OR INCOMPLETE. " +
         "SKIP TRANSFORMATION FOR THIS PACKAGE.")
-      false
+      None
     }
   }
 

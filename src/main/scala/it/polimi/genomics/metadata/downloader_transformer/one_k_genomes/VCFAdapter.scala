@@ -1,6 +1,6 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
-import java.io.BufferedReader
+import java.io.{BufferedReader, BufferedWriter}
 
 import it.polimi.genomics.metadata.util.vcf.VCFMutation.{ALT_MULTI_VALUE_SEPARATOR, MutationProperties, maxLengthAltAllele, splitMultiValuedInfo}
 import it.polimi.genomics.metadata.util.vcf.{VCFInfoKeys, VCFMutation}
@@ -85,6 +85,52 @@ class VCFAdapter(VCFFilePath: String) {
     })
   }
 
+  /////////////////////////////////   WHOLE FILE -> ALL SAMPLES   ///////////////////////////////////////////////////////
+
+  def appendAllMutationsBySample(outputDirectoryPath: String): Unit = {
+    var writers:Map[String, BufferedWriter] = Map.empty
+    val reader = FileUtil.open(VCFFilePath).get    // let it throw exception if failed
+    advanceAndGetHeaderLine(reader)   // advance reader and skip header line
+    try {
+      FileUtil.scanFileAndClose(reader, mutationLine => {
+        // read each mutation
+        val mutation = new VCFMutation(mutationLine)
+        val infoFields = mutation.info
+        val outputLine = OneKGTransformer.tabber(
+          mutation.chr,
+          mutation.pos,
+          mutation.end.toString,
+          "+", // strand (see class documentation for explanations)
+          mutation.id,
+          mutation.ref,
+          mutation.alt,
+          infoFields.getOrElse(VCFInfoKeys.ALLELE_FREQUENCY, MISSING_VALUE_CODE)
+          //TODO go on with other attributes based on the desired schema for region data
+        )
+        val samplesWithMutation = biosamples.filter(sample => {
+          mutation.format(sample, biosamples).isMutated
+        })
+        samplesWithMutation.foreach(sampleName => {
+          val outputFile = outputDirectoryPath + sampleName + ".gdm"
+          if (writers.get(sampleName).isEmpty) {
+            val writer = FileUtil.writeAppend(outputFile).get
+            writers += (sampleName -> writer)
+            if (FileUtil.size(outputFile) != 0)
+              writer.newLine()
+            writer.write(outputLine)
+          } else {
+            val writer = writers(sampleName)
+            writer.newLine()
+            writer.write(outputLine)
+          }
+        })
+      }, setupReadProgressCanary(VCFFilePath))
+    } finally {
+      writers.values.foreach(writer => writer.close())
+      reader.close()
+    }
+  }
+
   ////////////////////////////////////  META INFORMATION & HEADER LINES    ///////////////////////////////////////////////
 
   def advanceAndGetHeaderLine(reader: BufferedReader): String ={
@@ -127,9 +173,10 @@ class VCFAdapter(VCFFilePath: String) {
    * order to compute the necessary parameters.
    */
   private def setupReadProgressCanary(fullFilePath: String): Option[RoughReadProgress] ={
-    if(numberOfLinesInFile.isDefined)
+    if(numberOfLinesInFile.isDefined) {
+      println("SCANNING "+numberOfLinesInFile.get+" LINES FROM "+fullFilePath)
       Some(new RoughReadProgress(numberOfLinesInFile.get, 10, RoughReadProgress.notifyProgress))
-    else {
+    } else {
       println("COUNTING LINES OF FILE: " + fullFilePath)
       FileUtil.countLines(fullFilePath) match {
         case Failure(_) =>
@@ -137,6 +184,7 @@ class VCFAdapter(VCFFilePath: String) {
           None
         case Success(value) =>
           numberOfLinesInFile = Some(value)
+          println("COUNTED "+value+" LINES")
           Some(new RoughReadProgress(value, 10, RoughReadProgress.notifyProgress))
       }
     }
