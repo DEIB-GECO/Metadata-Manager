@@ -8,6 +8,7 @@
         <gcm_config_file>D:\Tom\IntelliJ-Projects\Metadata-Manager\src\main\resources\application.conf</gcm_config_file>
         <mapper_source>ENCODE</mapper_source> <!--TODO adjust mapper_source later on -->
         <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_tom</database_connection_url>
+        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_tom</database_connection_url_importer>
         <database_connection_user>geco</database_connection_user>
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>

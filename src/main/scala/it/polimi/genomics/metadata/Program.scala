@@ -4,7 +4,7 @@ import java.io.File
 
 import it.polimi.genomics.metadata.database.FileDatabase
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
-import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.{OneKGTransformer, SchemaAdapter, VCFAdapter}
+import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.{DatasetInfo, OneKGTransformer, SchemaAdapter, VCFAdapter}
 import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler
 import it.polimi.genomics.metadata.step._
 import it.polimi.genomics.metadata.step.utils.ExecutionLevel.{ExecutionLevel, _}
@@ -220,6 +220,7 @@ object Program extends App {
         ParameterUtil.gcmConfigFile = (file \\ "settings" \ "gcm_config_file").text
         ParameterUtil.mapperSource = (file \\ "settings" \ "mapper_source").text
         ParameterUtil.dbConnectionUrl = (file \\ "settings" \ "database_connection_url").text
+        ParameterUtil.dbConnectionImporterUrl = (file \\ "settings" \ "database_connection_url_importer").text
         ParameterUtil.dbConnectionUser = (file \\ "settings" \ "database_connection_user").text
         ParameterUtil.dbConnectionPw = (file \\ "settings" \ "database_connection_pw").text
         ParameterUtil.dbConnectionDriver = (file \\ "settings" \ "database_connection_driver").text
