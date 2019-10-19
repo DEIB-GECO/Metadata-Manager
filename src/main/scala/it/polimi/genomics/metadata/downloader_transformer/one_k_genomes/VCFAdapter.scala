@@ -2,11 +2,11 @@ package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
 import java.io.{BufferedReader, BufferedWriter}
 
+import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.VCFAdapter.OKGMutation
 import it.polimi.genomics.metadata.util.vcf.VCFMutation.{ALT_MULTI_VALUE_SEPARATOR, MutationProperties, maxLengthAltAllele, splitMultiValuedInfo}
 import it.polimi.genomics.metadata.util.vcf.{VCFInfoKeys, VCFMutation}
-import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress}
+import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress, XMLHelper}
 import org.slf4j.{Logger, LoggerFactory}
-import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.VCFAdapter.OKGMutation
 
 import scala.util.{Failure, Success}
 
@@ -26,7 +26,9 @@ class VCFAdapter(VCFFilePath: String) {
 
   val biosamples: List[String] = biosamples(VCFFilePath)
   private var numberOfLinesInFile: Option[Long] = None
-  val MISSING_VALUE_CODE = "*"
+  val MISSING_STRING_CODE = ""
+  val MISSING_NUMBER_CODE = "null"
+  var regionAttrsFromSchema: List[(String, String)] = List.empty[(String, String)]
 
   ////////////////////////////////////  SAMPLE -> VARIANTS   ///////////////////////////////////////////////////////////
   /**
@@ -50,25 +52,17 @@ class VCFAdapter(VCFFilePath: String) {
         // read each mutation
         val mutation = new VCFMutation(mutationLine)
         val formatOfSample = mutation.format(sampleName, biosamples)
+        // appends to the sample's region file if positive
         if(formatOfSample.isMutated){
-          val infoFields = mutation.info
-          // write it if own by the sample
-          val line = OneKGTransformer.tabber(
-            mutation.chr,
-            mutation.pos,
-            mutation.end.toString,
-            "+",   // strand (see class documentation for explanations)
-            mutation.id,
-            mutation.ref,
-            mutation.alt,
-            infoFields.getOrElse(VCFInfoKeys.ALLELE_FREQUENCY, MISSING_VALUE_CODE)
-            //TODO go on with other attributes based on the desired schema for region data
-          )
+          val outputLine = if(regionAttrsFromSchema.nonEmpty){
+            formatWithSchemaAttributes(mutation)
+          } else
+            formatWithDefaultAttributes(mutation)
           if(!targetFileEmpty)
             writer.newLine()
           else
             targetFileEmpty = false
-          writer.write(line)
+          writer.write(outputLine)
         }
       }, setupReadProgressCanary(VCFFilePath))
       writer.close()
@@ -93,23 +87,17 @@ class VCFAdapter(VCFFilePath: String) {
     advanceAndGetHeaderLine(reader)   // advance reader and skip header line
     try {
       FileUtil.scanFileAndClose(reader, mutationLine => {
-        // read each mutation
+        // read and transform each mutation
         val mutation = new VCFMutation(mutationLine)
-        val infoFields = mutation.info
-        val outputLine = OneKGTransformer.tabber(
-          mutation.chr,
-          mutation.pos,
-          mutation.end.toString,
-          "+", // strand (see class documentation for explanations)
-          mutation.id,
-          mutation.ref,
-          mutation.alt,
-          infoFields.getOrElse(VCFInfoKeys.ALLELE_FREQUENCY, MISSING_VALUE_CODE)
-          //TODO go on with other attributes based on the desired schema for region data
-        )
+        val outputLine = if(regionAttrsFromSchema.nonEmpty){
+          formatWithSchemaAttributes(mutation)
+        } else
+          formatWithDefaultAttributes(mutation)
+        // find the affected samples (there's always at least one)
         val samplesWithMutation = biosamples.filter(sample => {
           mutation.format(sample, biosamples).isMutated
         })
+        // append this mutation to the region files of the affected samples
         samplesWithMutation.foreach(sampleName => {
           val outputFile = outputDirectoryPath + sampleName + ".gdm"
           if (writers.get(sampleName).isEmpty) {
@@ -190,6 +178,87 @@ class VCFAdapter(VCFFilePath: String) {
     }
   }
 
+  /**
+   * Decides the format of the output regions whenever a call to methods appendMutationsOf or appendAllMutationsBySample
+   * is made. When a schema is passed through this methods, any method that writes or generates strings
+   * representing the mutations in this file, will do it reflecting the number, position and attributes of element
+   * < field > in the given XML schema.
+   *
+   * Recognised (case-insensitive) < field > attributes are:
+   * "chr" | "chrom" | "chromosome" => mutation.chr
+   * "start" | "pos" | "left" => mutation.pos
+   * "stop" | "end" | "right" => mutation.end.toString
+   * "strand" | "str" => "+"
+   * "id" => mutation.id
+   * "ref" => mutation.ref
+   * "alt" => mutation.alt
+   * "qual" | "quality" => mutation.qual
+   * "filter" => mutation.filter
+   * + any attribute present in VCFInfoKeys or VCFFormatKeys.
+   *
+   * If the schema contains an unknown < field > or the field is not available for a particular mutation, "null" or an
+   * empty string is associated with that field.
+   *
+   * @param pathToXMLSchema the relative path to the XML schema. It's important that the attributes to be included in the
+   *                        generated mutations are tagged with an element < field >.
+   * @return this
+   */
+  def withRegionDataSchema(pathToXMLSchema: String):VCFAdapter ={
+    regionAttrsFromSchema = XMLHelper.textAndTypeTaggedWith("field", "type", pathToXMLSchema)
+    this
+  }
+
+  private def formatWithDefaultAttributes(mutation: VCFMutation): String ={
+    OneKGTransformer.tabber(
+      mutation.chr,
+      mutation.pos,
+      mutation.end.toString,
+      "+", // strand (see class documentation for explanations)
+      mutation.id,
+      mutation.ref,
+      mutation.alt
+    )
+  }
+
+  private def formatWithSchemaAttributes(mutation: VCFMutation): String ={
+
+    def get(what: String, forSample: Option[String] = None, biosamples: Option[List[String]] = None,
+            alternativeValue: String = "*"):String ={
+      import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.VCFAdapter.OKGMutation
+      what.toUpperCase match {
+        case "CHR" | "CHROM" | "CHROMOSOME" => mutation.chr
+        case "START" | "POS" | "LEFT" => mutation.pos
+        case "STOP" | "END" | "RIGHT" => mutation.end.toString
+        case "STRAND" | "STR" => "+"
+        case "ID" =>
+          if(mutation.id == ".")
+            alternativeValue
+          else
+            mutation.id
+        case "REF" => mutation.ref
+        case "ALT" => mutation.alt
+        case "QUAL" | "QUALITY" => mutation.qual
+        case "FILTER" => mutation.filter
+        case optionalInfoOrFormatKey =>
+          // look for an INFO value with the given key
+          mutation.info.getOrElse(optionalInfoOrFormatKey, {
+            // else look for a FORMAT value with the given key
+            if (forSample.isDefined && biosamples.isDefined) {
+              mutation.format(forSample.get, biosamples.get).getOrElse(optionalInfoOrFormatKey,
+                // else I'm sorry :P
+                alternativeValue)
+            }
+            else alternativeValue
+          })
+      }
+    }
+
+    OneKGTransformer.tabber(regionAttrsFromSchema.map(column => get(
+      column._1,
+      alternativeValue = if(column._2 == "STRING") MISSING_STRING_CODE else MISSING_NUMBER_CODE
+    )))
+  }
+
   /** TEST METHODS  */
 
   /**
@@ -219,6 +288,7 @@ class VCFAdapter(VCFFilePath: String) {
   def TESTForLengthAvailableInformation(inputFile: String, outputFile: String): Unit = {
     import VCFInfoKeys._
     import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.VCFAdapter.OKGMutation
+    val MISSING_VALUE_CODE = "*"
     val writer = FileUtil.writeAppend(outputFile).get
     var targetFileEmpty = FileUtil.size(outputFile) == 0
     val reader = FileUtil.open(inputFile).get

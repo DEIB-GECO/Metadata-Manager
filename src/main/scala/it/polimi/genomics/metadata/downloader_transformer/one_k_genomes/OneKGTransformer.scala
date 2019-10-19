@@ -22,7 +22,7 @@ class OneKGTransformer extends Transformer {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   // metadata file names
-  private var XMLParams = None : Option[(String, String, String, String)]
+  private var XMLParams = None : Option[(String, String, String, String, String)]
   private lazy val treeFileName:String = XMLParams.get._1
   private lazy val seqIndexMetaName:String = XMLParams.get._2
   private lazy val populationMetaName:String = XMLParams.get._3
@@ -35,6 +35,8 @@ class OneKGTransformer extends Transformer {
   private var populationMetadata: Map[String, List[String]] = _
   private var individualsMetadata: ManyToFewMap[String, List[String]] = _
   private var assembly:Option[String] = None
+  // formatting options
+  private lazy val pathToSchemaFile: String = XMLParams.get._5
 
 
   /**
@@ -65,7 +67,8 @@ class OneKGTransformer extends Transformer {
         case Some(_VCFPath) =>
           // the source file is completely transformed generating the target region files for all the samples available in the source file
           if(!transformedVCFs.contains(_VCFPath)){
-            new VCFAdapter(_VCFPath).appendAllMutationsBySample(transformationsDirPath)
+            new VCFAdapter(_VCFPath).withRegionDataSchema(pathToSchemaFile)
+              .appendAllMutationsBySample(transformationsDirPath)
             transformedVCFs += _VCFPath
           }
       }
@@ -121,7 +124,7 @@ class OneKGTransformer extends Transformer {
    */
   override def getCandidateNames(filename: String, dataset: Dataset, source: Source): List[String] = {
     // read XML config parameters here because I need Dataset
-    initMetadataFileNames(dataset)
+    initMetadataFileNamesAndFormattingOptions(dataset)
     if(assembly.isEmpty)
       assembly = Some(getAssembly(dataset))
     val downloadDirPath = dataset.fullDatasetOutputFolder+File.separator+"Downloads"+File.separator
@@ -163,7 +166,7 @@ class OneKGTransformer extends Transformer {
    *                                  population_file_path
    *                                  individual_details_file_path
    */
-  def initMetadataFileNames(dataset: Dataset): Unit = {
+  def initMetadataFileNamesAndFormattingOptions(dataset: Dataset): Unit = {
     if (XMLParams.isEmpty) XMLParams = Some(
       FileUtil.getFileNameFromPath(dataset.getParameter("tree_file_url").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER tree_file_url NOT FOUND IN XML CONFIG FILE"))),
@@ -172,7 +175,8 @@ class OneKGTransformer extends Transformer {
       FileUtil.getFileNameFromPath(dataset.getParameter("population_file_path").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER population_file_path NOT FOUND IN XML CONFIG FILE"))),
       FileUtil.getFileNameFromPath(dataset.getParameter("individual_details_file_path").getOrElse(
-        throw new MissingArgumentException("MANDATORY PARAMETER individual_details_file_path NOT FOUND IN XML CONFIG FILE")))
+        throw new MissingArgumentException("MANDATORY PARAMETER individual_details_file_path NOT FOUND IN XML CONFIG FILE"))),
+      dataset.schemaUrl
     )
   }
 

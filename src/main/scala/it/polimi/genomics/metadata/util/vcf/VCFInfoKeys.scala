@@ -28,8 +28,8 @@ object VCFInfoKeys {
   val MITOCHONDRIAL_INS_START = "MSTART"
   val MULTI_ALLELIC_SITE = "MULTI_ALLELIC"
   val OLD_VARIANT_BEFORE_VT_NORM = "OLD_VARIANT"
-  val ALLELE_FREQUENCY_SAN = "SAN_AF"
-  val ALLELE_FREQUENCY_SAS = "SAS_AF"
+  val ALLELE_FREQUENCY_SAN = "SAN_AF"   // seen only in extra_annotated version. Probably a typo for SAS
+  val ALLELE_FREQUENCY_SAS = "SAS_AF"   // seen only in extra_annotated version. Probably a typo for EAS
   val SV_LENGTH = "SVLEN"
   val SV_TYPE = "SVTYPE"
   val PRECISE_TARGET_SITE_DUP = "TSD"
