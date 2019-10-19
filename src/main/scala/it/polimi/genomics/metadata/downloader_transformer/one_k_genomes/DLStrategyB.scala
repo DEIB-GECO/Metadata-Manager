@@ -11,6 +11,21 @@ import scala.util.{Failure, Success}
 
 /**
  * Created by Tom on ott, 2019
+ *
+ * This class implements a backup strategy to download and check updates for 1kGenomes datasets.
+ * It explores the FTP server in the predefined locations (specified in the XML configuration file) and
+ * looks for updated versions of the dataset's files by comparing the local file-size and last-modified-date with
+ * respect the remote one.
+ *
+ * This downloader is used as backup option because
+ * 1. If a file changes, its size doesn't necessarily do the same.
+ * 2. FTP file timestamps are not designed to be used as markers for detecting changes in the file. Technically it's
+ * possible for a server administrator re-upload a file leaving the same timestamp of the previous version.
+ * Instead, hashing is the most reliable mechanism for detecting changes and that's indeed the strategy used by DLStrategyA.
+ * However, since computing the hash of very large files such as the 1kGenomes mutations could take hours, DLStrategyA
+ * relies on precomputed digests available on the server. If those precomputed digests would become unavailable,
+ * this downloader serves as backup strategy.
+ *
  */
 class DLStrategyB extends Downloader {
 
