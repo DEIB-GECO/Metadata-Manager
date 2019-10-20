@@ -26,6 +26,8 @@ import scala.util.{Failure, Success}
  * relies on precomputed digests available on the server. If those precomputed digests would become unavailable,
  * this downloader serves as backup strategy.
  *
+ * This class is involved in the download of files and update strategy only. For what concerns the identification
+ * and selection of the interesting files, see the class DatasetInfo.
  */
 class DLStrategyB extends Downloader {
 

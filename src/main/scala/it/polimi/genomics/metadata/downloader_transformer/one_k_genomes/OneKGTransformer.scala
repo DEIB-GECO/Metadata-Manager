@@ -15,7 +15,9 @@ import scala.util.Try
 /**
  * Created by Tom on ott, 2019
  *
- * Transformer for source 1000Genomes
+ * Transformer for source 1000Genomes.
+ * Since the transformation of VCF files (region data) is quite complex, it is delegated to VCFAdapter, while metadata
+ * files are transformed directly here.
  */
 class OneKGTransformer extends Transformer {
   import OneKGTransformer._

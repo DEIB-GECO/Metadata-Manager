@@ -87,7 +87,8 @@
                 </parameter>
                 <!--       DOWNLOAD PARAMETERS      -->
                 <parameter>
-                    <description>The tree file contains records whose path is relative to some base FTP directory. This parameter is the URL of that directory</description>
+                    <description>The tree file contains records whose path is relative to some base FTP directory. This parameter is the URL of that directory.
+                        This is also a prefix for all the remote metadata paths and directory paths in this configuration file</description>
                     <key>url_prefix_tree_file_records</key>
                     <value>ftp.1000genomes.ebi.ac.uk/vol1/</value>
                 </parameter>
@@ -98,14 +99,26 @@
                 </parameter>
                 <!--        FILTERING OPTIONS FOR VARIANTS DOWNLOAD     -->
                 <parameter>
+                    <description>When searching for variant files, include only the files whose name begins with this string</description>
                     <key>filter_variants_starting_characters</key>
                     <value>ALL.ch</value>
                 </parameter>
                 <parameter>
+                    <description>When searching for variant files, include only the files whose name ends with this string</description>
                     <key>filter_variants_ending_characters</key>
                     <value>.vcf.gz</value>
                 </parameter>
+                 <!--<parameter>
+                    <description>When searching for variant files, include only the files whose name matches this regex.
+                    WARNING: when this parameter is present, it overrides filter_variants_starting_characters and
+                        filter_variants_ending_characters settings</description>
+                    <key>filter_variants_with_custom_path_regex</key>
+                    <value></value>
+                </parameter>-->
                 <parameter>
+                    <description>When true, subdirectories of each release folder are skipped while searching for
+                    variants. Note that release folders are hosted at the location described in the dataset parameter
+                        dataset_remote_base_directory</description>
                     <key>exclude_subdirs_in_each_dataset_release</key>
                     <value>true</value>
                 </parameter>
@@ -141,6 +154,7 @@
                             <key>dataset_remote_base_directory</key>
                             <value>ftp/data_collections/1000_genomes_project/release/</value>
                         </parameter>
+                        <!-- ADDITIONAL METADATA -->
                         <parameter>
                             <key>sequence_index_file_path</key>
                             <value>ftp/data_collections/1000_genomes_project/1000genomes.sequence.index</value>
@@ -181,6 +195,7 @@
                             <key>dataset_remote_base_directory</key>
                             <value>ftp/release/</value>
                         </parameter>
+                        <!-- ADDITIONAL METADATA -->
                         <parameter>
                             <key>sequence_index_file_path</key>
                             <value>ftp/phase3/20130502.phase3.sequence.index</value>

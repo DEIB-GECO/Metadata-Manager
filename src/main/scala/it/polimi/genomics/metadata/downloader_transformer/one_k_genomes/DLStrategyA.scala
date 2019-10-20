@@ -33,6 +33,9 @@ import scala.util.{Failure, Success}
  * The whole procedure fails and all dataset's files are marked as FILE_STATUS.FAILED if the download of the tree fails,
  * or if the parsing of the tree doesn't return any info. If the parsing succeeds, the download of the single files may
  * still fail due to network issues, and in such case the interested files will be marked with FILE_STATUS.FAILED.
+ *
+ * This class is involved in the download of files and update strategy only. For what concerns the identification
+ * and selection of the interesting files, see the class DatasetInfo.
  */
 class DLStrategyA extends Downloader {
 

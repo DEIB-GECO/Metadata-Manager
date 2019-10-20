@@ -294,7 +294,7 @@ object DatasetInfo {
       // get optional XML params to filter the variants of interest in a dataset (remote) directory
       val startingChars = dataset.getParameter("filter_variants_starting_characters")
       val endingChars = dataset.getParameter("filter_variants_ending_characters")
-      val excludeSubdirs = dataset.getParameter("exclude_subdirs_in_each_dataset_release").map(_.toBoolean)
+      val excludeSubdirs = dataset.getParameter("exclude_subdirs_in_each_dataset_release").exists(_.toBoolean)
       val customPathRegex = dataset.getParameter("filter_variants_with_custom_path_regex")
       // build pattern for the records
       val variantsPattern = if(customPathRegex.isDefined)
@@ -303,7 +303,7 @@ object DatasetInfo {
         (new DatasetPattern).filterPathInsideDir(directoryPath)
       if(startingChars.isDefined) variantsPattern.filterPathBeginWith(startingChars.get)
       if(endingChars.isDefined) variantsPattern.filterPathEndsWith(endingChars.get)
-      if(excludeSubdirs.getOrElse(false)) variantsPattern.filterPathExcludeSubdirs()
+      if(excludeSubdirs) variantsPattern.filterPathExcludeSubdirs()
       variantsPattern.filterFiles()
       val fileReader = FileUtil.open(treeLocalPath).get
       val variantRecords = PatternMatch.getLinesMatching(variantsPattern.get(), fileReader)
