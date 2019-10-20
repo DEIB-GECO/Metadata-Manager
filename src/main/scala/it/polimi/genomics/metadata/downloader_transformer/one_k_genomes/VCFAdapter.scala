@@ -209,7 +209,7 @@ class VCFAdapter(VCFFilePath: String) {
   }
 
   private def formatWithDefaultAttributes(mutation: VCFMutation): String ={
-    OneKGTransformer.tabber(
+    OneKGTransformer.makeTSVString(
       mutation.chr,
       mutation.pos,
       mutation.end.toString,
@@ -253,7 +253,7 @@ class VCFAdapter(VCFFilePath: String) {
       }
     }
 
-    OneKGTransformer.tabber(regionAttrsFromSchema.map(column => get(
+    OneKGTransformer.makeTSVString(regionAttrsFromSchema.map(column => get(
       column._1,
       alternativeValue = if(column._2 == "STRING") MISSING_STRING_CODE else MISSING_NUMBER_CODE
     )))
@@ -298,7 +298,7 @@ class VCFAdapter(VCFFilePath: String) {
       var missingStuff: String = ""
       val infoString = List(
         m.info.getOrElse(VARIANT_TYPE, {
-          missingStuff = OneKGTransformer.tabberConcat(missingStuff.concat("MISSING "+VARIANT_TYPE))
+          missingStuff = OneKGTransformer.concatTSVString(missingStuff.concat("MISSING "+VARIANT_TYPE))
           MISSING_VALUE_CODE}),
         m.info.getOrElse(SV_LENGTH, MISSING_VALUE_CODE),
         m.info.getOrElse(SV_END, MISSING_VALUE_CODE),
@@ -308,7 +308,7 @@ class VCFAdapter(VCFFilePath: String) {
         m.info.getOrElse(MITOCHONDRIAL_INS_START, MISSING_VALUE_CODE),
         m.info.getOrElse(MITOCHONDRIAL_INS_END, MISSING_VALUE_CODE)
       )
-      val line = OneKGTransformer.tabber(m.chr, m.pos, m.end.toString, m.ref, m.alt)+OneKGTransformer.tabberConcat(infoString)+OneKGTransformer.tabberConcat(missingStuff)
+      val line = OneKGTransformer.makeTSVString(m.chr, m.pos, m.end.toString, m.ref, m.alt)+OneKGTransformer.concatTSVString(infoString)+OneKGTransformer.concatTSVString(missingStuff)
       writer.write(line)
       if(!targetFileEmpty)
         writer.newLine()

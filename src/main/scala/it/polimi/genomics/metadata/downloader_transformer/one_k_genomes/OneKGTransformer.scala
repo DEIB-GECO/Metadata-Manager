@@ -336,21 +336,34 @@ object OneKGTransformer {
     filename.substring(0, filename.lastIndexOf("."))
   }
 
-  //TODO change names key, value. Change method name. Change code in String.join
-  def tabber(words: String*): String ={
-    words.reduce((key, value) => key+"\t"+value)
+  //////////////////////////////    STRING FORMATTING FUNCTIONS   /////////////////////////////////////
+
+  /**
+   * Generates a string of tab-separated values.
+   */
+  def makeTSVString(words: String*): String ={
+    words.mkString("\t")
   }
 
-  def tabber(words: List[String]):String ={
-    words.reduce((key, value) => key+"\t"+value)
+  /**
+   * Generates a string of tab-separated values.
+   */
+  def makeTSVString(words: List[String]):String ={
+    words.mkString("\t")
   }
 
-  def tabberConcat(words: String*):String ={
-    "\t".concat(words.reduce((key, value) => key+"\t"+value))
+  /**
+   * Generates a string of tab-separated values, adding a tab also at the beginning of the string.
+   */
+  def concatTSVString(words: String*):String ={
+    "\t".concat(words.mkString("\t"))
   }
 
-  def tabberConcat(words: List[String]):String ={
-    "\t".concat(words.reduce((key, value) => key+"\t"+value))
+  /**
+   * Generates a string of tab-separated values, adding a tab also at the beginning of the string.
+   */
+  def concatTSVString(words: List[String]):String ={
+    "\t".concat(words.mkString("\t"))
   }
 
   def writeMetadata(writer: BufferedWriter, onNewLine: Boolean, key: String, value: String): Unit ={
