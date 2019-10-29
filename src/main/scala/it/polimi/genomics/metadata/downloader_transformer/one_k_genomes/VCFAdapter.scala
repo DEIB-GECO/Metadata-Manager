@@ -3,8 +3,8 @@ package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 import java.io.{BufferedReader, BufferedWriter}
 
 import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.VCFAdapter.OKGMutation
-import it.polimi.genomics.metadata.util.vcf.VCFMutation.{ALT_MULTI_VALUE_SEPARATOR, MutationProperties, maxLengthAltAllele, splitMultiValuedInfo}
-import it.polimi.genomics.metadata.util.vcf.{VCFInfoKeys, VCFMutation}
+import it.polimi.genomics.metadata.util.vcf.VCFMutation.{ALT_MULTI_VALUE_SEPARATOR, MutationProperties}
+import it.polimi.genomics.metadata.util.vcf.{MetaInformation, VCFInfoKeys, VCFMutation, VCFMutationTrait}
 import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress, XMLHelper}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -23,6 +23,8 @@ import scala.util.{Failure, Success}
 class VCFAdapter(VCFFilePath: String) {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
+  MetaInformation.updatePropertiesFromMetaInformationLines(VCFFilePath)
 
   val biosamples: List[String] = biosamples(VCFFilePath)
   private var numberOfLinesInFile: Option[Long] = None
@@ -50,20 +52,21 @@ class VCFAdapter(VCFFilePath: String) {
       advanceAndGetHeaderLine(reader)   // advance reader and skip header line
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read each mutation
-        val mutation = new VCFMutation(mutationLine)
-        val formatOfSample = mutation.format(sampleName, biosamples)
-        // appends to the sample's region file if positive
-        if(formatOfSample.isMutated){
-          val outputLine = if(regionAttrsFromSchema.nonEmpty){
-            formatWithSchemaAttributes(mutation)
-          } else
-            formatWithDefaultAttributes(mutation)
-          if(!targetFileEmpty)
-            writer.newLine()
-          else
-            targetFileEmpty = false
-          writer.write(outputLine)
-        }
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine).foreach(mutation => {
+          val formatOfSample = mutation.format(sampleName, biosamples)
+          // appends to the sample's region file if positive
+          if (formatOfSample.isMutated) {
+            val outputLine = if (regionAttrsFromSchema.nonEmpty) {
+              formatWithSchemaAttributes(mutation)
+            } else
+              formatWithDefaultAttributes(mutation)
+            if (!targetFileEmpty)
+              writer.newLine()
+            else
+              targetFileEmpty = false
+            writer.write(outputLine)
+          }
+        })
       }, setupReadProgressCanary(VCFFilePath))
       writer.close()
       true
@@ -88,29 +91,30 @@ class VCFAdapter(VCFFilePath: String) {
     try {
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read and transform each mutation
-        val mutation = new VCFMutation(mutationLine)
-        val outputLine = if(regionAttrsFromSchema.nonEmpty){
-          formatWithSchemaAttributes(mutation)
-        } else
-          formatWithDefaultAttributes(mutation)
-        // find the affected samples (there's always at least one)
-        val samplesWithMutation = biosamples.filter(sample => {
-          mutation.format(sample, biosamples).isMutated
-        })
-        // append this mutation to the region files of the affected samples
-        samplesWithMutation.foreach(sampleName => {
-          val outputFile = outputDirectoryPath + sampleName + ".gdm"
-          if (writers.get(sampleName).isEmpty) {
-            val writer = FileUtil.writeAppend(outputFile).get
-            writers += (sampleName -> writer)
-            if (FileUtil.size(outputFile) != 0)
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine).map(mutation => {
+          val outputLine = if (regionAttrsFromSchema.nonEmpty) {
+            formatWithSchemaAttributes(mutation)
+          } else
+            formatWithDefaultAttributes(mutation)
+          // find the affected samples (there's always at least one)
+          val samplesWithMutation = biosamples.filter(sample => {
+            mutation.format(sample, biosamples).isMutated
+          })
+          // append this mutation to the region files of the affected samples
+          samplesWithMutation.foreach(sampleName => {
+            val outputFile = outputDirectoryPath + sampleName + ".gdm"
+            if (writers.get(sampleName).isEmpty) {
+              val writer = FileUtil.writeAppend(outputFile).get
+              writers += (sampleName -> writer)
+              if (FileUtil.size(outputFile) != 0)
+                writer.newLine()
+              writer.write(outputLine)
+            } else {
+              val writer = writers(sampleName)
               writer.newLine()
-            writer.write(outputLine)
-          } else {
-            val writer = writers(sampleName)
-            writer.newLine()
-            writer.write(outputLine)
-          }
+              writer.write(outputLine)
+            }
+          })
         })
       }, setupReadProgressCanary(VCFFilePath))
     } finally {
@@ -208,7 +212,7 @@ class VCFAdapter(VCFFilePath: String) {
     this
   }
 
-  private def formatWithDefaultAttributes(mutation: VCFMutation): String ={
+  private def formatWithDefaultAttributes(mutation: VCFMutationTrait): String ={
     OneKGTransformer.makeTSVString(
       mutation.chr,
       mutation.pos,
@@ -216,25 +220,22 @@ class VCFAdapter(VCFFilePath: String) {
       "+", // strand (see class documentation for explanations)
       mutation.id,
       mutation.ref,
-      mutation.alt
+      mutation.alt,
+      mutation.info.mkString(";")
     )
   }
 
-  private def formatWithSchemaAttributes(mutation: VCFMutation): String ={
+  private def formatWithSchemaAttributes(mutation: VCFMutationTrait): String ={
 
     def get(what: String, forSample: Option[String] = None, biosamples: Option[List[String]] = None,
             alternativeValue: String = "*"):String ={
       import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.VCFAdapter.OKGMutation
-      what.toUpperCase match {
+      val value = what.toUpperCase match {
         case "CHR" | "CHROM" | "CHROMOSOME" => mutation.chr
         case "START" | "POS" | "LEFT" => mutation.pos
         case "STOP" | "END" | "RIGHT" => mutation.end.toString
         case "STRAND" | "STR" => "+"
-        case "ID" =>
-          if(mutation.id == ".")
-            alternativeValue
-          else
-            mutation.id
+        case "ID" =>  mutation.id
         case "REF" => mutation.ref
         case "ALT" => mutation.alt
         case "QUAL" | "QUALITY" => mutation.qual
@@ -251,6 +252,10 @@ class VCFAdapter(VCFFilePath: String) {
             else alternativeValue
           })
       }
+      if(value==VCFMutation.MISSING_VALUE_CODE)
+        alternativeValue
+      else
+        value
     }
 
     OneKGTransformer.makeTSVString(regionAttrsFromSchema.map(column => get(
@@ -352,7 +357,7 @@ object VCFAdapter {
    *
    * Example cases are mutation's end and length.
    */
-  implicit class OKGMutation(m: VCFMutation){
+  implicit class OKGMutation(m: VCFMutationTrait){
 
     lazy val length: Long = _length
 
@@ -376,24 +381,21 @@ object VCFAdapter {
     private def _length:Long ={
       import VCFInfoKeys._
         // INDELs
-        if (m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).contains("I") /*cover also the case VT="INDEL"*/ ||
-          m.info.get(SV_TYPE).isEmpty && m.ref.length != maxLengthAltAllele(m.alt))
-        // In INDELS, ALT and m.ref share the first or the last base. Moreover, ALT can have more than one ALT sequence comma separated
-          Math.max(m.ref.length, m.alt.split(ALT_MULTI_VALUE_SEPARATOR).map(_.length).max) - 1
-        // MNP
-        else if (m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).contains("M") /*cover also the case VT="MNP"*/ ||
-          m.info.get(SV_TYPE).isEmpty && m.ref.length == maxLengthAltAllele(m.alt))
+        if (m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).contains("I") /*cover also the case VT="INDEL"*/) {
+        // In INDELS, ALT and REF share the first or the last base.
+          Math.max(m.ref.length, m.alt.length) - 1
+        } // MNP
+        else if (m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).contains("M") /*cover also the case VT="MNP"*/) {
         // MNP mutations 're like concatenated SNPs and they don't share the first or the last base.
           m.ref.length
-        // SNP
+        } // SNP
         else if (m.info.get(SV_TYPE).isEmpty  && /* without this condition it would accept also SVs having VARIANT_TYPE="SV" */
-          ( m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).contains("S") /*cover also the case VT="SNP"*/ ||
-            m.ref.length == 1 && maxLengthAltAllele(m.alt) == 1) )
+          m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).contains("S") /*cover also the case VT="SNP"*/  ) {
           1
-        // SVs with SV_LENGTH like mobile elements and some others (DEL|DUP|INV)
+        } // SVs with SV_LENGTH like mobile elements and some others (DEL|DUP|INV)
         else if (m.info.get(SV_LENGTH).isDefined)
         // max of absolute values of SV_LENGTH. SV_LENGTH is negative for SVs representing long deletions
-          splitMultiValuedInfo(m.info(SV_LENGTH)).map(_.toLong.abs).max
+          m.info(SV_LENGTH).toLong.abs
         //  all SVs which are not mobile elements should have this attribute: CNV|DEL|DUP|INV|INS
         else if (m.info.get(SV_END).isDefined)
           m.info(SV_END).toLong - m.pos.toLong
@@ -411,7 +413,21 @@ object VCFAdapter {
           VCFMutation.logger.info("MEINFO unexpected format in mutation "+mutationStringWithoutFormat+
             " ALU APPROXIMATE LENGTH RETURNED: 300 BASES.")
           300   // approximate length of ALU element. Without further info, this is the best guess.
-        } else { // uncovered case
+        }
+        // INDELs without VARIANT_TYPE attribute
+        else if(m.info.get(SV_TYPE).isEmpty && m.ref.length != m.alt.length){
+          // In INDELS, ALT and REF share the first or the last base.
+          Math.max(m.ref.length, m.alt.length) - 1
+        }
+        // MNPs without VARIANT_TYPE attribute
+        else if(m.info.get(SV_TYPE).isEmpty && m.ref.length == m.alt.length) {
+          // MNP mutations 're like concatenated SNPs and they don't share the first or the last base.
+          m.ref.length
+        }
+        // SNPs without VARIANT_TYPE attribute
+        else if(m.info.get(SV_TYPE).isEmpty && m.ref.length == 1 && m.alt.length == 1)
+          1
+        else { // uncovered case
           VCFMutation.logger.error("UNABLE TO DETERMINE THE LENGTH OF VARIANT: "+mutationStringWithoutFormat)
           0
         }

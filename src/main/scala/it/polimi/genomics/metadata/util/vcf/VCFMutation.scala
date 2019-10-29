@@ -5,7 +5,7 @@ import org.slf4j.{Logger, LoggerFactory}
 /**
  * Created by Tom on ott, 2019
  */
-class VCFMutation(mutationLine: String) {
+class VCFMutation(mutationLine: String) extends VCFMutationTrait {
   import VCFMutation._
   private val mutationParts = mutationLine.split(COLUMN_SEPARATOR_REGEX).toList
   lazy val info: Map[String, String] = _info
@@ -76,6 +76,7 @@ class VCFMutation(mutationLine: String) {
   private def formatKeysAsString:String ={
     mutationParts(8)
   }
+
   private def formatValuesAsString(sampleNum: Int):String ={
     mutationParts(9+sampleNum)
   }
@@ -89,8 +90,10 @@ object VCFMutation {
   val INFO_SEPARATOR = ";"
   val INFO_MULTI_VALUE_SEPARATOR = ","
   val ALT_MULTI_VALUE_SEPARATOR = ","
-  val FORMAT_MULTI_VALUE_SEPARATOR = "|"
+  val ID_MULTI_VALUE_SEPARATOR = ";"
+  val FORMAT_MULTI_VALUE_SEPARATOR = ","
   val COLUMN_SEPARATOR_REGEX = "\\s+"
+  val MISSING_VALUE_CODE = "."
 
   def splitMultiValuedAlt(altString: String):Array[String]  ={
     altString.split(ALT_MULTI_VALUE_SEPARATOR)
@@ -102,6 +105,31 @@ object VCFMutation {
 
   def splitMultiValuedInfo(infoAttr: String):Array[String]  ={
     infoAttr.split(INFO_MULTI_VALUE_SEPARATOR)
+  }
+
+  /**
+   * Splits variants occurring at the same locus in two or more VCFMutationTrait, one for each alternative allele in the
+   * alt field of this mutation
+   */
+  def splitOnMultipleAlternativeMutations(mutation: VCFMutation): List[VCFMutationTrait] ={
+    val numOfAlternatives = mutation.alt.count(_ == ALT_MULTI_VALUE_SEPARATOR.charAt(0))+1
+    if(numOfAlternatives>1)
+      Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplittedMutation(i, mutation))
+    else
+      List(mutation)
+  }
+
+  /**
+   * Splits variants occurring at the same locus in two or more VCFMutationTrait, one for each alternative allele in the
+   * alt field of this mutation
+   */
+  def splitOnMultipleAlternativeMutations(mutationLine: String): List[VCFMutationTrait] ={
+    val altField = mutationLine.split(COLUMN_SEPARATOR_REGEX)(4)
+    val numOfAlternatives = altField.count(_ == ALT_MULTI_VALUE_SEPARATOR.charAt(0))+1
+    if(numOfAlternatives>1)
+      Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplittedMutation(i, new VCFMutation(mutationLine)))
+    else
+      List(new VCFMutation(mutationLine))
   }
 
   ////////////////////////////////////////////    EXTENSION OF MAP ATTRIBUTES   //////////////////////////////////////
@@ -116,6 +144,13 @@ object VCFMutation {
       genotype match {
         case Some(gt) => gt.contains("1")
         case None => false
+      }
+    }
+
+    def ploidy: Int ={
+      map.get(VCFFormatKeys.GENOTYPE) match {
+        case Some(gt) => gt.count(_ == '/')+gt.count(_=='|')+1
+        case None => 0
       }
     }
   }
