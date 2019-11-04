@@ -41,7 +41,7 @@ class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) exten
     m.filter
   }
 
-  def info:Map[String, String] ={
+  lazy val info:Map[String, String] ={
     m.info.map( kvpair => {
       (kvpair._1, {
         val splitValues = kvpair._2.split(INFO_MULTI_VALUE_SEPARATOR)
