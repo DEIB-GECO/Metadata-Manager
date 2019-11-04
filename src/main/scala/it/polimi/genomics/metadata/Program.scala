@@ -27,6 +27,7 @@ import scala.xml.{Elem, XML}
   */
 object Program extends App {
   val logger: Logger = Logger.getLogger(this.getClass)
+  //TODO restore original pattern message when pushing to the server
 //  replace original message pattern with a much shorter one to improve the readability of the output
 //    val PATTERN = "%d [%p] - %l %m%n"
   val PATTERN = "%d{HH:mm:ss} [%p]-%c{2} %m%n"
