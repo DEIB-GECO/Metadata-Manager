@@ -38,7 +38,7 @@ class OneKGTransformer extends Transformer {
   private var individualsMetadata: ManyToFewMap[String, List[String]] = _
   private var assembly:Option[String] = None
   // formatting options
-  private lazy val pathToSchemaFile: String = XMLParams.get._5
+  private lazy val mutationPrinter: MutationPrinterTrait = SchemaAdapter.fromSchema(XMLParams.get._5)
 
 
   /**
@@ -69,7 +69,7 @@ class OneKGTransformer extends Transformer {
         case Some(_VCFPath) =>
           // the source file is completely transformed generating the target region files for all the samples available in the source file
           if(!transformedVCFs.contains(_VCFPath)){
-            new VCFAdapter(_VCFPath).withRegionDataSchema(pathToSchemaFile)
+            new VCFAdapter(_VCFPath, mutationPrinter)
               .appendAllMutationsBySample(transformationsDirPath)
             transformedVCFs += _VCFPath
           }
@@ -177,7 +177,7 @@ class OneKGTransformer extends Transformer {
       FileUtil.getFileNameFromPath(dataset.getParameter("population_file_path").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER population_file_path NOT FOUND IN XML CONFIG FILE"))),
       FileUtil.getFileNameFromPath(dataset.getParameter("individual_details_file_path").getOrElse(
-        throw new MissingArgumentException("MANDATORY PARAMETER individual_details_file_path NOT FOUND IN XML CONFIG FILE"))),
+        throw new MissingArgumentException("MANDATORY PARAMETER region_schema_file_path NOT FOUND IN XML CONFIG FILE"))),
       dataset.schemaUrl
     )
   }
@@ -254,7 +254,7 @@ class OneKGTransformer extends Transformer {
     })
   }
 
-  /*  METHOD USED ONLY FOR DEBUGGING  */
+/*
   private def TESTwriteMetadata(outputDirectoryPath: String):Unit ={
     // population
     if(populationMetadata.nonEmpty) {
@@ -290,6 +290,7 @@ class OneKGTransformer extends Transformer {
       writer.close()
     }
   }
+*/
 
   ///////////////////////////////   GENERIC HELPER METHODS    ///////////////////////////////////////
   /**

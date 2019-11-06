@@ -2,11 +2,12 @@
 <gmqlSchemaCollection name="one_k_genomes" xmlns="http://genomic.elet.polimi.it/entities">
     <gmqlSchema type="TAB">
         <field type="STRING">chr</field>
-        <field type="LONG">start</field>
-        <field type="LONG">stop</field>
+        <field type="LONG">left</field>
+        <field type="LONG">right</field>
         <field type="CHAR">strand</field>
         <field type="STRING">ref</field>
         <field type="STRING">alt</field>
+        <field type="STRING">mut_type</field>
         <field type="STRING">id</field>
         <field type="DOUBLE">AF</field>             <!-- ALLELE FREQUENCY -->
         <field type="LONG">DP</field>               <!-- READ DEPTH (AVAILABLE ONLY FOR LOW COVERAGE DATA) -->
@@ -16,8 +17,6 @@
         <field type="DOUBLE">EAS_AF</field>         <!-- ALLELE FREQUENCY EAST ASIA -->
         <field type="DOUBLE">SAS_AF</field>         <!-- ALLELE FREQUENCY SOUTH ASIA -->
         <field type="INTEGER">AC</field>            <!-- SAMPLES WITH THIS MUTATION -->
-        <field type="STRING">VT</field>             <!-- VARIANT TYPE -->
-        <field type="STRING">SVTYPE</field>         <!-- TYPE OF STRUCTURAL VARIANT -->
         <field type="STRING">AA</field>             <!-- ANCESTRAL ALLELE -->
         <field type="STRING">IMPRECISE</field>      <!-- FLAG IMPRECISE SV -->
         <field type="STRING">CIEND</field>          <!-- CONFIDENCE INTERVAL AROUND END POS FOR IMPRECISE SVs -->
