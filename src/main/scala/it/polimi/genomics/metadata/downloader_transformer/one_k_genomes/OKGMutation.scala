@@ -208,7 +208,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
 
   override def info: Map[String, String] = m.info
 
-  override def format(sampleName: String, biosamples: List[String]): Map[String, String] = m.format(sampleName, biosamples)
+  override def format(sampleName: String, biosamples: IndexedSeq[String]): Map[String, String] = m.format(sampleName, biosamples)
 }
 object OKGMutation {
 

@@ -77,7 +77,7 @@ class TestTransf extends Transformer {
     if(filename == "ALL_0.chrX.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf.gz"){
       val inputFile = DatasetInfo.getDownloadDir(dataset)+"ALL.chrX.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased_short.vcf"
       val VCF = new VCFAdapter(inputFile)
-      VCF.biosamples.map(sample => s"$sample.gdm")
+      VCF.biosamples.map(sample => s"$sample.gdm").toList
     }
     else if(filename == "1000genomes_0.sequence.index") {
       individualsMetadata = getIndividualDetailsMetadata(dataset)

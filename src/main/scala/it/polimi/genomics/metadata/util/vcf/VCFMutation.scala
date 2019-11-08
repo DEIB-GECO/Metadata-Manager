@@ -7,7 +7,7 @@ import org.slf4j.{Logger, LoggerFactory}
  */
 class VCFMutation(mutationLine: String) extends VCFMutationTrait {
   import VCFMutation._
-  private val mutationParts = mutationLine.split(COLUMN_SEPARATOR_REGEX).toList
+  private val mutationParts = mutationLine.split(COLUMN_SEPARATOR_REGEX)
   lazy val info: Map[String, String] = _info
 
   def chr:String ={
@@ -60,7 +60,7 @@ class VCFMutation(mutationLine: String) extends VCFMutationTrait {
    * @throws Exception if the FORMAT keys string and the FORMAT values string have a different number of attributes as a
    *                   result of a wrong implementation of the VCF file standard.
    */
-  def format(sampleName: String, biosamples: List[String]): Map[String, String] = {
+  def format(sampleName: String, biosamples: IndexedSeq[String]): Map[String, String] = {
     val sampleNum = biosamples.indexOf(sampleName)
     if(sampleNum == -1)
       throw new IllegalArgumentException("ARGUMENT SAMPLE NAME IS NOT PART OF THE ARGUMENT SAMPLE NAME'S LIST")

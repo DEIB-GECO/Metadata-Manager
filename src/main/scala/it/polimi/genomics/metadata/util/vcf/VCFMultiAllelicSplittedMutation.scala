@@ -60,7 +60,7 @@ class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) exten
     })
   }
 
-  def format(sampleName: String, biosamples: List[String]): Map[String, String] = {
+  def format(sampleName: String, biosamples: IndexedSeq[String]): Map[String, String] = {
 //    try {
       val formatMap = m.format(sampleName, biosamples)
       formatMap.map(kvpair => {

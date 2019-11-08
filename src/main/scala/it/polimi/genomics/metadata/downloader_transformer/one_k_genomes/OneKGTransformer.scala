@@ -152,7 +152,7 @@ class OneKGTransformer extends Transformer {
           case None => List.empty[String]
           case Some(_VCFPath) =>
             // read sample names and output resulting filenames:
-            new VCFAdapter(_VCFPath).biosamples.map(sample => s"$sample.gdm")
+            new VCFAdapter(_VCFPath).biosamples.map(sample => s"$sample.gdm").toList
         }
     }
   }

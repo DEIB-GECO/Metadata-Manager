@@ -7,6 +7,7 @@ import it.polimi.genomics.metadata.util.vcf.{MetaInformation, VCFMutation}
 import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress, XMLHelper}
 import org.slf4j.{Logger, LoggerFactory}
 
+import scala.collection.{immutable, mutable}
 import scala.util.{Failure, Success}
 
 /**
@@ -23,7 +24,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val biosamples: List[String] = biosamples(VCFFilePath)
+  val biosamples: immutable.IndexedSeq[String] = biosamples(VCFFilePath)
   private var numberOfLinesInFile: Option[Long] = None
   MetaInformation.updatePropertiesFromMetaInformationLines(VCFFilePath)
 
@@ -37,8 +38,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
    * @return false if the sample doesn't appear in this VCf, true otherwise.
    */
   def appendMutationsOf(sampleName: String, toFilePath: String): Boolean = {
-    val index = biosamples.indexOf(sampleName)
-    if(index == -1)
+    if(!biosamples.contains(sampleName))
       false // the sample isn't listed in this VCF
     else {
       val writer = FileUtil.writeAppend(toFilePath).get  // let it throw exception if failed
@@ -67,7 +67,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
 
   ////////////////////////////////////  VARIANT -> SAMPLES   ///////////////////////////////////////////////////////////
 
-  def getSamplesWithMutation(mutationLine: String): List[String] ={
+  def getSamplesWithMutation(mutationLine: String): immutable.IndexedSeq[String] ={
     val mutation = new VCFMutation(mutationLine)
     biosamples.filter(sample => {
       mutation.format(sample, biosamples).isMutated
@@ -77,7 +77,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
   /////////////////////////////////   WHOLE FILE -> ALL SAMPLES   ///////////////////////////////////////////////////////
 
   def appendAllMutationsBySample(outputDirectoryPath: String): Unit = {
-    var writers:Map[String, BufferedWriter] = Map.empty
+    var writers:mutable.AnyRefMap[String, BufferedWriter] = mutable.AnyRefMap.empty
     val reader = FileUtil.open(VCFFilePath).get    // let it throw exception if failed
     advanceAndGetHeaderLine(reader)   // advance reader and skip header line
     try {
@@ -156,14 +156,14 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
    * @param VCFFilePath the path (relative to the project's root dir) to a VCF file complete of genotype information.
    * @return an array of biosamples' names read from the heaser line of the argument VCF file given
    */
-  private def biosamples(VCFFilePath: String): List[String] = {
+  private def biosamples(VCFFilePath: String): immutable.IndexedSeq[String] = {
     val reader = FileUtil.open(VCFFilePath).get
     val headerLine = advanceAndGetHeaderLine(reader)
     reader.close()
     // skip mandatory header columns
     val samplesString = headerLine.split("FORMAT", 2)(1).trim
     // create array of biosamples' names
-    samplesString.split(VCFMutation.COLUMN_SEPARATOR_REGEX).toList
+    samplesString.split(VCFMutation.COLUMN_SEPARATOR_REGEX).toIndexedSeq
   }
 
   /**
