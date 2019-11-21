@@ -20,8 +20,10 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
   private var _type: Option[String] = None
 
   /**
-   * This method simplifies REF and ALT alleles present in the original mutation and performs a conversion of coordinates
-   * from 1-based to 0-based. It also computes right and left breakpoints, length and type of mutation.
+   * This constructor computes the breakpoints for this mutation as 0-based coordinates. Also, it initializes the
+   * attributes _type, length and _ref, _alt removing the common prefix base (useless when using 0-based coordinates).
+   * Even at the end of this method, _length may not be initialized due to incomplete information in the original mutation;
+   * in such a case, when a user requires the length,it will receive the string NULL.
    */
   {
     import VCFInfoKeys._
@@ -42,13 +44,15 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
       // INDELs
       if (/*m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).contains("I") ||*/
         m.info.get(SV_TYPE).isEmpty && m.ref.length != m.alt.length ) {
-        _type = Some(OKGMutation.TYPE_INDEL)
         // In INDELS, ALT and REF always share the first or the last base.
         _length = Math.max(m.ref.length, m.alt.length) -1
-        _right = if(m.alt.length < m.ref.length)   // deletion
-          _left + m.ref.length
-         else  // insertion
-          _left
+        if(m.alt.length < m.ref.length) { // deletion
+          _right = _left + m.ref.length
+          _type = Some(OKGMutation.TYPE_DEL)
+        } else {  // insertion
+          _right = _left
+          _type = Some(OKGMutation.TYPE_INS)
+        }
         reduceINDEL()
       } // SNPs
       else if (/*m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).startsWith("S") ||*/
@@ -178,9 +182,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
     _right.toString
   }
 
-  def strand:String ={
-    OKGMutation._strand
-  }
+  val strand:String = "+"
 
   def mut_type: String ={
     _type.getOrElse(
@@ -215,8 +217,8 @@ object OKGMutation {
   val logger:Logger = LoggerFactory.getLogger(this.getClass)
 
   private val CHR_PREFIX = "chr"
-  private val _strand:String = "+"
-  val TYPE_INDEL = "INDEL"
+  val TYPE_DEL = "DEL"
+  val TYPE_INS = "INS"
   val TYPE_SNP = "SNP"
   val TYPE_MNP = "MNP"
 
