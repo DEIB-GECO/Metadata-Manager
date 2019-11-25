@@ -8,39 +8,63 @@ import org.slf4j.{Logger, LoggerFactory}
  * since they are not mandatory VCF attributes and so their definition depends on the custom attributes specified in the file
  * by each source.
  *
- * Example cases are mutation's end and length.
+ * This class adds to VCFMutationTrait the attributes:
+ * - strand
+ * - left and right breakpoints computed as 0-based coordinates
+ * - length: it is right - left except on insertions, where the length is the size of the inserted sequence.
+ * - type: aggregates values coming from VT and SVTYPE attributes. Plus, it uniforms CNV loss with DEL type and
+ * discriminates insertions from deletions in indels variants.
+ *
+ * Additionally, it shrink mutations by removing the padding base usually present in indels and SV with symbolic alternative
+ * alleles.
  */
 class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
 
   private var _ref:String = _
   private var _alt:String =  _
-  private var _length: Long = -1  // DIFFERENCE IN LENGTH BETWEEN REF AND ALT ALLELES
+  private var _length: Long = -1
   private var _left: Long = -1
   private var _right: Long = -1
   private var _type: Option[String] = None
 
   /**
    * This constructor computes the breakpoints for this mutation as 0-based coordinates. Also, it initializes the
-   * attributes _type, length and _ref, _alt removing the common prefix base (useless when using 0-based coordinates).
-   * Even at the end of this method, _length may not be initialized due to incomplete information in the original mutation;
+   * attributes _type, length and _ref/ _alt removing the common prefix base ("shrinking operation") because it is
+   * useless when using 0-based coordinates.
+   * At the end of this method, _length may not be initialized due to incomplete information in the original mutation;
    * in such a case, when a user requires the length,it will receive the string NULL.
    */
   {
     import VCFInfoKeys._
-    // SVs
-    if(m.info.get(SV_TYPE).isDefined) {
-      _left = m.pos.toLong // "the POS field should specify the 1-based coordinate of the base before the SV or the best estimate thereof"
-      // SVs
-      if (m.info.get(SV_END).isDefined)
-        _right = m.info(SV_END).toLong
-      if (m.info.get(SV_LENGTH).isDefined) {
-        // SV_LENGTH is negative for SVs representing long deletions
-        _length = m.info(SV_LENGTH).toLong
-      } else if( _right != -1)
-        _length = _right - _left + 1
-      reduceSV()
+    // VCF specifies in POS the 1-based coordinate of the base in REF. -1 is added for converting it into a 0-based coordinate.
+    _left = m.pos.toLong -1
+    if(m.info.get(SV_TYPE).isDefined) {   // SVs:
+      // For SVs, "the VCF record specifies a-REF-t and the alternative haplotypes are a-ALT-t for each alternative allele"
+      if (m.info.get(SV_END).isDefined) {
+        _right = m.info(SV_END).toLong    // END is equivalent in both 1-based and 0-based coordinates.
+        _length =  _right - _left
+      } else if(m.info.get(SV_LENGTH).isDefined) {
+        /* From VCF 4.0, SVLEN can be a positive or a negative value (when the SV represents a long deletion).
+        * For precise variants, SVLEN = END - POS + 1, which in 0-based coordinates is equivalent to _right - _left.
+        * For imprecise variants SVLEN is an estimation, so it can be greater than END - POS + 1. */
+        _length = m.info(SV_LENGTH).toLong.abs
+      }
+      shrinkSV()
+      // compute _right if it's missing
+      if(_right == -1) {
+        if(m.alt.startsWith(OKGMutation.SV_INS_ALT_PREFIX))
+          _right = _left
+        else if(_length != -1 && m.info.get(CONFID_INTERVAL_AROUND_END_POS).isEmpty){
+          VCFMutation.logger.info("CHECK THIS OUT "+mutationStringWithoutFormat)
+          _right = _left + _length
+        }
+      }
+      // type
+      if(m.alt.equals(OKGMutation.CN0))
+        _type = Some(OKGMutation.TYPE_SV_DEL)
+      else
+        _type = m.info.get(VCFInfoKeys.SV_TYPE).orElse(m.info.get(VCFInfoKeys.VARIANT_TYPE))  // can be None
     } else {
-      _left = m.pos.toLong - 1
       // INDELs
       if (/*m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).contains("I") ||*/
         m.info.get(SV_TYPE).isEmpty && m.ref.length != m.alt.length ) {
@@ -53,7 +77,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
           _right = _left
           _type = Some(OKGMutation.TYPE_INS)
         }
-        reduceINDEL()
+        shrinkINDEL()
       } // SNPs
       else if (/*m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).startsWith("S") ||*/
         m.info.get(SV_TYPE).isEmpty && m.ref.length == 1 && m.alt.length == 1) {
@@ -65,29 +89,38 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
       else if (m.info.get(SV_TYPE).isEmpty && m.ref.length == m.alt.length ) {
         _type = Some(OKGMutation.TYPE_MNP)
         // MNP mutations 're like concatenated SNPs
-        // skip _length and _right initialization because they're then overwritten in reduceMNP()
-        reduceMNP()
+        // skip _length and _right initialization because they're then overwritten in shrinkMNP()
+        shrinkMNP()
       }
     }
-    if(_left == -1 || _length == -1 || _right == -1) {
+    // fallback case
+    if( _length == -1 || _right == -1) {
       OKGMutation.logger.info(s"UNHANDLED VARIANT: $mutationStringWithoutFormat \n left: ${_left} length: ${_length} right: ${_right}")
-      _right = _left
-      if(_type.isEmpty)
-        reduceSV()
-      else
+      if(_right == -1)
+        _right = _left
+      if(_ref == null || _alt == null)
         copyREF_ALT()
     }
   }
 
   /**
-   * In SVs, the base in REF is the base preceding the event described in ALT. It can be removed. Breakpoints or length
-   * don't require any adjustment.
+   * In SVs, normally "the VCF record specifies a-REF-t and the alternative haplotypes are a-ALT-t for each alternative
+   * allele". However "if any of the ALT alleles is a symbolic allele (an angle-bracketed ID String "< ID>") then the
+   * padding base is required and POS denotes the coordinate of the base preceding the polymorphism.".
+   * In this method we initialize _ref, _alt and eventually we remove the padding base adjusting the coordinates consequently.
    */
-  private def reduceSV():Unit ={
-    if(m.ref.length==1 && !m.alt.startsWith("<"))
-      OKGMutation.logger.debug("UNHANDLED SV: "+mutationStringWithoutFormat)
-    _ref = if(m.ref.length == 1) VCFMutation.MISSING_VALUE_CODE else m.ref
+  private def shrinkSV():Unit ={
     _alt = m.alt
+    if(m.ref.length==1 && m.alt.startsWith(OKGMutation.SYMBOLIC_MUTATION_ALT_PREFIX)){
+      _ref = VCFMutation.MISSING_VALUE_CODE
+      _left += 1
+      if(_length != -1)
+        _length -= 1
+    } else {
+      _ref = m.ref
+      // log this kind of mutations because they're rare and I want to check the correctness of the algorithm for those cases too.
+      OKGMutation.logger.debug("FOUND NOT SYMBOLIC SV: "+mutationStringWithoutFormat)
+    }
   }
 
   /**
@@ -102,7 +135,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
    * last C, however it could also mean the deletion of the C in the middle, thus reducing ACC -> AC to C -> . would be
    * simply wrong.
    */
-  private def reduceINDEL():Unit ={
+  private def shrinkINDEL():Unit ={
     _ref = m.ref
     _alt = m.alt
     if (m.pos.toLong != 1 && _ref.head == _alt.head) {
@@ -138,7 +171,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
    * This method trims MNPs by removing equal bases in equal positions from REF and ALT, and consequently adjusts the
    * breakpoints and length parameters. If a trimmed MNP has both REF and ALT of length 1, its type is reduced to SNP.
    */
-  private def reduceMNP(): Unit ={
+  private def shrinkMNP(): Unit ={
     _ref = m.ref
     _alt = m.alt
     // trim common alleles to the left
@@ -217,10 +250,14 @@ object OKGMutation {
   val logger:Logger = LoggerFactory.getLogger(this.getClass)
 
   private val CHR_PREFIX = "chr"
-  val TYPE_DEL = "DEL"
-  val TYPE_INS = "INS"
-  val TYPE_SNP = "SNP"
-  val TYPE_MNP = "MNP"
+  private val TYPE_DEL = "DEL"
+  private val TYPE_INS = "INS"
+  private val TYPE_SNP = "SNP"
+  private val TYPE_MNP = "MNP"
+  private val TYPE_SV_DEL = "DEL"
+  private val CN0 = "<CN0>"
+  private val SV_INS_ALT_PREFIX = "<INS"
+  private val SYMBOLIC_MUTATION_ALT_PREFIX = "<"
 
 
   def apply(m: VCFMutationTrait): OKGMutation = {
