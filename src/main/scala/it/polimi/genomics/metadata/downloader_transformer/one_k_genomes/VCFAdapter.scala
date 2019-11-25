@@ -4,7 +4,7 @@ import java.io.{BufferedReader, BufferedWriter}
 
 import it.polimi.genomics.metadata.util.vcf.VCFMutation.MutationProperties
 import it.polimi.genomics.metadata.util.vcf.{MetaInformation, VCFMutation}
-import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress, XMLHelper}
+import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.{immutable, mutable}
@@ -91,12 +91,10 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
           })
           // append this mutation to the region files of the affected samples
           samplesWithMutation.foreach(sampleName => {
-            val outputFile = outputDirectoryPath + sampleName + ".gdm"
             if (writers.get(sampleName).isEmpty) {
-              val writer = FileUtil.writeAppend(outputFile).get
+              val outputFile = outputDirectoryPath + sampleName + ".gdm"
+              val writer = FileUtil.writeAppend(outputFile, startOnNewLine = true).get
               writers += (sampleName -> writer)
-              if (FileUtil.size(outputFile) != 0)
-                writer.newLine()
               writer.write(outputLine)
             } else {
               val writer = writers(sampleName)
