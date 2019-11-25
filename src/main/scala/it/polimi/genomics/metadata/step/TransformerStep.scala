@@ -697,7 +697,7 @@ object TransformerStep extends Step {
         tempMap = tempMap + ((regionID, mutable.Queue(line)))
     }
     reader.close()
-    using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("result"))))) {
+    using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(filePath))))) {
       writer => {
         tempMap.foreach(pair =>
           while (pair._2.nonEmpty) writer.write(pair._2.dequeue() + "\n"))
