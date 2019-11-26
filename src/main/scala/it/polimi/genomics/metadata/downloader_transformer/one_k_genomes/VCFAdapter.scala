@@ -4,11 +4,11 @@ import java.io.{BufferedReader, BufferedWriter}
 
 import it.polimi.genomics.metadata.util.vcf.VCFMutation.MutationProperties
 import it.polimi.genomics.metadata.util.vcf.{MetaInformation, VCFMutation}
-import it.polimi.genomics.metadata.util.{FileUtil, RoughReadProgress}
+import it.polimi.genomics.metadata.util.{ApproximateReadProgress, FileUtil}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.{immutable, mutable}
-import scala.util.{Failure, Success}
+import scala.util.Try
 
 /**
  * Created by Tom on ott, 2019
@@ -27,6 +27,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
   val biosamples: immutable.IndexedSeq[String] = biosamples(VCFFilePath)
   private var numberOfLinesInFile: Option[Long] = None
   MetaInformation.updatePropertiesFromMetaInformationLines(VCFFilePath)
+  private val shortName = Try(FileUtil.getFileNameFromPath(VCFFilePath).split("\\.")(1)).getOrElse(FileUtil.getFileNameFromPath(VCFFilePath))
 
   ////////////////////////////////////  SAMPLE -> VARIANTS   ///////////////////////////////////////////////////////////
   /**
@@ -152,7 +153,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
 
   /**
    * @param VCFFilePath the path (relative to the project's root dir) to a VCF file complete of genotype information.
-   * @return an array of biosamples' names read from the heaser line of the argument VCF file given
+   * @return an array of biosamples' names read from the header line of the argument VCF file given
    */
   private def biosamples(VCFFilePath: String): immutable.IndexedSeq[String] = {
     val reader = FileUtil.open(VCFFilePath).get
@@ -165,27 +166,26 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
   }
 
   /**
-   * Prepares an instance of RoughReadProgress to receive progress updates while processing files very large in size.
+   * Prepares an instance of ApproximateReadProgress to receive progress updates while processing files very large in size.
    * Progress are not logged through a logger instance as they're useful only for a user who wants to have an estimate
    * of the time left to finish.
    * This estimate is just a rough approximation and requires some more seconds before the file processing can begin in
    * order to compute the necessary parameters.
    */
-  private def setupReadProgressCanary(fullFilePath: String): Option[RoughReadProgress] ={
-    if(numberOfLinesInFile.isDefined) {
-      println("SCANNING "+numberOfLinesInFile.get+" LINES FROM "+fullFilePath)
-      Some(new RoughReadProgress(numberOfLinesInFile.get, 10, RoughReadProgress.notifyProgress))
+  private def setupReadProgressCanary(fullFilePath: String): Option[ApproximateReadProgress] ={
+    if(numberOfLinesInFile.isEmpty){
+      logger.info("COUNTING LINES OF FILE " + shortName)
+      numberOfLinesInFile = FileUtil.countLines(fullFilePath).toOption
+    }
+    if(numberOfLinesInFile.isEmpty){
+      logger.info("COUNT OF LINES IN FILE "+fullFilePath+" FAILED")
+      None
     } else {
-      println("COUNTING LINES OF FILE: " + fullFilePath)
-      FileUtil.countLines(fullFilePath) match {
-        case Failure(_) =>
-          println("COUNT OF LINES IN FILE FAILED")
-          None
-        case Success(value) =>
-          numberOfLinesInFile = Some(value)
-          println("COUNTED "+value+" LINES")
-          Some(new RoughReadProgress(value, 10, RoughReadProgress.notifyProgress))
-      }
+      logger.info("COUNTED "+numberOfLinesInFile.get+" LINES IN "+shortName)
+      Some(new ApproximateReadProgress(
+        numberOfLinesInFile.get,
+        progressNotificationStep = 10,
+        ApproximateReadProgress.simpleProgressNotification(filename = shortName, logger = Some(logger))))
     }
   }
 

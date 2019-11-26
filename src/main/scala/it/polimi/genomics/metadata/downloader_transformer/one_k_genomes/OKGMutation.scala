@@ -317,14 +317,14 @@ object OKGMutation {
     }
     headerLine
   }
-  private def setupReadProgressCanary(fullFilePath: String): Option[RoughReadProgress] ={
+  private def setupReadProgressCanary(fullFilePath: String): Option[ApproximateReadProgress] ={
     println("COUNTING LINES OF FILE: "+fullFilePath)
     FileUtil.countLines(fullFilePath) match {
       case Failure(_) =>
         println("COUNT OF LINES IN FILE FAILED")
         None
       case Success(value) =>
-        Some(new RoughReadProgress(value, 10, RoughReadProgress.notifyProgress))
+        Some(new ApproximateReadProgress(value, 10, ApproximateReadProgress.simpleProgressNotification()))
     }
   }
   */

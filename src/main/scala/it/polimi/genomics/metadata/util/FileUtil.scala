@@ -196,7 +196,7 @@ object FileUtil {
    *                      The function takes as input parameter the current line.
    * @throws java.io.IOException if an error occurs while reading the file
    */
-  def scanFileAndClose(reader: BufferedReader, doForEachLine: String => Unit, progressNotifier: Option[RoughReadProgress] = None): Unit = {
+  def scanFileAndClose(reader: BufferedReader, doForEachLine: String => Unit, progressNotifier: Option[ApproximateReadProgress] = None): Unit = {
     var line = reader.readLine()
     val notifyProgress = progressNotifier.isDefined
     try {
@@ -246,10 +246,10 @@ object FileUtil {
  * Every time the total advancement increases of progressNotificationStep %, onProgress is called to notify the owner.
  * @param totalLines total lines of the document to read
  * @param progressNotificationStep the interval, in percentage points, at which the owner must be notified
- * @param onProgress a fucntion receiving the current progress status, which gets automatically called at every
+ * @param onProgress a function receiving the current progress status, which gets automatically called at every
  *                   progress increment in percentage point equal or greater than progressNotificationStep.
  */
-class RoughReadProgress(totalLines: Long, progressNotificationStep: Double, onProgress: Double => Unit) {
+class ApproximateReadProgress(totalLines: Long, progressNotificationStep: Double, onProgress: Double => Unit) {
   var linesRead: Double = 0
   var lastProgressNotified: Double = 0.0
 
@@ -264,12 +264,19 @@ class RoughReadProgress(totalLines: Long, progressNotificationStep: Double, onPr
   }
 
 }
-object RoughReadProgress {
+object ApproximateReadProgress {
+
   /**
-   * Simple method printing the received advancement status value on the console as a floating point  number with
-   * decimal precision.
+   * Simple method printing the received advancement status value on the console as an integer percentage value.
+   * The advancement status is printed in between the optional parameter strings author and filename.
    */
-  def notifyProgress(progress: Double): Unit = {
-    printf("ROUGHLY READ %.1f %% OF FILE\n", progress)
+  def simpleProgressNotification(author: String = "", filename: String = "", logger: Option[Logger] = None): Double => Unit = {
+    if(logger.isDefined){
+      progress => {
+        logger.get.info("%s: READ ⁓%.0f %% OF FILE %s".format(author, progress, filename))
+      }
+    } else
+      progress => printf("%s: READ ⁓%.0f %% OF FILE %s\n", author, progress, filename)
   }
+
 }
