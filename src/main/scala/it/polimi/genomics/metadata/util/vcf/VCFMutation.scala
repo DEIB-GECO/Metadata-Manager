@@ -5,7 +5,7 @@ import org.slf4j.{Logger, LoggerFactory}
 /**
  * Created by Tom on ott, 2019
  */
-class VCFMutation(mutationLine: String) extends VCFMutationTrait {
+class VCFMutation(mutationLine: String, val headerMeta: HeaderMetaInformation) extends VCFMutationTrait {
   import VCFMutation._
   private val mutationParts = mutationLine.split(COLUMN_SEPARATOR_REGEX)
   lazy val info: Map[String, String] = _info
@@ -123,13 +123,13 @@ object VCFMutation {
    * Splits variants occurring at the same locus in two or more VCFMutationTrait, one for each alternative allele in the
    * alt field of this mutation
    */
-  def splitOnMultipleAlternativeMutations(mutationLine: String): List[VCFMutationTrait] ={
+  def splitOnMultipleAlternativeMutations(mutationLine: String, headerMeta: HeaderMetaInformation): List[VCFMutationTrait] ={
     val altField = mutationLine.split(COLUMN_SEPARATOR_REGEX)(4)
     val numOfAlternatives = altField.count(_ == ALT_MULTI_VALUE_SEPARATOR.charAt(0))+1
     if(numOfAlternatives>1)
-      Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplittedMutation(i, new VCFMutation(mutationLine)))
+      Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplittedMutation(i, new VCFMutation(mutationLine, headerMeta)))
     else
-      List(new VCFMutation(mutationLine))
+      List(new VCFMutation(mutationLine, headerMeta))
   }
 
   ////////////////////////////////////////////    EXTENSION OF MAP ATTRIBUTES   //////////////////////////////////////

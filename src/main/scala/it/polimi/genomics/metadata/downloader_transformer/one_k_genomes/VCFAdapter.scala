@@ -26,7 +26,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
 
   val biosamples: immutable.IndexedSeq[String] = biosamples(VCFFilePath)
   private var numberOfLinesInFile: Option[Long] = None
-  HeaderMetaInformation.updatePropertiesFromMetaInformationLines(VCFFilePath)
+  private val headerMeta = new HeaderMetaInformation(VCFFilePath)
   private val shortName = Try(FileUtil.getFileNameFromPath(VCFFilePath).split("\\.")(1)).getOrElse(FileUtil.getFileNameFromPath(VCFFilePath))
 
   ////////////////////////////////////  SAMPLE -> VARIANTS   ///////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
       advanceAndGetHeaderLine(reader)   // advance reader and skip header line
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read each mutation
-        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine).map(OKGMutation.apply).foreach(mutation => {
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(OKGMutation.apply).foreach(mutation => {
           val formatOfSample = mutation.format(sampleName, biosamples)
           // appends to the sample's region file if positive
           if (formatOfSample.isMutated) {
@@ -69,7 +69,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
   ////////////////////////////////////  VARIANT -> SAMPLES   ///////////////////////////////////////////////////////////
 
   def getSamplesWithMutation(mutationLine: String): immutable.IndexedSeq[String] ={
-    val mutation = new VCFMutation(mutationLine)
+    val mutation = new VCFMutation(mutationLine, headerMeta)
     biosamples.filter(sample => {
       mutation.format(sample, biosamples).isMutated
     })
@@ -84,7 +84,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
     try {
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read and transform each mutation
-        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine).map(OKGMutation.apply).foreach(mutation => {
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(OKGMutation.apply).foreach(mutation => {
           val outputLine = mutationPrinter.formatMutation(mutation)
           // find the affected samples (there's always at least one)
           val samplesWithMutation = biosamples.filter(sample => {
@@ -118,7 +118,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
     try {
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read and transform each mutation
-        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine).map(OKGMutation.apply).foreach(mutation => {
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(OKGMutation.apply).foreach(mutation => {
           val outputLine = mutationPrinter.formatMutation(mutation)
           writer.write(outputLine)
           writer.newLine()

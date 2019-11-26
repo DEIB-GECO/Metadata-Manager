@@ -3,14 +3,12 @@ package it.polimi.genomics.metadata.util.vcf
 import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
 
 /**
- * Static object containing meta-information about a single VCF file, like the type and cardinality of the attributes
+ * Object containing meta-information about a single VCF file, like the type and cardinality of the attributes
  * declared in the Meta-Information section (the on preceding the header line) of the file.
- *
- * You can update its status with updatePropertiesFromMetaInformationLines(VCFFilePath: String).
  *
  * Created by Tom on ott, 2019
  */
-object HeaderMetaInformation {
+class HeaderMetaInformation(VCFFilePath: String) {
 
   // cardinality sets
   /** Set of fields with genotype cardinality: for haploid calls the attributes in this set have one value per allele
@@ -29,8 +27,7 @@ object HeaderMetaInformation {
 //  /** Set of fields used in the FORMAT column of a VCF mutation */
 //  var formatFields: Set[String] = Set.empty[String]
 
-  def updatePropertiesFromMetaInformationLines(VCFFilePath: String):Unit ={
-    deleteState()
+  {
     val fieldCardinalityPattern = PatternMatch.createPattern("##FORMAT=<ID=(\\w+),Number=(\\.|\\w+),.*")  //matches numbers, strings and "."
     val infoFieldCardinalityPattern = PatternMatch.createPattern("##INFO=<ID=(\\w+),Number=(\\.|\\w+),.*")  //matches numbers, strings and "."
     val reader = FileUtil.open(VCFFilePath).get
@@ -48,14 +45,6 @@ object HeaderMetaInformation {
       aLine = reader.readLine()
     }
     reader.close()
-  }
-
-  private def deleteState():Unit = {
-    perGenotypeFields = Set.empty[String]
-    perAltFields = Set.empty[String]
-    perAlleleFields = Set.empty[String]
-//    infoFields = Set.empty[String]
-//    formatFields = Set.empty[String]
   }
 
   private def categorizeByCardinality(fieldName:String, fieldCardinalityDescriptor:String):Unit ={
