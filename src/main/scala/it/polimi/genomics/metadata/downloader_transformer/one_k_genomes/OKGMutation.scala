@@ -269,8 +269,8 @@ object OKGMutation {
 
  /*
   def TESTbreakPoints(inputFile: String, outputFile: String):Unit ={
-    import it.polimi.genomics.metadata.util.vcf.MetaInformation
-    MetaInformation.updatePropertiesFromMetaInformationLines(inputFile)
+    import it.polimi.genomics.metadata.util.vcf.HeaderMetaInformation
+    HeaderMetaInformation.updatePropertiesFromMetaInformationLines(inputFile)
     val reader = FileUtil.open(inputFile).get
     val writer = FileUtil.writeReplace(outputFile).get
     advanceAndGetHeaderLine(reader)

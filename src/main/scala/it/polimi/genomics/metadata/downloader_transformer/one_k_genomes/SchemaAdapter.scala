@@ -249,7 +249,7 @@ object SchemaAdapterTest {
    * @param schemaPath path to the region schema file
    */
   def TESTfromSchema(aVCFFilePath: String, oneOfItsMutationLine: Option[String] = None, schemaPath: String):Unit ={
-    MetaInformation.updatePropertiesFromMetaInformationLines(aVCFFilePath)
+    HeaderMetaInformation.updatePropertiesFromMetaInformationLines(aVCFFilePath)
     // initialize schema
     val schemaAdapter = SchemaAdapter.fromSchema(schemaPath)
     // print mutation with schema

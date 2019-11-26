@@ -49,10 +49,10 @@ class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) exten
         if(splitValues.length == 1 && splitValues.head == VCFMutation.MISSING_VALUE_CODE)
           kvpair._2
         // VCF field with cardinality A
-        else if (MetaInformation.perAltFields.contains(kvpair._1))
+        else if (HeaderMetaInformation.perAltFields.contains(kvpair._1))
           splitValues(alternativeNum)
         // VCF field with cardinality R
-        else if (MetaInformation.perAlleleFields.contains(kvpair._1)) {
+        else if (HeaderMetaInformation.perAlleleFields.contains(kvpair._1)) {
           splitValues(0) + INFO_MULTI_VALUE_SEPARATOR + splitValues(alternativeNum)
         } else
           kvpair._2
@@ -70,14 +70,14 @@ class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) exten
           if(splitValues.length == 1 && splitValues.head == VCFMutation.MISSING_VALUE_CODE)
             kvpair._2
           // VCF field with cardinality A
-          else if (MetaInformation.perAltFields.contains(kvpair._1))
+          else if (HeaderMetaInformation.perAltFields.contains(kvpair._1))
             splitValues(alternativeNum)
           // VCF field with cardinality R
-          else if (MetaInformation.perAlleleFields.contains(kvpair._1)) {
+          else if (HeaderMetaInformation.perAlleleFields.contains(kvpair._1)) {
             splitValues(0) + FORMAT_MULTI_VALUE_SEPARATOR + splitValues(alternativeNum)
           }
           // VCF field with cardinality G
-          else if (MetaInformation.perGenotypeFields.contains(kvpair._1)) {
+          else if (HeaderMetaInformation.perGenotypeFields.contains(kvpair._1)) {
             import it.polimi.genomics.metadata.util.vcf.VCFMutation.MutationProperties
             import VCFMultiAllelicSplittedMutation._
             val ploidy = formatMap.ploidy

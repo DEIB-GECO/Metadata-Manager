@@ -3,7 +3,7 @@ package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 import java.io.{BufferedReader, BufferedWriter}
 
 import it.polimi.genomics.metadata.util.vcf.VCFMutation.MutationProperties
-import it.polimi.genomics.metadata.util.vcf.{MetaInformation, VCFMutation}
+import it.polimi.genomics.metadata.util.vcf.{HeaderMetaInformation, VCFMutation}
 import it.polimi.genomics.metadata.util.{ApproximateReadProgress, FileUtil}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -26,7 +26,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
 
   val biosamples: immutable.IndexedSeq[String] = biosamples(VCFFilePath)
   private var numberOfLinesInFile: Option[Long] = None
-  MetaInformation.updatePropertiesFromMetaInformationLines(VCFFilePath)
+  HeaderMetaInformation.updatePropertiesFromMetaInformationLines(VCFFilePath)
   private val shortName = Try(FileUtil.getFileNameFromPath(VCFFilePath).split("\\.")(1)).getOrElse(FileUtil.getFileNameFromPath(VCFFilePath))
 
   ////////////////////////////////////  SAMPLE -> VARIANTS   ///////////////////////////////////////////////////////////

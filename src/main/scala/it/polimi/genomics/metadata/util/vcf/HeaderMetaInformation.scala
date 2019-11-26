@@ -10,7 +10,7 @@ import it.polimi.genomics.metadata.util.{FileUtil, PatternMatch}
  *
  * Created by Tom on ott, 2019
  */
-object MetaInformation {
+object HeaderMetaInformation {
 
   // cardinality sets
   /** Set of fields with genotype cardinality: for haploid calls the attributes in this set have one value per allele
