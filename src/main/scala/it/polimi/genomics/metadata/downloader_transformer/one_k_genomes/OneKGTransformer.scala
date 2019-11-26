@@ -170,13 +170,13 @@ class OneKGTransformer extends Transformer {
    */
   def initMetadataFileNamesAndFormattingOptions(dataset: Dataset): Unit = {
     if (XMLParams.isEmpty) XMLParams = Some(
-      FileUtil.getFileNameFromPath(dataset.getParameter("tree_file_url").getOrElse(
+      DatasetInfo.parseFilenameFromURL(dataset.getParameter("tree_file_url").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER tree_file_url NOT FOUND IN XML CONFIG FILE"))),
-      FileUtil.getFileNameFromPath(dataset.getParameter("sequence_index_file_path").getOrElse(
+      DatasetInfo.parseFilenameFromURL(dataset.getParameter("sequence_index_file_path").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER sequence_index_file_path NOT FOUND IN XML CONFIG FILE"))),
-      FileUtil.getFileNameFromPath(dataset.getParameter("population_file_path").getOrElse(
+      DatasetInfo.parseFilenameFromURL(dataset.getParameter("population_file_path").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER population_file_path NOT FOUND IN XML CONFIG FILE"))),
-      FileUtil.getFileNameFromPath(dataset.getParameter("individual_details_file_path").getOrElse(
+      DatasetInfo.parseFilenameFromURL(dataset.getParameter("individual_details_file_path").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER region_schema_file_path NOT FOUND IN XML CONFIG FILE"))),
       dataset.schemaUrl
     )
