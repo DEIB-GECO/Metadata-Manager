@@ -80,11 +80,13 @@ class OneKGTransformer extends Transformer {
       val writer = FileUtil.writeReplace(targetFilePath).get // throws exception if fails
       // assembly
       writeMetadata(writer, onNewLine = false, "assembly", Try(assembly.get).getOrElse(MISSING_VALUE))
-      // study name, population, instrument platform and model, analysis group
+      // study, center mame, sample_id (!=sample name), population, experiment, instrument, insert size, library, analysis group
       val thisSampleSequencingData = Try(sequencingMetadata.getFirstOf(sampleName).get)
       val population = Try(thisSampleSequencingData.get(1).toString)
       writeMetadata(writer, onNewLine = true,
-        List("study_name", "population", "instrument_platform", "instrument_model", "analysis_group"), thisSampleSequencingData.getOrElse({
+        List("study_id", "study_name", "center_name", "sample_id", "population", "experiment_id", "instrument_platform",
+          "instrument_model", "insert_size", "library_layout", "analysis_group"),
+        thisSampleSequencingData.getOrElse({
                 logger.error("SEQUENCING DATA FOR SAMPLE "+sampleName+" NOT FOUND")
                 noValueList(5)}))
       // super-population, dna from blood
@@ -93,8 +95,10 @@ class OneKGTransformer extends Transformer {
                 logger.error("POPULATION DATA FOR POPULATION "+sampleName+" NOT FOUND")
                 noValueList(2)
               }))
-      // gender
-      writeMetadata(writer, onNewLine = true, "gender", Try(individualsMetadata.getFirstOf(sampleName).get.head).getOrElse(MISSING_VALUE))
+      // family id, gender
+      writeMetadata(writer, onNewLine = true,
+        List("family_id", "gender"),
+        Try(individualsMetadata.getFirstOf(sampleName).get).getOrElse(noValueList(2)))
       writer.newLine()  // prevents TransformerStep from concatenating the attribute "manually_curated__local_file_size" on last line
       writer.close()
     }
@@ -196,7 +200,7 @@ class OneKGTransformer extends Transformer {
     }
     // skip header line
     reader.readLine()
-    val sequenceIndexMap = readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(4, 10, 12, 13, 25), mapByColumnIndex = 9)
+    val sequenceIndexMap = readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(3, 4, 5, 8, 10, 11, 12, 13, 17, 18, 25), mapByColumnIndex = 9)
     /*
      map's values are uniformly sized Lists of Strings, where each list represents a different tuple of column values
      Those lists can contain duplicate elements. From N tuples I want to have 1 tuple with values merged by column
@@ -218,9 +222,11 @@ class OneKGTransformer extends Transformer {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+individualDetailsMetaName).get
     // skip header line
     reader.readLine()
-    readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(4), mapByColumnIndex = 1)
+    readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(0, 4), mapByColumnIndex = 1)
       .transformValues((_, valueList) => {
-        valueList.flatMap(row => List(if(row.head == "1") "male" else "female"))
+        valueList.flatMap(row => List(
+          row.head,
+          if(row(1) == "1") "male" else "female"))
       })
   }
 
