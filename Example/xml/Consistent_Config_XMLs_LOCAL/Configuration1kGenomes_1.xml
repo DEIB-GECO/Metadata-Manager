@@ -85,6 +85,10 @@
                     <key>individual_details_file_path</key>
                     <value>ftp/release/20130502/integrated_call_samples_v2.20130502.ALL.ped</value>
                 </parameter>
+                <parameter>
+                    <key>samples_origin_file_path</key>
+                    <value>ftp/technical/working/20130606_sample_info/20130606_sample_info.txt</value>
+                </parameter>
                 <!--       DOWNLOAD PARAMETERS      -->
                 <parameter>
                     <description>The tree file contains records whose path is relative to some base FTP directory. This parameter is the URL of that directory.

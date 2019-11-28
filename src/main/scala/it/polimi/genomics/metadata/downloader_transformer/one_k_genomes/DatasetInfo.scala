@@ -322,15 +322,16 @@ object DatasetInfo {
   }
 
   /**
-   * @param dataset a xml.Dataset having parameters "sequence_index_file_path" and "population_file_path" defined at
-   *                either ad dataset or source level
+   * @param dataset a xml.Dataset having parameters corresponding to the URL of the metadata files to download defined
+   *                either at dataset or source level
    * @return a List of Strings containing the value of those XML parameter.
    */
   def metadataPaths(dataset : Dataset): List[String] ={
     List(
       dataset.getParameter("sequence_index_file_path"),
       dataset.getParameter("population_file_path"),
-      dataset.getParameter("individual_details_file_path")
+      dataset.getParameter("individual_details_file_path"),
+      dataset.getParameter("samples_origin_file_path")
     ).filter(_.isDefined).map(option => option.get)
   }
 
