@@ -55,7 +55,7 @@ class SimplePrinter extends MutationPrinterTrait {
  */
 abstract class SchemaAdapter extends MutationPrinterTrait {
 
-  override def formatMutation(mutation: OKGMutation,forSample: Option[String] = None, biosamples: Option[List[String]] = None):String ={
+  override def formatMutation(mutation: OKGMutation, forSample: Option[String] = None, biosamples: Option[List[String]] = None):String ={
     val normalizedValues = (getRawValues(mutation, forSample, biosamples) zip alternativeNullValues)
       .map( val_alternative => {
         if(val_alternative._1 != VCFMutation.MISSING_VALUE_CODE) val_alternative._1 else val_alternative._2
@@ -75,7 +75,7 @@ abstract class SchemaAdapter extends MutationPrinterTrait {
    *         object. Missing values for the mutation provided are encoded VCFMutation.MISSING_VALUE_CODE.
    */
   //  THE FOLLOWING SIGNATURE MUST MATCH THE ONE WRITTEN FROM METHOD SchemaAdapter.fromSchema
-  def getRawValues(mutation: OKGMutation,forSample: Option[String] = None, biosamples: Option[List[String]] = None):List[String]
+  def getRawValues(mutation: OKGMutation, forSample: Option[String] = None, biosamples: Option[List[String]] = None):List[String]
 
   /**
    * Metadata-Manager requires to use the following convention for expressing null/empty/not-available region attributes:
@@ -171,7 +171,7 @@ object SchemaAdapter {
       "new SchemaAdapter {\n " +
 
         //  THE FOLLOWING SIGNATURE MUST MATCH THE ONE IN THE DECLARATION OF SchemaAdapter.scala
-        "override def getRawValues(mutation: OKGMutation,forSample: Option[String] = None, biosamples: Option[List[String]] = None):List[String] = {\n"+
+        "override def getRawValues(mutation: OKGMutation, forSample: Option[String] = None, biosamples: Option[List[String]] = None):List[String] = {\n"+
         codeMappingSchema(regionAttrsFromSchema).get +
         "}\n"+  // close method
 

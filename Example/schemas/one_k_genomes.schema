@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gmqlSchemaCollection name="one_k_genomes" xmlns="http://genomic.elet.polimi.it/entities">
-    <gmqlSchema type="TAB">
+    <gmqlSchema type="TAB" coordinate_system="0-based">
         <field type="STRING">chr</field>
         <field type="LONG">left</field>
         <field type="LONG">right</field>
@@ -9,6 +9,8 @@
         <field type="STRING">alt</field>
         <field type="STRING">mut_type</field>
         <field type="STRING">id</field>
+        <field type="DOUBLE">quality</field>        <!-- PHRED-SCALED QUALITY SCORE -->
+        <field type="STRING">filter</field>         <!-- 'PASS' OR THE NAMES OF THE FILTERS THAT DIDN'T PASS -->
         <field type="DOUBLE">AF</field>             <!-- ALLELE FREQUENCY -->
         <field type="LONG">DP</field>               <!-- READ DEPTH (AVAILABLE ONLY FOR LOW COVERAGE DATA) -->
         <field type="DOUBLE">AFR_AF</field>         <!-- ALLELE FREQUENCY AFRICA -->
