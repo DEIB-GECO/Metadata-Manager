@@ -1,7 +1,9 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
-import java.io.{BufferedReader, BufferedWriter, File}
+import java.io.{BufferedReader, File}
+import java.util
 
+import it.polimi.genomics.metadata.database.FileDatabase
 import it.polimi.genomics.metadata.downloader_transformer.Transformer
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Unzipper
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
@@ -9,8 +11,7 @@ import it.polimi.genomics.metadata.util.{FileUtil, ManyToFewMap, PatternMatch}
 import org.apache.commons.cli.MissingArgumentException
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.collection.mutable.ListBuffer
-import scala.util.Try
+import scala.collection.{immutable, mutable}
 
 /**
  * Created by Tom on ott, 2019
@@ -23,22 +24,21 @@ class OneKGTransformer extends Transformer {
   import OneKGTransformer._
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  // metadata file names
-  private var XMLParams = None : Option[(String, String, String, String, String)]
-  private lazy val treeFileName:String = XMLParams.get._1
-  private lazy val seqIndexMetaName:String = XMLParams.get._2
-  private lazy val populationMetaName:String = XMLParams.get._3
-  private lazy val individualDetailsMetaName:String = XMLParams.get._4
   // remember extracted archives & early transformed VCFs
-  private var extractedArchives: Map[String, String] = Map.empty[String, String]
-  private var transformedVCFs: ListBuffer[String] = ListBuffer.empty[String]
-  // metadata
+  private val extractedArchives: mutable.Map[String, String] = mutable.HashMap.empty[String, String]
+  private val transformedVCFs: mutable.Set[String] = mutable.HashSet.empty[String]
+  // metadata (depend on dataset)
+  private var dataset: Dataset = _
+  private var datasetParameters = mutable.LinkedHashMap("treeFileName" -> "", "seqIndexMetaName" -> "", "populationMetaName" -> "",
+    "individualDetailsMetaName" -> "", "schemaURL" -> "", "assembly" -> "", "manually_curated__pipeline" -> "",
+    "samplesOriginMetaName" -> "")
+  private var manually_curated__data_url: List[String] = _
   private var sequencingMetadata: ManyToFewMap[String, List[String]] = _
   private var populationMetadata: Map[String, List[String]] = _
   private var individualsMetadata: ManyToFewMap[String, List[String]] = _
-  private var assembly:Option[String] = None
-  // formatting options
-  private lazy val mutationPrinter: MutationPrinterTrait = SchemaAdapter.fromSchema(XMLParams.get._5)
+  private var samplesOriginMetadata: ManyToFewMap[String, String] = _
+  // formatting options (depend on dataset)
+  private var mutationPrinter: MutationPrinterTrait = _
 
 
   /**
@@ -71,36 +71,60 @@ class OneKGTransformer extends Transformer {
           if(!transformedVCFs.contains(_VCFPath)){
             new VCFAdapter(_VCFPath, mutationPrinter)
               .appendAllMutationsBySample(transformationsDirPath)
-            transformedVCFs += _VCFPath
+            transformedVCFs.add(_VCFPath)
           }
       }
     } else {
       val sampleName = removeExtension(removeExtension(targetFileName))
-      // write all metadata
-      val writer = FileUtil.writeReplace(targetFilePath).get // throws exception if fails
-      // assembly
-      writeMetadata(writer, onNewLine = false, "assembly", Try(assembly.get).getOrElse(MISSING_VALUE))
+      val metadataContainer = new util.TreeMap[String, mutable.Set[String]]
+
       // study, center mame, sample_id (!=sample name), population, experiment, instrument, insert size, library, analysis group
-      val thisSampleSequencingData = Try(sequencingMetadata.getFirstOf(sampleName).get)
-      val population = Try(thisSampleSequencingData.get(1).toString)
-      writeMetadata(writer, onNewLine = true,
+      val thisSampleSequencingData = sequencingMetadata.getFirstOf(sampleName).get
+      addToMetadataContainer(metadataContainer,
         List("study_id", "study_name", "center_name", "sample_id", "population", "experiment_id", "instrument_platform",
           "instrument_model", "insert_size", "library_layout", "analysis_group"),
-        thisSampleSequencingData.getOrElse({
-                logger.error("SEQUENCING DATA FOR SAMPLE "+sampleName+" NOT FOUND")
-                noValueList(5)}))
-      // super-population, dna from blood
-      writeMetadata(writer, onNewLine = true,
-        List("super_population", "DNA_from_blood"), Try(populationMetadata(population.get)).getOrElse({
-                logger.error("POPULATION DATA FOR POPULATION "+sampleName+" NOT FOUND")
-                noValueList(2)
-              }))
+        thisSampleSequencingData)
+
+      // super-population, population's dna from blood
+      val population:String = thisSampleSequencingData(4)
+      val thisPopulationData = populationMetadata(population)
+      val populationHasDNAFromBlood = thisPopulationData(1).toLowerCase == "yes"
+      addToMetadataContainer(metadataContainer, "super_population", thisPopulationData.head)
+      addToMetadataContainer(metadataContainer, "DNA_from_blood", populationHasDNAFromBlood.toString.toUpperCase)
+
       // family id, gender
-      writeMetadata(writer, onNewLine = true,
-        List("family_id", "gender"),
-        Try(individualsMetadata.getFirstOf(sampleName).get).getOrElse(noValueList(2)))
-      writer.newLine()  // prevents TransformerStep from concatenating the attribute "manually_curated__local_file_size" on last line
-      writer.close()
+      addToMetadataContainer(metadataContainer, List("family_id", "gender"), individualsMetadata.getFirstOf(sampleName).get)
+
+      // manually curated metadata
+      addToMetadataContainer(metadataContainer, "manually_curated__assembly", datasetParameters("assembly"))
+      samplesOriginMetadata.getFirstOf(sampleName).get.toLowerCase match {
+        case "blood" =>
+          addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "tissue")
+          addToMetadataContainer(metadataContainer, "manually_curated__biosample_tissue", "Blood")
+        case "lcl" =>
+          addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "cell line")
+          addToMetadataContainer(metadataContainer, "manually_curated__cell_line", "lymphoblastoid cell line")
+          addToMetadataContainer(metadataContainer, "manually_curated__cell_line_type", "B")
+        case "" =>
+          if(populationHasDNAFromBlood) {
+            addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "tissue")
+            addToMetadataContainer(metadataContainer, "manually_curated__biosample_tissue", "Blood")
+          }
+        case uncoveredCase =>
+          logger.error("SAMPLE ORIGIN WITH VALUE "+uncoveredCase+" NOT PARSED")
+      }
+      addToMetadataContainer(metadataContainer, "manually_curated__data_type", "variant calling")
+      addToMetadataContainer(metadataContainer, List.fill(getURLsOfOriginRegionData().size)("manually_curated__data_url"), getURLsOfOriginRegionData())
+      addToMetadataContainer(metadataContainer, "manually_curated__feature", "variants")
+      addToMetadataContainer(metadataContainer, "manually_curated__file_format", "bed")
+      addToMetadataContainer(metadataContainer, "manually_curated__file_name", sampleName+".gdm")
+      addToMetadataContainer(metadataContainer, "manually_curated__is_healthy", "TRUE")
+      addToMetadataContainer(metadataContainer, "manually_curated__pipeline", datasetParameters("manually_curated__pipeline"))
+      addToMetadataContainer(metadataContainer, "manually_curated__project_source", "1000 Genomes")
+      addToMetadataContainer(metadataContainer, "manually_curated__source_page", DatasetInfo.parseDirectoryFromURL(getURLsOfOriginRegionData().head))
+      addToMetadataContainer(metadataContainer, "manually_curated__species", "Homo Sapiens")
+
+      writeMetadataContainer(metadataContainer, targetFilePath)
     }
     true
   }
@@ -129,41 +153,61 @@ class OneKGTransformer extends Transformer {
    * @return a List of Strings, i.e. the names of the files expected from the future transformation of the argument filename.
    */
   override def getCandidateNames(filename: String, dataset: Dataset, source: Source): List[String] = {
-    // read XML config parameters here because I need Dataset
-    initMetadataFileNamesAndFormattingOptions(dataset)
-    if(assembly.isEmpty)
-      assembly = Some(getAssembly(dataset))
+    if(this.dataset == null) {
+      // read XML config parameters here because I need Dataset
+      this.dataset = dataset
+      datasetParameters = getDatasetParameters(dataset)
+      mutationPrinter = SchemaAdapter.fromSchema(dataset.schemaUrl)
+    } else if(this.dataset.name != dataset.name)
+      throw new IllegalStateException("IT'S NOT THREAD SAFE TO REUSE THIS CLASS FOR MULTIPLE DATASETS. CREATE A NEW INSTANCE INSTEAD.")
+    // fields used in match expressions needs to be stable identifiers, i.e. class val, or local val with first character uppercase
+    val TreeFileName = datasetParameters("treeFileName")
+    val SeqIndexMetaName = datasetParameters("seqIndexMetaName")
+    val PopulationMetaName = datasetParameters("populationMetaName")
+    val IndividualDetailsMetaName = datasetParameters("individualDetailsMetaName")
+    val SamplesOriginMetaName = datasetParameters("samplesOriginMetaName")
     val downloadDirPath = dataset.fullDatasetOutputFolder+File.separator+"Downloads"+File.separator
     val trueFilename = removeCopyNumber(filename)
-    //noinspection ScalaUnusedSymbol
     trueFilename match {
       /* metadata files are few and shared between all samples. Instead of scanning 2,5K times the same files, the
        * relevant information is extracted and saved as class fields for later access */
-      case this.treeFileName =>
+      case TreeFileName =>
+        logger.debug("EXTRACTION OF CANDIDATES FROM TREE FILE ("+trueFilename+")")
         List.empty[String]  // tree file doesn't contain any informative attribute
-      case this.populationMetaName =>
-        populationMetadata = getPopulationMetadata(dataset)
+      case PopulationMetaName =>
+        logger.debug("EXTRACTION OF CANDIDATES FROM POPULATION META ("+PopulationMetaName+")")
+        populationMetadata = getPopulationMetadata(dataset, PopulationMetaName)
         List.empty[String]
-      case this.seqIndexMetaName =>
-        sequencingMetadata = getSequencingMetadata(dataset)
+      case SeqIndexMetaName =>
+        logger.debug("EXTRACTION OF CANDIDATES FROM SEQ INDEX META ("+SeqIndexMetaName+")")
+        sequencingMetadata = getSequencingMetadata(dataset, SeqIndexMetaName)
         List.empty[String]
-      case this.individualDetailsMetaName =>
-        individualsMetadata = getIndividualDetailsMetadata(dataset)
+      case IndividualDetailsMetaName =>
+        logger.debug("EXTRACTION OF CANDIDATES FROM INDIVIDUAL DETAILS META ("+IndividualDetailsMetaName+")")
+        individualsMetadata = getIndividualDetailsMetadata(dataset, IndividualDetailsMetaName)
         individualsMetadata.keys.toList.map(sample => s"$sample.gdm.meta")
-      case variantCallArchive =>
+      case SamplesOriginMetaName =>
+        logger.debug("EXTRACTION OF CANDIDATES FROM SAMPLE ORIGIN META ("+SamplesOriginMetaName+")")
+        samplesOriginMetadata = getSamplesOriginMetadata(dataset, SamplesOriginMetaName)
+        List.empty[String]
+      case variantCallArchive if variantCallArchive.endsWith("gz") =>
+        logger.debug("EXTRACTION OF CANDIDATES FROM VARIANT ARCHIVE ("+variantCallArchive+")")
         // unzip
-        extractArchive(downloadDirPath+trueFilename, downloadDirPath+removeExtension(trueFilename)) match {
+        extractArchive(downloadDirPath+variantCallArchive, downloadDirPath+removeExtension(variantCallArchive)) match {
           case None => List.empty[String]
           case Some(_VCFPath) =>
             // read sample names and output resulting filenames:
             new VCFAdapter(_VCFPath).biosamples.map(sample => s"$sample.gdm").toList
         }
+      case unexpectedOriginFile =>
+        throw new IllegalArgumentException("UNEXPECTED ORIGIN FILE "+unexpectedOriginFile+". ALL ORIGIN FILES MUST BE" +
+          "HANDLED PROPERLY IN getCandidateNames.")
     }
   }
 
   ///////////////////////////////   METADATA EXTRACTION METHODS    ///////////////////////////////////////
   /**
-   * Initialize the filed XMLParams and consequently also the individual fields of metadata filenames.
+   * Assign values to the named keys in the field datasetParameters.
    *
    * @param dataset the dataset where to get the XML parameters from
    * @throws MissingArgumentException if one of the following required XML parameters is missing:
@@ -171,9 +215,12 @@ class OneKGTransformer extends Transformer {
    *                                  sequence_index_file_path
    *                                  population_file_path
    *                                  individual_details_file_path
+   *                                  samples_origin_file_path
+   *                                  assembly
+   *                                  manually_curated&#95;&#95;pipeline
    */
-  def initMetadataFileNamesAndFormattingOptions(dataset: Dataset): Unit = {
-    if (XMLParams.isEmpty) XMLParams = Some(
+  def getDatasetParameters(dataset: Dataset): mutable.LinkedHashMap[String, String]  = {
+    val assignments = Vector(
       DatasetInfo.parseFilenameFromURL(dataset.getParameter("tree_file_url").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER tree_file_url NOT FOUND IN XML CONFIG FILE"))),
       DatasetInfo.parseFilenameFromURL(dataset.getParameter("sequence_index_file_path").getOrElse(
@@ -182,25 +229,43 @@ class OneKGTransformer extends Transformer {
         throw new MissingArgumentException("MANDATORY PARAMETER population_file_path NOT FOUND IN XML CONFIG FILE"))),
       DatasetInfo.parseFilenameFromURL(dataset.getParameter("individual_details_file_path").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER region_schema_file_path NOT FOUND IN XML CONFIG FILE"))),
-      dataset.schemaUrl
+      dataset.schemaUrl,
+      dataset.getParameter("assembly").getOrElse(
+        throw new MissingArgumentException("REQUIRED PARAMETER assembly IS MISSING FROM XML CONFIGURATION FILE")),
+      dataset.getParameter("manually_curated__pipeline").getOrElse(
+        throw new MissingArgumentException("REQUIRED PARAMETER manually_curated__pipeline IS MISSING FROM XML CONFIGURATION FILE")
+      ),
+      DatasetInfo.parseFilenameFromURL(dataset.getParameter("samples_origin_file_path").getOrElse(
+        throw new MissingArgumentException("MANDATORY PARAMETER samples_origin_file_path NOT FOUND IN XML CONFIG FILE")))
     )
+    //noinspection ScalaUnusedSymbol
+    (datasetParameters zip assignments).map({ case ((key, oldValue), newValue) => key -> newValue })
   }
 
-  def getAssembly(dataset: Dataset):String ={
-    dataset.getParameter("assembly").getOrElse(throw new MissingArgumentException("REQUIRED" +
-      " PARAMETER assembly IS MISSING FROM XML CONFIGURATION FILE"))
-  }
 
-  def getSequencingMetadata(dataset: Dataset): ManyToFewMap[String, List[String]] = {
+  /**
+   * Reads the sequence.index metadata file, extracts the interesting attributes and builds a map (specifically a
+   * ManyToFewMap instance) containing those values.
+   * Currently selected attributes are: study id, study name, center mame, sample_id (!=sample name), population,
+   * experiment id, instrument platform, instrument model, insert size, library layout, analysis group.
+   * Attributes are indexed by sample name.
+   * @param dataset an instance of Dataset.
+   * @param seqIndexMetaName the name of the file with extension sequence.index inside the Download folder.
+   * @return a Map of the interesting attributes by sample.
+   */
+  def getSequencingMetadata(dataset: Dataset, seqIndexMetaName: String): ManyToFewMap[String, List[String]] = {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+seqIndexMetaName).get
-    if(dataset.name.equals("GRCh38")){
+    if(dataset.name.equalsIgnoreCase("GRCh38")){
       var headerLine = reader.readLine()
       while (headerLine.startsWith("##"))
         headerLine = reader.readLine()
     }
     // skip header line
     reader.readLine()
-    val sequenceIndexMap = readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(3, 4, 5, 8, 10, 11, 12, 13, 17, 18, 25), mapByColumnIndex = 9)
+    // ANY CHANGE TO THE LIST OF INTERESTING ATTRIBUTES MUST BE REFLECTED ALSO IN METHOD TRANSFORM.
+    //TODO EXTRACTS THE LIST OF INDICES BY THE LIST OF NAMES OF THE ATTRIBUTES
+    val sequenceIndexMap = readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(3, 4, 5, 8, 10, 11, 12, 13, 17, 18, 25), mapByColumnIndex = 9, 26)
+    reader.close()
     /*
      map's values are uniformly sized Lists of Strings, where each list represents a different tuple of column values
      Those lists can contain duplicate elements. From N tuples I want to have 1 tuple with values merged by column
@@ -209,36 +274,85 @@ class OneKGTransformer extends Transformer {
     mergeDuplicateValuesByColumn(sequenceIndexMap, ", ")
   }
 
-  def getPopulationMetadata(dataset: Dataset): Map[String, List[String]] = {
+  /**
+   * Reads the populations.tsv file and extracts the interesting attributes.
+   * Currently extracted attributes are: Population Code, Super Population, DNA from Blood.
+   * Map's keys/values are added without leading/trailing whitespaces.
+   * @param dataset an instance of Dataset.
+   * @param populationMetaName the name of the populations.tsv file located in Downloads folder.
+   * @return a map of the extracted attributes indexed by population code.
+   */
+  def getPopulationMetadata(dataset: Dataset, populationMetaName: String): Map[String, List[String]] = {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+populationMetaName).get
     val pattern = PatternMatch.createPattern(".*\\t(\\S+)\\t(\\S+)\\t(yes|no)\\t(yes|no)\\t\\d+\\t\\d+\\t\\d+\\t\\d+")
+    //TODO EXTRACTS THE LIST OF INDICES BY THE LIST OF NAMES OF THE ATTRIBUTES
     val matchingParts: List[List[String]] = PatternMatch.getLinesMatching(pattern, reader).map(line => PatternMatch.matchParts(line, pattern))
-    val keys = matchingParts.map(line => line.head)
-    val values = matchingParts.map(line => List(line(1), line(2)))
+    reader.close()
+    val keys = matchingParts.map(line => line.head.trim)
+    val values = matchingParts.map(line => List(line(1).trim, line(2).trim))
     (keys zip values).toMap
   }
 
-  def getIndividualDetailsMetadata(dataset: Dataset): ManyToFewMap[String, List[String]] = {
+  /**
+   * Reads a a .PED file and extracts the interesting attributes. The currently extracted attributes are:
+   * Family ID and Gender.
+   * @param dataset an instance of Dataset.
+   * @param individualDetailsMetaName the name of the file with extension .PED located in Downloads folder.
+   * @return a map (precisely ManyToFewMap) indexed by sample name and containing the extracted attributes.
+   */
+  def getIndividualDetailsMetadata(dataset: Dataset, individualDetailsMetaName: String): ManyToFewMap[String, List[String]] = {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+individualDetailsMetaName).get
     // skip header line
     reader.readLine()
-    readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(0, 4), mapByColumnIndex = 1)
+    //TODO EXTRACTS THE LIST OF INDICES BY THE LIST OF NAMES OF THE ATTRIBUTES
+    val individualDetailsMap = readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(0, 4), mapByColumnIndex = 1, 17)
       .transformValues((_, valueList) => {
         valueList.flatMap(row => List(
           row.head,
           if(row(1) == "1") "male" else "female"))
       })
+    reader.close()
+    individualDetailsMap
   }
 
-  def readTSVFileAsManyToFewMap(reader: BufferedReader, interestingColumnsIdx: List[Int], mapByColumnIndex: Int): ManyToFewMap[String, List[String]] = {
+  /**
+   * Reads a sample_info.txt metadata file and extracts the attribute named DNA Source from Coriell (= "blood"|"lcl"|"")
+    * @param dataset an instance of Dataset.
+   * @param samplesOriginMetaName the name of the sample_info.txt file located in Downlaods folder.
+   * @return a ManyToFewMap, telling for each sample the value of the attribute "DNA Source from Coriell".
+   */
+  def getSamplesOriginMetadata(dataset: Dataset, samplesOriginMetaName:String): ManyToFewMap[String, String] ={
+    val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+samplesOriginMetaName).get
+    // skip header line
+    reader.readLine()
+    val samplesOriginMap = readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(59), mapByColumnIndex = 0, 61)
+      .transformValues((_, valueList) => valueList.head.head.toLowerCase.trim) // valueList is expected to contain only one String
+    reader.close()
+    samplesOriginMap
+  }
+
+  /**
+   * Reads a structured file with tab-separated values and generates a Map (ManyToFewMap) containing a List of values
+   * of the columns indices interestingColumnsIdx (counting from 0) indexed by the column index
+   * mapByColumnIndex. Empty rows are skipped and Map's keys/values are added without leading/trailing whitespaces.
+   * @param reader a buffered reader for the file to read.
+   * @param interestingColumnsIdx a List of the column indices of the attributes to be stored in the map for each key.
+   * @param mapByColumnIndex the index of the column to be used as key for the generated map.
+   * @param maxNumberOfColumns the expected number of columns in the file. It's used to limit the number of attributes
+   *                           selected in each row and to check that each line is correctly formatted.
+   * @return a Map having a List of selected attributes as value and the attribute in mapByColumnIndex as key.
+   */
+  def readTSVFileAsManyToFewMap(reader: BufferedReader, interestingColumnsIdx: List[Int], mapByColumnIndex: Int, maxNumberOfColumns: Int): ManyToFewMap[String, List[String]] = {
     val mtfMap = new ManyToFewMap[String, List[String]]
     // fill the map
     FileUtil.scanFileAndClose(reader, line => {
       try {
         if(!line.trim.isEmpty) {
-          val lineFields = line.split("\t")
-          val values: List[String] = interestingColumnsIdx.map(i => lineFields(i))
-          mtfMap.add(lineFields(mapByColumnIndex), values)
+          val lineFields = line.split("\t", -1)
+          if(lineFields.size != maxNumberOfColumns)
+            throw new IndexOutOfBoundsException("EXPECTED "+maxNumberOfColumns+" COLUMNS, INSTEAD THERE WERE "+lineFields.size)
+          val values: List[String] = interestingColumnsIdx.map(i => lineFields(i).trim)
+          mtfMap.add(lineFields(mapByColumnIndex).trim, values)
         }
       } catch {
         case e: Exception =>
@@ -248,6 +362,16 @@ class OneKGTransformer extends Transformer {
     mtfMap
   }
 
+  /**
+   * A ManyToFew of type [K, V] returns a list of Vs, for each key. This method transforms a ManyToFewMap by merging
+   * multiple values into a single value of the same type by keeping only one of them if they're equal, or by joining
+   * the values with valueSeparator if they're different. This method does so specifically for ManyToFewMap with
+   * value of type List[String] by considering the strings inside the list as column attributes and thus
+   * merging the values by column.
+   * @param mtfMap an instance of ManyToFewMap of type String, List[String].
+   * @param valueSeparator a separator string.
+   * @return the same input object with values merged by column, considering the indices of List[String] as columns.
+   */
   def mergeDuplicateValuesByColumn(mtfMap: ManyToFewMap[String, List[String]], valueSeparator: String): ManyToFewMap[String, List[String]] ={
     mtfMap.transformValues((_, values) => {
       /* treat the values as rows, each row with a list of attributes. Returns a single row with the all the columns
@@ -258,6 +382,22 @@ class OneKGTransformer extends Transformer {
         columnValues.distinct.mkString(valueSeparator)  // concatenate different column values with a separator
       })
     })
+  }
+
+  /**
+   * Initialize the field manually_curated&#95;&#95;data_url with the URLs of all the source VCF files from which
+   * region data comes.
+   * @return the URLs of all the source VCF files from which region data comes.
+   */
+  //noinspection AccessorLikeMethodIsEmptyParen
+  def getURLsOfOriginRegionData(): List[String] = {
+    if(manually_curated__data_url == null)
+      manually_curated__data_url = {
+      val originRegionFileNames = extractedArchives.keys.map(FileUtil.getFileNameFromPath) //names without copy number
+      val datasetID = FileDatabase.datasetId(FileDatabase.sourceId(dataset.source.name), dataset.name)
+      originRegionFileNames.toList.sorted.map(nameOfCompressedOrigin => FileDatabase.getFileUrl(nameOfCompressedOrigin, datasetID, it.polimi.genomics.metadata.database.Stage.DOWNLOAD))
+    }
+    manually_curated__data_url
   }
 
 /*
@@ -313,18 +453,17 @@ class OneKGTransformer extends Transformer {
 //    else if(archivePath == "C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chr22.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf.gz")
 //      return Some("C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chr22.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased_short.vcf")
 //    else
-
-    logger.info("EXTRACTING "+archivePath.substring(archivePath.lastIndexOf(File.separator)))
-    if(extractedArchives.contains(archivePath))
-      Some(extractedArchives(archivePath))
-    else if(Unzipper.unGzipIt(archivePath, extractedFilePath)){
-      extractedArchives += (archivePath -> extractedFilePath)
-      Some(extractedFilePath)
-    } else {
-      logger.error("EXTRACTION FAILED. THE PACKAGE IS PROBABLY DAMAGED OR INCOMPLETE. " +
-        "SKIP TRANSFORMATION FOR THIS PACKAGE.")
-      None
-    }
+    extractedArchives.get(archivePath).orElse({
+      logger.info("EXTRACTING "+archivePath.substring(archivePath.lastIndexOf(File.separator)))
+      if (Unzipper.unGzipIt(archivePath, extractedFilePath)) {
+        extractedArchives += (archivePath -> extractedFilePath)
+        Some(extractedFilePath)
+      } else {
+        logger.error("EXTRACTION FAILED. THE PACKAGE IS PROBABLY DAMAGED OR INCOMPLETE. " +
+          "SKIP TRANSFORMATION FOR THIS PACKAGE.")
+        None
+      }
+    })
   }
 
 }
@@ -373,35 +512,34 @@ object OneKGTransformer {
     "\t".concat(words.mkString("\t"))
   }
 
-  def writeMetadata(writer: BufferedWriter, onNewLine: Boolean, key: String, value: String): Unit ={
-    if(onNewLine)
-      writer.newLine()
-    writer.write(key+META_KEY_VALUE_SEPARATOR+value)
+  def addToMetadataContainer(container: util.TreeMap[String, mutable.Set[String]], key:String, value: String):util.TreeMap[String, mutable.Set[String]] ={
+    val newValues: mutable.Set[String] = Option(container.get(key)).getOrElse(mutable.Set.empty[String]) += value
+    container.put(key, newValues)
+    container
   }
 
-  def writeMetadata(writer: BufferedWriter, onNewLine: Boolean, keys: List[String], values: List[String]): Unit ={
-    for(i <- keys.indices) {
-      if(i==0 && onNewLine || i!=0)
+  def addToMetadataContainer(container: util.TreeMap[String, mutable.Set[String]], keys:List[String], values: List[String]):util.TreeMap[String, mutable.Set[String]] ={
+    (keys zip values).foreach({ case (key, value) =>
+      val newValues: mutable.Set[String] = Option(container.get(key)).getOrElse(mutable.Set.empty[String]) += value
+      container.put(key, newValues)
+    })
+    container
+  }
+
+  def writeMetadataContainer(container: util.TreeMap[String, mutable.Set[String]], intoFilePath: String):Unit ={
+    val writer = FileUtil.writeReplace(intoFilePath).get // throws exception if fails
+    import scala.collection.JavaConversions._
+    for (entry <- container.entrySet) {
+      entry.getValue.foreach(value => {
+        writer.write(entry.getKey + META_KEY_VALUE_SEPARATOR + value)
         writer.newLine()
-      writer.write(keys(i) + META_KEY_VALUE_SEPARATOR + values(i))
+      })
     }
+    writer.close()
   }
 
   def noValueList(dimension: Int): List[String] ={
     List.fill(dimension)(MISSING_VALUE)
-  }
-
-  //////////////////////////////    SOURCE SPECIFIC METHODS  ////////////////////////////////////////
-
-  def parseAlgorithmName(VCFFileNameOrPath: String): String = {
-    val algorithmName = new ListBuffer[String]()
-    if(VCFFileNameOrPath.matches(".*callmom.*"))
-      algorithmName += "callMom"
-    if(VCFFileNameOrPath.matches(".*shapeit2.*"))
-      algorithmName += "ShapeIt2"
-    if(VCFFileNameOrPath.matches(".*mvncall.*"))
-      algorithmName += "Mvncall"
-    algorithmName.reduce((a1, a2) => a1+" + "+a2)
   }
 
 }

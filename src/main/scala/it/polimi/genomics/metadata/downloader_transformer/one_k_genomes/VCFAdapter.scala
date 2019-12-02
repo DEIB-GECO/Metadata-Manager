@@ -162,7 +162,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
     // skip mandatory header columns
     val samplesString = headerLine.split("FORMAT", 2)(1).trim
     // create array of biosamples' names
-    samplesString.split(VCFMutation.COLUMN_SEPARATOR_REGEX).toIndexedSeq
+    samplesString.split(VCFMutation.COLUMN_SEPARATOR_REGEX).map(x => x.trim).toIndexedSeq
   }
 
   /**

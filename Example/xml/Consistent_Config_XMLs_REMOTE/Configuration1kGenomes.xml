@@ -26,7 +26,7 @@
         <source name="1kGenomes">
             <url>ftp.1000genomes.ebi.ac.uk</url>
             <source_working_directory>1kGenomes</source_working_directory>
-            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DLStrategyA</downloader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DLStrategyB</downloader>
             <transformer>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.OneKGTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
@@ -167,6 +167,10 @@
                             <key>assembly</key>
                             <value>GRCh38</value>
                         </parameter>
+                        <parameter>
+                            <key>manually_curated__pipeline</key>
+                            <value>BCFTools, Freebayes, GATK UnifiedGenotyper</value>
+                        </parameter>
                         <!--
                         <parameter>
                             <description>The dataset name on the server</description>
@@ -207,6 +211,10 @@
                         <parameter>
                             <key>assembly</key>
                             <value>hg19</value>
+                        </parameter>
+                        <parameter>
+                            <key>manually_curated__pipeline</key>
+                            <value>Breakdancer, CNVnator, Cortex, Delly, Dinumt, Freebayes, Genome STRiP, GotCloud, Haplotype Caller, LobSTR, MELT, Pindel, Platypus, Read-Depth (dCGH), Real Time Genomics, RepeatSeq, SAMtools/BCFtools, SGA-Dindel, Unified Genotyper, Variation Hunter</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
