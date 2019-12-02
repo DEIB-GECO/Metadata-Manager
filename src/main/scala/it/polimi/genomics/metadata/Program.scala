@@ -4,33 +4,27 @@ import java.io.File
 
 import it.polimi.genomics.metadata.database.FileDatabase
 import it.polimi.genomics.metadata.downloader_transformer.Downloader
-import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.{DatasetInfo, OneKGTransformer, SchemaAdapter, VCFAdapter}
 import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler
+import it.polimi.genomics.metadata.step.MapperStep.logger
 import it.polimi.genomics.metadata.step._
 import it.polimi.genomics.metadata.step.utils.ExecutionLevel.{ExecutionLevel, _}
 import it.polimi.genomics.metadata.step.utils.{ParameterUtil, SchemaLocation, SchemaValidator}
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
-import it.polimi.genomics.metadata.util.{FileUtil, ManyToFewMap, PatternMatch}
 import it.polimi.genomics.repository.Utilities
-import org.apache.commons.lang.StringUtils
 import org.apache.log4j._
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import scala.collection.mutable.ListBuffer
 import scala.xml.{Elem, XML}
 
 
 /**
-  * Handles the execution of the GMQLImporter, gets the arguments and process them.
-  * Created by Nacho
-  */
+ * Handles the execution of the GMQLImporter, gets the arguments and process them.
+ * Created by Nacho
+ */
 object Program extends App {
   val logger: Logger = Logger.getLogger(this.getClass)
-  //TODO restore original pattern message when pushing to the server
-//  replace original message pattern with a much shorter one to improve the readability of the output
-//    val PATTERN = "%d [%p] - %l %m%n"
-  val PATTERN = "%d{HH:mm:ss} [%p]-%c{2} %m%n"
+  val PATTERN = "%d [%p] - %l %m%n"
 
 
   val console = new ConsoleAppender() //create appender
