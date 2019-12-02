@@ -255,15 +255,11 @@ class OneKGTransformer extends Transformer {
    */
   def getSequencingMetadata(dataset: Dataset, seqIndexMetaName: String): ManyToFewMap[String, List[String]] = {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+seqIndexMetaName).get
-    if(dataset.name.equalsIgnoreCase("GRCh38")){
-      var headerLine = reader.readLine()
-      while (headerLine.startsWith("##"))
-        headerLine = reader.readLine()
-    }
-    // skip header line
-    reader.readLine()
+    // skip headers
+    var headerLine = reader.readLine()
+    while (headerLine.startsWith("##"))
+      headerLine = reader.readLine()
     // ANY CHANGE TO THE LIST OF INTERESTING ATTRIBUTES MUST BE REFLECTED ALSO IN METHOD TRANSFORM.
-    //TODO EXTRACTS THE LIST OF INDICES BY THE LIST OF NAMES OF THE ATTRIBUTES
     val sequenceIndexMap = readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(3, 4, 5, 8, 10, 11, 12, 13, 17, 18, 25), mapByColumnIndex = 9, 26)
     reader.close()
     /*
@@ -285,9 +281,9 @@ class OneKGTransformer extends Transformer {
   def getPopulationMetadata(dataset: Dataset, populationMetaName: String): Map[String, List[String]] = {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+populationMetaName).get
     val pattern = PatternMatch.createPattern(".*\\t(\\S+)\\t(\\S+)\\t(yes|no)\\t(yes|no)\\t\\d+\\t\\d+\\t\\d+\\t\\d+")
-    //TODO EXTRACTS THE LIST OF INDICES BY THE LIST OF NAMES OF THE ATTRIBUTES
     val matchingParts: List[List[String]] = PatternMatch.getLinesMatching(pattern, reader).map(line => PatternMatch.matchParts(line, pattern))
     reader.close()
+    // ANY CHANGE TO THE LIST OF INTERESTING ATTRIBUTES MUST BE REFLECTED ALSO IN METHOD TRANSFORM.
     val keys = matchingParts.map(line => line.head.trim)
     val values = matchingParts.map(line => List(line(1).trim, line(2).trim))
     (keys zip values).toMap
@@ -304,7 +300,7 @@ class OneKGTransformer extends Transformer {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+individualDetailsMetaName).get
     // skip header line
     reader.readLine()
-    //TODO EXTRACTS THE LIST OF INDICES BY THE LIST OF NAMES OF THE ATTRIBUTES
+    // ANY CHANGE TO THE LIST OF INTERESTING ATTRIBUTES MUST BE REFLECTED ALSO IN METHOD TRANSFORM.
     val individualDetailsMap = readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(0, 4), mapByColumnIndex = 1, 17)
       .transformValues((_, valueList) => {
         valueList.flatMap(row => List(
@@ -325,6 +321,7 @@ class OneKGTransformer extends Transformer {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+samplesOriginMetaName).get
     // skip header line
     reader.readLine()
+    // ANY CHANGE TO THE LIST OF INTERESTING ATTRIBUTES MUST BE REFLECTED ALSO IN METHOD TRANSFORM.
     val samplesOriginMap = readTSVFileAsManyToFewMap(reader, interestingColumnsIdx = List(59), mapByColumnIndex = 0, 61)
       .transformValues((_, valueList) => valueList.head.head.toLowerCase.trim) // valueList is expected to contain only one String
     reader.close()
@@ -446,13 +443,6 @@ class OneKGTransformer extends Transformer {
    * The extraction fails if a directory already exists at the target file path.
    */
   def extractArchive(archivePath: String, extractedFilePath: String):Option[String] ={
-  //TODO REMOVE THIS
-
-//    if(archivePath == "C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chrX.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf.gz")
-//      return Some("C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chrX.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased_short.vcf")
-//    else if(archivePath == "C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chr22.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased.vcf.gz")
-//      return Some("C:\\Users\\tomma\\IntelliJ-Projects\\Metadata-Manager\\Example\\examples_meta\\1kGenomes\\GRCh38\\Downloads\\ALL.chr22.shapeit2_integrated_snvindels_v2a_27022019.GRCh38.phased_short.vcf")
-//    else
     extractedArchives.get(archivePath).orElse({
       logger.info("EXTRACTING "+archivePath.substring(archivePath.lastIndexOf(File.separator)))
       if (Unzipper.unGzipIt(archivePath, extractedFilePath)) {
@@ -542,4 +532,10 @@ object OneKGTransformer {
     List.fill(dimension)(MISSING_VALUE)
   }
 
+  def indicesOfTSVString(TSVString:String, columnsOfInterest: String):List[Int] = {
+    val interestingAttrs_1 = columnsOfInterest.toLowerCase
+    TSVString.split("\t", -1).zipWithIndex.collect{
+      case (name, idx) if interestingAttrs_1.contains(name.trim.toLowerCase) => idx
+    }.toList
+  }
 }
