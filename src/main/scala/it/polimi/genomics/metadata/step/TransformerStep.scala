@@ -170,11 +170,12 @@ object TransformerStep extends Step {
 
                     // enrich metadata file
                     {
-                      val regionFileId = candidates.find {
-                        case ((candidateNameTemp, _), _) => candidateName.substring(0, candidateName.length - 5) == candidateNameTemp
-                      }.map(_._2._1).getOrElse(file._1)
+                      val regionFileId = Option(candidates.collect {
+                        case ((candidateNameTemp, _), (originFileID, _, _))
+                          if candidateName.substring(0, candidateName.length - 5) == candidateNameTemp => originFileID
+                      }).getOrElse(List(file._1))
 
-                      val fileDetailsOption = FileDatabase.getFileAllDetails(regionFileId)
+                      val filesDetailsOptions = regionFileId.map(FileDatabase.getFileAllDetails)
 
 
                       val (fileSize, md5) = {
@@ -193,7 +194,7 @@ object TransformerStep extends Step {
                       writer.write("manually_curated" + separator + "local_md5\t" + md5 + "\n")
 
 
-                      if (fileDetailsOption.isDefined) {
+                      filesDetailsOptions.filter(_.isDefined).foreach { fileDetailsOption =>
                         val fileDetails = fileDetailsOption.get
                         if (fileDetails.lastUpdate.nonEmpty)
                           writer.write("manually_curated" + separator + "download_date\t" + fileDetails.lastUpdate + "\n")
