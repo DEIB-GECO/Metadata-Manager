@@ -9,6 +9,7 @@ class VCFMutation(mutationLine: String, val headerMeta: HeaderMetaInformation) e
   import VCFMutation._
   private val mutationParts = mutationLine.split(COLUMN_SEPARATOR_REGEX)
   lazy val info: Map[String, String] = _info
+  private lazy val formatFields = formatKeysAsString.split(FORMAT_SEPARATOR)
 
   def chr:String ={
     mutationParts.head
@@ -64,7 +65,6 @@ class VCFMutation(mutationLine: String, val headerMeta: HeaderMetaInformation) e
     val sampleNum = biosamples.indexOf(sampleName)
     if(sampleNum == -1)
       throw new IllegalArgumentException("ARGUMENT SAMPLE NAME IS NOT PART OF THE ARGUMENT SAMPLE NAME'S LIST")
-    val formatFields = formatKeysAsString.split(FORMAT_SEPARATOR)
     val correspondingValues = formatValuesAsString(sampleNum).split(FORMAT_SEPARATOR)
     if(formatFields.length!=correspondingValues.length)
       throw new Exception("OOOUCH !! IT SEEMS WE HAVE A ROTTEN IMPLEMENTATION HERE!" +
@@ -86,12 +86,12 @@ object VCFMutation {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val FORMAT_SEPARATOR = ":"
-  val INFO_SEPARATOR = ";"
-  val INFO_MULTI_VALUE_SEPARATOR = ","
-  val ALT_MULTI_VALUE_SEPARATOR = ","
-  val ID_MULTI_VALUE_SEPARATOR = ";"
-  val FORMAT_MULTI_VALUE_SEPARATOR = ","
+  val FORMAT_SEPARATOR = ':'
+  val INFO_SEPARATOR = ';'
+  val INFO_MULTI_VALUE_SEPARATOR = ','
+  val ALT_MULTI_VALUE_SEPARATOR = ','
+  val ID_MULTI_VALUE_SEPARATOR = ';'
+  val FORMAT_MULTI_VALUE_SEPARATOR = ','
   val COLUMN_SEPARATOR_REGEX = "\\s+"
   val MISSING_VALUE_CODE = "."
 
@@ -112,7 +112,7 @@ object VCFMutation {
    * alt field of this mutation
    */
   def splitOnMultipleAlternativeMutations(mutation: VCFMutation): List[VCFMutationTrait] ={
-    val numOfAlternatives = mutation.alt.count(_ == ALT_MULTI_VALUE_SEPARATOR.charAt(0))+1
+    val numOfAlternatives = mutation.alt.count(_ == ALT_MULTI_VALUE_SEPARATOR)+1
     if(numOfAlternatives>1)
       Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplittedMutation(i, mutation))
     else
@@ -125,7 +125,7 @@ object VCFMutation {
    */
   def splitOnMultipleAlternativeMutations(mutationLine: String, headerMeta: HeaderMetaInformation): List[VCFMutationTrait] ={
     val altField = mutationLine.split(COLUMN_SEPARATOR_REGEX)(4)
-    val numOfAlternatives = altField.count(_ == ALT_MULTI_VALUE_SEPARATOR.charAt(0))+1
+    val numOfAlternatives = altField.count(_ == ALT_MULTI_VALUE_SEPARATOR)+1
     if(numOfAlternatives>1)
       Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplittedMutation(i, new VCFMutation(mutationLine, headerMeta)))
     else
