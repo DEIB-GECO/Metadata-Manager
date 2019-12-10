@@ -110,17 +110,19 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
    * In this method we initialize _ref, _alt and eventually we remove the padding base adjusting the coordinates consequently.
    */
   private def shrinkSV():Unit ={
-    _alt = m.alt
-    if(m.ref.length==1 && m.alt.startsWith(OKGMutation.SYMBOLIC_MUTATION_ALT_PREFIX)){
-      _ref = VCFMutation.MISSING_VALUE_CODE
-      _left += 1
-      if(_length != -1)
-        _length -= 1
-    } else {
-      _ref = m.ref
+    _ref = m.ref.drop(1)
+    _left += 1
+    if(_length != -1)
+      _length -= 1
+    _alt = if(!m.alt.startsWith(OKGMutation.SYMBOLIC_MUTATION_ALT_PREFIX)) {
       // log this kind of mutations because they're rare and I want to check the correctness of the algorithm for those cases too.
-      OKGMutation.logger.debug("FOUND NOT SYMBOLIC SV: "+mutationStringWithoutFormat)
-    }
+      OKGMutation.logger.debug("CHECK NON-SYMBOLIC SV: "+mutationStringWithoutFormat)
+      m.alt.drop(1)
+    } else m.alt
+    if(_ref.length == 0)
+      _ref = VCFMutation.MISSING_VALUE_CODE
+    if(_alt.length == 0)
+      _alt = VCFMutation.MISSING_VALUE_CODE
   }
 
   /**

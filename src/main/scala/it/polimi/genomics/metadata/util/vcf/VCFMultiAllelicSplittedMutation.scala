@@ -16,10 +16,8 @@ class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) exten
   }
 
   def id:String ={
-    if(m.id.contains(ID_MULTI_VALUE_SEPARATOR))
-      m.id.split(ID_MULTI_VALUE_SEPARATOR)(alternativeNum)
-    else
-      m.id
+    val splittedIds = m.id.split(ID_MULTI_VALUE_SEPARATOR)
+    if(alternativeNum < splittedIds.length) splittedIds(alternativeNum) else m.id
   }
 
   def ref:String ={
@@ -27,10 +25,8 @@ class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) exten
   }
 
   def alt:String ={
-    if(m.alt.contains(ALT_MULTI_VALUE_SEPARATOR))
-      m.alt.split(ALT_MULTI_VALUE_SEPARATOR)(alternativeNum)
-    else
-      m.alt
+    val splittedAlternatives = m.alt.split(ALT_MULTI_VALUE_SEPARATOR)
+    if(alternativeNum < splittedAlternatives.length) splittedAlternatives(alternativeNum) else m.alt
   }
 
   def qual:String ={
@@ -93,7 +89,7 @@ class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) exten
              * time. The index of each pair is given by the function "veryComplicatedIndex"
              */
             else if (ploidy == 2) {
-              (0 to countAlternativeAlleles).map(allele => splitValues(veryComplicatedIndex(alternativeNum, allele))).mkString(FORMAT_MULTI_VALUE_SEPARATOR)
+              (0 to countAlternativeAlleles).map(allele => splitValues(veryComplicatedIndex(alternativeNum, allele))).mkString(FORMAT_MULTI_VALUE_SEPARATOR.toString)
             }
             // for triploid calls,  it's not clear from the documentation how the index should be computed
             else
