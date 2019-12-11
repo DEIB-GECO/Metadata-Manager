@@ -3,7 +3,6 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
-        <!-- TODO change path so that it refers build deirectory -->
         <base_working_directory>C:\Users\tomma\IntelliJ-Projects\Metadata-Manager\Example\examples_meta</base_working_directory> <!-- = outputFolder -->
         <gcm_config_file>C:\Users\tomma\IntelliJ-Projects\Metadata-Manager\src\main\resources\application.conf</gcm_config_file>
         <mapper_source>ENCODE</mapper_source> <!--TODO adjust mapper_source later on -->
@@ -27,7 +26,7 @@
             <url>ftp.1000genomes.ebi.ac.uk</url>
             <source_working_directory>1kGenomes</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DLStrategyB</downloader>
-            <transformer>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.OneKGTransformer</transformer>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.OneKGParallelTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
             <transform_enabled>true</transform_enabled>
@@ -139,6 +138,20 @@
                     relationship with the output</description>
                     <key>many_to_many_transform</key>
                     <value>true</value>
+                </parameter>
+                <parameter>
+                    <description>When OneKGParallelTransformer is used, this parameter limits the amount of concurrent
+                        transformations running.</description>
+                    <key>max_concurrent_transformations</key>
+                    <value>3</value>
+                </parameter>
+                <parameter>
+                    <description>When OneKGParallelTransformer is used, this parameter can be used to observe the length of
+                        the queue of writing requests. A positive integer value sets the refresh rate in seconds. The
+                        values 0 disables this functionality.
+                    </description>
+                    <key>observe_writing_queue_size_at_rate</key>
+                    <value>10</value>
                 </parameter>
             </parameter_list>
             <dataset_list>

@@ -4,7 +4,7 @@ import java.io.{BufferedReader, BufferedWriter}
 
 import it.polimi.genomics.metadata.util.vcf.VCFMutation.MutationProperties
 import it.polimi.genomics.metadata.util.vcf.{HeaderMetaInformation, VCFMutation}
-import it.polimi.genomics.metadata.util.{ApproximateReadProgress, FileUtil}
+import it.polimi.genomics.metadata.util.{ApproximateReadProgress, AsyncFilesWriter, FileUtil}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.{immutable, mutable}
@@ -108,6 +108,40 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
     } finally {
       writers.values.foreach(writer => writer.close())
       reader.close()
+    }
+  }
+
+  def appendAllMutationsBySampleRunnable(outputDirectoryPath: String, asyncWriter: AsyncFilesWriter): Runnable = {
+    new Runnable {
+      override def run(): Unit = {
+//        asyncWriter.addJob(this)   // job is registered by the user of this runnable before this runnable starts
+        asyncWriter.addTargetFiles(biosamples, biosamples.map(sampleName => outputDirectoryPath + sampleName + ".gdm"))
+        val reader = FileUtil.open(VCFFilePath).get    // let it throw exception if failed
+        advanceAndGetHeaderLine(reader)   // advance reader and skip header line
+        try {
+          FileUtil.scanFileAndClose(reader, mutationLine => {
+            // read and transform each mutation
+            VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(OKGMutation.apply).foreach(mutation => {
+              val outputLine = mutationPrinter.formatMutation(mutation)
+              // find the affected samples (there's always at least one) and append the mutation to their region files
+              biosamples.collect { case sampleName if mutation.format(sampleName, biosamples).isMutated =>
+                asyncWriter.write(outputLine, sampleName)
+              }
+            })
+          }, setupReadProgressCanary(VCFFilePath))
+        } finally {
+          reader.close()
+          asyncWriter.removeJob(this)
+        }
+      }
+
+      override def equals(obj: Any): Boolean = {
+        obj.isInstanceOf[Runnable] && obj.asInstanceOf[Runnable].toString == toString
+      }
+
+      override def toString: String = {
+        shortName
+      }
     }
   }
 

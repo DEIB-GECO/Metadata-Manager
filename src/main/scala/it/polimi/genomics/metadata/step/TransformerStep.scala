@@ -101,11 +101,7 @@ object TransformerStep extends Step {
 
               FileDatabase.delete(datasetId, Stage.TRANSFORM)
               // detects one-to-many kind of files' transformation
-              val manyToManyTransformConfigParam = source.parameters.filter(_._1 == "many_to_many_transform")
-              val useURLInDatabase = if(manyToManyTransformConfigParam.nonEmpty && manyToManyTransformConfigParam.head._2.nonEmpty) {
-                !manyToManyTransformConfigParam.head._2.toBoolean
-              } else
-                true
+              val isManyToManyTransformation = dataset.getParameter("many_to_many_transform").getOrElse("false").toBoolean
               //id, filename, copy number.
               val candidates = {
                 val tempCandidates: List[((String, Int), (Int, String, Int))] = FileDatabase.getFilesToProcess(datasetId, Stage.DOWNLOAD).toList.flatMap { file =>
@@ -119,7 +115,7 @@ object TransformerStep extends Step {
                   logger.info(s"candidates: $originalFileName, $candidates")
                   val files = candidates.map(candidateName => {
                     /* source level paramter many-to-many-transform with default true, and false for my source */
-                    (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, Stage.TRANSFORM, candidateName, useURLInDatabase))
+                    (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, Stage.TRANSFORM, candidateName, !isManyToManyTransformation))
                   })
 
                   files.map((_, file))
@@ -143,7 +139,7 @@ object TransformerStep extends Step {
 
               val filesToTransform = candidates.length
 
-              candidates.foreach { case ((candidateName, fileId), file) =>
+              def transform(candidateName:String, fileId:Int, file:(Int, String, Int)):(Boolean, String) ={
                 val originalFileName =
                   if (file._3 == 1) file._2
                   else file._2.replaceFirst("\\.", "_" + file._3 + ".")
@@ -156,14 +152,16 @@ object TransformerStep extends Step {
 
                 //I always transform, so the boolean checkIfUpdate is not used here.
                 FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-                val transformed = transformationClass.transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
-                val fileTransformationPath = transformationsFolder + File.separator + name
-                //add copy numbers if needed.
-                if (transformed) {
+                ( transformationClass.transform(source, downloadsFolder, transformationsFolder, originalFileName, name), name )
+              }
+
+              def postProcess(isTransformed: Boolean, name: String, candidateName: String, fileId: Int, file: (Int, String, Int)):Unit = {
+                if(isTransformed) {
+                  val fileTransformationPath = transformationsFolder + File.separator + name
                   if (name.endsWith(".meta")) {
                     val separator =
-                      if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
-                        source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+                      if (dataset.source.parameters.exists(_._1 == "metadata_name_separation_char"))
+                        dataset.source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
                       else
                         "__"
 
@@ -226,13 +224,13 @@ object TransformerStep extends Step {
                   else {
                     /*val dataUrl = FileDatabase.getFileDetails(fileId)._4*/
                     /*val metaUrl = if (dataset.parameters.exists(_._1 == "spreadsheet_url"))
-                      dataset.parameters.filter(_._1 == "region_sorting").head._2
-                    else ""
-                    val fw = new FileWriter(fileTransformationPath + ".meta", true)
-                    try {
-                      fw.write(metaUrl)
-                    }
-                    finally fw.close()*/
+                    dataset.parameters.filter(_._1 == "region_sorting").head._2
+                  else ""
+                  val fw = new FileWriter(fileTransformationPath + ".meta", true)
+                  try {
+                    fw.write(metaUrl)
+                  }
+                  finally fw.close()*/
                     val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
                     val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
                     if (modifiedAndSchema._1)
@@ -251,8 +249,27 @@ object TransformerStep extends Step {
                 }
                 else
                   FileDatabase.markAsFailed(fileId)
-
               }
+
+              transformationClass.onBeforeTransformation(dataset)
+              // transform files
+              val transformedWithNames = candidates.map { case ((candidateName, fileId), file) =>
+
+                val result = transform(candidateName, fileId, file)
+
+                if(!isManyToManyTransformation)
+                  postProcess(result._1, result._2, candidateName, fileId, file)
+                result
+              }
+              transformationClass.onAllTransformationsDone(dataset, isManyToManyTransformation)
+
+              // run delayed postprocessing
+              if(isManyToManyTransformation) {
+                transformedWithNames zip candidates foreach { case ((isTransformed, name), ((candidateName,  fileId), file)) =>
+                  postProcess(isTransformed, name, candidateName, fileId, file)
+                }
+              }
+
               FileDatabase.markAsOutdated(datasetId, Stage.TRANSFORM)
               //          FileDatabase.markAsProcessed(datasetId, STAGE.DOWNLOAD)
               FileDatabase.runDatasetTransformAppend(datasetId, dataset, filesToTransform, totalTransformedFiles)

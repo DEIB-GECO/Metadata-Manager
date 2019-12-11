@@ -201,7 +201,6 @@ object FileUtil {
     val notifyProgress = progressNotifier.isDefined
     try {
       while (line != null) {
-//        TODO test for empty lines if specified as argument
         doForEachLine(line)
         line = reader.readLine()
         if (notifyProgress)

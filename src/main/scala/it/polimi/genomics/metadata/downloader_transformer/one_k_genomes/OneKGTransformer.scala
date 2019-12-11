@@ -25,20 +25,20 @@ class OneKGTransformer extends Transformer {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   // remember extracted archives & early transformed VCFs
-  private val extractedArchives: mutable.Map[String, String] = mutable.HashMap.empty[String, String]
-  private val transformedVCFs: mutable.Set[String] = mutable.HashSet.empty[String]
+  protected val extractedArchives: mutable.Map[String, String] = mutable.HashMap.empty[String, String]
+  protected val transformedVCFs: mutable.Set[String] = mutable.HashSet.empty[String]
   // metadata (depend on dataset)
-  private var dataset: Dataset = _
-  private var datasetParameters = mutable.LinkedHashMap("treeFileName" -> "", "seqIndexMetaName" -> "", "populationMetaName" -> "",
+  protected var dataset: Dataset = _
+  protected var datasetParameters:mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap("treeFileName" -> "", "seqIndexMetaName" -> "", "populationMetaName" -> "",
     "individualDetailsMetaName" -> "", "schemaURL" -> "", "assembly" -> "", "manually_curated__pipeline" -> "",
     "samplesOriginMetaName" -> "")
-  private var manually_curated__data_url: List[String] = _
-  private var sequencingMetadata: ManyToFewMap[String, List[String]] = _
-  private var populationMetadata: Map[String, List[String]] = _
-  private var individualsMetadata: ManyToFewMap[String, List[String]] = _
-  private var samplesOriginMetadata: ManyToFewMap[String, String] = _
+  protected var manually_curated__data_url: List[String] = _
+  protected var sequencingMetadata: ManyToFewMap[String, List[String]] = _
+  protected var populationMetadata: Map[String, List[String]] = _
+  protected var individualsMetadata: ManyToFewMap[String, List[String]] = _
+  protected var samplesOriginMetadata: ManyToFewMap[String, String] = _
   // formatting options (depend on dataset)
-  private var mutationPrinter: MutationPrinterTrait = _
+  protected var mutationPrinter: MutationPrinterTrait = _
 
 
   /**
@@ -62,70 +62,78 @@ class OneKGTransformer extends Transformer {
     val targetFilePath = destinationPath+File.separator+targetFileName
     val transformationsDirPath = destinationPath+File.separator
 
-    if (filename.endsWith(".gdm")) {
-      // append region data
-      extractArchive(sourceFilePath, removeExtension(sourceFilePath)) match {
-        case None => return false
-        case Some(_VCFPath) =>
-          // the source file is completely transformed generating the target region files for all the samples available in the source file
-          if(!transformedVCFs.contains(_VCFPath)){
-            new VCFAdapter(_VCFPath, mutationPrinter)
-              .appendAllMutationsBySample(transformationsDirPath)
-            transformedVCFs.add(_VCFPath)
-          }
-      }
-    } else {
-      val sampleName = removeExtension(removeExtension(targetFileName))
-      val metadataContainer = new util.TreeMap[String, mutable.Set[String]]
+    if (filename.endsWith(".gdm"))
+      transformRegion(sourceFilePath, transformationsDirPath)
+    else
+      transformMetadata(targetFileName, targetFilePath)
+  }
 
-      // study, center mame, sample_id (!=sample name), population, experiment, instrument, insert size, library, analysis group
-      val thisSampleSequencingData = sequencingMetadata.getFirstOf(sampleName).get
-      addToMetadataContainer(metadataContainer,
-        List("study_id", "study_name", "center_name", "sample_id", "population", "experiment_id", "instrument_platform",
-          "instrument_model", "insert_size", "library_layout", "analysis_group"),
-        thisSampleSequencingData)
+  protected def transformRegion(sourceFilePath:String, transformationsDirPath:String): Boolean ={
+    // append region data
+    extractArchive(sourceFilePath, removeExtension(sourceFilePath)) match {
+      case None => false
+      case Some(_VCFPath) =>
+        // the source file is completely transformed generating the target region files for all the samples available in the source file
+        if(!transformedVCFs.contains(_VCFPath)){
+          new VCFAdapter(_VCFPath, mutationPrinter)
+            .appendAllMutationsBySample(transformationsDirPath)
+          transformedVCFs.add(_VCFPath)
+        }
+        true
+    }
+  }
 
-      // super-population, population's dna from blood
-      val population:String = thisSampleSequencingData(4)
-      val thisPopulationData = populationMetadata(population)
-      val populationHasDNAFromBlood = thisPopulationData(1).toLowerCase == "yes"
-      addToMetadataContainer(metadataContainer, "super_population", thisPopulationData.head)
-      addToMetadataContainer(metadataContainer, "DNA_from_blood", populationHasDNAFromBlood.toString.toUpperCase)
+  protected def transformMetadata(targetFileName:String, targetFilePath:String): Boolean ={
+    val sampleName = removeExtension(removeExtension(targetFileName))
+    val metadataContainer = new util.TreeMap[String, mutable.Set[String]]
 
-      // family id, gender
-      addToMetadataContainer(metadataContainer, List("family_id", "gender"), individualsMetadata.getFirstOf(sampleName).get)
+    // study, center mame, sample_id (!=sample name), population, experiment, instrument, insert size, library, analysis group
+    val thisSampleSequencingData = sequencingMetadata.getFirstOf(sampleName).get
+    addToMetadataContainer(metadataContainer,
+      List("study_id", "study_name", "center_name", "sample_id", "population", "experiment_id", "instrument_platform",
+        "instrument_model", "insert_size", "library_layout", "analysis_group"),
+      thisSampleSequencingData)
 
-      // manually curated metadata
-      addToMetadataContainer(metadataContainer, "manually_curated__assembly", datasetParameters("assembly"))
-      samplesOriginMetadata.getFirstOf(sampleName).get.toLowerCase match {
-        case "blood" =>
+    // super-population, population's dna from blood
+    val population:String = thisSampleSequencingData(4)
+    val thisPopulationData = populationMetadata(population)
+    val populationHasDNAFromBlood = thisPopulationData(1).toLowerCase == "yes"
+    addToMetadataContainer(metadataContainer, "super_population", thisPopulationData.head)
+    addToMetadataContainer(metadataContainer, "DNA_from_blood", populationHasDNAFromBlood.toString.toUpperCase)
+
+    // family id, gender
+    addToMetadataContainer(metadataContainer, List("family_id", "gender"), individualsMetadata.getFirstOf(sampleName).get)
+
+    // manually curated metadata
+    addToMetadataContainer(metadataContainer, "manually_curated__assembly", datasetParameters("assembly"))
+    samplesOriginMetadata.getFirstOf(sampleName).get.toLowerCase match {
+      case "blood" =>
+        addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "tissue")
+        addToMetadataContainer(metadataContainer, "manually_curated__biosample_tissue", "Blood")
+      case "lcl" =>
+        addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "cell line")
+        addToMetadataContainer(metadataContainer, "manually_curated__cell_line", "lymphoblastoid cell line")
+        addToMetadataContainer(metadataContainer, "manually_curated__cell_line_type", "B")
+      case "" =>
+        if(populationHasDNAFromBlood) {
           addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "tissue")
           addToMetadataContainer(metadataContainer, "manually_curated__biosample_tissue", "Blood")
-        case "lcl" =>
-          addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "cell line")
-          addToMetadataContainer(metadataContainer, "manually_curated__cell_line", "lymphoblastoid cell line")
-          addToMetadataContainer(metadataContainer, "manually_curated__cell_line_type", "B")
-        case "" =>
-          if(populationHasDNAFromBlood) {
-            addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "tissue")
-            addToMetadataContainer(metadataContainer, "manually_curated__biosample_tissue", "Blood")
-          }
-        case uncoveredCase =>
-          logger.error("SAMPLE ORIGIN WITH VALUE "+uncoveredCase+" NOT PARSED")
-      }
-      addToMetadataContainer(metadataContainer, "manually_curated__data_type", "variant calling")
-      addToMetadataContainer(metadataContainer, List.fill(getURLsOfOriginRegionData().size)("manually_curated__data_url"), getURLsOfOriginRegionData())
-      addToMetadataContainer(metadataContainer, "manually_curated__feature", "variants")
-      addToMetadataContainer(metadataContainer, "manually_curated__file_format", "bed")
-      addToMetadataContainer(metadataContainer, "manually_curated__file_name", sampleName+".gdm")
-      addToMetadataContainer(metadataContainer, "manually_curated__is_healthy", "TRUE")
-      addToMetadataContainer(metadataContainer, "manually_curated__pipeline", datasetParameters("manually_curated__pipeline"))
-      addToMetadataContainer(metadataContainer, "manually_curated__project_source", "1000 Genomes")
-      addToMetadataContainer(metadataContainer, "manually_curated__source_page", DatasetInfo.parseDirectoryFromURL(getURLsOfOriginRegionData().head))
-      addToMetadataContainer(metadataContainer, "manually_curated__species", "Homo Sapiens")
-
-      writeMetadataContainer(metadataContainer, targetFilePath)
+        }
+      case uncoveredCase =>
+        logger.error("SAMPLE ORIGIN WITH VALUE "+uncoveredCase+" NOT PARSED")
     }
+    addToMetadataContainer(metadataContainer, "manually_curated__data_type", "variant calling")
+    addToMetadataContainer(metadataContainer, List.fill(getURLsOfOriginRegionData().size)("manually_curated__data_url"), getURLsOfOriginRegionData())
+    addToMetadataContainer(metadataContainer, "manually_curated__feature", "variants")
+    addToMetadataContainer(metadataContainer, "manually_curated__file_format", "bed")
+    addToMetadataContainer(metadataContainer, "manually_curated__file_name", sampleName+".gdm")
+    addToMetadataContainer(metadataContainer, "manually_curated__is_healthy", "TRUE")
+    addToMetadataContainer(metadataContainer, "manually_curated__pipeline", datasetParameters("manually_curated__pipeline"))
+    addToMetadataContainer(metadataContainer, "manually_curated__project_source", "1000 Genomes")
+    addToMetadataContainer(metadataContainer, "manually_curated__source_page", DatasetInfo.parseDirectoryFromURL(getURLsOfOriginRegionData().head))
+    addToMetadataContainer(metadataContainer, "manually_curated__species", "Homo Sapiens")
+
+    writeMetadataContainer(metadataContainer, targetFilePath)
     true
   }
 
@@ -219,7 +227,7 @@ class OneKGTransformer extends Transformer {
    *                                  assembly
    *                                  manually_curated&#95;&#95;pipeline
    */
-  def getDatasetParameters(dataset: Dataset): mutable.LinkedHashMap[String, String]  = {
+  protected def getDatasetParameters(dataset: Dataset): mutable.LinkedHashMap[String, String]  = {
     val assignments = Vector(
       DatasetInfo.parseFilenameFromURL(dataset.getParameter("tree_file_url").getOrElse(
         throw new MissingArgumentException("MANDATORY PARAMETER tree_file_url NOT FOUND IN XML CONFIG FILE"))),
@@ -242,7 +250,6 @@ class OneKGTransformer extends Transformer {
     (datasetParameters zip assignments).map({ case ((key, oldValue), newValue) => key -> newValue })
   }
 
-
   /**
    * Reads the sequence.index metadata file, extracts the interesting attributes and builds a map (specifically a
    * ManyToFewMap instance) containing those values.
@@ -253,7 +260,7 @@ class OneKGTransformer extends Transformer {
    * @param seqIndexMetaName the name of the file with extension sequence.index inside the Download folder.
    * @return a Map of the interesting attributes by sample.
    */
-  def getSequencingMetadata(dataset: Dataset, seqIndexMetaName: String): ManyToFewMap[String, List[String]] = {
+  protected def getSequencingMetadata(dataset: Dataset, seqIndexMetaName: String): ManyToFewMap[String, List[String]] = {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+seqIndexMetaName).get
     // skip headers
     var headerLine = reader.readLine()
@@ -278,7 +285,7 @@ class OneKGTransformer extends Transformer {
    * @param populationMetaName the name of the populations.tsv file located in Downloads folder.
    * @return a map of the extracted attributes indexed by population code.
    */
-  def getPopulationMetadata(dataset: Dataset, populationMetaName: String): Map[String, List[String]] = {
+  protected def getPopulationMetadata(dataset: Dataset, populationMetaName: String): Map[String, List[String]] = {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+populationMetaName).get
     val pattern = PatternMatch.createPattern(".*\\t(\\S+)\\t(\\S+)\\t(yes|no)\\t(yes|no)\\t\\d+\\t\\d+\\t\\d+\\t\\d+")
     val matchingParts: List[List[String]] = PatternMatch.getLinesMatching(pattern, reader).map(line => PatternMatch.matchParts(line, pattern))
@@ -296,7 +303,7 @@ class OneKGTransformer extends Transformer {
    * @param individualDetailsMetaName the name of the file with extension .PED located in Downloads folder.
    * @return a map (precisely ManyToFewMap) indexed by sample name and containing the extracted attributes.
    */
-  def getIndividualDetailsMetadata(dataset: Dataset, individualDetailsMetaName: String): ManyToFewMap[String, List[String]] = {
+  protected def getIndividualDetailsMetadata(dataset: Dataset, individualDetailsMetaName: String): ManyToFewMap[String, List[String]] = {
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+individualDetailsMetaName).get
     // skip header line
     reader.readLine()
@@ -317,7 +324,7 @@ class OneKGTransformer extends Transformer {
    * @param samplesOriginMetaName the name of the sample_info.txt file located in Downlaods folder.
    * @return a ManyToFewMap, telling for each sample the value of the attribute "DNA Source from Coriell".
    */
-  def getSamplesOriginMetadata(dataset: Dataset, samplesOriginMetaName:String): ManyToFewMap[String, String] ={
+  protected def getSamplesOriginMetadata(dataset: Dataset, samplesOriginMetaName:String): ManyToFewMap[String, String] ={
     val reader = FileUtil.open(DatasetInfo.getDownloadDir(dataset)+samplesOriginMetaName).get
     // skip header line
     reader.readLine()
@@ -339,7 +346,7 @@ class OneKGTransformer extends Transformer {
    *                           selected in each row and to check that each line is correctly formatted.
    * @return a Map having a List of selected attributes as value and the attribute in mapByColumnIndex as key.
    */
-  def readTSVFileAsManyToFewMap(reader: BufferedReader, interestingColumnsIdx: List[Int], mapByColumnIndex: Int, maxNumberOfColumns: Int): ManyToFewMap[String, List[String]] = {
+  protected def readTSVFileAsManyToFewMap(reader: BufferedReader, interestingColumnsIdx: List[Int], mapByColumnIndex: Int, maxNumberOfColumns: Int): ManyToFewMap[String, List[String]] = {
     val mtfMap = new ManyToFewMap[String, List[String]]
     // fill the map
     FileUtil.scanFileAndClose(reader, line => {
@@ -369,7 +376,7 @@ class OneKGTransformer extends Transformer {
    * @param valueSeparator a separator string.
    * @return the same input object with values merged by column, considering the indices of List[String] as columns.
    */
-  def mergeDuplicateValuesByColumn(mtfMap: ManyToFewMap[String, List[String]], valueSeparator: String): ManyToFewMap[String, List[String]] ={
+  protected def mergeDuplicateValuesByColumn(mtfMap: ManyToFewMap[String, List[String]], valueSeparator: String): ManyToFewMap[String, List[String]] ={
     mtfMap.transformValues((_, values) => {
       /* treat the values as rows, each row with a list of attributes. Returns a single row with the all the columns
       * but only one attribute per column */
@@ -387,7 +394,7 @@ class OneKGTransformer extends Transformer {
    * @return the URLs of all the source VCF files from which region data comes.
    */
   //noinspection AccessorLikeMethodIsEmptyParen
-  def getURLsOfOriginRegionData(): List[String] = {
+  protected def getURLsOfOriginRegionData(): List[String] = {
     if(manually_curated__data_url == null)
       manually_curated__data_url = {
       val originRegionFileNames = extractedArchives.keys.map(FileUtil.getFileNameFromPath) //names without copy number
@@ -442,7 +449,7 @@ class OneKGTransformer extends Transformer {
    * the extraction is skipped and the method returns true.
    * The extraction fails if a directory already exists at the target file path.
    */
-  def extractArchive(archivePath: String, extractedFilePath: String):Option[String] ={
+  protected def extractArchive(archivePath: String, extractedFilePath: String):Option[String] ={
     extractedArchives.get(archivePath).orElse({
       logger.info("EXTRACTING "+archivePath.substring(archivePath.lastIndexOf(File.separator)))
       if (Unzipper.unGzipIt(archivePath, extractedFilePath)) {
@@ -460,7 +467,7 @@ class OneKGTransformer extends Transformer {
 object OneKGTransformer {
 
   val META_KEY_VALUE_SEPARATOR = "\t"
-  val MISSING_VALUE = "*"
+  val MISSING_METADATA_VALUE = "*"
 
   ///////////////////////////////   GENERIC HELPER METHODS    ///////////////////////////////////////
 
@@ -529,7 +536,7 @@ object OneKGTransformer {
   }
 
   def noValueList(dimension: Int): List[String] ={
-    List.fill(dimension)(MISSING_VALUE)
+    List.fill(dimension)(MISSING_METADATA_VALUE)
   }
 
   def indicesOfTSVString(TSVString:String, columnsOfInterest: String):List[Int] = {
