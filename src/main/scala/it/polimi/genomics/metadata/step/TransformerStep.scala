@@ -139,6 +139,12 @@ object TransformerStep extends Step {
 
               val filesToTransform = candidates.length
 
+              /**
+               * Calls the source specific Transformer implementation.
+               * @param candidateName name of the candidate file (output of the transformation).
+               * @param fileId fileId of the candidate.
+               * @param file a tuple (fileId, name, copy_number) of the origin file.
+               */
               def transform(candidateName:String, fileId:Int, file:(Int, String, Int)):(Boolean, String) ={
                 val originalFileName =
                   if (file._3 == 1) file._2
@@ -155,6 +161,20 @@ object TransformerStep extends Step {
                 ( transformationClass.transform(source, downloadsFolder, transformationsFolder, originalFileName, name), name )
               }
 
+              // a set to remember the fileId of the candidates already passed as input to the method postProcess
+              val postProcessedFileIds:mutable.Set[Int] = mutable.HashSet.empty[Int]
+              /**
+               * Region files are checked against the schema and the regions are sorted within each file. Metadata files
+               * are enriched with manually curated attributes. At the end of this method, each candidate file is marked
+               * as UPDATED or FAILED.
+               * If the transformation taking place is of kind many-to-many files and the candidate is a region file, the
+               * post-processing occurs only once for each region output file.
+               * @param isTransformed a boolean indicating whether the candidate file has been generated.
+               * @param name the name of the file generated for this candidate.
+               * @param candidateName the candidate name.
+               * @param fileId the fileId of the candidate.
+               * @param file a tuple (fileId, name, copy_number) of the origin file.
+               */
               def postProcess(isTransformed: Boolean, name: String, candidateName: String, fileId: Int, file: (Int, String, Int)):Unit = {
                 if(isTransformed) {
                   val fileTransformationPath = transformationsFolder + File.separator + name
@@ -218,10 +238,13 @@ object TransformerStep extends Step {
                     //metadata renaming. (standardizing of the metadata values should happen here also.
                     if ( /*!metadataRenaming.isEmpty &&*/ changeMetadataKeys(metadataRenaming, fileTransformationPath))
                       modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
-                    totalTransformedFiles = totalTransformedFiles + 1
+                    if(!isManyToManyTransformation || postProcessedFileIds.add(fileId))
+                      totalTransformedFiles = totalTransformedFiles + 1
+                    FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
                   }
                   //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
                   else {
+                    if(!isManyToManyTransformation || postProcessedFileIds.add(fileId)) {
                     /*val dataUrl = FileDatabase.getFileDetails(fileId)._4*/
                     /*val metaUrl = if (dataset.parameters.exists(_._1 == "spreadsheet_url"))
                     dataset.parameters.filter(_._1 == "region_sorting").head._2
@@ -231,21 +254,22 @@ object TransformerStep extends Step {
                     fw.write(metaUrl)
                   }
                   finally fw.close()*/
-                    val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
-                    val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
-                    if (modifiedAndSchema._1)
-                      modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
-                    if (!modifiedAndSchema._2)
-                      wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
-                    totalTransformedFiles = totalTransformedFiles + 1
-                    if (!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
-                      if (Try(regionFileSort(fileTransformationPath)).isFailure)
-                        logger.warn(s"fail to sort $fileTransformationPath")
-                      else
-                        logger.debug(s"$fileTransformationPath successfully sorted")
+                      val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
+                      val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
+                      if (modifiedAndSchema._1)
+                        modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
+                      if (!modifiedAndSchema._2)
+                        wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
+                      if (!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
+                        if (Try(regionFileSort(fileTransformationPath)).isFailure)
+                          logger.warn(s"fail to sort $fileTransformationPath")
+                        else
+                          logger.debug(s"$fileTransformationPath successfully sorted")
+                      FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
+                      totalTransformedFiles = totalTransformedFiles + 1
+                    }
+                    //standardization of the region data should be here.
                   }
-                  //standardization of the region data should be here.
-                  FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
                 }
                 else
                   FileDatabase.markAsFailed(fileId)
