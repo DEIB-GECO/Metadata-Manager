@@ -332,7 +332,7 @@ class EncodeDownloader extends Downloader {
         new Thread {
           override def run(): Unit = {
             val fields = line.split("\t")
-            val candidateName = fields(url).split(File.separator).last
+            val candidateName = fields(url).split("/").last
             val fileId = FileDatabase.fileId(datasetId, fields(url), stage, candidateName)
             val fileNameAndCopyNumber = FileDatabase.getFileNameAndCopyNumber(fileId)
 
@@ -342,7 +342,7 @@ class EncodeDownloader extends Downloader {
 
             val filePath = path + File.separator + filename
 
-            val candidateNameJson = fields(url).split(File.separator).last + ".json"
+            val candidateNameJson = fields(url).split("/").last + ".json"
             val urlExperimentJson = source.url + dataset.getParameter("json_prefix").getOrElse("experiments/") + fields(experimentAccession) + dataset.getParameter("json_suffix").getOrElse("/?format=json")
             val fileIdJson = FileDatabase.fileId(datasetId, urlExperimentJson, stage, candidateNameJson, false)
             FileDatabase.checkIfUpdateFile(fileIdJson, fields(md5sum), fields(originSize), fields(originLastUpdate))
