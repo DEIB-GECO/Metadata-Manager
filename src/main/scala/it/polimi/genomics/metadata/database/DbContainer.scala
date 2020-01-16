@@ -948,6 +948,9 @@ case class DbContainer() {
 
     def datasetNameIndex = index("DatasetNameIndex", name, unique = false)
 
+    //ADDED
+    def datasetSourceIDIndex = index("datasetSourceIdIndex", sourceId, unique = false)
+
     def * = (id.?, sourceId, name)
   }
 
@@ -1012,6 +1015,10 @@ case class DbContainer() {
     def fileUrlIndex = index("fileUrlIndex", url, unique = false)
 
     def fileNameIndex = index("fileNameIndex", name, unique = false)
+
+    //ADDED
+    def fileDatasetIdIndex = index("fileDatasetIdIndex", datasetId, unique = false)
+
 
     override def * = (id.?, datasetId, url, name, stage, status, size, lastUpdate, hash,
       originSize, originLastUpdate, dateProcessed, copyNumber) <> (File.tupled, File.unapply)
@@ -1106,6 +1113,10 @@ case class DbContainer() {
       onDelete = ForeignKeyAction.Cascade
     )
 
+    //ADDED
+    def runsourceSourceIdIndex = index("runsourceSourceIdIndex", sourceId, unique = false)
+    def runsourceRunIdIndex = index("runsourceRunIdIndex", runId, unique = false)
+
     def * = (id.?, runId, sourceId, url, outputFolder, downloadEnabled,
       downloader, transformEnabled, transformer, loadEnabled, loader)
   }
@@ -1140,6 +1151,9 @@ case class DbContainer() {
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
+
+    //ADDED
+    def runsourceparametersRunsourceIdIndex = index("runsourceparametersRunsourceIdIndex", runSourceId, unique = false)
 
     def * = (id.?, runSourceId, description, key, value)
   }
@@ -1193,6 +1207,10 @@ case class DbContainer() {
       onDelete = ForeignKeyAction.Cascade
     )
 
+    //ADDED
+    def rundatasetsRunIdIndex = index("rundatasetsRunIdIndex", runId, unique = false)
+    def rundatasetsDatasetIdIndex = index("rundatasetsDatasetIdIndex", datasetId, unique = false)
+
     def * = (id.?, runId, datasetId, outputFolder, downloadEnabled, transformEnabled, loadEnabled, schemaLocation, schemaUrl)
   }
 
@@ -1227,6 +1245,9 @@ case class DbContainer() {
       onDelete = ForeignKeyAction.Cascade
     )
 
+    //ADDED
+    def rundatasetparametersRundatasetIdIndex = index("rundatasetparametersRundatasetIdIndex", runDatasetId, unique = false)
+
     def * = (id.?, runDatasetId, description, key, value)
   }
 
@@ -1260,6 +1281,9 @@ case class DbContainer() {
       onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade
     )
+
+    //ADDED
+    def rundatasetlogsRundatasetIdIndex = index("rundatasetlogsRundatasetIdIndex", runDatasetId, unique = false)
 
     def * = (id.?, runDatasetId, stage, totalFiles, downloadedFiles)
   }
@@ -1312,7 +1336,9 @@ case class DbContainer() {
       onDelete = ForeignKeyAction.Cascade
     )
 
-    //    def pk = primaryKey("pk_a", (k1, k2))
+    //ADDED
+    def runfilesFileIdIndex = index("runfilesFileIdIndex", fileId, unique = false)
+    def runfilesRunIdIndex = index("runfilesRunIdIndex", runId, unique = false)
 
     def * = (id.?, runId, fileId, status, size, lastUpdate, hash, originSize, originLastUpdate, dateProcessed)
   }
