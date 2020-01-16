@@ -3,7 +3,7 @@ package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 import java.lang
 import java.util.concurrent.ConcurrentHashMap
 
-import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.OneKGTransformer.removeExtension
+import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.OKGTransformer.removeExtension
 import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.util.{AsyncFilesWriter, QueueObserver}
 
@@ -20,7 +20,7 @@ import it.polimi.genomics.metadata.util.{AsyncFilesWriter, QueueObserver}
  *
  * Created by Tom on dic, 2019
  */
-class OneKGParallelTransformer extends OneKGTransformer {
+class OKGParallelTransformer extends OKGTransformer {
 
   protected var writer:AsyncFilesWriter = _
   protected var writerThread:Thread = _

@@ -20,8 +20,8 @@ import scala.collection.{immutable, mutable}
  * Since the transformation of VCF files (region data) is quite complex, it is delegated to VCFAdapter, while metadata
  * files are transformed directly here.
  */
-class OneKGTransformer extends Transformer {
-  import OneKGTransformer._
+class OKGTransformer extends Transformer {
+  import OKGTransformer._
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   // remember extracted archives & early transformed VCFs
@@ -464,7 +464,7 @@ class OneKGTransformer extends Transformer {
   }
 
 }
-object OneKGTransformer {
+object OKGTransformer {
 
   val META_KEY_VALUE_SEPARATOR = "\t"
   val MISSING_METADATA_VALUE = "*"

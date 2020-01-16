@@ -37,7 +37,7 @@ import scala.util.{Failure, Success}
  * This class is involved in the download of files and update strategy only. For what concerns the identification
  * and selection of the interesting files, see the class DatasetInfo.
  */
-class DLStrategyA extends Downloader {
+class OKGDownloaderA extends Downloader {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 

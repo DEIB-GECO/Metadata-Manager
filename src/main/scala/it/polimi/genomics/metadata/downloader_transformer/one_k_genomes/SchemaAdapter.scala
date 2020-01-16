@@ -35,7 +35,7 @@ trait MutationPrinterTrait {
 class SimplePrinter extends MutationPrinterTrait {
 
   override def formatMutation(mutation: OKGMutation, forSample: Option[String], biosamples: Option[IndexedSeq[String]]): String = {
-    OneKGTransformer.makeTSVString(
+    OKGTransformer.makeTSVString(
       mutation.chr,
       mutation.left,
       mutation.right,
@@ -63,7 +63,7 @@ abstract class SchemaAdapter extends MutationPrinterTrait {
       .map( val_alternative => {
         if(val_alternative._1 != VCFMutation.MISSING_VALUE_CODE) val_alternative._1 else val_alternative._2
       })
-    OneKGTransformer.makeTSVString(normalizedValues)
+    OKGTransformer.makeTSVString(normalizedValues)
   }
 
   /**

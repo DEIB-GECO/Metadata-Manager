@@ -298,7 +298,7 @@ object OKGMutation {
   }
 
   def formatWithDefaultAttributes(mutation: OKGMutation): String ={
-    OneKGTransformer.makeTSVString(
+    OKGTransformer.makeTSVString(
       mutation.chr,
       mutation.left,
       mutation.right,

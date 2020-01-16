@@ -16,8 +16,8 @@ class VCFMultiAllelicSplitMutation(alternativeNum: Int, m: VCFMutation) extends 
   }
 
   def id:String ={
-    val splittedIds = m.id.split(ID_MULTI_VALUE_SEPARATOR)
-    if(alternativeNum < splittedIds.length) splittedIds(alternativeNum) else m.id
+    val splitIds = m.id.split(ID_MULTI_VALUE_SEPARATOR)
+    if(alternativeNum < splitIds.length) splitIds(alternativeNum) else m.id
   }
 
   def ref:String ={
@@ -25,8 +25,8 @@ class VCFMultiAllelicSplitMutation(alternativeNum: Int, m: VCFMutation) extends 
   }
 
   def alt:String ={
-    val splittedAlternatives = m.alt.split(ALT_MULTI_VALUE_SEPARATOR)
-    if(alternativeNum < splittedAlternatives.length) splittedAlternatives(alternativeNum) else m.alt
+    val splitAlternatives = m.alt.split(ALT_MULTI_VALUE_SEPARATOR)
+    if(alternativeNum < splitAlternatives.length) splitAlternatives(alternativeNum) else m.alt
   }
 
   def qual:String ={

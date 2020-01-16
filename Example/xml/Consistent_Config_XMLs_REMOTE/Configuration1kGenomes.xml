@@ -25,8 +25,8 @@
         <source name="1kGenomes">
             <url>ftp.1000genomes.ebi.ac.uk</url>
             <source_working_directory>1kGenomes</source_working_directory>
-            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.DLStrategyB</downloader>
-            <transformer>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.OneKGParallelTransformer</transformer>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.OKGDownloaderA</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.OKGParallelTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
             <transform_enabled>true</transform_enabled>
@@ -158,8 +158,8 @@
                 <dataset name="GRCh38">
                     <dataset_working_directory>GRCh38</dataset_working_directory>
                     <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
                     <cleaner_enabled>true</cleaner_enabled>
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
@@ -204,7 +204,7 @@
                     <dataset_working_directory>hg19</dataset_working_directory>
                     <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
                     <download_enabled>true</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <cleaner_enabled>true</cleaner_enabled>
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
