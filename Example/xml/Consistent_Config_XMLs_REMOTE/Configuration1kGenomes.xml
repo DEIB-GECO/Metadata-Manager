@@ -157,7 +157,7 @@
             <dataset_list>
                 <dataset name="GRCh38">
                     <dataset_working_directory>GRCh38</dataset_working_directory>
-                    <schema_url location="local">Example/schemas/one_k_genomes.schema</schema_url>
+                    <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
                     <cleaner_enabled>true</cleaner_enabled>
@@ -202,7 +202,7 @@
                 </dataset>
                 <dataset name="hg19">
                     <dataset_working_directory>hg19</dataset_working_directory>
-                    <schema_url location="local">Example/schemas/one_k_genomes.schema</schema_url>
+                    <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>false</transform_enabled>
                     <cleaner_enabled>true</cleaner_enabled>

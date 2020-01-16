@@ -1,5 +1,8 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
+import java.io.FileNotFoundException
+import java.nio.file.{Files, Paths}
+
 import it.polimi.genomics.metadata.util.XMLHelper
 import it.polimi.genomics.metadata.util.vcf.VCFMutation
 import org.slf4j.{Logger, LoggerFactory}
@@ -160,6 +163,10 @@ object SchemaAdapter {
    */
   def fromSchema(pathToXMLSchema: String):MutationPrinterTrait ={
     logger.info("begin parsing region schema")
+    if(Files.notExists(Paths.get(pathToXMLSchema))) {
+      throw new FileNotFoundException("Schema not found at path "+pathToXMLSchema)
+      // Do not change the schemaUrl path. Instead, move manually the schema to the required path.
+    }
     // read schema as list of attributes (attr name, attr type)
     val regionAttrsFromSchema: List[(String, String)] = XMLHelper
       .textAndTypeTaggedWith("field", "type", pathToXMLSchema)

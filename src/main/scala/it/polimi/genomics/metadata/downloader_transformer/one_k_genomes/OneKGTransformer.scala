@@ -165,7 +165,7 @@ class OneKGTransformer extends Transformer {
       // read XML config parameters here because I need Dataset
       this.dataset = dataset
       datasetParameters = getDatasetParameters(dataset)
-      mutationPrinter = SchemaAdapter.fromSchema(dataset.schemaUrl)
+      mutationPrinter = SchemaAdapter.fromSchema(source.rootOutputFolder+File.separator+dataset.schemaUrl)
     } else if(this.dataset.name != dataset.name)
       throw new IllegalStateException("IT'S NOT THREAD SAFE TO REUSE THIS CLASS FOR MULTIPLE DATASETS. CREATE A NEW INSTANCE INSTEAD.")
     // fields used in match expressions needs to be stable identifiers, i.e. class val, or local val with first character uppercase
