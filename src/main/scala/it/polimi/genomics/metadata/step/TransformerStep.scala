@@ -100,7 +100,7 @@ object TransformerStep extends Step {
               logger.info("Transformation for dataset: " + dataset.name)
 
               FileDatabase.delete(datasetId, Stage.TRANSFORM)
-              // detects one-to-many kind of files' transformation
+              // detect many-to-many type of transformation.
               val isManyToManyTransformation = dataset.getParameter("many_to_many_transform").getOrElse("false").toBoolean
               //id, filename, copy number.
               val candidates = {
@@ -114,7 +114,6 @@ object TransformerStep extends Step {
 
                   logger.info(s"candidates: $originalFileName, $candidates")
                   val files = candidates.map(candidateName => {
-                    /* source level paramter many-to-many-transform with default true, and false for my source */
                     (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, Stage.TRANSFORM, candidateName, !isManyToManyTransformation))
                   })
 

@@ -16,7 +16,7 @@ import scala.collection.mutable
  * add target files
  * start (AsyncFilesWriter starts a thread listening for write requests)
  * (users call write on this class whenever they need)
- * stop (AsyncFilesWriter stops writing and closes all the streams. Not all writes may have been completed.)
+ * stop (AsyncFilesWriter will write the requests already issued but it won't accept new requests. Finally it closes all the streams.)
  *
  * Optionally, it's possible to register the users with addJob methods and let AsyncFilesWriter to automatically end
  * its execution when all the users have terminated the writing operations and called removeJob. AsyncFilesWriter
