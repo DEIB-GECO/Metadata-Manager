@@ -5,7 +5,7 @@ import it.polimi.genomics.metadata.util.vcf.VCFMutation.{ALT_MULTI_VALUE_SEPARAT
 /**
  * Created by Tom on ott, 2019
  */
-class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) extends VCFMutationTrait {
+class VCFMultiAllelicSplitMutation(alternativeNum: Int, m: VCFMutation) extends VCFMutationTrait {
 
   def chr:String ={
     m.chr
@@ -75,7 +75,7 @@ class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) exten
           // VCF field with cardinality G
           else if (m.headerMeta.perGenotypeFields.contains(kvpair._1)) {
             import it.polimi.genomics.metadata.util.vcf.VCFMutation.MutationProperties
-            import VCFMultiAllelicSplittedMutation._
+            import VCFMultiAllelicSplitMutation._
             val ploidy = formatMap.ploidy
             /*
             * In case of haploid calls, attributes with cardinality "G" (genotype) have one value for each possible
@@ -116,7 +116,7 @@ class VCFMultiAllelicSplittedMutation(alternativeNum: Int, m: VCFMutation) exten
   }
 
 }
-object VCFMultiAllelicSplittedMutation {
+object VCFMultiAllelicSplitMutation {
   /**
    * As for VCF specifications version 4.3, fields with Genotype cardinality (Those attributes are described within
    * the meta-information lines with ##FORMAT< ID=..., Number=G, ...) have a list of values, one for each possible genotype

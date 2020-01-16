@@ -114,7 +114,7 @@ object VCFMutation {
   def splitOnMultipleAlternativeMutations(mutation: VCFMutation): List[VCFMutationTrait] ={
     val numOfAlternatives = mutation.alt.count(_ == ALT_MULTI_VALUE_SEPARATOR)+1
     if(numOfAlternatives>1)
-      Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplittedMutation(i, mutation))
+      Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplitMutation(i, mutation))
     else
       List(mutation)
   }
@@ -127,7 +127,7 @@ object VCFMutation {
     val altField = mutationLine.split(COLUMN_SEPARATOR_REGEX)(4)
     val numOfAlternatives = altField.count(_ == ALT_MULTI_VALUE_SEPARATOR)+1
     if(numOfAlternatives>1)
-      Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplittedMutation(i, new VCFMutation(mutationLine, headerMeta)))
+      Range(0, numOfAlternatives).toList.map(i => new VCFMultiAllelicSplitMutation(i, new VCFMutation(mutationLine, headerMeta)))
     else
       List(new VCFMutation(mutationLine, headerMeta))
   }
