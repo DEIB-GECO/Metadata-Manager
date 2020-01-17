@@ -101,29 +101,33 @@ class OKGTransformer extends Transformer {
     val thisPopulationData = populationMetadata(population)
     val populationHasDNAFromBlood = thisPopulationData(1).toLowerCase == "yes"
     addToMetadataContainer(metadataContainer, "super_population", thisPopulationData.head)
-    addToMetadataContainer(metadataContainer, "DNA_from_blood", populationHasDNAFromBlood.toString.toUpperCase)
+    addToMetadataContainer(metadataContainer, "dna_from_blood", populationHasDNAFromBlood.toString.toUpperCase)
 
     // family id, gender
     addToMetadataContainer(metadataContainer, List("family_id", "gender"), individualsMetadata.getFirstOf(sampleName).get)
 
     // manually curated metadata
     addToMetadataContainer(metadataContainer, "manually_curated__assembly", datasetParameters("assembly"))
-    samplesOriginMetadata.getFirstOf(sampleName).get.toLowerCase match {
-      case "blood" =>
-        addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "tissue")
-        addToMetadataContainer(metadataContainer, "manually_curated__biosample_tissue", "Blood")
-      case "lcl" =>
-        addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "cell line")
-        addToMetadataContainer(metadataContainer, "manually_curated__cell_line", "lymphoblastoid cell line")
-        addToMetadataContainer(metadataContainer, "manually_curated__cell_line_type", "B")
-      case "" =>
-        if(populationHasDNAFromBlood) {
-          addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "tissue")
-          addToMetadataContainer(metadataContainer, "manually_curated__biosample_tissue", "Blood")
+    addToMetadataContainer(metadataContainer, "dna_source_from_coriell", samplesOriginMetadata.getFirstOf(sampleName).get.toLowerCase)
+    // the instruction above substitutes the following match-case block
+    /*
+        samplesOriginMetadata.getFirstOf(sampleName).get.toLowerCase match {
+          case "blood" =>
+            addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "tissue")
+            addToMetadataContainer(metadataContainer, "manually_curated__biosample_tissue", "Blood")
+          case "lcl" =>
+            addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "cell line")
+            addToMetadataContainer(metadataContainer, "manually_curated__cell_line", "lymphoblastoid cell line")
+            addToMetadataContainer(metadataContainer, "manually_curated__cell_line_type", "B")
+          case "" =>
+            if(populationHasDNAFromBlood) {
+              addToMetadataContainer(metadataContainer, "manually_curated__biosample_type", "tissue")
+              addToMetadataContainer(metadataContainer, "manually_curated__biosample_tissue", "Blood")
+            }
+          case uncoveredCase =>
+            logger.error("SAMPLE ORIGIN WITH VALUE "+uncoveredCase+" NOT PARSED")
         }
-      case uncoveredCase =>
-        logger.error("SAMPLE ORIGIN WITH VALUE "+uncoveredCase+" NOT PARSED")
-    }
+        */
     addToMetadataContainer(metadataContainer, "manually_curated__data_type", "variant calling")
     addToMetadataContainer(metadataContainer, List.fill(getURLsOfOriginRegionData().size)("manually_curated__data_url"), getURLsOfOriginRegionData())
     addToMetadataContainer(metadataContainer, "manually_curated__feature", "variants")
