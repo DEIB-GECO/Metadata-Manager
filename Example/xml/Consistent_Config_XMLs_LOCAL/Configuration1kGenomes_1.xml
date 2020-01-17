@@ -5,7 +5,7 @@
     <settings>
         <base_working_directory>C:\Users\tomma\IntelliJ-Projects\Metadata-Manager\Example\examples_meta</base_working_directory> <!-- = outputFolder -->
         <gcm_config_file>C:\Users\tomma\IntelliJ-Projects\Metadata-Manager\src\main\resources\application.conf</gcm_config_file>
-        <mapper_source>ENCODE</mapper_source> <!--TODO adjust mapper_source later on -->
+        <mapper_source>1000Genomes</mapper_source>
         <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_tom</database_connection_url>
         <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_tom</database_connection_url_importer>
         <database_connection_user>geco</database_connection_user>
