@@ -184,20 +184,19 @@
                             <key>manually_curated__pipeline</key>
                             <value>BCFTools, Freebayes, GATK UnifiedGenotyper</value>
                         </parameter>
-                        <!--
+                        <!--    ATTRIBUTES FOR THE GDM REPOSITORY ON THE SERVER -->
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>PROVA_ENCODE</value>
+                            <value>GRCh38_1000GENOMES</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
                             <key>loading_description</key>
-                            <value>ENCODE data mapped to HG19 human genome.&lt;br&gt;
-                                Broad (or Regions) Peaks format is selected and archived/revoked data are avoided.&lt;br&gt;
-                                https://www.encodeproject.org/.</value>
+                            <value>Variants of 1000 Genomes mapped to GRCh38 human genome expressed in 0-based coordinates.
+                                &lt;br&gt;https://www.internationalgenome.org/.
+                            </value>
                         </parameter>
-                        -->
                     </parameter_list>
                 </dataset>
                 <dataset name="hg19">
@@ -229,10 +228,22 @@
                             <key>manually_curated__pipeline</key>
                             <value>Breakdancer, CNVnator, Cortex, Delly, Dinumt, Freebayes, Genome STRiP, GotCloud, Haplotype Caller, LobSTR, MELT, Pindel, Platypus, Read-Depth (dCGH), Real Time Genomics, RepeatSeq, SAMtools/BCFtools, SGA-Dindel, Unified Genotyper, Variation Hunter</value>
                         </parameter>
+                        <!--    ATTRIBUTES FOR THE GDM REPOSITORY ON THE SERVER -->
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_1000GENOMES</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>Variants of 1000 Genomes mapped to HG19 human genome expressed in 0-based coordinates.
+                                &lt;br&gt;https://www.internationalgenome.org/.
+                            </value>
+                        </parameter>
                     </parameter_list>
                 </dataset>
             </dataset_list>
         </source>
-        <!--I separated ENCODE in 2 different reference genomes to have a more "self explained" name in GMQL-->
     </source_list>
 </root>
