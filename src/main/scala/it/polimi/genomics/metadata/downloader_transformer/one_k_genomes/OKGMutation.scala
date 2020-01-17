@@ -65,9 +65,9 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
       else
         _type = m.info.get(VCFInfoKeys.SV_TYPE).orElse(m.info.get(VCFInfoKeys.VARIANT_TYPE))  // can be None
     } else {
+      // THE VARIANT TYPE ATTRIBUTE HAS CARDINALITY UNDEFINED IN VCFs, SO IT ISN'T SPLIT AS THE MUTATIONS. DO NOT TRUST ITS VALUE
       // INDELs
-      if (/*m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).contains("I") ||*/
-        m.info.get(SV_TYPE).isEmpty && m.ref.length != m.alt.length ) {
+      if (m.info.get(SV_TYPE).isEmpty && m.ref.length != m.alt.length ) {
         // In INDELS, ALT and REF always share the first or the last base.
         _length = Math.max(m.ref.length, m.alt.length) -1
         if(m.alt.length < m.ref.length) { // deletion
@@ -79,13 +79,12 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
         }
         shrinkINDEL()
       } // SNPs
-      else if (/*m.info.get(VARIANT_TYPE).isDefined && m.info(VARIANT_TYPE).startsWith("S") ||*/
-        m.info.get(SV_TYPE).isEmpty && m.ref.length == 1 && m.alt.length == 1) {
+      else if (m.info.get(SV_TYPE).isEmpty && m.ref.length == 1 && m.alt.length == 1) {
         _type = Some(OKGMutation.TYPE_SNP)
         _length = 1
         _right = _left + 1
         copyREF_ALT()
-      } // MNPs
+      } // MNPs (a SNP like "TTT -> ATT" falls into this case but during shrinking it collapses to "T->A" and the type is corrected)
       else if (m.info.get(SV_TYPE).isEmpty && m.ref.length == m.alt.length ) {
         _type = Some(OKGMutation.TYPE_MNP)
         // MNP mutations 're like concatenated SNPs

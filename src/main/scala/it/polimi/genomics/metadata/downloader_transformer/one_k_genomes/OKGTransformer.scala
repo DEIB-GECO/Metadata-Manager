@@ -37,7 +37,7 @@ class OKGTransformer extends Transformer {
   protected var populationMetadata: Map[String, List[String]] = _
   protected var individualsMetadata: ManyToFewMap[String, List[String]] = _
   protected var samplesOriginMetadata: ManyToFewMap[String, String] = _
-  // formatting options (depend on dataset)
+  // formatting options (depends on dataset)
   protected var mutationPrinter: MutationPrinterTrait = _
 
 
@@ -75,9 +75,11 @@ class OKGTransformer extends Transformer {
       case Some(_VCFPath) =>
         // the source file is completely transformed generating the target region files for all the samples available in the source file
         if(!transformedVCFs.contains(_VCFPath)){
-          new VCFAdapter(_VCFPath, mutationPrinter)
+          /* chrMT on hg19 contains a broken meta-header section so we create a correct version of it before the transformation*/
+          val VCFPath = if(datasetParameters("assembly").equals("hg19") && _VCFPath.contains("chrMT")) fixVCF_chrMT(_VCFPath) else _VCFPath
+          new VCFAdapter(VCFPath, mutationPrinter)
             .appendAllMutationsBySample(transformationsDirPath)
-          transformedVCFs.add(_VCFPath)
+          transformedVCFs.add(VCFPath)
         }
         true
     }
@@ -461,6 +463,39 @@ class OKGTransformer extends Transformer {
         None
       }
     })
+  }
+
+  /**
+   * Returns the path of a new VCF file obtained by copying the source file, and replacing the cardinality of the
+   * attribute AC in the meta-header section with the value A (cardinality per alternative allele). The original VCF
+   * for chrMT presents cardinality undefined ".", thus generating a wrong final representation.
+   * @param VCFFilePath the path of the VCF file to correct.
+   * @return the path path of the corrected VCF.
+   */
+  protected def fixVCF_chrMT(VCFFilePath: String): String ={
+    // create new file
+    val newFilename = "corrected_"+FileUtil.getFileNameFromPath(VCFFilePath)
+    val containingDir = FileUtil.getContainingDirFromFilePath(VCFFilePath)
+    val newPath = containingDir+newFilename
+    val writer = FileUtil.writeReplace(newPath).get
+    // prepare regex
+    val attributeNames = "(AC)"  // if necessary, add attribute names separated by |
+    val regexPattern = PatternMatch.createPattern("##INFO=<ID="+attributeNames+",Number=\\.,(.*)")  // matches only the attributes cardinality undefined
+    // correct and copy original file
+    var newLine:String = null
+    FileUtil.scanFileAndClose(FileUtil.open(VCFFilePath).get, originalLine => {
+      newLine = originalLine
+      // implemented like so because the following condition is false in 0.9976 % cases
+      if(originalLine.startsWith("##")) {
+        val infoParts = PatternMatch.matchParts(originalLine, regexPattern)
+        if (infoParts.nonEmpty)
+          newLine = "##INFO=<ID=" + infoParts.head + ",Number=A," + infoParts(1)
+      }
+      writer.write(newLine)
+      writer.newLine()
+    })
+    writer.close()
+    newPath
   }
 
 }

@@ -78,6 +78,31 @@ object FileUtil {
     Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS)
   }
 
+  /**
+   * Moves a file to the specified destination replacing an already existing file with the same location. The file in the
+   * target location will have the same attributes of the source file. If the source file is a symbolic link to a file,
+   * the symbolic link is moved instead of the file itself.
+   * @throws DirectoryNotEmptyException: if the target file cannot be replaced because it is a non-empty directory
+   * @throws IOException: if an I/O error occurs when reading or writing
+   * @throws SecurityException: if the user doesn’t have read/write permission
+   * @throws InvalidPathException if the arguments are malformed paths
+   */
+  def moveFile(sourceFilePath: String, targetFilePath: String): Unit ={
+    val source = Paths.get(sourceFilePath)
+    val target = Paths.get(targetFilePath)
+    // create target containing directory to prevent java.nio.file.NoSuchFileException
+    createLocalDirectory(getContainingDirFromFilePath(targetFilePath))
+    Files.move(source, target, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS)
+  }
+
+  /**
+   * Deletes the specified file if it exists.
+   * @param filePath the full file path to delete
+   */
+  def deleteFile(filePath:String): Unit = {
+    Files.deleteIfExists(Paths.get(filePath))
+  }
+
   def getFileNameFromPath(filePath: String): String = {
     val separatorIndex = Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\"))
     filePath.substring(separatorIndex+1)
