@@ -21,15 +21,15 @@ import scala.util.{Failure, Success}
  * 1. If a file changes, its size doesn't necessarily do the same.
  * 2. FTP file timestamps are not designed to be used as markers for detecting changes in the file. Technically it's
  * possible for a server administrator re-upload a file leaving the same timestamp of the previous version.
- * Instead, hashing is the most reliable mechanism for detecting changes and that's indeed the strategy used by OKGDownloaderA.
- * However, since computing the hash of very large files such as the 1kGenomes mutations could take hours, OKGDownloaderA
+ * Instead, hashing is the most reliable mechanism for detecting changes and that's indeed the strategy used by KGDownloaderA.
+ * However, since computing the hash of very large files such as the 1kGenomes mutations could take hours, KGDownloaderA
  * relies on precomputed digests available on the server. If those precomputed digests would become unavailable,
  * this downloader serves as backup strategy.
  *
  * This class is involved in the download of files and update strategy only. For what concerns the identification
  * and selection of the interesting files, see the class DatasetInfo.
  */
-class OKGDownloaderB extends Downloader {
+class KGDownloaderB extends Downloader {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 

@@ -48,7 +48,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
       advanceAndGetHeaderLine(reader)   // advance reader and skip header line
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read each mutation
-        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(OKGMutation.apply).foreach(mutation => {
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(KGMutation.apply).foreach(mutation => {
           val formatOfSample = mutation.format(sampleName, biosamples)
           // appends to the sample's region file if positive
           if (formatOfSample.isMutated) {
@@ -84,7 +84,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
     try {
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read and transform each mutation
-        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(OKGMutation.apply).foreach(mutation => {
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(KGMutation.apply).foreach(mutation => {
           val outputLine = mutationPrinter.formatMutation(mutation)
           // find the affected samples (there's always at least one)
           val samplesWithMutation = biosamples.filter(sample => {
@@ -121,7 +121,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
         try {
           FileUtil.scanFileAndClose(reader, mutationLine => {
             // read and transform each mutation
-            VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(OKGMutation.apply).foreach(mutation => {
+            VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(KGMutation.apply).foreach(mutation => {
               val outputLine = mutationPrinter.formatMutation(mutation)
               // find the affected samples (there's always at least one) and append the mutation to their region files
               biosamples.collect { case sampleName if mutation.format(sampleName, biosamples).isMutated =>
@@ -152,7 +152,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
     try {
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read and transform each mutation
-        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(OKGMutation.apply).foreach(mutation => {
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(KGMutation.apply).foreach(mutation => {
           val outputLine = mutationPrinter.formatMutation(mutation)
           writer.write(outputLine)
           writer.newLine()

@@ -18,7 +18,7 @@ import org.slf4j.{Logger, LoggerFactory}
  * Additionally, it shrink mutations by removing the padding base usually present in indels and SV with symbolic alternative
  * alleles.
  */
-class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
+class KGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
 
   private var _ref:String = _
   private var _alt:String =  _
@@ -52,7 +52,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
       shrinkSV()
       // compute _right if it's missing
       if(_right == -1) {
-        if(m.alt.startsWith(OKGMutation.SV_INS_ALT_PREFIX))
+        if(m.alt.startsWith(KGMutation.SV_INS_ALT_PREFIX))
           _right = _left
         else if(_length != -1 && m.info.get(CONFID_INTERVAL_AROUND_END_POS).isEmpty){
           VCFMutation.logger.info("CHECK THIS OUT "+mutationStringWithoutFormat)
@@ -60,8 +60,8 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
         }
       }
       // type
-      if(m.alt.equals(OKGMutation.CN0))
-        _type = Some(OKGMutation.TYPE_SV_DEL)
+      if(m.alt.equals(KGMutation.CN0))
+        _type = Some(KGMutation.TYPE_SV_DEL)
       else
         _type = m.info.get(VCFInfoKeys.SV_TYPE).orElse(m.info.get(VCFInfoKeys.VARIANT_TYPE))  // can be None
     } else {
@@ -72,21 +72,21 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
         _length = Math.max(m.ref.length, m.alt.length) -1
         if(m.alt.length < m.ref.length) { // deletion
           _right = _left + m.ref.length
-          _type = Some(OKGMutation.TYPE_DEL)
+          _type = Some(KGMutation.TYPE_DEL)
         } else {  // insertion
           _right = _left
-          _type = Some(OKGMutation.TYPE_INS)
+          _type = Some(KGMutation.TYPE_INS)
         }
         shrinkINDEL()
       } // SNPs
       else if (m.info.get(SV_TYPE).isEmpty && m.ref.length == 1 && m.alt.length == 1) {
-        _type = Some(OKGMutation.TYPE_SNP)
+        _type = Some(KGMutation.TYPE_SNP)
         _length = 1
         _right = _left + 1
         copyREF_ALT()
       } // MNPs (a SNP like "TTT -> ATT" falls into this case but during shrinking it collapses to "T->A" and the type is corrected)
       else if (m.info.get(SV_TYPE).isEmpty && m.ref.length == m.alt.length ) {
-        _type = Some(OKGMutation.TYPE_MNP)
+        _type = Some(KGMutation.TYPE_MNP)
         // MNP mutations 're like concatenated SNPs
         // skip _length and _right initialization because they're then overwritten in shrinkMNP()
         shrinkMNP()
@@ -94,7 +94,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
     }
     // fallback case
     if( _length == -1 || _right == -1) {
-      OKGMutation.logger.info(s"UNHANDLED VARIANT: $mutationStringWithoutFormat \n left: ${_left} length: ${_length} right: ${_right}")
+      KGMutation.logger.info(s"UNHANDLED VARIANT: $mutationStringWithoutFormat \n left: ${_left} length: ${_length} right: ${_right}")
       if(_right == -1)
         _right = _left
       if(_ref == null || _alt == null)
@@ -113,9 +113,9 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
     _left += 1
     if(_length != -1)
       _length -= 1
-    _alt = if(!m.alt.startsWith(OKGMutation.SYMBOLIC_MUTATION_ALT_PREFIX)) {
+    _alt = if(!m.alt.startsWith(KGMutation.SYMBOLIC_MUTATION_ALT_PREFIX)) {
       // log this kind of mutations because they're rare and I want to check the correctness of the algorithm for those cases too.
-      OKGMutation.logger.debug("CHECK NON-SYMBOLIC SV: "+mutationStringWithoutFormat)
+      KGMutation.logger.debug("CHECK NON-SYMBOLIC SV: "+mutationStringWithoutFormat)
       m.alt.drop(1)
     } else m.alt
     if(_ref.length == 0)
@@ -192,7 +192,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
     _right = _left + _length
     // a trimmed MNP can reduce itself to a SNP
     if(_length == 1)
-      _type = Some(OKGMutation.TYPE_SNP)
+      _type = Some(KGMutation.TYPE_SNP)
   }
 
   private def mutationStringWithoutFormat: String ={
@@ -228,7 +228,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
 
   //////////////////////////////////////    TRAIT   /////////////////////////////////////
 
-  override def chr: String = OKGMutation.CHR_PREFIX+m.chr
+  override def chr: String = KGMutation.CHR_PREFIX+m.chr
 
   override def pos: String = m.pos
 
@@ -246,7 +246,7 @@ class OKGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
 
   override def format(sampleName: String, biosamples: IndexedSeq[String]): Map[String, String] = m.format(sampleName, biosamples)
 }
-object OKGMutation {
+object KGMutation {
 
   val logger:Logger = LoggerFactory.getLogger(this.getClass)
 
@@ -261,8 +261,8 @@ object OKGMutation {
   private val SYMBOLIC_MUTATION_ALT_PREFIX = "<"
 
 
-  def apply(m: VCFMutationTrait): OKGMutation = {
-    new OKGMutation(m)
+  def apply(m: VCFMutationTrait): KGMutation = {
+    new KGMutation(m)
   }
 
 
@@ -278,7 +278,7 @@ object OKGMutation {
     try {
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read and transform each mutation
-        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine).map(OKGMutation.apply).foreach(mutation => {
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine).map(KGMutation.apply).foreach(mutation => {
           val outputLine = formatWithDefaultAttributes(mutation)
           writer.write(outputLine)
           writer.newLine()
@@ -291,12 +291,12 @@ object OKGMutation {
   }
 
   def transform(line: String): Unit ={
-    VCFMutation.splitOnMultipleAlternativeMutations(line).map(OKGMutation.apply).foreach(mutation => {
+    VCFMutation.splitOnMultipleAlternativeMutations(line).map(KGMutation.apply).foreach(mutation => {
       println(formatWithDefaultAttributes(mutation))
     })
   }
 
-  def formatWithDefaultAttributes(mutation: OKGMutation): String ={
+  def formatWithDefaultAttributes(mutation: KGMutation): String ={
     OKGTransformer.makeTSVString(
       mutation.chr,
       mutation.left,

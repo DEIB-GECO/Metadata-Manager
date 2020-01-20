@@ -15,7 +15,7 @@ import org.slf4j.{Logger, LoggerFactory}
 trait MutationPrinterTrait {
   /**
    *
-   * @param mutation   an OKGMutation.
+   * @param mutation   an KGMutation.
    * @param forSample  optional: the sample name for which the mutation is requested. This value is used when fetching
    *                   attributes of category FORMAT. See VCFFormatKeys for an overview of the attributes available.
    * @param biosamples optional: the list of all the sample names offered in the VCF file of origin for the given mutation.
@@ -25,7 +25,7 @@ trait MutationPrinterTrait {
    *         object. Missing values for the mutation provided are encoded as null for numeric attributes and as empty
    *         strings for attributes of type string.
    */
-  def formatMutation(mutation: OKGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):String
+  def formatMutation(mutation: KGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):String
 }
 
 /**
@@ -34,8 +34,8 @@ trait MutationPrinterTrait {
  */
 class SimplePrinter extends MutationPrinterTrait {
 
-  override def formatMutation(mutation: OKGMutation, forSample: Option[String], biosamples: Option[IndexedSeq[String]]): String = {
-    OKGTransformer.makeTSVString(
+  override def formatMutation(mutation: KGMutation, forSample: Option[String], biosamples: Option[IndexedSeq[String]]): String = {
+    KGTransformer.makeTSVString(
       mutation.chr,
       mutation.left,
       mutation.right,
@@ -58,17 +58,17 @@ class SimplePrinter extends MutationPrinterTrait {
  */
 abstract class SchemaAdapter extends MutationPrinterTrait {
 
-  override def formatMutation(mutation: OKGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):String ={
+  override def formatMutation(mutation: KGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):String ={
     val normalizedValues = (getRawValues(mutation, forSample, biosamples) zip alternativeNullValues)
       .map( val_alternative => {
         if(val_alternative._1 != VCFMutation.MISSING_VALUE_CODE) val_alternative._1 else val_alternative._2
       })
-    OKGTransformer.makeTSVString(normalizedValues)
+    KGTransformer.makeTSVString(normalizedValues)
   }
 
   /**
    *
-   * @param mutation   an OKGMutation.
+   * @param mutation   an KGMutation.
    * @param forSample  optional: the sample name for which the mutation is requested. This value is used when fetching
    *                   attributes of category FORMAT. See VCFFormatKeys for an overview of the attributes available.
    * @param biosamples optional: the list of all the sample names offered in the VCF file of origin for the given mutation.
@@ -78,7 +78,7 @@ abstract class SchemaAdapter extends MutationPrinterTrait {
    *         object. Missing values for the mutation provided are encoded VCFMutation.MISSING_VALUE_CODE.
    */
   //  THE FOLLOWING SIGNATURE MUST MATCH THE ONE WRITTEN FROM METHOD SchemaAdapter.fromSchema
-  def getRawValues(mutation: OKGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):List[String]
+  def getRawValues(mutation: KGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):List[String]
 
   /**
    * Metadata-Manager requires to use the following convention for expressing null/empty/not-available region attributes:
@@ -178,7 +178,7 @@ object SchemaAdapter {
       "new SchemaAdapter {\n " +
 
         //  THE FOLLOWING SIGNATURE MUST MATCH THE ONE IN THE DECLARATION OF SchemaAdapter.scala
-        "override def getRawValues(mutation: OKGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):List[String] = {\n"+
+        "override def getRawValues(mutation: KGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):List[String] = {\n"+
         codeMappingSchema(regionAttrsFromSchema).get +
         "}\n"+  // close method
 
@@ -261,7 +261,7 @@ object SchemaAdapterTest {
     val schemaAdapter = SchemaAdapter.fromSchema(schemaPath)
     // print mutation with schema
     if(oneOfItsMutationLine.isDefined)
-      VCFMutation.splitOnMultipleAlternativeMutations(oneOfItsMutationLine.get).map(OKGMutation.apply).foreach(mutation => {
+      VCFMutation.splitOnMultipleAlternativeMutations(oneOfItsMutationLine.get).map(KGMutation.apply).foreach(mutation => {
         println(schemaAdapter.formatMutation(mutation))
       })
     else {
@@ -269,7 +269,7 @@ object SchemaAdapterTest {
       advanceAndGetHeaderLine(reader)
       for (i <- 0 to 9) {
         val mutationLine = reader.readLine()
-        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine).map(OKGMutation.apply).foreach(mutation => {
+        VCFMutation.splitOnMultipleAlternativeMutations(mutationLine).map(KGMutation.apply).foreach(mutation => {
           println(schemaAdapter.formatMutation(mutation))
         })
       }
