@@ -8,6 +8,7 @@
         <field type="STRING">ref</field>
         <field type="STRING">alt</field>
         <field type="STRING">mut_type</field>
+        <field type="LONG">length</field>
         <field type="STRING">id</field>
         <field type="DOUBLE">quality</field>        <!-- PHRED-SCALED QUALITY SCORE -->
         <field type="STRING">filter</field>         <!-- 'PASS' OR THE NAMES OF THE FILTERS THAT DIDN'T PASS -->
