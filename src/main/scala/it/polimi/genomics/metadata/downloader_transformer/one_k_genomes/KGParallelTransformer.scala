@@ -45,10 +45,7 @@ class KGParallelTransformer extends KGTransformer {
       case Some(_VCFPath) =>
         // the source file is completely transformed generating the target region files for all the samples available in the source file
         if(transformedVCFs.add(_VCFPath)){
-          /* chrMT on hg19 contains a broken meta-header section so we create a correct version of it before the transformation*/
-          val VCFPath = if(datasetParameters("assembly").equals("hg19") && _VCFPath.contains("chrMT")) fixVCF_chrMT(_VCFPath) else _VCFPath
-          val runnable = new VCFAdapter(VCFPath, mutationPrinter)
-            .appendAllMutationsBySampleRunnable(transformationsDirPath, writer)
+          val runnable = getVCFAdapter(_VCFPath).appendAllMutationsBySampleRunnable(transformationsDirPath, writer)
           writer.addJob(runnable)    // this instruction can possibly block the caller
           new Thread(runnable).start()
         }

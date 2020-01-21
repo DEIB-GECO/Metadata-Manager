@@ -1,6 +1,6 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
-import it.polimi.genomics.metadata.util.vcf.{VCFInfoKeys, VCFMutation, VCFMutationTrait}
+import it.polimi.genomics.metadata.util.vcf.{VCFFormatKeys, VCFInfoKeys, VCFMutation, VCFMutationTrait}
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
@@ -226,6 +226,18 @@ class KGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
     )
   }
 
+  def addInfoAttribute(key:String, value:String): KGMutation = {
+    info += key -> value
+    this
+  }
+
+  def ploidy(sample: String, biosamples: IndexedSeq[String]): Int ={
+    format(sample, biosamples).get(VCFFormatKeys.GENOTYPE) match {
+      case Some(gt) => gt.count(_ == '/')+gt.count(_=='|')+1
+      case None => 0
+    }
+  }
+
   //////////////////////////////////////    TRAIT   /////////////////////////////////////
 
   override def chr: String = KGMutation.CHR_PREFIX+m.chr
@@ -242,7 +254,7 @@ class KGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
 
   override def filter: String = m.filter
 
-  override def info: Map[String, String] = m.info
+  var info: Map[String, String] = m.info
 
   override def format(sampleName: String, biosamples: IndexedSeq[String]): Map[String, String] = m.format(sampleName, biosamples)
 }

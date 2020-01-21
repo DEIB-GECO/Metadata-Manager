@@ -7,6 +7,7 @@ import it.polimi.genomics.metadata.database.FileDatabase
 import it.polimi.genomics.metadata.downloader_transformer.Transformer
 import it.polimi.genomics.metadata.downloader_transformer.default.utils.Unzipper
 import it.polimi.genomics.metadata.step.xml.{Dataset, Source}
+import it.polimi.genomics.metadata.util.vcf.VCFInfoKeys
 import it.polimi.genomics.metadata.util.{FileUtil, ManyToFewMap, PatternMatch}
 import org.apache.commons.cli.MissingArgumentException
 import org.slf4j.{Logger, LoggerFactory}
@@ -37,6 +38,7 @@ class KGTransformer extends Transformer {
   protected var populationMetadata: Map[String, List[String]] = _
   protected var individualsMetadata: ManyToFewMap[String, List[String]] = _
   protected var samplesOriginMetadata: ManyToFewMap[String, String] = _
+  protected var manually_curated_chromosome: ManyToFewMap[String, String] = new ManyToFewMap[String, String]
   // formatting options (depends on dataset)
   protected var mutationPrinter: MutationPrinterTrait = _
 
@@ -62,8 +64,9 @@ class KGTransformer extends Transformer {
     val targetFilePath = destinationPath+File.separator+targetFileName
     val transformationsDirPath = destinationPath+File.separator
 
-    if (filename.endsWith(".gdm"))
+    if (filename.endsWith(".gdm")) {
       transformRegion(sourceFilePath, transformationsDirPath)
+    }
     else
       transformMetadata(targetFileName, targetFilePath)
   }
@@ -74,15 +77,23 @@ class KGTransformer extends Transformer {
       case None => false
       case Some(_VCFPath) =>
         // the source file is completely transformed generating the target region files for all the samples available in the source file
-        if(!transformedVCFs.contains(_VCFPath)){
-          /* chrMT on hg19 contains a broken meta-header section so we create a correct version of it before the transformation*/
-          val VCFPath = if(datasetParameters("assembly").equals("hg19") && _VCFPath.contains("chrMT")) fixVCF_chrMT(_VCFPath) else _VCFPath
-          new VCFAdapter(VCFPath, mutationPrinter)
-            .appendAllMutationsBySample(transformationsDirPath)
-          transformedVCFs.add(VCFPath)
+        if(transformedVCFs.add(_VCFPath)){
+          getVCFAdapter(_VCFPath).appendAllMutationsBySample(transformationsDirPath)
         }
         true
     }
+  }
+
+  protected def getVCFAdapter(VCFPath:String): VCFAdapter ={
+    /* chrMT on hg19 contains a broken meta-header section so we create a correct version of it before the transformation*/
+    if(datasetParameters("assembly").equals("hg19") && VCFPath.contains("chrMT")) {
+      new VCFAdapter(fixVCF_chrMT(VCFPath), mutationPrinter).enrichMutationsBeforeWriting((m:KGMutation) => m
+//        .addInfoAttribute(VCFInfoKeys.NUMBER_OF_SAMPLES, "2534")
+//        .addInfoAttribute(VCFInfoKeys.NUMBER_OF_ALLELES, "2534")
+        .addInfoAttribute(VCFInfoKeys.ALLELE_FREQUENCY, (m.info(VCFInfoKeys.ALLELE_COUNT).toFloat/2534).toString)
+      )
+    } else
+      new VCFAdapter(VCFPath, mutationPrinter)
   }
 
   protected def transformMetadata(targetFileName:String, targetFilePath:String): Boolean ={
@@ -138,6 +149,10 @@ class KGTransformer extends Transformer {
     addToMetadataContainer(metadataContainer, "manually_curated__project_source", "1000 Genomes")
     addToMetadataContainer(metadataContainer, "manually_curated__source_page", DatasetInfo.parseDirectoryFromURL(getURLsOfOriginRegionData().head))
     addToMetadataContainer(metadataContainer, "manually_curated__species", "Homo Sapiens")
+    val chromosomesForSample = manually_curated_chromosome.get(sampleName)
+    if(chromosomesForSample.isDefined)
+      addToMetadataContainer(metadataContainer, List.fill(chromosomesForSample.get.size)("manually_curated__chromosome"),
+        chromosomesForSample.get.map(_.toLowerCase))
 
     writeMetadataContainer(metadataContainer, targetFilePath)
     true

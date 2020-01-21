@@ -8,7 +8,9 @@ object VCFInfoKeys {
 
   // keys
   val ANCESTRAL_ALLELE = "AA"
-  val ALTERNATE_ALLELE_COUNT = "AC"
+  val ALLELE_COUNT = "AC"
+  val NUMBER_OF_ALLELES = "AN" // = NUMBER OF SAMPLES for haploid, * 2 if diploid, * 3 for triploid, and so on...
+  val NUMBER_OF_SAMPLES = "NS"
   val ALLELE_FREQUENCY = "AF"
   val ALLELE_FREQUENCY_AFR = "AFR_AF"
   val ALLELE_FREQUENCY_AMR = "AMR_AF"
