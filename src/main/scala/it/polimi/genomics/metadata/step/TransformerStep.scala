@@ -100,6 +100,8 @@ object TransformerStep extends Step {
               logger.info("Transformation for dataset: " + dataset.name)
 
               FileDatabase.delete(datasetId, Stage.TRANSFORM)
+              // detect many-to-many type of transformation.
+              val isManyToManyTransformation = dataset.getParameter("many_to_many_transform").getOrElse("false").toBoolean
               //id, filename, copy number.
               val candidates = {
                 val tempCandidates: List[((String, Int), (Int, String, Int))] = FileDatabase.getFilesToProcess(datasetId, Stage.DOWNLOAD).toList.flatMap { file =>
@@ -111,9 +113,8 @@ object TransformerStep extends Step {
                   val candidates = transformationClass.getCandidateNames(originalFileName, dataset, source)
 
                   logger.info(s"candidates: $originalFileName, $candidates")
-
                   val files = candidates.map(candidateName => {
-                    (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, Stage.TRANSFORM, candidateName))
+                    (candidateName, FileDatabase.fileId(datasetId, fileDownloadPath, Stage.TRANSFORM, candidateName, !isManyToManyTransformation))
                   })
 
                   files.map((_, file))
@@ -137,7 +138,13 @@ object TransformerStep extends Step {
 
               val filesToTransform = candidates.length
 
-              candidates.foreach { case ((candidateName, fileId), file) =>
+              /**
+               * Calls the source specific Transformer implementation.
+               * @param candidateName name of the candidate file (output of the transformation).
+               * @param fileId fileId of the candidate.
+               * @param file a tuple (fileId, name, copy_number) of the origin file.
+               */
+              def transform(candidateName:String, fileId:Int, file:(Int, String, Int)):(Boolean, String) ={
                 val originalFileName =
                   if (file._3 == 1) file._2
                   else file._2.replaceFirst("\\.", "_" + file._3 + ".")
@@ -150,25 +157,42 @@ object TransformerStep extends Step {
 
                 //I always transform, so the boolean checkIfUpdate is not used here.
                 FileDatabase.checkIfUpdateFile(fileId, originDetails._1, originDetails._2, originDetails._3)
-                val transformed = transformationClass.transform(source, downloadsFolder, transformationsFolder, originalFileName, name)
-                val fileTransformationPath = transformationsFolder + File.separator + name
-                //add copy numbers if needed.
-                if (transformed) {
+                ( transformationClass.transform(source, downloadsFolder, transformationsFolder, originalFileName, name), name )
+              }
+
+              // a set to remember the fileId of the candidates already passed as input to the method postProcess
+              val postProcessedFileIds:mutable.Set[Int] = mutable.HashSet.empty[Int]
+              /**
+               * Region files are checked against the schema and the regions are sorted within each file. Metadata files
+               * are enriched with manually curated attributes. At the end of this method, each candidate file is marked
+               * as UPDATED or FAILED.
+               * If the transformation taking place is of kind many-to-many files and the candidate is a region file, the
+               * post-processing occurs only once for each region output file.
+               * @param isTransformed a boolean indicating whether the candidate file has been generated.
+               * @param name the name of the file generated for this candidate.
+               * @param candidateName the candidate name.
+               * @param fileId the fileId of the candidate.
+               * @param file a tuple (fileId, name, copy_number) of the origin file.
+               */
+              def postProcess(isTransformed: Boolean, name: String, candidateName: String, fileId: Int, file: (Int, String, Int)):Unit = {
+                if(isTransformed) {
+                  val fileTransformationPath = transformationsFolder + File.separator + name
                   if (name.endsWith(".meta")) {
                     val separator =
-                      if (source.parameters.exists(_._1 == "metadata_name_separation_char"))
-                        source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
+                      if (dataset.source.parameters.exists(_._1 == "metadata_name_separation_char"))
+                        dataset.source.parameters.filter(_._1 == "metadata_name_separation_char").head._2
                       else
                         "__"
 
 
                     // enrich metadata file
                     {
-                      val regionFileId = candidates.find {
-                        case ((candidateNameTemp, _), _) => candidateName.substring(0, candidateName.length - 5) == candidateNameTemp
-                      }.map(_._2._1).getOrElse(file._1)
+                      val regionFileId = Option(candidates.collect {
+                        case ((candidateNameTemp, _), (originFileID, _, _))
+                          if candidateName.substring(0, candidateName.length - 5) == candidateNameTemp => originFileID
+                      }).getOrElse(List(file._1))
 
-                      val fileDetailsOption = FileDatabase.getFileAllDetails(regionFileId)
+                      val filesDetailsOptions = regionFileId.map(FileDatabase.getFileAllDetails)
 
 
                       val (fileSize, md5) = {
@@ -187,7 +211,7 @@ object TransformerStep extends Step {
                       writer.write("manually_curated" + separator + "local_md5\t" + md5 + "\n")
 
 
-                      if (fileDetailsOption.isDefined) {
+                      filesDetailsOptions.filter(_.isDefined).foreach { fileDetailsOption =>
                         val fileDetails = fileDetailsOption.get
                         if (fileDetails.lastUpdate.nonEmpty)
                           writer.write("manually_curated" + separator + "download_date\t" + fileDetails.lastUpdate + "\n")
@@ -213,39 +237,62 @@ object TransformerStep extends Step {
                     //metadata renaming. (standardizing of the metadata values should happen here also.
                     if ( /*!metadataRenaming.isEmpty &&*/ changeMetadataKeys(metadataRenaming, fileTransformationPath))
                       modifiedMetadataFilesDataset = modifiedMetadataFilesDataset + 1
-                    totalTransformedFiles = totalTransformedFiles + 1
+                    if(!isManyToManyTransformation || postProcessedFileIds.add(fileId))
+                      totalTransformedFiles = totalTransformedFiles + 1
+                    FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
                   }
                   //if not meta, is region data.modifiedMetadataFilesDataset+modifiedRegionFilesDataset
                   else {
+                    if(!isManyToManyTransformation || postProcessedFileIds.add(fileId)) {
                     /*val dataUrl = FileDatabase.getFileDetails(fileId)._4*/
                     /*val metaUrl = if (dataset.parameters.exists(_._1 == "spreadsheet_url"))
-                      dataset.parameters.filter(_._1 == "region_sorting").head._2
-                    else ""
-                    val fw = new FileWriter(fileTransformationPath + ".meta", true)
-                    try {
-                      fw.write(metaUrl)
-                    }
-                    finally fw.close()*/
-                    val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
-                    val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
-                    if (modifiedAndSchema._1)
-                      modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
-                    if (!modifiedAndSchema._2)
-                      wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
-                    totalTransformedFiles = totalTransformedFiles + 1
-                    if (!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
-                      if (Try(regionFileSort(fileTransformationPath)).isFailure)
-                        logger.warn(s"fail to sort $fileTransformationPath")
-                      else
-                        logger.debug(s"$fileTransformationPath successfully sorted")
+                    dataset.parameters.filter(_._1 == "region_sorting").head._2
+                  else ""
+                  val fw = new FileWriter(fileTransformationPath + ".meta", true)
+                  try {
+                    fw.write(metaUrl)
                   }
-                  //standardization of the region data should be here.
-                  FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
+                  finally fw.close()*/
+                      val schemaFilePath = transformationsFolder + File.separator + dataset.name + ".schema"
+                      val modifiedAndSchema = checkRegionData(fileTransformationPath, schemaFilePath)
+                      if (modifiedAndSchema._1)
+                        modifiedRegionFilesDataset = modifiedRegionFilesDataset + 1
+                      if (!modifiedAndSchema._2)
+                        wrongSchemaFilesDataset = wrongSchemaFilesDataset + 1
+                      if (!dataset.parameters.exists(_._1 == "region_sorting") || dataset.parameters.filter(_._1 == "region_sorting").head._2 == "true")
+                        if (Try(regionFileSort(fileTransformationPath)).isFailure)
+                          logger.warn(s"fail to sort $fileTransformationPath")
+                        else
+                          logger.debug(s"$fileTransformationPath successfully sorted")
+                      FileDatabase.markAsUpdated(fileId, new File(fileTransformationPath).length.toString)
+                      totalTransformedFiles = totalTransformedFiles + 1
+                    }
+                    //standardization of the region data should be here.
+                  }
                 }
                 else
                   FileDatabase.markAsFailed(fileId)
-
               }
+
+              transformationClass.onBeforeTransformation(dataset)
+              // transform files
+              val transformedWithNames = candidates.map { case ((candidateName, fileId), file) =>
+
+                val result = transform(candidateName, fileId, file)
+
+                if(!isManyToManyTransformation)
+                  postProcess(result._1, result._2, candidateName, fileId, file)
+                result
+              }
+              transformationClass.onAllTransformationsDone(dataset, isManyToManyTransformation)
+
+              // run delayed postprocessing
+              if(isManyToManyTransformation) {
+                transformedWithNames zip candidates foreach { case ((isTransformed, name), ((candidateName,  fileId), file)) =>
+                  postProcess(isTransformed, name, candidateName, fileId, file)
+                }
+              }
+
               FileDatabase.markAsOutdated(datasetId, Stage.TRANSFORM)
               //          FileDatabase.markAsProcessed(datasetId, STAGE.DOWNLOAD)
               FileDatabase.runDatasetTransformAppend(datasetId, dataset, filesToTransform, totalTransformedFiles)
@@ -692,7 +739,7 @@ object TransformerStep extends Step {
         tempMap = tempMap + ((regionID, mutable.Queue(line)))
     }
     reader.close()
-    using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("result"))))) {
+    using(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(filePath))))) {
       writer => {
         tempMap.foreach(pair =>
           while (pair._2.nonEmpty) writer.write(pair._2.dequeue() + "\n"))

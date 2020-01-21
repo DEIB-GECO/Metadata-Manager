@@ -810,9 +810,9 @@ case class DbContainer() {
     //database = Database.forURL("jdbc:postgresql://localhost/gmql_importer?user=geco&password=geco78", driver = "org.postgresql.Driver", keepAliveConnection = true)
 
     database =  Database.forURL(
-      "jdbc:postgresql://localhost/gmql_importer",
-      "geco",
-     "geco78",
+      ParameterUtil.dbConnectionImporterUrl,
+      ParameterUtil.dbConnectionUser,
+      ParameterUtil.dbConnectionPw,
       driver = "org.postgresql.Driver")
 
     val tables = Await.result(database.run(MTable.getTables), Duration.Inf).toList

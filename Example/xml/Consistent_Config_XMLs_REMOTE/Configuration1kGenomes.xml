@@ -1,0 +1,232 @@
+<?xml version="1.0"?>
+<root   xmlns="http://polimi.it/GDMImporter"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+    <settings>
+        <base_working_directory>/home/alfonsi/gmql_importer/</base_working_directory> <!-- = outputFolder -->
+        <gcm_config_file>/application.conf</gcm_config_file>
+        <mapper_source>1000Genomes</mapper_source>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_tom</database_connection_url>
+        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_tom</database_connection_url_importer>
+        <database_connection_user>geco</database_connection_user>
+        <database_connection_pw>geco78</database_connection_pw>
+        <database_connection_driver>org.postgresql.Driver</database_connection_driver>
+        <flattener_rule_base>""</flattener_rule_base>
+        <download_enabled>true</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>false</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>false</flattener_enabled>
+        <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
+    </settings>
+    <source_list>
+        <source name="1kGenomes">
+            <url>ftp.1000genomes.ebi.ac.uk</url>
+            <source_working_directory>1kGenomes</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.KGDownloaderA</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.KGParallelTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
+            <load_enabled>true</load_enabled>
+            <parameter_list>
+                <!--    AUTHENTICATION      -->
+                <parameter>
+                    <description>Username for FTP connection authentication</description>
+                    <key>FTP_username</key>
+                    <value>anonymous</value>
+                </parameter>
+                <parameter>
+                    <description>Password for FTP connection authentication</description>
+                    <key>FTP_password</key>
+                    <value>anonymous</value>
+                </parameter>
+                <!--    AUXILIARY FILES TO DOWNLOAD & METADATA       -->
+                <parameter>
+                    <description>URL of the file describing the whole FTP server structure, its folders and files' location, size, date, hash properties</description>
+                    <key>tree_file_url</key>
+                    <value>ftp.1000genomes.ebi.ac.uk/vol1/ftp/current.tree</value>
+                </parameter>
+                <parameter>
+                    <key>population_file_path</key>
+                    <value>ftp/phase3/20131219.populations.tsv</value>
+                </parameter>
+                <parameter>
+                    <key>individual_details_file_path</key>
+                    <value>ftp/release/20130502/integrated_call_samples_v2.20130502.ALL.ped</value>
+                </parameter>
+                <parameter>
+                    <key>samples_origin_file_path</key>
+                    <value>ftp/technical/working/20130606_sample_info/20130606_sample_info.txt</value>
+                </parameter>
+                <!--       DOWNLOAD PARAMETERS      -->
+                <parameter>
+                    <description>The tree file contains records whose path is relative to some base FTP directory. This parameter is the URL of that directory.
+                        This is also a prefix for all the remote metadata paths and directory paths in this configuration file</description>
+                    <key>url_prefix_tree_file_records</key>
+                    <value>ftp.1000genomes.ebi.ac.uk/vol1/</value>
+                </parameter>
+                <parameter>
+                    <description>Timeout in milliseconds for the FTP data exchange socket when the data stream is interrupted</description>
+                    <key>data_connection_timeout</key>
+                    <value>2500</value>
+                </parameter>
+                <!--        FILTERING OPTIONS FOR VARIANTS DOWNLOAD     -->
+                <parameter>
+                    <description>When searching for variant files, include only the files whose name begins with this string</description>
+                    <key>filter_variants_starting_characters</key>
+                    <value>ALL.ch</value>
+                </parameter>
+                <parameter>
+                    <description>When searching for variant files, include only the files whose name ends with this string</description>
+                    <key>filter_variants_ending_characters</key>
+                    <value>.vcf.gz</value>
+                </parameter>
+                 <!--<parameter>
+                    <description>When searching for variant files, include only the files whose name matches this regex.
+                    WARNING: when this parameter is present, it overrides filter_variants_starting_characters and
+                        filter_variants_ending_characters settings</description>
+                    <key>filter_variants_with_custom_path_regex</key>
+                    <value>ALL\.chr(MT|Y).*\.gz</value>
+                </parameter>-->
+                <parameter>
+                    <description>When true, subdirectories of each release folder are skipped while searching for
+                        variants. Note that release folders are hosted at the location described in the dataset parameter
+                        dataset_remote_base_directory</description>
+                    <key>exclude_subdirs_in_each_dataset_release</key>
+                    <value>true</value>
+                </parameter>
+                <!--
+                    <parameter>
+                        <description>It is to know which user in GMQL is going to run the import</description>
+                        <key>gmql_user</key>
+                        <value>public</value>
+                    </parameter>
+                    -->
+                                        <!--    TRANSFORMATION PARAMETERS   -->
+                <parameter>
+                    <description>Configures the Transformer class to work on input files which have a many-to-many
+                    relationship with the output</description>
+                    <key>many_to_many_transform</key>
+                    <value>true</value>
+                </parameter>
+                <parameter>
+                    <description>When OneKGParallelTransformer is used, this parameter limits the amount of concurrent
+                        transformations running.</description>
+                    <key>max_concurrent_transformations</key>
+                    <value>15</value>
+                </parameter>
+                <parameter>
+                    <description>When OneKGParallelTransformer is used, this parameter can be used to observe the length of
+                        the queue of writing requests. A positive integer value sets the refresh rate in seconds. The
+                        value 0 disables this functionality.
+                    </description>
+                    <key>observe_writing_queue_size_at_rate</key>
+                    <value>0</value>
+                </parameter>
+                <!--<parameter>
+                    <description>Comma separated list of region attributes that must be treated as booleans, i.e. they
+                        must always have a value either true or false. They are replaced with false if missing.</description>
+                    <key>boolean_region_values</key>
+                    <value>IMPRECISE, EX_TARGET, MULTI_ALLELIC</value>
+                </parameter>-->
+            </parameter_list>
+            <dataset_list>
+                <dataset name="GRCh38">
+                    <dataset_working_directory>GRCh38</dataset_working_directory>
+                    <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
+                    <download_enabled>false</download_enabled>
+                    <transform_enabled>false</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>URL of the directory on the FTP server where all the variants (old and new) are collected without the prefix ftp.1000genomes.ebi.ac.uk/vol1/</description>
+                            <key>dataset_remote_base_directory</key>
+                            <value>ftp/data_collections/1000_genomes_project/release/</value>
+                        </parameter>
+                        <!-- ADDITIONAL METADATA -->
+                        <parameter>
+                            <key>sequence_index_file_path</key>
+                            <value>ftp/data_collections/1000_genomes_project/1000genomes.sequence.index</value>
+                        </parameter>
+                        <parameter>
+                            <key>assembly</key>
+                            <value>GRCh38</value>
+                        </parameter>
+                        <parameter>
+                            <key>manually_curated__pipeline</key>
+                            <value>BCFTools, Freebayes, GATK UnifiedGenotyper</value>
+                        </parameter>
+                        <!--    ATTRIBUTES FOR THE GDM REPOSITORY ON THE SERVER -->
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>GRCh38_1000GENOMES</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>Variants of 1000 Genomes mapped to GRCh38 human genome expressed in 0-based coordinates.
+                                &lt;br&gt;https://www.internationalgenome.org/.
+                            </value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+                <dataset name="hg19">
+                    <dataset_working_directory>hg19</dataset_working_directory>
+                    <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>URL of the directory on the FTP server where all the variants (old and new) are collected without the prefix ftp.1000genomes.ebi.ac.uk/vol1/</description>
+                            <key>dataset_remote_base_directory</key>
+                            <value>ftp/release/</value>
+                        </parameter>
+                        <!-- ADDITIONAL METADATA -->
+                        <parameter>
+                            <key>sequence_index_file_path</key>
+                            <value>ftp/phase3/20130502.phase3.sequence.index</value>
+                        </parameter>
+                        <parameter>
+                            <key>assembly</key>
+                            <value>hg19</value>
+                        </parameter>
+                        <parameter>
+                            <key>manually_curated__pipeline</key>
+                            <value>Breakdancer, CNVnator, Cortex, Delly, Dinumt, Freebayes, Genome STRiP, GotCloud, Haplotype Caller, LobSTR, MELT, Pindel, Platypus, Read-Depth (dCGH), Real Time Genomics, RepeatSeq, SAMtools/BCFtools, SGA-Dindel, Unified Genotyper, Variation Hunter</value>
+                        </parameter>
+                        <!--    ATTRIBUTES FOR THE GDM REPOSITORY ON THE SERVER -->
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>HG19_1000GENOMES</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>Variants of 1000 Genomes mapped to HG19 human genome expressed in 0-based coordinates.
+                                &lt;br&gt;https://www.internationalgenome.org/.
+                            </value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+    </source_list>
+</root>

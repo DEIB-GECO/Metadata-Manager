@@ -19,9 +19,9 @@ import scala.xml.{Elem, XML}
 
 
 /**
-  * Handles the execution of the GMQLImporter, gets the arguments and process them.
-  * Created by Nacho
-  */
+ * Handles the execution of the GMQLImporter, gets the arguments and process them.
+ * Created by Nacho
+ */
 object Program extends App {
   val logger: Logger = Logger.getLogger(this.getClass)
   val PATTERN = "%d [%p] - %l %m%n"
@@ -47,7 +47,6 @@ object Program extends App {
   console3.setThreshold(Level.WARN)
   console3.activateOptions()
   Logger.getLogger("slick").addAppender(console3)
-
 
   try {
     //    BasicConfigurator.configure()
@@ -216,6 +215,7 @@ object Program extends App {
         ParameterUtil.gcmConfigFile = (file \\ "settings" \ "gcm_config_file").text
         ParameterUtil.mapperSource = (file \\ "settings" \ "mapper_source").text
         ParameterUtil.dbConnectionUrl = (file \\ "settings" \ "database_connection_url").text
+        ParameterUtil.dbConnectionImporterUrl = (file \\ "settings" \ "database_connection_url_importer").text
         ParameterUtil.dbConnectionUser = (file \\ "settings" \ "database_connection_user").text
         ParameterUtil.dbConnectionPw = (file \\ "settings" \ "database_connection_pw").text
         ParameterUtil.dbConnectionDriver = (file \\ "settings" \ "database_connection_driver").text

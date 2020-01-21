@@ -337,6 +337,7 @@ object FileDatabase {
 
   /**
     * returns all the failed files with its copy number
+   * files marked as UPDATED without size are also considered as FAILED
     *
     * @param datasetId dataset from where files are required.
     * @return failed files id, name, copy number,url, hash

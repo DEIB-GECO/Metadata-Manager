@@ -7,6 +7,7 @@ object ParameterUtil {
   var gcmConfigFile = ""
   var mapperSource = ""
   var dbConnectionUrl = ""
+  var dbConnectionImporterUrl = ""
   var dbConnectionUser = ""
   var dbConnectionPw = ""
   var dbConnectionDriver = ""
