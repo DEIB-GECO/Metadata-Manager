@@ -47,29 +47,6 @@
                     <key>FTP_password</key>
                     <value>anonymous</value>
                 </parameter>
-                <!-- below some test FTP servers -->
-                <!-- DLP server -->
-                <!--<parameter>
-                    <description>Username for FTP connection authentication</description>
-                    <key>username</key>
-                    <value>dlpuser@dlptest.com</value>
-                </parameter>
-                <parameter>
-                    <description>Password for FTP connection authentication</description>
-                    <key>password</key>
-                    <value>fLDScD4Ynth0p4OJ6bW6qCxjh</value>
-                </parameter>-->
-                <!-- tele2 -->
-                <!--<parameter>
-                    <description>Username for FTP connection authentication</description>
-                    <key>username</key>
-                    <value>anonymous</value>
-                </parameter>
-                <parameter>
-                    <description>Password for FTP connection authentication</description>
-                    <key>password</key>
-                    <value>anonymous</value>
-                </parameter>-->
                 <!--    AUXILIARY FILES TO DOWNLOAD & METADATA       -->
                 <parameter>
                     <description>URL of the file describing the whole FTP server structure, its folders and files' location, size, date, hash properties</description>
@@ -148,11 +125,17 @@
                 <parameter>
                     <description>When OneKGParallelTransformer is used, this parameter can be used to observe the length of
                         the queue of writing requests. A positive integer value sets the refresh rate in seconds. The
-                        values 0 disables this functionality.
+                        value 0 disables this functionality.
                     </description>
                     <key>observe_writing_queue_size_at_rate</key>
-                    <value>10</value>
+                    <value>0</value>
                 </parameter>
+                <!--<parameter>
+                    <description>Comma separated list of region attributes that must be treated as booleans, i.e. they
+                        must always have a value either true or false. They are replaced with false if missing.</description>
+                    <key>boolean_region_values</key>
+                    <value>IMPRECISE, EX_TARGET, MULTI_ALLELIC</value>
+                </parameter>-->
             </parameter_list>
             <dataset_list>
                 <dataset name="GRCh38">

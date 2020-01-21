@@ -35,7 +35,7 @@ class VCFMutation(mutationLine: String, val headerMeta: HeaderMetaInformation) e
   private def _info: Map[String, String] ={
 //    try catch commented out to improve performance.
 //    try {
-      mutationParts(7).split(INFO_SEPARATOR).map(singleInfo => {
+     var kvPairs = mutationParts(7).split(INFO_SEPARATOR).map(singleInfo => {
       val eqIndex = singleInfo.indexOf("=")
       if(eqIndex == -1)
         singleInfo -> "true"   // boolean flags may not have the assignment part
@@ -45,6 +45,9 @@ class VCFMutation(mutationLine: String, val headerMeta: HeaderMetaInformation) e
         key -> value
       }
     }).toMap
+    // map to false the boolean attributes that are missing
+    headerMeta.flagFields.foreach(flag => if(kvPairs.get(flag).isEmpty) kvPairs += flag -> "false")
+    kvPairs
 //    } catch {
 //      case e: StringIndexOutOfBoundsException =>
 //        println("EXCEPTION ON MUTATION "+pos+" INFO: "+mutationParts(7))

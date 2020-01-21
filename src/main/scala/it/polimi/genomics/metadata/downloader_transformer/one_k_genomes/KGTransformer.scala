@@ -171,7 +171,7 @@ class KGTransformer extends Transformer {
       // read XML config parameters here because I need Dataset
       this.dataset = dataset
       datasetParameters = getDatasetParameters(dataset)
-      mutationPrinter = SchemaAdapter.fromSchema(source.rootOutputFolder+File.separator+dataset.schemaUrl)
+      mutationPrinter = SchemaAdapter.fromSchema(source.rootOutputFolder+File.separator+dataset.schemaUrl, dataset)
     } else if(this.dataset.name != dataset.name)
       throw new IllegalStateException("IT'S NOT THREAD SAFE TO REUSE THIS CLASS FOR MULTIPLE DATASETS. CREATE A NEW INSTANCE INSTEAD.")
     // fields used in match expressions needs to be stable identifiers, i.e. class val, or local val with first character uppercase
@@ -470,9 +470,11 @@ class KGTransformer extends Transformer {
   }
 
   /**
-   * Returns the path of a new VCF file obtained by copying the source file, and replacing the cardinality of the
-   * attribute AC in the meta-header section with the value A (cardinality per alternative allele). The original VCF
-   * for chrMT presents cardinality undefined ".", thus generating a wrong final representation.
+   * Returns the path of a new VCF file equal to the original except for:
+   *  - the cardinality of the INFO attribute AC is changed from "." to "A" in the meta-information section because the
+   *  cardinality "." represents the relaxation of "A" which doesn't allow to correctly separate the value of AC in
+   *  microsatellite mutations. The correctness of the new cardinality has been checked manually on the VCF file for
+   *  chromosome MT on 18 Jan 2020.
    * @param VCFFilePath the path of the VCF file to correct.
    * @return the path path of the corrected VCF.
    */
@@ -483,22 +485,24 @@ class KGTransformer extends Transformer {
     val newPath = containingDir+newFilename
     val writer = FileUtil.writeReplace(newPath).get
     // prepare regex
-    val attributeNames = "(AC)"  // if necessary, add attribute names separated by |
-    val regexPattern = PatternMatch.createPattern("##INFO=<ID="+attributeNames+",Number=\\.,(.*)")  // matches only the attributes cardinality undefined
-    // correct and copy original file
-    var newLine:String = null
-    FileUtil.scanFileAndClose(FileUtil.open(VCFFilePath).get, originalLine => {
-      newLine = originalLine
-      // implemented like so because the following condition is false in 0.9976 % cases
-      if(originalLine.startsWith("##")) {
-        val infoParts = PatternMatch.matchParts(originalLine, regexPattern)
-        if (infoParts.nonEmpty)
-          newLine = "##INFO=<ID=" + infoParts.head + ",Number=A," + infoParts(1)
-      }
-      writer.write(newLine)
+    val regexPattern = PatternMatch.createPattern("##INFO=<ID=AC,Number=\\.,(.*)")  // matches only the attributes cardinality undefined
+    // find & correct the wrong declaration of AC
+    val reader = FileUtil.open(VCFFilePath).get
+    var originalLine = reader.readLine()
+    var partsOfString = PatternMatch.matchParts(originalLine, regexPattern)
+    while(partsOfString.isEmpty && originalLine!=null){
+      writer.write(originalLine)
+      writer.newLine()
+      originalLine = reader.readLine()
+      partsOfString = PatternMatch.matchParts(originalLine, regexPattern)
+    }
+    writer.write("##INFO=<ID=AC,Number=A," + partsOfString.head)
+    writer.newLine()
+    // copy the rest of the file
+    FileUtil.scanFileAndClose(reader, line => {
+      writer.write(line)
       writer.newLine()
     })
-    writer.close()
     newPath
   }
 

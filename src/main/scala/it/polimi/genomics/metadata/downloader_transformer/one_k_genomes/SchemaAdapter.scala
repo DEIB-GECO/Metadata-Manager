@@ -3,6 +3,7 @@ package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 import java.io.FileNotFoundException
 import java.nio.file.{Files, Paths}
 
+import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.util.XMLHelper
 import it.polimi.genomics.metadata.util.vcf.VCFMutation
 import org.slf4j.{Logger, LoggerFactory}
@@ -82,11 +83,12 @@ abstract class SchemaAdapter extends MutationPrinterTrait {
 
   /**
    * Metadata-Manager requires to use the following convention for expressing null/empty/not-available region attributes:
+   * a "false" String for the attributes declared in the XML parameter boolean_region_values
    * a "null" String for attributes of type STRING.
    * an empty String for attributes of any numeric type.
    * This method maps the attributes in the schema to their corresponding empty values with the convention above.
    *
-   * @return a List of empty and/or "null" Strings.
+   * @return a List of empty Strings or "null" Strings or "false" Strings.
    */
   //  THE FOLLOWING SIGNATURE MUST MATCH THE ONE WRITTEN FROM METHOD SchemaAdapter.fromSchema
   def alternativeNullValues:List[String]
@@ -97,6 +99,7 @@ object SchemaAdapter {
 
   val MISSING_STRING_CODE = ""
   val MISSING_NUMBER_CODE = "NULL"
+  val MISSING_BOOLEAN_CODE = "false"
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
@@ -139,16 +142,28 @@ object SchemaAdapter {
   /**
    * This code generates the sequence of instructions to build the list of alternative values to be used in place of
    * null/empty mutation attributes.
-   * @param typesOfRegionAttributes the ordered list of types of the attributes in the same order as the attributes
+   * @param regionAttributes the ordered list of types of the attributes in the same order as the attributes
    *                                appear in the schema file.
+   * @param booleanRegionAttrs optional string listing of region attributes to be treated as boolean, i.e. they have
+   *                           value false when not defined.
    * @return a representation of the code filling a List with the null value corresponding to each attribute type.
    */
-  private def codeGeneratingListOfAlternativeNullValues(typesOfRegionAttributes: List[String]):Code ={
-    val instructions = typesOfRegionAttributes.map( _type =>
-      Code.call( "\"" +   // remember that values of the list needs to be in between quotes
-        (if(_type == "STRING") MISSING_STRING_CODE else MISSING_NUMBER_CODE)
-        + "\"" )
-    )
+  private def codeGeneratingListOfAlternativeNullValues(regionAttributes: List[(String, String)], booleanRegionAttrs: Option[String]):Code ={
+    val setOfBooleanAttributes = booleanRegionAttrs.getOrElse({
+      logger.info("XML config parameter boolean_region_values not defined")
+      ""}).split(",").map(field => field.trim).toSet
+    logger.info("region attributes "+setOfBooleanAttributes+" will be treated as boolean values (i.e. false if not defined)")
+    val instructions = regionAttributes.map( attr => {
+      val name = attr._1
+      val _type = attr._2
+      Code.call("\"" + // remember that values of the list needs to be in between quotes
+        (
+          if (setOfBooleanAttributes.contains(name)) MISSING_BOOLEAN_CODE
+          else if (_type == "STRING") MISSING_STRING_CODE
+          else MISSING_NUMBER_CODE
+          )
+        + "\"")
+    })
     Code.generateListFromInstructions(instructions)
   }
 
@@ -161,7 +176,7 @@ object SchemaAdapter {
    * @param pathToXMLSchema the path to a region schema file
    * @return an concrete implementation of the abstract class SchemaAdapter.
    */
-  def fromSchema(pathToXMLSchema: String):MutationPrinterTrait ={
+  def fromSchema(pathToXMLSchema: String, dataset: Dataset):MutationPrinterTrait ={
     logger.info("begin parsing region schema")
     if(Files.notExists(Paths.get(pathToXMLSchema))) {
       throw new FileNotFoundException("Schema not found at path "+pathToXMLSchema)
@@ -183,7 +198,8 @@ object SchemaAdapter {
         "}\n"+  // close method
 
         //  THE FOLLOWING SIGNATURE MUST MATCH THE ONE IN THE DECLARATION OF SchemaAdapter.scala
-        "override val alternativeNullValues:List[String] = " + codeGeneratingListOfAlternativeNullValues(regionAttrsFromSchema.map(_._2)).get +"\n"+
+        "override val alternativeNullValues:List[String] = " +
+        codeGeneratingListOfAlternativeNullValues(regionAttrsFromSchema, dataset.getParameter("boolean_region_values")).get +"\n"+
 
         "}"   // close class
     )

@@ -19,6 +19,8 @@ class HeaderMetaInformation(VCFFilePath: String) {
   var perAltFields: Set[String] = Set.empty[String]
   /** Set of fields with same cardinality as the sum alternative alleles number + reference allele number (the latter always == 1)  */
   var perAlleleFields: Set[String] = Set.empty[String]
+  /** Set of fields used as flags. If the field is present, it is true, otherwise false */
+  var flagFields:Set[String] = Set.empty[String]
 //  var fixedCardinalityFields: Set[String] = Set.empty[String]     // currently unused
 
   // category sets  // currently unused
@@ -52,6 +54,7 @@ class HeaderMetaInformation(VCFFilePath: String) {
       case "A" => perAltFields += fieldName
       case "G" => perGenotypeFields += fieldName
       case "R" => perAlleleFields += fieldName
+      case "0" => flagFields += fieldName
       case _ =>
     }
   }
