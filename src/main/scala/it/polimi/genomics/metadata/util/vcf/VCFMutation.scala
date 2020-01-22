@@ -84,6 +84,22 @@ class VCFMutation(mutationLine: String, val headerMeta: HeaderMetaInformation) e
     mutationParts(9+sampleNum)
   }
 
+  def isSampleMutated(formatOfSample: Map[String, String]): Boolean ={
+    val gt = formatOfSample.get(VCFFormatKeys.GENOTYPE)
+    gt.isDefined && gt.get.contains("1")
+  }
+
+  def mutatedChromosomeCopy(formatOfSample: Map[String, String]): List[String] ={
+    val gt = formatOfSample.get(VCFFormatKeys.GENOTYPE)
+    if(gt.isEmpty)
+      List(MISSING_VALUE_CODE)
+    else {
+      val condensedGT = gt.get.replaceAll("\\|", "").replaceAll("/", "")
+      val numberOfAlleleAsChar = (48+1).toChar  //48 is for character encoding and 1 is the indicator for the mutation
+      condensedGT.toList.map(num => if(num == numberOfAlleleAsChar) "1" else "0")
+    }
+  }
+
 }
 object VCFMutation {
 
@@ -143,18 +159,9 @@ object VCFMutation {
       map.get(VCFFormatKeys.GENOTYPE)
     }
 
-    def isMutated: Boolean = {
-      genotype match {
-        case Some(gt) => gt.contains("1")
-        case None => false
-      }
-    }
-
     def ploidy: Int ={
-      map.get(VCFFormatKeys.GENOTYPE) match {
-        case Some(gt) => gt.count(_ == '/')+gt.count(_=='|')+1
-        case None => 0
-      }
+      val gt = map.get(VCFFormatKeys.GENOTYPE)
+      if(gt.isDefined)  gt.get.count(_ == '/')+gt.get.count(_=='|')+1 else 0
     }
   }
 

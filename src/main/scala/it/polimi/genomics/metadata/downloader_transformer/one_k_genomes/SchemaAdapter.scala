@@ -17,6 +17,8 @@ trait MutationPrinterTrait {
   /**
    *
    * @param mutation   an KGMutation.
+   * @param formatOfSample optional: Useful when printing attributes of category FORMAT. If available, the printer
+   *                       will use this instead of requesting it from the mutation object avoiding improving the performance.
    * @param forSample  optional: the sample name for which the mutation is requested. This value is used when fetching
    *                   attributes of category FORMAT. See VCFFormatKeys for an overview of the attributes available.
    * @param biosamples optional: the list of all the sample names offered in the VCF file of origin for the given mutation.
@@ -26,7 +28,8 @@ trait MutationPrinterTrait {
    *         object. Missing values for the mutation provided are encoded as null for numeric attributes and as empty
    *         strings for attributes of type string.
    */
-  def formatMutation(mutation: KGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):String
+  def formatMutation(mutation: KGMutation, formatOfSample: Option[Map[String, String]] = None,
+                     forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):String
 }
 
 /**
@@ -35,7 +38,8 @@ trait MutationPrinterTrait {
  */
 class SimplePrinter extends MutationPrinterTrait {
 
-  override def formatMutation(mutation: KGMutation, forSample: Option[String], biosamples: Option[IndexedSeq[String]]): String = {
+  override def formatMutation(mutation: KGMutation, formatOfSample: Option[Map[String, String]] = None,
+                              forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):String ={
     KGTransformer.makeTSVString(
       mutation.chr,
       mutation.left,
@@ -59,8 +63,9 @@ class SimplePrinter extends MutationPrinterTrait {
  */
 abstract class SchemaAdapter extends MutationPrinterTrait {
 
-  override def formatMutation(mutation: KGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):String ={
-    val normalizedValues = (getRawValues(mutation, forSample, biosamples) zip alternativeNullValues)
+  override def formatMutation(mutation: KGMutation, formatOfSample: Option[Map[String, String]] = None,
+                              forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):String ={
+    val normalizedValues = (getRawValues(mutation, formatOfSample, forSample, biosamples) zip alternativeNullValues)
       .map( val_alternative => {
         if(val_alternative._1 != VCFMutation.MISSING_VALUE_CODE) val_alternative._1 else val_alternative._2
       })
@@ -79,7 +84,8 @@ abstract class SchemaAdapter extends MutationPrinterTrait {
    *         object. Missing values for the mutation provided are encoded VCFMutation.MISSING_VALUE_CODE.
    */
   //  THE FOLLOWING SIGNATURE MUST MATCH THE ONE WRITTEN FROM METHOD SchemaAdapter.fromSchema
-  def getRawValues(mutation: KGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):List[String]
+  def getRawValues(mutation: KGMutation, formatOfSample: Option[Map[String, String]] = None,
+                   forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):List[String]
 
   /**
    * Metadata-Manager requires to use the following convention for expressing null/empty/not-available region attributes:
@@ -110,11 +116,28 @@ object SchemaAdapter {
    * @return a representation of the code performing such calls and ordering the results in a List.
    */
   private def codeMappingSchema(regionAttrsFromSchema: List[(String, String)]):Code = {
+    def getFormatOrThrowException: String ={
+      "if(formatOfSample.isDefined) formatOfSample.get\n" +
+        " else if (forSample.isDefined && biosamples.isDefined) mutation.format(forSample.get, biosamples.get)\n" +
+        " else throw new Exception(\"the schema requires the format of the mutation but no format, no sample, no biosamples were provided to formatMutation()\")\n"
+    }
+
+    def getFormatOrEmptyFormat:String ={
+      "if(formatOfSample.isDefined) formatOfSample.get\n" +
+        " else if (forSample.isDefined && biosamples.isDefined) mutation.format(forSample.get, biosamples.get)\n" +
+        " else Map.empty[String, String]\n"
+    }
+
     val instructions = regionAttrsFromSchema.map( attr => attr._1.toUpperCase match {
       case "CHR" | "CHROM" | "CHROMOSOME" => Code.call("mutation.chr")
       case "START" | "POS" | "LEFT" => Code.call("mutation.left")
       case "STOP" | "END" | "RIGHT" => Code.call("mutation.right")
       case "STRAND" | "STR" => Code.call("mutation.strand")
+      case "AL1" => Code.call("{ val _format = "+getFormatOrThrowException+"\n"+
+      "mutation.mutatedChromosomeCopy(_format).head }")
+      case "AL2" => Code.call("{ val _format = "+getFormatOrThrowException+"\n"+
+      "val temp = mutation.mutatedChromosomeCopy(_format)\n"+
+      "if(temp.size>1) temp(1) else VCFMutation.MISSING_VALUE_CODE }")
       case "ID" => Code.call("mutation.id")
       case "REF" => Code.call("mutation.ref")
       case "ALT" => Code.call("mutation.alt")
@@ -128,12 +151,11 @@ object SchemaAdapter {
           // look for an INFO value with the given key
           "mutation.info.getOrElse(" + quotedParameter + ", {\n" +
             // else look for a FORMAT value with the given key
-            "if (forSample.isDefined && biosamples.isDefined) {\n" +
-            "mutation.format(forSample.get, biosamples.get).getOrElse(" + quotedParameter + ",\n" +
+            "val _format = "+getFormatOrEmptyFormat +
+            "_format.getOrElse(" + quotedParameter + ",\n" +
             // else I'm sorry :P
             "VCFMutation.MISSING_VALUE_CODE)\n" +
-            "}\n" +
-            "else VCFMutation.MISSING_VALUE_CODE})\n"
+            "})\n"
         )
     })
     Code.generateListFromInstructions(instructions)
@@ -193,7 +215,8 @@ object SchemaAdapter {
       "new SchemaAdapter {\n " +
 
         //  THE FOLLOWING SIGNATURE MUST MATCH THE ONE IN THE DECLARATION OF SchemaAdapter.scala
-        "override def getRawValues(mutation: KGMutation, forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):List[String] = {\n"+
+        "override def getRawValues(mutation: KGMutation, formatOfSample: Option[Map[String, String]] = None, " +
+        "forSample: Option[String] = None, biosamples: Option[IndexedSeq[String]] = None):List[String] = {\n"+
         codeMappingSchema(regionAttrsFromSchema).get +
         "}\n"+  // close method
 

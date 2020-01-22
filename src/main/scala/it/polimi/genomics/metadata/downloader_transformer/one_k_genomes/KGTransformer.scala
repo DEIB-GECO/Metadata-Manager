@@ -85,12 +85,15 @@ class KGTransformer extends Transformer {
   }
 
   protected def getVCFAdapter(VCFPath:String): VCFAdapter ={
-    /* chrMT on hg19 contains a broken meta-header section so we create a correct version of it before the transformation*/
+    /* chrMT on hg19 contains a broken meta-header section so we create a correct version of it before the transformation
+    * Also we compute the global allele frequency which is missing from the original VCF */
     if(datasetParameters("assembly").equals("hg19") && VCFPath.contains("chrMT")) {
-      new VCFAdapter(fixVCF_chrMT(VCFPath), mutationPrinter).enrichMutationsBeforeWriting((m:KGMutation) => m
-//        .addInfoAttribute(VCFInfoKeys.NUMBER_OF_SAMPLES, "2534")
-//        .addInfoAttribute(VCFInfoKeys.NUMBER_OF_ALLELES, "2534")
-        .addInfoAttribute(VCFInfoKeys.ALLELE_FREQUENCY, (m.info(VCFInfoKeys.ALLELE_COUNT).toFloat/2534).toString)
+      logger.info("Changed cardinality of attribute AC in chromosome MT from \".\" to \"A\".")
+      val vcfAdapter = new VCFAdapter(fixVCF_chrMT(VCFPath), mutationPrinter)
+      logger.info("VCF for chromosome MT enriched with ALLELE FREQUENCY. Check if it is still needed in future dataset versions")
+      val alleleNumber = vcfAdapter.biosamples.size
+      vcfAdapter.enrichMutationsBeforeWriting((m:KGMutation) => m
+        .addInfoAttribute(VCFInfoKeys.ALLELE_FREQUENCY, (m.info(VCFInfoKeys.ALLELE_COUNT).toFloat/alleleNumber).toString)
       )
     } else
       new VCFAdapter(VCFPath, mutationPrinter)
@@ -226,7 +229,11 @@ class KGTransformer extends Transformer {
           case None => List.empty[String]
           case Some(_VCFPath) =>
             // read sample names and output resulting filenames:
-            new VCFAdapter(_VCFPath).biosamples.map(sample => s"$sample.gdm").toList
+            val vcfAdapter = new VCFAdapter(_VCFPath)
+            val firstMutation = vcfAdapter.getFirstMutation
+            if(firstMutation.isDefined)
+              vcfAdapter.biosamples.foreach(sample => manually_curated_chromosome.add(sample, firstMutation.get.chr))
+            vcfAdapter.biosamples.map(sample => s"$sample.gdm").toList
         }
       case unexpectedOriginFile =>
         throw new IllegalArgumentException("UNEXPECTED ORIGIN FILE "+unexpectedOriginFile+". ALL ORIGIN FILES MUST BE" +

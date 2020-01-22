@@ -14,4 +14,6 @@ abstract class VCFMutationTrait {
   def filter:String
   def info: Map[String, String]
   def format(sampleName: String, biosamples: IndexedSeq[String]): Map[String, String]
+  def isSampleMutated(formatOfSample: Map[String, String]): Boolean
+  def mutatedChromosomeCopy(formatOfSample: Map[String, String]): List[String]
 }

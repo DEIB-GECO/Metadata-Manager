@@ -2,7 +2,6 @@ package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
 import java.io.{BufferedReader, BufferedWriter}
 
-import it.polimi.genomics.metadata.util.vcf.VCFMutation.MutationProperties
 import it.polimi.genomics.metadata.util.vcf.{HeaderMetaInformation, VCFMutation}
 import it.polimi.genomics.metadata.util.{ApproximateReadProgress, AsyncFilesWriter, FileUtil}
 import org.slf4j.{Logger, LoggerFactory}
@@ -53,8 +52,8 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
           .foreach(mutation => {
             val formatOfSample = mutation.format(sampleName, biosamples)
             // appends to the sample's region file if positive
-            if (formatOfSample.isMutated) {
-              val outputLine = mutationPrinter.formatMutation(mutation)
+            if (mutation.isSampleMutated(formatOfSample)) {
+              val outputLine = mutationPrinter.formatMutation(mutation, Some(formatOfSample))
               if (!targetFileEmpty)
                 writer.newLine()
               else
@@ -70,10 +69,9 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
 
   ////////////////////////////////////  VARIANT -> SAMPLES   ///////////////////////////////////////////////////////////
 
-  def getSamplesWithMutation(mutationLine: String): immutable.IndexedSeq[String] ={
-    val mutation = new VCFMutation(mutationLine, headerMeta)
+  def getSamplesWithMutation(mutation: KGMutation): immutable.IndexedSeq[String] ={
     biosamples.filter(sample => {
-      mutation.format(sample, biosamples).isMutated
+      mutation.isSampleMutated(mutation.format(sample, biosamples))
     })
   }
 
@@ -88,13 +86,11 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
         // read and transform each mutation
         VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(KGMutation.apply).map(mutationEnriched)
           .foreach(mutation => {
-            val outputLine = mutationPrinter.formatMutation(mutation)
-            // find the affected samples (there's always at least one)
-            val samplesWithMutation = biosamples.filter(sample => {
-              mutation.format(sample, biosamples).isMutated
-            })
+            // get the format of all samples
+            val samplesWithFormat = biosamples.map(sample => sample -> mutation.format(sample, biosamples))
             // append this mutation to the region files of the affected samples
-            samplesWithMutation.foreach(sampleName => {
+            samplesWithFormat.foreach { case (sampleName, formatOfSample) if mutation.isSampleMutated(formatOfSample) =>
+              val outputLine = mutationPrinter.formatMutation(mutation, Some(formatOfSample))
               if (writers.get(sampleName).isEmpty) {
                 val outputFile = outputDirectoryPath + sampleName + ".gdm"
                 val writer = FileUtil.writeAppend(outputFile, startOnNewLine = true).get
@@ -105,7 +101,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
                 writer.newLine()
                 writer.write(outputLine)
               }
-            })
+            }
           })
       }, setupReadProgressCanary(VCFFilePath))
     } finally {
@@ -126,9 +122,11 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
             // read and transform each mutation
             VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(KGMutation.apply).map(mutationEnriched)
               .foreach(mutation => {
-                val outputLine = mutationPrinter.formatMutation(mutation)
-                // find the affected samples (there's always at least one) and append the mutation to their region files
-                biosamples.collect { case sampleName if mutation.format(sampleName, biosamples).isMutated =>
+                // get the format of all samples
+                val samplesWithFormat = biosamples.map(sample => sample -> mutation.format(sample, biosamples))
+                // append this mutation to the region files of the affected samples
+                samplesWithFormat.foreach { case (sampleName, formatOfSample) if mutation.isSampleMutated(formatOfSample) =>
+                  val outputLine = mutationPrinter.formatMutation(mutation, Some(formatOfSample))
                   asyncWriter.write(outputLine, sampleName)
                 }
               })
@@ -208,7 +206,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
    *
    * @return an Option containing the first KGMutation occurring in this VCF.
    */
-  def getFirstMutation():Option[KGMutation] ={
+  def getFirstMutation:Option[KGMutation] ={
     val reader = FileUtil.open(VCFFilePath).get    // let it throw exception if failed
     advanceAndGetHeaderLine(reader)   // advance reader and skip header line
     val firstLine = reader.readLine()

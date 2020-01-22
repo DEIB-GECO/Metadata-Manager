@@ -7,6 +7,8 @@ import it.polimi.genomics.metadata.util.vcf.VCFMutation.{ALT_MULTI_VALUE_SEPARAT
  */
 class VCFMultiAllelicSplitMutation(alternativeNum: Int, m: VCFMutation) extends VCFMutationTrait {
 
+  val multiAllelic = true
+
   def chr:String ={
     m.chr
   }
@@ -109,6 +111,22 @@ class VCFMultiAllelicSplitMutation(alternativeNum: Int, m: VCFMutation) extends 
 //        println(formatValuesAsString.split(":").mkString("\n"))
 //        throw e
 //    }
+  }
+
+  def isSampleMutated(formatOfSample: Map[String, String]): Boolean ={
+    val gt = formatOfSample.get(VCFFormatKeys.GENOTYPE)
+    gt.isDefined && gt.get.contains((alternativeNum+1).toString)
+  }
+
+  def mutatedChromosomeCopy(formatOfSample: Map[String, String]): List[String] ={
+    val gt = formatOfSample.get(VCFFormatKeys.GENOTYPE)
+    if(gt.isEmpty)
+      List(VCFMutation.MISSING_VALUE_CODE)
+    else {
+      val condensedGT = gt.get.replaceAll("\\|", "").replaceAll("/", "")
+      val numberOfAlleleAsChar = (48+alternativeNum+1).toChar  //48 is for character encoding and 1 is to convert alternativeNum in 1-based notation
+      condensedGT.toList.map(num => if(num == numberOfAlleleAsChar) "1" else "0")
+    }
   }
 
   private def countAlternativeAlleles:Int ={

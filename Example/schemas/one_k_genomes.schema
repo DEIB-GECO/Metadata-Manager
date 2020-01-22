@@ -5,6 +5,8 @@
         <field type="LONG">left</field>
         <field type="LONG">right</field>
         <field type="CHAR">strand</field>
+        <field type="INTEGER">AL1</field>
+        <field type="INTEGER">AL2</field>
         <field type="STRING">ref</field>
         <field type="STRING">alt</field>
         <field type="STRING">mut_type</field>
@@ -12,15 +14,14 @@
         <field type="STRING">id</field>
         <field type="DOUBLE">quality</field>        <!-- PHRED-SCALED QUALITY SCORE -->
         <field type="STRING">filter</field>         <!-- 'PASS' OR THE NAMES OF THE FILTERS THAT DIDN'T PASS -->
-        <field type="DOUBLE">AF</field>             <!-- ALLELE FREQUENCY -->
-        <field type="DOUBLE">AN</field>             <!-- NUMBER OF ALLELES STUDIED TOGETHER FOR THIS VARIANT -->
         <field type="LONG">DP</field>               <!-- READ DEPTH (AVAILABLE ONLY FOR LOW COVERAGE DATA) -->
+        <field type="DOUBLE">AF</field>             <!-- ALLELE FREQUENCY -->
+        <field type="INTEGER">AC</field>            <!-- OCCURRENCES WITH THIS MUTATION AMONG THE ALLELES STUDIED (AN) -->
         <field type="DOUBLE">AFR_AF</field>         <!-- ALLELE FREQUENCY AFRICA -->
         <field type="DOUBLE">AMR_AF</field>         <!-- ALLELE FREQUENCY AMERICA -->
         <field type="DOUBLE">EUR_AF</field>         <!-- ALLELE FREQUENCY EUROPE -->
         <field type="DOUBLE">EAS_AF</field>         <!-- ALLELE FREQUENCY EAST ASIA -->
         <field type="DOUBLE">SAS_AF</field>         <!-- ALLELE FREQUENCY SOUTH ASIA -->
-        <field type="INTEGER">AC</field>            <!-- OCCURRENCES WITH THIS MUTATION AMONG THE ALLELES STUDIED (AN) -->
         <field type="STRING">AA</field>             <!-- ANCESTRAL ALLELE -->
         <field type="STRING">IMPRECISE</field>      <!-- FLAG IMPRECISE SV -->
         <field type="STRING">CIEND</field>          <!-- CONFIDENCE INTERVAL AROUND END POS FOR IMPRECISE SVs -->
