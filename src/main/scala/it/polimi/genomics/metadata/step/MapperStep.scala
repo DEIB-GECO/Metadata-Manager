@@ -28,13 +28,15 @@ object MapperStep extends Step {
   object SourceString extends Enumeration {
     type SourceString = Value
 
-    val encodeString = Value("ENCODE")
+   /* val encodeString = Value("ENCODE")
     val tcgaString = Value("TCGA")
     val roadmapString = Value("REP")
     val annotationString = Value("ANN")
     val tadsraoString = Value("TADS_RAO")
     val tadscombString = Value("TADS_COMB")
     val cistromeString = Value("CISTROME")
+    val kGenomesString = Value("1000GENOMES")
+    */
 
     def isSourceString(s: String) = values.exists(_.toString == s)
 
@@ -144,7 +146,7 @@ object MapperStep extends Step {
       repositoryRef.toUpperCase() match {
         case "ENCODE" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileEncode(path.toString, pathXML))
         case "REP" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
-        case "TCGA" | "ANN" | "CISTROME" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
+        case "TCGA" | "ANN" | "CISTROME" | "1000Genomes" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
         case "TADS_RAO" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexRaoTads.findFirstIn(f.getName).isDefined).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
         case "TADS_COMB" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexCombTads.findFirstIn(f.getName).isDefined).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
         case _ => logger.error(s"Incorrectly specified repository")
