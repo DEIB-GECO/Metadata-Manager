@@ -3,17 +3,17 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
-        <base_working_directory>/home/alfonsi/gmql_importer/</base_working_directory> <!-- = outputFolder -->
-        <gcm_config_file>/application.conf</gcm_config_file>
+        <base_working_directory>/home/hduser/gmql_importer/</base_working_directory> <!-- = outputFolder -->
+        <gcm_config_file>/home/hduser/GMQL-sources/Metadata-Manager/src/main/resources/application.conf</gcm_config_file>
         <mapper_source>1000Genomes</mapper_source>
-        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_tom</database_connection_url>
-        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_tom</database_connection_url_importer>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_meta_new11111</database_connection_url>
+        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_XXX</database_connection_url_importer>
         <database_connection_user>geco</database_connection_user>
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
-        <flattener_rule_base>""</flattener_rule_base>
+        <flattener_rule_base>home/hduser/GMQL-sources/Metadata-Manager/Example/flattener_rule_base.txt</flattener_rule_base>
         <download_enabled>true</download_enabled>
-        <transform_enabled>false</transform_enabled>
+        <transform_enabled>true</transform_enabled>
         <cleaner_enabled>false</cleaner_enabled>
         <mapper_enabled>false</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
@@ -88,13 +88,13 @@
                     <key>filter_variants_ending_characters</key>
                     <value>.vcf.gz</value>
                 </parameter>
-                 <!--<parameter>
-                    <description>When searching for variant files, include only the files whose name matches this regex.
-                    WARNING: when this parameter is present, it overrides filter_variants_starting_characters and
-                        filter_variants_ending_characters settings</description>
-                    <key>filter_variants_with_custom_path_regex</key>
-                    <value>ALL\.chr(MT|Y).*\.gz</value>
-                </parameter>-->
+                <!--<parameter>
+                   <description>When searching for variant files, include only the files whose name matches this regex.
+                   WARNING: when this parameter is present, it overrides filter_variants_starting_characters and
+                       filter_variants_ending_characters settings</description>
+                   <key>filter_variants_with_custom_path_regex</key>
+                   <value>ALL\.chr(MT|Y).*\.gz</value>
+               </parameter>-->
                 <parameter>
                     <description>When true, subdirectories of each release folder are skipped while searching for
                         variants. Note that release folders are hosted at the location described in the dataset parameter
@@ -109,10 +109,10 @@
                         <value>public</value>
                     </parameter>
                     -->
-                                        <!--    TRANSFORMATION PARAMETERS   -->
+                <!--    TRANSFORMATION PARAMETERS   -->
                 <parameter>
                     <description>Configures the Transformer class to work on input files which have a many-to-many
-                    relationship with the output</description>
+                        relationship with the output</description>
                     <key>many_to_many_transform</key>
                     <value>true</value>
                 </parameter>
@@ -136,13 +136,18 @@
                     <key>boolean_region_values</key>
                     <value>IMPRECISE, EX_TARGET, MULTI_ALLELIC</value>
                 </parameter>-->
+                <parameter>
+                    <description>Mappings</description>
+                    <key>mappings</key>
+                    <value>/home/hduser/GMQL-sources/Metadata-Manager/Example/xml/settings1000Genomes.xml</value>
+                </parameter>
             </parameter_list>
             <dataset_list>
-                <dataset name="GRCh38">
-                    <dataset_working_directory>GRCh38</dataset_working_directory>
+                <dataset name="GRCh38_1000GENOMES">
+                    <dataset_working_directory>GRCh38_1000GENOMES</dataset_working_directory>
                     <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
-                    <download_enabled>false</download_enabled>
-                    <transform_enabled>false</transform_enabled>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
                     <cleaner_enabled>true</cleaner_enabled>
                     <mapper_enabled>true</mapper_enabled>
                     <enricher_enabled>true</enricher_enabled>
@@ -171,7 +176,7 @@
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>GRCh38_1000GENOMES</value>
+                            <value>GRCh38_1000GENOMES_2020_01</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
@@ -182,8 +187,8 @@
                         </parameter>
                     </parameter_list>
                 </dataset>
-                <dataset name="hg19">
-                    <dataset_working_directory>hg19</dataset_working_directory>
+                <dataset name="HG19_1000GENOMES">
+                    <dataset_working_directory>HG19_1000GENOMES</dataset_working_directory>
                     <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
@@ -215,7 +220,7 @@
                         <parameter>
                             <description>The dataset name on the server</description>
                             <key>loading_name</key>
-                            <value>HG19_1000GENOMES</value>
+                            <value>HG19_1000GENOMES_2020_01</value>
                         </parameter>
                         <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
