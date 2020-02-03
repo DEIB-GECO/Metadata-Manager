@@ -81,6 +81,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
     var writers:mutable.AnyRefMap[String, BufferedWriter] = mutable.AnyRefMap.empty
     val reader = FileUtil.open(VCFFilePath).get    // let it throw exception if failed
     advanceAndGetHeaderLine(reader)   // advance reader and skip header line
+    var mutationForExceptionLogger:KGMutation = null
     try {
       FileUtil.scanFileAndClose(reader, mutationLine => {
         // read and transform each mutation
@@ -89,6 +90,7 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
             // get the format of all mutated samples
             biosamples.map(sample => sample -> mutation.format(sample, biosamples))
               .filter(sampleAndFormat => mutation.isSampleMutated(sampleAndFormat._2)).foreach { sampleAndFormat =>
+              mutationForExceptionLogger = mutation
               // append this mutation to the region files of the affected samples
               val outputLine = mutationPrinter.formatMutation(mutation, Some(sampleAndFormat._2))
               if (writers.get(sampleAndFormat._1).isEmpty) {
@@ -104,6 +106,14 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
             }
           })
       }, setupReadProgressCanary(VCFFilePath))
+    } catch {
+      case e:Exception =>
+        val mutationString = if(mutationForExceptionLogger!=null)
+          new SimplePrinter().formatMutation(mutationForExceptionLogger)
+        else
+          "null"
+        logger.debug("Exception while transforming mutation "+mutationString+" from file "+shortName+
+          "\nTransformation of the source file interrupted", e)
     } finally {
       writers.values.foreach(writer => writer.close())
       reader.close()
@@ -113,26 +123,39 @@ class VCFAdapter(VCFFilePath: String, mutationPrinter:MutationPrinterTrait = new
   def appendAllMutationsBySampleRunnable(outputDirectoryPath: String, asyncWriter: AsyncFilesWriter): Runnable = {
     new Runnable {
       override def run(): Unit = {
-//        asyncWriter.addJob(this)   // job is registered by the user of this runnable before this runnable starts
-        asyncWriter.addTargetFiles(biosamples, biosamples.map(sampleName => outputDirectoryPath + sampleName + ".gdm"))
-        val reader = FileUtil.open(VCFFilePath).get    // let it throw exception if failed
-        advanceAndGetHeaderLine(reader)   // advance reader and skip header line
         try {
-          FileUtil.scanFileAndClose(reader, mutationLine => {
-            // read and transform each mutation
-            VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(KGMutation.apply).map(mutationEnriched)
-              .foreach(mutation => {
-                // get the format of all mutated samples
-                biosamples.map(sample => sample -> mutation.format(sample, biosamples))
-                  .filter(sampleAndFormat => mutation.isSampleMutated(sampleAndFormat._2)).foreach { sampleAndFormat =>
-                  // append this mutation to the region files of the affected samples
-                  val outputLine = mutationPrinter.formatMutation(mutation, Some(sampleAndFormat._2))
-                  asyncWriter.write(outputLine, sampleAndFormat._1)
-                }
-              })
-          }, setupReadProgressCanary(VCFFilePath))
+          //        asyncWriter.addJob(this)   // job is registered by the user of this runnable before this runnable starts
+          asyncWriter.addTargetFiles(biosamples, biosamples.map(sampleName => outputDirectoryPath + sampleName + ".gdm"))
+          val reader = FileUtil.open(VCFFilePath).get // let it throw exception if failed
+          advanceAndGetHeaderLine(reader) // advance reader and skip header line
+          var mutationForExceptionLogger: KGMutation = null
+          try {
+            FileUtil.scanFileAndClose(reader, mutationLine => {
+              // read and transform each mutation
+              VCFMutation.splitOnMultipleAlternativeMutations(mutationLine, headerMeta).map(KGMutation.apply).map(mutationEnriched)
+                .foreach(mutation => {
+                  mutationForExceptionLogger = mutation
+                  // get the format of all mutated samples
+                  biosamples.map(sample => sample -> mutation.format(sample, biosamples))
+                    .filter(sampleAndFormat => mutation.isSampleMutated(sampleAndFormat._2)).foreach { sampleAndFormat =>
+                    // append this mutation to the region files of the affected samples
+                    val outputLine = mutationPrinter.formatMutation(mutation, Some(sampleAndFormat._2))
+                    asyncWriter.write(outputLine, sampleAndFormat._1)
+                  }
+                })
+            }, setupReadProgressCanary(VCFFilePath))
+          } catch {
+            case e: Exception =>
+              val mutationString = if (mutationForExceptionLogger != null)
+                new SimplePrinter().formatMutation(mutationForExceptionLogger)
+              else
+                "null"
+              logger.debug("Exception while transforming mutation "+mutationString+" from file "+shortName+
+                "\nTransformation of the source file interrupted", e)
+          } finally {
+            reader.close()
+          }
         } finally {
-          reader.close()
           asyncWriter.removeJob(this)
         }
       }

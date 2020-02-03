@@ -3,11 +3,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
-        <base_working_directory>D:\Tom\IntelliJ-Projects\Metadata-Manager\Example\examples_meta</base_working_directory> <!-- = outputFolder -->
-        <gcm_config_file>D:\Tom\IntelliJ-Projects\Metadata-Manager\src\main\resources\application.conf</gcm_config_file>
+        <base_working_directory>D:\Tom\IntelliJ-Projects\Metadata-Manager-master\Example\examples_meta</base_working_directory> <!-- = outputFolder -->
+        <gcm_config_file>D:\Tom\IntelliJ-Projects\Metadata-Manager-master\src\main\resources\application.conf</gcm_config_file>
         <mapper_source>1000Genomes</mapper_source>
-        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_tom</database_connection_url>
-        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_tom</database_connection_url_importer>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_master</database_connection_url>
+        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_metadata_master</database_connection_url_importer>
         <database_connection_user>geco</database_connection_user>
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
@@ -25,7 +25,7 @@
         <source name="1kGenomes">
             <url>ftp.1000genomes.ebi.ac.uk</url>
             <source_working_directory>1kGenomes</source_working_directory>
-            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.KGDownloaderA</downloader>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.KGDownloaderB</downloader>
             <transformer>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.KGParallelTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
@@ -78,7 +78,7 @@
                     <value>2500</value>
                 </parameter>
                 <!--        FILTERING OPTIONS FOR VARIANTS DOWNLOAD     -->
-                <parameter>
+                <!--<parameter>
                     <description>When searching for variant files, include only the files whose name begins with this string</description>
                     <key>filter_variants_starting_characters</key>
                     <value>ALL.ch</value>
@@ -87,14 +87,14 @@
                     <description>When searching for variant files, include only the files whose name ends with this string</description>
                     <key>filter_variants_ending_characters</key>
                     <value>.vcf.gz</value>
-                </parameter>
-                <!--<parameter>
+                </parameter>-->
+                <parameter>
                    <description>When searching for variant files, include only the files whose name matches this regex.
                    WARNING: when this parameter is present, it overrides filter_variants_starting_characters and
                        filter_variants_ending_characters settings</description>
                    <key>filter_variants_with_custom_path_regex</key>
-                   <value>ALL\.chr(MT|Y).*\.gz</value>
-               </parameter>-->
+                   <value>ALL\.chrMT.*\.gz</value>
+               </parameter>
                 <parameter>
                     <description>When true, subdirectories of each release folder are skipped while searching for
                         variants. Note that release folders are hosted at the location described in the dataset parameter
