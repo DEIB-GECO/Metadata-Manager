@@ -25,8 +25,12 @@
         </mapping>-->
     </table>
     <table name="ITEMS">
-        <mapping>
+        <mapping method="REMOVE" rem_character=".gdm">
             <source_key>manually_curated__file_name</source_key><!-->ok<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="_">
+            <source_key>manually_curated__assembly</source_key><!-->ok<-->
             <global_key>sourceId</global_key>
         </mapping>
         <!--<mapping>
