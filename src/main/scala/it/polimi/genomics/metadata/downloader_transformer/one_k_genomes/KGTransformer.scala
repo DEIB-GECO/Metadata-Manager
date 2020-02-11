@@ -64,11 +64,17 @@ class KGTransformer extends Transformer {
     val targetFilePath = destinationPath+File.separator+targetFileName
     val transformationsDirPath = destinationPath+File.separator
 
-    if (filename.endsWith(".gdm")) {
-      transformRegion(sourceFilePath, transformationsDirPath)
+    try {
+      if (filename.endsWith(".gdm")) {
+        transformRegion(sourceFilePath, transformationsDirPath)
+      }
+      else
+        transformMetadata(targetFileName, targetFilePath)
+    } catch {
+      case e:Exception =>
+        logger.debug("", e) // logs unforeseen errors
+        throw e
     }
-    else
-      transformMetadata(targetFileName, targetFilePath)
   }
 
   protected def transformRegion(sourceFilePath:String, transformationsDirPath:String): Boolean ={
@@ -185,59 +191,65 @@ class KGTransformer extends Transformer {
    * @return a List of Strings, i.e. the names of the files expected from the future transformation of the argument filename.
    */
   override def getCandidateNames(filename: String, dataset: Dataset, source: Source): List[String] = {
-    if(this.dataset == null) {
-      // read XML config parameters here because I need Dataset
-      this.dataset = dataset
-      datasetParameters = getDatasetParameters(dataset)
-      mutationPrinter = SchemaAdapter.fromSchema(source.rootOutputFolder+File.separator+dataset.schemaUrl, dataset)
-    } else if(this.dataset.name != dataset.name)
-      throw new IllegalStateException("IT'S NOT THREAD SAFE TO REUSE THIS CLASS FOR MULTIPLE DATASETS. CREATE A NEW INSTANCE INSTEAD.")
-    // fields used in match expressions needs to be stable identifiers, i.e. class val, or local val with first character uppercase
-    val TreeFileName = datasetParameters("treeFileName")
-    val SeqIndexMetaName = datasetParameters("seqIndexMetaName")
-    val PopulationMetaName = datasetParameters("populationMetaName")
-    val IndividualDetailsMetaName = datasetParameters("individualDetailsMetaName")
-    val SamplesOriginMetaName = datasetParameters("samplesOriginMetaName")
-    val downloadDirPath = dataset.fullDatasetOutputFolder+File.separator+"Downloads"+File.separator
-    val trueFilename = removeCopyNumber(filename)
-    trueFilename match {
-      /* metadata files are few and shared between all samples. Instead of scanning 2,5K times the same files, the
-       * relevant information is extracted and saved as class fields for later access */
-      case TreeFileName =>
-        logger.debug("EXTRACTION OF CANDIDATES FROM TREE FILE ("+trueFilename+")")
-        List.empty[String]  // tree file doesn't contain any informative attribute
-      case PopulationMetaName =>
-        logger.debug("EXTRACTION OF CANDIDATES FROM POPULATION META ("+PopulationMetaName+")")
-        populationMetadata = getPopulationMetadata(dataset, PopulationMetaName)
-        List.empty[String]
-      case SeqIndexMetaName =>
-        logger.debug("EXTRACTION OF CANDIDATES FROM SEQ INDEX META ("+SeqIndexMetaName+")")
-        sequencingMetadata = getSequencingMetadata(dataset, SeqIndexMetaName)
-        List.empty[String]
-      case IndividualDetailsMetaName =>
-        logger.debug("EXTRACTION OF CANDIDATES FROM INDIVIDUAL DETAILS META ("+IndividualDetailsMetaName+")")
-        individualsMetadata = getIndividualDetailsMetadata(dataset, IndividualDetailsMetaName)
-        individualsMetadata.keys.toList.map(sample => s"$sample.gdm.meta")
-      case SamplesOriginMetaName =>
-        logger.debug("EXTRACTION OF CANDIDATES FROM SAMPLE ORIGIN META ("+SamplesOriginMetaName+")")
-        samplesOriginMetadata = getSamplesOriginMetadata(dataset, SamplesOriginMetaName)
-        List.empty[String]
-      case variantCallArchive if variantCallArchive.endsWith("gz") =>
-        logger.debug("EXTRACTION OF CANDIDATES FROM VARIANT ARCHIVE ("+variantCallArchive+")")
-        // unzip
-        extractArchive(downloadDirPath+variantCallArchive, downloadDirPath+removeExtension(variantCallArchive)) match {
-          case None => List.empty[String]
-          case Some(_VCFPath) =>
-            // read sample names and output resulting filenames:
-            val vcfAdapter = new VCFAdapter(_VCFPath)
-            val firstMutation = vcfAdapter.getFirstMutation
-            if(firstMutation.isDefined)
-              vcfAdapter.biosamples.foreach(sample => manually_curated_chromosome.add(sample, firstMutation.get.chr))
-            vcfAdapter.biosamples.map(sample => s"$sample.gdm").toList
-        }
-      case unexpectedOriginFile =>
-        throw new IllegalArgumentException("UNEXPECTED ORIGIN FILE "+unexpectedOriginFile+". ALL ORIGIN FILES MUST BE" +
-          "HANDLED PROPERLY IN getCandidateNames.")
+    try {
+      if (this.dataset == null) {
+        // read XML config parameters here because I need Dataset
+        this.dataset = dataset
+        datasetParameters = getDatasetParameters(dataset)
+        mutationPrinter = SchemaAdapter.fromSchema(source.rootOutputFolder + File.separator + dataset.schemaUrl, dataset)
+      } else if (this.dataset.name != dataset.name)
+        throw new IllegalStateException("IT'S NOT THREAD SAFE TO REUSE THIS CLASS FOR MULTIPLE DATASETS. CREATE A NEW INSTANCE INSTEAD.")
+      // fields used in match expressions needs to be stable identifiers, i.e. class val, or local val with first character uppercase
+      val TreeFileName = datasetParameters("treeFileName")
+      val SeqIndexMetaName = datasetParameters("seqIndexMetaName")
+      val PopulationMetaName = datasetParameters("populationMetaName")
+      val IndividualDetailsMetaName = datasetParameters("individualDetailsMetaName")
+      val SamplesOriginMetaName = datasetParameters("samplesOriginMetaName")
+      val downloadDirPath = dataset.fullDatasetOutputFolder + File.separator + "Downloads" + File.separator
+      val trueFilename = removeCopyNumber(filename)
+      trueFilename match {
+        /* metadata files are few and shared between all samples. Instead of scanning 2,5K times the same files, the
+         * relevant information is extracted and saved as class fields for later access */
+        case TreeFileName =>
+          logger.debug("EXTRACTION OF CANDIDATES FROM TREE FILE (" + trueFilename + ")")
+          List.empty[String] // tree file doesn't contain any informative attribute
+        case PopulationMetaName =>
+          logger.debug("EXTRACTION OF CANDIDATES FROM POPULATION META (" + PopulationMetaName + ")")
+          populationMetadata = getPopulationMetadata(dataset, PopulationMetaName)
+          List.empty[String]
+        case SeqIndexMetaName =>
+          logger.debug("EXTRACTION OF CANDIDATES FROM SEQ INDEX META (" + SeqIndexMetaName + ")")
+          sequencingMetadata = getSequencingMetadata(dataset, SeqIndexMetaName)
+          List.empty[String]
+        case IndividualDetailsMetaName =>
+          logger.debug("EXTRACTION OF CANDIDATES FROM INDIVIDUAL DETAILS META (" + IndividualDetailsMetaName + ")")
+          individualsMetadata = getIndividualDetailsMetadata(dataset, IndividualDetailsMetaName)
+          individualsMetadata.keys.toList.map(sample => s"$sample.gdm.meta")
+        case SamplesOriginMetaName =>
+          logger.debug("EXTRACTION OF CANDIDATES FROM SAMPLE ORIGIN META (" + SamplesOriginMetaName + ")")
+          samplesOriginMetadata = getSamplesOriginMetadata(dataset, SamplesOriginMetaName)
+          List.empty[String]
+        case variantCallArchive if variantCallArchive.endsWith("gz") =>
+          logger.debug("EXTRACTION OF CANDIDATES FROM VARIANT ARCHIVE (" + variantCallArchive + ")")
+          // unzip
+          extractArchive(downloadDirPath + variantCallArchive, downloadDirPath + removeExtension(variantCallArchive)) match {
+            case None => List.empty[String]
+            case Some(_VCFPath) =>
+              // read sample names and output resulting filenames:
+              val vcfAdapter = new VCFAdapter(_VCFPath)
+              val firstMutation = vcfAdapter.getFirstMutation
+              if (firstMutation.isDefined)
+                vcfAdapter.biosamples.foreach(sample => manually_curated_chromosome.add(sample, firstMutation.get.chr))
+              vcfAdapter.biosamples.map(sample => s"$sample.gdm").toList
+          }
+        case unexpectedOriginFile =>
+          throw new IllegalArgumentException("UNEXPECTED ORIGIN FILE " + unexpectedOriginFile + ". ALL ORIGIN FILES MUST BE" +
+            "HANDLED PROPERLY IN getCandidateNames.")
+      }
+    } catch {
+      case e:Exception =>
+        logger.debug("", e) // logs unforeseen errors
+        throw e
     }
   }
 
@@ -525,6 +537,7 @@ class KGTransformer extends Transformer {
       writer.write(line)
       writer.newLine()
     })
+    writer.close()
     newPath
   }
 

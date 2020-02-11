@@ -1,5 +1,7 @@
 package it.polimi.genomics.metadata.downloader_transformer.one_k_genomes
 
+import java.lang.Thread.UncaughtExceptionHandler
+
 import it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.KGTransformer.removeExtension
 import it.polimi.genomics.metadata.step.xml.Dataset
 import it.polimi.genomics.metadata.util.{AsyncFilesWriter, QueueObserver}
@@ -24,6 +26,8 @@ class KGParallelTransformer extends KGTransformer {
 
   protected var queueObserverThread:QueueObserver = _
 
+  protected var uncaughtExceptionHandler:UncaughtExceptionHandler = _
+
   override def onBeforeTransformation(dataset: Dataset): Unit = {
     super.onBeforeTransformation(dataset)
     val maxConcurrentTransformations = dataset.getParameter("max_concurrent_transformations").getOrElse({
@@ -32,6 +36,12 @@ class KGParallelTransformer extends KGTransformer {
     writer = new AsyncFilesWriter(false, true, true, maxConcurrentTransformations)
     writerThread = writer.start(true)
     queueObserverThread = setupQueueObserver(writer, dataset)
+    uncaughtExceptionHandler = new UncaughtExceptionHandler {
+      override def uncaughtException(t: Thread, e: Throwable): Unit = {
+        logger.debug("Exception on Thread "+t.getName, e)   // just log the exception
+        Thread.getDefaultUncaughtExceptionHandler.uncaughtException(t, e)
+      }
+    }
   }
 
   /**
@@ -47,7 +57,10 @@ class KGParallelTransformer extends KGTransformer {
         if(transformedVCFs.add(_VCFPath)){
           val runnable = getVCFAdapter(_VCFPath).appendAllMutationsBySampleRunnable(transformationsDirPath, writer)
           writer.addJob(runnable)    // this instruction can possibly block the caller
-          new Thread(runnable).start()
+          val thread = new Thread(runnable)
+          thread.setName(runnable.toString)
+          thread.setUncaughtExceptionHandler(uncaughtExceptionHandler)
+          thread.start()
         }
         true
     }
