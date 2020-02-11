@@ -41,6 +41,9 @@ object InsertMethod {
             logger.error("Method PREDEFINED failed for sourceKey: " + sourceKey)
             actualParam
         }
+        case "KGBIOSAMPLETYPE" => if (acc=="blood") "tissue" else if (acc=="lcl") "cell line" else null
+        case "KGBIOSAMPLECELL" => if (acc=="lcl") "lymphoblastoid cell line" else null
+        case "KGBIOSAMPLETISSUE" => if (acc=="blood") "blood" else null
         case _ => {
           logger.error("Method " + method + " not found");
           actualParam

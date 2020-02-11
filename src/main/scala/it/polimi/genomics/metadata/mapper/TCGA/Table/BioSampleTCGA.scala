@@ -44,7 +44,7 @@ class BioSampleTCGA extends TCGATable with BioSample {
           this.cell = null
       }
       case "ISHEALTHY" => {
-        if (param.toUpperCase == "NORMAL" || param.toUpperCase == "HEALTHY")
+        if (param.toUpperCase == "NORMAL" || param.toUpperCase == "HEALTHY" || param.toUpperCase == "TRUE")
           this.isHealthy = Some(true)
         else //if (param.toUpperCase == "TUMORAL")
           this.isHealthy = Some(false)

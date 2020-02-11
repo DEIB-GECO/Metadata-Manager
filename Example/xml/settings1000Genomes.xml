@@ -1,0 +1,199 @@
+<?xml version="1.0" ?>
+<root>
+    <table name="PROJECTS">
+        <mapping>
+            <source_key>study_name</source_key><!-->ok<-->
+            <global_key>projectName</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__project_source</source_key><!-->ok<-->
+            <global_key>programName</global_key>
+        </mapping>
+    </table>
+    <table name="CASES">
+        <mapping>
+            <source_key>experiment_id</source_key><!-->ok<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>center_name</source_key><!-->ok<-->
+            <global_key>sourceSite</global_key>
+        </mapping>
+        <!--<mapping method="MANUAL">
+            <source_key>https://portal.gdc.cancer.gov/cases/</source_key>
+            <global_key>externalRef</global_key>
+        </mapping>-->
+    </table>
+    <table name="ITEMS">
+        <mapping>
+            <source_key>manually_curated__file_name</source_key><!-->ok<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key>gdc__aliquots__submitter_id</source_key>
+            <global_key>altItemSourceId</global_key>
+        </mapping>-->
+        <mapping>
+            <source_key>manually_curated__local_file_size</source_key><!-->ok<-->
+            <global_key>size</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__origin_last_modified_date</source_key><!-->ok<-->
+            <global_key>date</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__local_md5</source_key><!-->ok<-->
+            <global_key>checksum</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key>ZZZ</source_key>
+            <global_key>contentType</global_key>
+        </mapping>-->
+        <mapping>
+            <source_key>instrument_model</source_key>
+            <global_key>platform</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__pipeline</source_key>
+            <global_key>pipeline</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__data_url</source_key>
+            <global_key>sourceUrl</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="PREDEFINED-CONCAT" concat_character="">
+            <source_key>dataset_name</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="/">
+            <source_key>manually_curated__file_name</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="MANUAL-CONCAT" concat_character="">
+            <source_key>/region</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__file_name</source_key>
+            <global_key>fileName</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__source_page</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
+    </table>
+    <table name="REPLICATES">
+        <mapping>
+            <source_key>sample_id</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>1</source_key>
+            <global_key>bioReplicateNum</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>1</source_key>
+            <global_key>techReplicateNum</global_key>
+        </mapping>
+    </table>
+    <table name="BIOSAMPLES">
+        <mapping>
+            <source_key>sample_id</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key>sample_name</source_key>
+            <global_key>altBiosampleSourceId</global_key>
+        </mapping>-->
+        <mapping method="KGBIOSAMPLETYPE">
+            <source_key>dna_source_from_coriell</source_key>
+            <global_key>types</global_key>
+        </mapping>
+        <mapping method="KGBIOSAMPLETISSUE">
+            <source_key>dna_source_from_coriell</source_key>
+            <global_key>tissue</global_key>
+        </mapping>
+        <mapping method="KGBIOSAMPLECELL">
+            <source_key>dna_source_from_coriell</source_key>
+            <global_key>cell</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__is_healthy</source_key>
+            <global_key>isHealthy</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key>null</source_key>
+            <global_key>disease</global_key>
+        </mapping>-->
+    </table>
+    <table name="DONORS">
+        <mapping>
+            <source_key>sample_id</source_key><!-->ok<-->
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>family_id</source_key><!--ok-->
+            <global_key>altDonorSourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__species</source_key><!-->ok<-->
+            <global_key>species</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key>null</source_key>
+            <global_key>age</global_key>
+        </mapping>-->
+        <mapping>
+            <source_key>gender</source_key>
+            <global_key>gender</global_key>
+        </mapping>
+        <mapping>
+            <source_key>population</source_key><!-->ok<-->
+            <global_key>ethnicity</global_key>
+        </mapping>
+    </table>
+    <table name="DATASETS">
+        <mapping method="PREDEFINED">
+            <source_key>dataset_name</source_key>
+            <global_key>name</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__data_type</source_key>
+            <global_key>dataType</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__file_format</source_key>
+            <global_key>format</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__assembly</source_key>
+            <global_key>assembly</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>false</source_key>
+            <global_key>isAnn</global_key>
+        </mapping>
+    </table>
+    <table name="EXPERIMENTSTYPE">
+        <mapping>
+            <source_key>analysis_group</source_key>
+            <global_key>technique</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__feature</source_key>
+            <global_key>feature</global_key>
+        </mapping>
+        <!--<mapping method="MANUAL">
+            <source_key>null</source_key>
+            <global_key>target</global_key>
+        </mapping>-->
+        <!--<mapping method="MANUAL">
+            <source_key>null</source_key>
+            <global_key>antibody</global_key>
+        </mapping>-->
+    </table>
+</root>
