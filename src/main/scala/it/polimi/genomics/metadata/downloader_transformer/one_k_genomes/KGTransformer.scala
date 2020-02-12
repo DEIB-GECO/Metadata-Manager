@@ -109,12 +109,18 @@ class KGTransformer extends Transformer {
     val sampleName = removeExtension(removeExtension(targetFileName))
     val metadataContainer = new util.TreeMap[String, mutable.Set[String]]
 
-    // study, center mame, sample_id (!=sample name), population, experiment, instrument, insert size, library, analysis group
-    val thisSampleSequencingData = sequencingMetadata.getFirstOf(sampleName).get
+    //sample name
+    addToMetadataContainer(metadataContainer, "sample_name", sampleName)
+
+    // study, center mame, sample_id (!=sample name), population, experiment, instrument, insert size, library
+    val thisSampleSequencingData = sequencingMetadata.getFirstOf(sampleName).get.toArray
     addToMetadataContainer(metadataContainer,
       List("study_id", "study_name", "center_name", "sample_id", "population", "experiment_id", "instrument_platform",
         "instrument_model", "insert_size", "library_layout", "analysis_group"),
-      thisSampleSequencingData)
+      thisSampleSequencingData.dropRight(1))
+    // analysis group
+    val analysisGroups = thisSampleSequencingData.last.split(", ")
+    addToMetadataContainer(metadataContainer, List.fill(analysisGroups.size)("analysis_group"), analysisGroups)
 
     // super-population, population's dna from blood
     val population:String = thisSampleSequencingData(4)
@@ -126,9 +132,9 @@ class KGTransformer extends Transformer {
     // family id, gender
     addToMetadataContainer(metadataContainer, List("family_id", "gender"), individualsMetadata.getFirstOf(sampleName).get)
 
-    // manually curated metadata
-    addToMetadataContainer(metadataContainer, "manually_curated__assembly", datasetParameters("assembly"))
-    addToMetadataContainer(metadataContainer, "dna_source_from_coriell", samplesOriginMetadata.getFirstOf(sampleName).get.toLowerCase)
+    val dnaSourceFromCoriell = samplesOriginMetadata.getFirstOf(sampleName).get
+    if(dnaSourceFromCoriell.nonEmpty)
+      addToMetadataContainer(metadataContainer, "dna_source_from_coriell", dnaSourceFromCoriell.toLowerCase)
     // the instruction above substitutes the following match-case block
     /*
         samplesOriginMetadata.getFirstOf(sampleName).get.toLowerCase match {
@@ -148,6 +154,9 @@ class KGTransformer extends Transformer {
             logger.error("SAMPLE ORIGIN WITH VALUE "+uncoveredCase+" NOT PARSED")
         }
         */
+
+    // manually curated metadata
+    addToMetadataContainer(metadataContainer, "manually_curated__assembly", datasetParameters("assembly"))
     addToMetadataContainer(metadataContainer, "manually_curated__data_type", "variant calling")
     addToMetadataContainer(metadataContainer, List.fill(getURLsOfOriginRegionData().size)("manually_curated__data_url"), getURLsOfOriginRegionData())
     addToMetadataContainer(metadataContainer, "manually_curated__feature", "variants")
@@ -593,7 +602,7 @@ object KGTransformer {
     container
   }
 
-  def addToMetadataContainer(container: util.TreeMap[String, mutable.Set[String]], keys:List[String], values: List[String]):util.TreeMap[String, mutable.Set[String]] ={
+  def addToMetadataContainer(container: util.TreeMap[String, mutable.Set[String]], keys:Iterable[String], values: Iterable[String]):util.TreeMap[String, mutable.Set[String]] ={
     (keys zip values).foreach({ case (key, value) =>
       val newValues: mutable.Set[String] = Option(container.get(key)).getOrElse(mutable.Set.empty[String]) += value
       container.put(key, newValues)
