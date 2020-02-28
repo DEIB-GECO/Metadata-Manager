@@ -86,17 +86,24 @@ class VCFMutation(mutationLine: String, val headerMeta: HeaderMetaInformation) e
 
   def isSampleMutated(formatOfSample: Map[String, String]): Boolean ={
     val gt = formatOfSample.get(VCFFormatKeys.GENOTYPE)
+    // there's only 1 alt value, so gt values are only combinations of 0 and 1
     gt.isDefined && gt.get.contains("1")
   }
 
-  def mutatedChromosomeCopy(formatOfSample: Map[String, String]): List[String] ={
+  /**
+   * Tells you which chromosome copy is mutated
+   */
+  def mutatedChromosomeCopy(formatOfSample: Map[String, String]): Seq[String] ={
     val gt = formatOfSample.get(VCFFormatKeys.GENOTYPE)
     if(gt.isEmpty)
-      List(MISSING_VALUE_CODE)
+      MISSING_VALUE_CODE_AS_LIST
     else {
-      val condensedGT = gt.get.replaceAll("\\|", "").replaceAll("/", "")
-      val numberOfAlleleAsChar = (48+1).toChar  //48 is for character encoding and 1 is the indicator for the mutation
-      condensedGT.toList.map(num => if(num == numberOfAlleleAsChar) "1" else "0")
+      if (gt.get.contains("|")) // diploid or more, phased
+        gt.get.split("\\|")
+      else if (gt.get.contains("/")) // diploid or more, not phased
+        gt.get.split("/")
+      else // haploid
+        Array(gt.get)
     }
   }
 
@@ -113,6 +120,7 @@ object VCFMutation {
   val FORMAT_MULTI_VALUE_SEPARATOR = ','
   val COLUMN_SEPARATOR_REGEX = "\\s+"
   val MISSING_VALUE_CODE = "."
+  val MISSING_VALUE_CODE_AS_LIST = List(MISSING_VALUE_CODE)
 
   def splitMultiValuedAlt(altString: String):Array[String]  ={
     altString.split(ALT_MULTI_VALUE_SEPARATOR)
