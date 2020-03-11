@@ -253,7 +253,7 @@ class KGMutation(m: VCFMutationTrait) extends VCFMutationTrait {
 
   override def isSampleMutated(formatOfSample: Map[String, String]): Boolean = m.isSampleMutated(formatOfSample)
 
-  override def mutatedChromosomeCopy(formatOfSample: Map[String, String]): List[String] = m.mutatedChromosomeCopy(formatOfSample)
+  override def mutatedChromosomeCopy(formatOfSample: Map[String, String]): Seq[String] = m.mutatedChromosomeCopy(formatOfSample)
 }
 object KGMutation {
 

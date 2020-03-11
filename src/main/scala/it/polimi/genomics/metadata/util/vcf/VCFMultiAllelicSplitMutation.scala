@@ -114,18 +114,31 @@ class VCFMultiAllelicSplitMutation(alternativeNum: Int, m: VCFMutation) extends 
   }
 
   def isSampleMutated(formatOfSample: Map[String, String]): Boolean ={
-    val gt = formatOfSample.get(VCFFormatKeys.GENOTYPE)
-    gt.isDefined && gt.get.contains((alternativeNum+1).toString)
+    // genotype string can have any combination of values 0, 1, 2, 3, ... up to the number of alternative mutations
+    // if a diploid call, we've lso the separators / or | to take into account
+    // we can't just check if the genotype string contains (alternativeNum+1) because it could be part of a larger number,
+    // e.g. (alternativeNum+1)=3, genotype string=0|13
+    // so we convert the genotype string as this mutation was not multi allelic, and then we check the presence of "1"
+    mutatedChromosomeCopy(formatOfSample).contains("1")
   }
 
-  def mutatedChromosomeCopy(formatOfSample: Map[String, String]): List[String] ={
+  /**
+   * Tells you which chromosome copy is mutated
+   */
+  def mutatedChromosomeCopy(formatOfSample: Map[String, String]): Seq[String] ={
     val gt = formatOfSample.get(VCFFormatKeys.GENOTYPE)
     if(gt.isEmpty)
-      List(VCFMutation.MISSING_VALUE_CODE)
+      VCFMutation.MISSING_VALUE_CODE_AS_LIST
     else {
-      val condensedGT = gt.get.replaceAll("\\|", "").replaceAll("/", "")
-      val numberOfAlleleAsChar = (48+alternativeNum+1).toChar  //48 is for character encoding and 1 is to convert alternativeNum in 1-based notation
-      condensedGT.toList.map(num => if(num == numberOfAlleleAsChar) "1" else "0")
+      val splitGenotype =
+        if(gt.get.contains("|"))  // diploid or more phased
+          gt.get.split("\\|")
+        else if(gt.get.contains("/")) // diploid or more not phased
+          gt.get.split("/")
+        else // haploid
+          Array(gt.get)
+      val numOfAltAsString = (alternativeNum+1).toString
+      splitGenotype.map(alleleNum => if(alleleNum.equals(numOfAltAsString)) "1" else "0")
     }
   }
 
