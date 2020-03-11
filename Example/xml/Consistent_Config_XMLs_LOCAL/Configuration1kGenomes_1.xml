@@ -3,29 +3,29 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
-        <base_working_directory>C:\Users\tomma\IntelliJ-Projects\Metadata-Manager\Example\examples_meta</base_working_directory> <!-- = outputFolder -->
-        <gcm_config_file>C:\Users\tomma\IntelliJ-Projects\Metadata-Manager\src\main\resources\application.conf</gcm_config_file>
+        <base_working_directory>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta</base_working_directory> <!-- = outputFolder -->
+        <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
         <mapper_source>1000Genomes</mapper_source>
-        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_tom</database_connection_url>
-        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_tom</database_connection_url_importer>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
+        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_anna</database_connection_url_importer>
         <database_connection_user>geco</database_connection_user>
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
         <flattener_rule_base>""</flattener_rule_base>
         <download_enabled>false</download_enabled>
-        <transform_enabled>true</transform_enabled>
+        <transform_enabled>false</transform_enabled>
         <cleaner_enabled>false</cleaner_enabled>
-        <mapper_enabled>false</mapper_enabled>
+        <mapper_enabled>true</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
         <flattener_enabled>false</flattener_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
     </settings>
     <source_list>
-        <source name="1kGenomes">
+        <source name="1000Genomes">
             <url>ftp.1000genomes.ebi.ac.uk</url>
-            <source_working_directory>1kGenomes</source_working_directory>
-            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.KGDownloaderB</downloader>
+            <source_working_directory>1000Genomes</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.KGDownloaderA</downloader>
             <transformer>it.polimi.genomics.metadata.downloader_transformer.one_k_genomes.KGParallelTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
@@ -130,16 +130,15 @@
                     <key>observe_writing_queue_size_at_rate</key>
                     <value>0</value>
                 </parameter>
-                <!--<parameter>
-                    <description>Comma separated list of region attributes that must be treated as booleans, i.e. they
-                    must always have a value either true or false. They are replaced with false if missing.</description>
-                    <key>boolean_region_values</key>
-                    <value>IMPRECISE, EX_TARGET, MULTI_ALLELIC</value>
-                </parameter>-->
+                <parameter>
+                    <description>Mappings</description>
+                    <key>mappings</key>
+                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settings1000Genomes.xml</value>
+                </parameter>
             </parameter_list>
             <dataset_list>
-                <dataset name="GRCh38">
-                    <dataset_working_directory>GRCh38</dataset_working_directory>
+                <dataset name="GRCh38_1000GENOMES">
+                    <dataset_working_directory>GRCh38_1000GENOMES</dataset_working_directory>
                     <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
                     <download_enabled>false</download_enabled>
                     <transform_enabled>false</transform_enabled>
@@ -177,50 +176,6 @@
                             <description>The dataset description on the server, when clicking Show Info</description>
                             <key>loading_description</key>
                             <value>Variants of 1000 Genomes mapped to GRCh38 human genome expressed in 0-based coordinates.
-                                &lt;br&gt;https://www.internationalgenome.org/.
-                            </value>
-                        </parameter>
-                    </parameter_list>
-                </dataset>
-                <dataset name="hg19">
-                    <dataset_working_directory>hg19</dataset_working_directory>
-                    <schema_url location="local">schemas/one_k_genomes.schema</schema_url>
-                    <download_enabled>true</download_enabled>
-                    <transform_enabled>true</transform_enabled>
-                    <cleaner_enabled>true</cleaner_enabled>
-                    <mapper_enabled>true</mapper_enabled>
-                    <enricher_enabled>true</enricher_enabled>
-                    <flattener_enabled>true</flattener_enabled>
-                    <load_enabled>true</load_enabled>
-                    <parameter_list>
-                        <parameter>
-                            <description>URL of the directory on the FTP server where all the variants (old and new) are collected without the prefix ftp.1000genomes.ebi.ac.uk/vol1/</description>
-                            <key>dataset_remote_base_directory</key>
-                            <value>ftp/release/</value>
-                        </parameter>
-                        <!-- ADDITIONAL METADATA -->
-                        <parameter>
-                            <key>sequence_index_file_path</key>
-                            <value>ftp/phase3/20130502.phase3.sequence.index</value>
-                        </parameter>
-                        <parameter>
-                            <key>assembly</key>
-                            <value>hg19</value>
-                        </parameter>
-                        <parameter>
-                            <key>manually_curated__pipeline</key>
-                            <value>Breakdancer, CNVnator, Cortex, Delly, Dinumt, Freebayes, Genome STRiP, GotCloud, Haplotype Caller, LobSTR, MELT, Pindel, Platypus, Read-Depth (dCGH), Real Time Genomics, RepeatSeq, SAMtools/BCFtools, SGA-Dindel, Unified Genotyper, Variation Hunter</value>
-                        </parameter>
-                        <!--    ATTRIBUTES FOR THE GDM REPOSITORY ON THE SERVER -->
-                        <parameter>
-                            <description>The dataset name on the server</description>
-                            <key>loading_name</key>
-                            <value>HG19_1000GENOMES</value>
-                        </parameter>
-                        <parameter>
-                            <description>The dataset description on the server, when clicking Show Info</description>
-                            <key>loading_description</key>
-                            <value>Variants of 1000 Genomes mapped to HG19 human genome expressed in 0-based coordinates.
                                 &lt;br&gt;https://www.internationalgenome.org/.
                             </value>
                         </parameter>

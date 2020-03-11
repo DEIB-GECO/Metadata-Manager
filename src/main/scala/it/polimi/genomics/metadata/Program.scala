@@ -460,6 +460,7 @@ object Program extends App {
     //new lines to test
     if(level == Map) {
       DbHandler.refreshFlattenMaterialized
+      DbHandler.refreshItemMaterialized
       DbHandler.setUnifiedPair
       DbHandler.closeDatabase()
     }

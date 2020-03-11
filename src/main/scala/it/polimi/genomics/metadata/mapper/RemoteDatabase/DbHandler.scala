@@ -1379,6 +1379,15 @@ object DbHandler {
 
   }
 
+  def refreshItemMaterialized(): Unit = {
+
+    val refreshItemViewDW = sqlu"""REFRESH MATERIALIZED VIEW dw.item;"""
+    val setuprefreshitem = database.run(refreshItemViewDW)
+    Await.result(setuprefreshitem, Duration.Inf)
+    logger.info("dw.item refreshed")
+
+  }
+
   //-------------------------------------UNIFIED PAIR---------------------------------------------------------------
 
 

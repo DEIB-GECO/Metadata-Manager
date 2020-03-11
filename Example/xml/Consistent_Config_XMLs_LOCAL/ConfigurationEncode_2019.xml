@@ -11,9 +11,9 @@
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
         <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/cleaner_rule_base.txt</flattener_rule_base>
-        <download_enabled>false</download_enabled>
+        <download_enabled>true</download_enabled>
         <transform_enabled>false</transform_enabled>
-        <cleaner_enabled>true</cleaner_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
         <mapper_enabled>false</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
         <flattener_enabled>false</flattener_enabled>
@@ -164,8 +164,8 @@
             </parameter_list>
             <dataset_list>
                 <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
-                <dataset name="narrowPeak">
-                    <dataset_working_directory>narrowPeak</dataset_working_directory>
+                <dataset name="TSV">
+                    <dataset_working_directory>TSV</dataset_working_directory>
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
@@ -197,7 +197,13 @@
                             <description>BroadPeak files are downloaded</description>
                             <type>url_generation</type>
                             <key>files.file_type</key>
-                            <value>bed+narrowPeak</value>
+                            <value>tsv</value>
+                        </parameter>
+                        <parameter>
+                            <description>BroadPeak files are downloaded</description>
+                            <type>url_generation</type>
+                            <key>files.output_type</key>
+                            <value>gene+quantification</value>
                         </parameter>
                         <parameter>
                             <description>Encode project is selected</description>
@@ -528,7 +534,7 @@
                             <description>this ones are to reduce the downloaded files</description>
                             <type>url_generation</type>
                             <key>accession</key>
-                            <value>ENCSR311DQO</value>
+                            <value>ENCFF940AZB</value>
                         </parameter>
                     </parameter_list>
                 </dataset>
