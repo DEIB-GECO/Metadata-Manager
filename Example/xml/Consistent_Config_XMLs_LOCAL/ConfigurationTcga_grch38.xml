@@ -5,8 +5,19 @@
     <settings>
         <!--BASE WORKING FOLDER FOR THE IMPORTER-->
         <base_working_directory>/home/hduser/gmql_importer/</base_working_directory>
+        <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
+        <mapper_source>ENCODE</mapper_source>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
+        <database_connection_user>geco</database_connection_user>
+        <database_connection_pw>geco78</database_connection_pw>
+        <database_connection_driver>org.postgresql.Driver</database_connection_driver>
+        <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/cleaner_rule_base.txt</flattener_rule_base>
         <download_enabled>false</download_enabled>
         <transform_enabled>true</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>false</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>false</flattener_enabled>
         <load_enabled>false</load_enabled>
         <parallel_execution>false</parallel_execution>
     </settings>
@@ -20,6 +31,10 @@
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
             <download_enabled>true</download_enabled>
             <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
             <load_enabled>true</load_enabled>
             <parameter_list>
                 <parameter>
@@ -55,6 +70,10 @@
                     <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/copy_number_segment/header.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
@@ -100,6 +119,10 @@
                     <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/gene_expression_quantification/header.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
@@ -153,6 +176,10 @@
                     <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/isoform_expression_quantification/header.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
@@ -203,6 +230,10 @@
                     <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/masked_copy_number_segment/header.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
@@ -248,6 +279,10 @@
                     <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/masked_somatic_mutation/header.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
@@ -304,6 +339,10 @@
                     <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/methylation_beta_value/header.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
@@ -361,6 +400,10 @@
                     <schema_url location="http">ftp://bioinformatics.iasi.cnr.it/opengdc/bed/tcga/tcga-acc/mirna_expression_quantification/header.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
                     <load_enabled>true</load_enabled>
                     <parameter_list>
                     	<parameter>
