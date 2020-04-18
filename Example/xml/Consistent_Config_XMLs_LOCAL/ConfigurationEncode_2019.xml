@@ -7,6 +7,7 @@
         <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
         <mapper_source>ENCODE</mapper_source>
         <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
+        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_anna</database_connection_url_importer>
         <database_connection_user>geco</database_connection_user>
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
@@ -23,7 +24,7 @@
     <source_list>
         <source name="PROVA_ENCODE1">
             <url>https://www.encodeproject.org/</url>
-            <source_working_directory>encode</source_working_directory>
+            <source_working_directory>encode222</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
             <transformer>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
@@ -84,7 +85,7 @@
                     <description>Not useful metadata</description>
                     <key>encode_metadata_exclusion</key>
                     <value>^.*derived_from.*$</value>
-                </parameter>  
+                </parameter>
                 <parameter>
                     <description>Not useful metadata</description>
                     <key>encode_metadata_exclusion</key>
@@ -95,11 +96,11 @@
                     <key>encode_metadata_exclusion</key>
                     <value>^assembly$</value>
                 </parameter>-->
-               <!-- <parameter>
-                    <description>Xml file with the metadata key replacements.</description>
-                    <key>metadata_replacement</key>
-                    <value>xml/metadataReplacement.xml</value>
-                </parameter>-->
+                <!-- <parameter>
+                     <description>Xml file with the metadata key replacements.</description>
+                     <key>metadata_replacement</key>
+                     <value>xml/metadataReplacement.xml</value>
+                 </parameter>-->
                 <parameter>
                     <description>metadata extraction method tsv or json.</description>
                     <key>metadata_extraction</key>
@@ -117,7 +118,7 @@
                     <key>File Status</key>
                     <value>revoked</value>
                 </parameter>
-				<parameter>
+                <parameter>
                     <description>to exclude revoked files</description>
                     <type>exclusion</type>
                     <key>File Status</key>
@@ -164,8 +165,8 @@
             </parameter_list>
             <dataset_list>
                 <!--THE SCHEMA PATH HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
-                <dataset name="TSV">
-                    <dataset_working_directory>TSV</dataset_working_directory>
+                <dataset name="narrowPeak">
+                    <dataset_working_directory>narrowPeak</dataset_working_directory>
                     <schema_url location="local">schemas/narrowPeak.schema</schema_url>
                     <download_enabled>true</download_enabled>
                     <transform_enabled>true</transform_enabled>
@@ -180,7 +181,7 @@
                             <key>loading_name</key>
                             <value>PROVA_ENCODE1_narrow</value>
                         </parameter>
-						<parameter>
+                        <parameter>
                             <description>The dataset description on the server, when clicking Show Info</description>
                             <key>loading_description</key>
                             <value>ENCODE data mapped to HG19 human genome.&lt;br&gt;
@@ -197,13 +198,7 @@
                             <description>BroadPeak files are downloaded</description>
                             <type>url_generation</type>
                             <key>files.file_type</key>
-                            <value>tsv</value>
-                        </parameter>
-                        <parameter>
-                            <description>BroadPeak files are downloaded</description>
-                            <type>url_generation</type>
-                            <key>files.output_type</key>
-                            <value>gene+quantification</value>
+                            <value>bed+narrowPeak</value>
                         </parameter>
                         <parameter>
                             <description>Encode project is selected</description>
@@ -287,7 +282,7 @@
         <!--I separated ENCODE in 2 different reference genomes to have a more "self explained" name in GMQL-->
         <source name="PROVA_ENCODE2">
             <url>https://www.encodeproject.org/</url>
-            <source_working_directory>encode2</source_working_directory>
+            <source_working_directory>encode222333</source_working_directory>
             <downloader>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeDownloader</downloader>
             <transformer>it.polimi.genomics.metadata.downloader_transformer.encode.EncodeTransformer</transformer>
             <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
@@ -534,7 +529,7 @@
                             <description>this ones are to reduce the downloaded files</description>
                             <type>url_generation</type>
                             <key>accession</key>
-                            <value>ENCFF940AZB</value>
+                            <value>ENCSR311DQO</value>
                         </parameter>
                     </parameter_list>
                 </dataset>

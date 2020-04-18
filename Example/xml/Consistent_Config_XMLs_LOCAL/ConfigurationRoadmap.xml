@@ -8,14 +8,15 @@
         <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
         <mapper_source>REP</mapper_source>
         <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
+        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_anna</database_connection_url_importer>
         <database_connection_user>geco</database_connection_user>
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
         <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/flattener_rule_base.txt</flattener_rule_base>
         <download_enabled>false</download_enabled>
-        <transform_enabled>false</transform_enabled>
+        <transform_enabled>true</transform_enabled>
         <cleaner_enabled>false</cleaner_enabled>
-        <mapper_enabled>true</mapper_enabled>
+        <mapper_enabled>false</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
         <flattener_enabled>false</flattener_enabled>
         <load_enabled>false</load_enabled>
@@ -41,10 +42,10 @@
                     <key>gmql_user</key>
                     <value>public</value>
                 </parameter>
-                <parameter>
+                <!--<parameter>
                     <key>metadata_replacement</key>
                     <value>xml/metadataReplacementRoadmap.xml</value>
-                </parameter>
+                </parameter>-->
                 <parameter>
                     <key>client_secrets_path</key>
                     <value>/home/hduser/GMQL-sources/Metadata-Manager/client_secrets.json</value>
