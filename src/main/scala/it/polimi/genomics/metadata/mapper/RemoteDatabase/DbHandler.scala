@@ -177,7 +177,8 @@ object DbHandler {
                 CREATE INDEX ON replicate2item (item_id);
                 CREATE INDEX ON replicate2item (replicate_id);
                 CREATE INDEX ON case2item (item_id);
-                CREATE INDEX ON case2item (case_study_id);CREATE INDEX ON biosample (lower(biosample_type));
+                CREATE INDEX ON case2item (case_study_id);
+                CREATE INDEX ON biosample (lower(biosample_type));
                 CREATE INDEX ON biosample (lower(tissue));
                 CREATE INDEX ON biosample (lower(cell));
                 CREATE INDEX ON biosample (is_healthy);

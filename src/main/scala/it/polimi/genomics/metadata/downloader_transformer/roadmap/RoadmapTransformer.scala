@@ -149,8 +149,8 @@ class RoadmapTransformer  extends Transformer {
     */
   def metaGen(fileName: String, inPath: String, outPath: String, additionalMeta: ListBuffer[(String, String)] = ListBuffer()): Unit = {
     val dataFileName = fileName.substring(0, fileName.lastIndexOf("."))
-    val sheet1: File = new File(inPath + File.separator + "jul2013.roadmapData.qc_Consolidated_EpigenomeIDs_summary_Table.csv")
-    val sheet2: File = new File(inPath + File.separator + "jul2013.roadmapData.qc_Consolidated_EpigenomeIDs_QC.csv")
+    val sheet1: File = new File(inPath + File.separator + "Roadmap.metadata.qc.jul2013_Consolidated_EpigenomeIDs_summary_Table.csv")
+    val sheet2: File = new File(inPath + File.separator + "Roadmap.metadata.qc.jul2013_Consolidated_EpigenomeIDs_QC.csv")
     val tempSheet: File = new File(inPath + File.separator + "tempSheet.csv")
     val reader1: CSVReader = CSVReader.open(sheet1)
 
