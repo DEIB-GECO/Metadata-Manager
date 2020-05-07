@@ -78,16 +78,16 @@ object InsertMethod {
   private def selectDayByParam(param: String): String = {
     val values = param.split(" ")(0)
     param.split(" ")(1).toUpperCase match {
-      case "YEAR" => {
+      case "YEAR"|"YEARS" => {
         (average(toArrayInt(values.split("-"))) * 365).toInt.toString
       }
-      case "MONTH" => {
+      case "MONTH"|"MONTHS" => {
         (average(toArrayInt(values.split("-"))) * 30).toInt.toString
       }
-      case "DAY" => {
+      case "DAY"|"DAYS" => {
         average(toArrayInt(values.split("-"))).toInt.toString
       }
-      case "WEEK" => {
+      case "WEEK"|"WEEKS" => {
         (average(toArrayInt(values.split("-"))) * 7).toInt.toString
       }
       case _ => {
