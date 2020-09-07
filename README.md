@@ -28,3 +28,4 @@ There are two main folders for the project.
 |<img src="https://avatars.githubusercontent.com/federicogatti"      height="50px" title="Federico Gatti"/>        | [`@federicogatti`](https://github.com/federicogatti)           | Designer and developer of the Mapper module |
 |<img src="https://avatars.githubusercontent.com/riccardomologni"      height="50px" title="Riccardo Mologni"/>        | [`@riccardomologni`](https://github.com/riccardomologni)           | Developer of the Roadmap Epigenomic package |
 |<img src="https://avatars.githubusercontent.com/AndreaColombo"      height="50px" title="Andrea Colombo"/>        | [`@AndreaColombo`](https://github.com/AndreaColombo)           | Designer and developer of the Enricher module  |
+|<img src="https://avatars.githubusercontent.com/tomalf2"      height="50px" title="Tommaso Alfonsi"/>        | [`@AndreaColombo`](https://github.com/tomalf2)           | Developer of the 1000 Genomes package  |
