@@ -1,6 +1,7 @@
 package it.polimi.genomics.metadata.mapper.RemoteDatabase
 
 import com.typesafe.config.ConfigFactory
+import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler.cohorts
 import it.polimi.genomics.metadata.step.utils.ParameterUtil
 import org.slf4j.{Logger, LoggerFactory}
 import slick.driver.PostgresDriver
@@ -30,6 +31,10 @@ object DbHandler {
   private val REPLICATEITEM_TABLE_NAME = "replicate2item"
   private val PAIR_TABLE_NAME = "pair"
   private val FLATTEN_VIEW_NAME = "flatten"
+
+  //for Gwas
+  private val COHORT_TABLE_NAME = "cohort"
+  private val ANCESTRY_TABLE_NAME = "ancestry"
 
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
@@ -163,6 +168,22 @@ object DbHandler {
       logger.info("Table " + PAIR_TABLE_NAME + " created")
     }
 
+    //Gwas
+    //Cohort
+    if (!tables.exists(_.name.name == COHORT_TABLE_NAME)) {
+      val queries = DBIO.seq(cohorts.schema.create)
+      val setup = database.run(queries)
+      Await.result(setup, Duration.Inf)
+      logger.info("Table " + COHORT_TABLE_NAME + " created")
+    }
+
+    //ancestry
+    if (!tables.exists(_.name.name == ANCESTRY_TABLE_NAME)) {
+      val queries = DBIO.seq(ancestries.schema.create)
+      val setup = database.run(queries)
+      Await.result(setup, Duration.Inf)
+      logger.info("Table " + ANCESTRY_TABLE_NAME + " created")
+    }
 
 
     val createGCMIndexesTry = Try {
@@ -229,6 +250,79 @@ object DbHandler {
 
 
   //Insert Methods
+
+  //GWAS
+  def insertCohort(itemId: Int, traitName: String, caseNumber_initial: Int, controlNumber_initial: Int, individualNumber_initial: Int, triosNumber_initial: Int,
+                   caseNumber_replicate: Int, controlNumber_replicate: Int, individualNumber_replicate: Int, triosNumber_replicate: Int, sourceId: String): Int = {
+    val idQuery = (cohorts returning cohorts.map(_.cohortId)) += (None, itemId, traitName, None, caseNumber_initial, controlNumber_initial, individualNumber_initial, triosNumber_initial,
+                                                                       caseNumber_replicate, controlNumber_replicate, individualNumber_replicate, triosNumber_replicate, sourceId)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
+  }
+
+  def updateCohort(itemId: Int, traitName: String, caseNumber_initial: Int, controlNumber_initial: Int, individualNumber_initial: Int, triosNumber_initial: Int,
+                   caseNumber_replicate: Int, controlNumber_replicate: Int, individualNumber_replicate: Int, triosNumber_replicate: Int, sourceId: String): Int = {
+        val query = for {
+      cohort <- cohorts if cohort.sourceId === sourceId
+    }
+      yield (cohort.itemId, cohort.traitName, cohort.traitNameTid, cohort.caseNumber_initial, cohort.controlNumber_initial, cohort.individualNumber_initial, cohort.triosNumber_initial,
+                                              cohort.caseNumber_replicate, cohort.controlNumber_replicate, cohort.individualNumber_replicate, cohort.triosNumber_replicate)
+    val updateAction = query.update(itemId, traitName, None, caseNumber_initial, controlNumber_initial, individualNumber_initial, triosNumber_initial,
+                                                       caseNumber_replicate, controlNumber_replicate, individualNumber_replicate, triosNumber_replicate)
+    val execution = database.run(updateAction)
+    Await.result(execution, Duration.Inf)
+    val idQuery = cohorts.filter(_.sourceId === sourceId).map(_.cohortId)
+    val returnAction = idQuery.result
+    val execution2 = database.run(returnAction)
+    val id = Await.result(execution2, Duration.Inf)
+    id.head
+  }
+
+  def updateCohortById(cohortId: Int, itemId: Int, traitName: String, caseNumber_initial: Int, controlNumber_initial: Int, individualNumber_initial: Int, triosNumber_initial: Int,
+                       caseNumber_replicate: Int, controlNumber_replicate: Int, individualNumber_replicate: Int, triosNumber_replicate: Int, sourceId: String): Int = {
+    val query = for {
+      cohort <- cohorts if cohort.cohortId === cohortId
+    } yield (cohort.itemId, cohort.traitName, cohort.caseNumber_initial, cohort.controlNumber_initial, cohort.individualNumber_initial, cohort.triosNumber_initial,
+      cohort.caseNumber_replicate, cohort.controlNumber_replicate, cohort.individualNumber_replicate, cohort.triosNumber_replicate, cohort.sourceId)
+    val updateAction = query.update(itemId, traitName, caseNumber_initial, controlNumber_initial, individualNumber_initial, triosNumber_initial,
+                                                       caseNumber_replicate, controlNumber_replicate, individualNumber_replicate, triosNumber_replicate, sourceId)
+    val execution = database.run(updateAction)
+    Await.result(execution, Duration.Inf)
+    cohortId
+  }
+
+  def insertAncestry(cohortId: Int, broadAncestralCategory: String, countryOfOrigin: String, countryOfRecruitment: String, numberOfIndividuals: Int, sourceId: String): Int = {
+    val idQuery = (ancestries returning ancestries.map(_.ancestryId)) += (None, cohortId, this.toOption[String](broadAncestralCategory), this.toOption[String](countryOfOrigin), this.toOption[String](countryOfRecruitment), numberOfIndividuals, sourceId)
+    val executionId = database.run(idQuery)
+    val id = Await.result(executionId, Duration.Inf)
+    id
+  }
+
+  def updateAncestry(cohortId: Int, broadAncestralCategory: String, countryOfOrigin: String, countryOfRecruitment: String, numberOfIndividuals: Int, sourceId: String): Int = {
+    val query = for {
+      ancestry <- ancestries if (ancestry.cohortId === cohortId && ancestry.broadAncestralCategory === broadAncestralCategory && ancestry.countryOfRecruitment === countryOfRecruitment && ancestry.numberOfIndividuals === numberOfIndividuals && ancestry.sourceId === sourceId)
+    }
+      yield (ancestry.broadAncestralCategory, ancestry.countryOfOrigin, ancestry.countryOfRecruitment, ancestry.numberOfIndividuals, ancestry.sourceId)
+    val updateAction = query.update(Option(broadAncestralCategory), Option(countryOfOrigin), Option(countryOfRecruitment), numberOfIndividuals, sourceId)
+    val execution = database.run(updateAction)
+    Await.result(execution, Duration.Inf)
+    val idQuery = ancestries.filter(_.cohortId === cohortId).map(_.ancestryId)
+    val returnAction = idQuery.result
+    val execution2 = database.run(returnAction)
+    val id = Await.result(execution2, Duration.Inf)
+    id.head
+  }
+
+  def updateAncestryById(ancestryId: Int, cohortId: Int, broadAncestralCategory: String, countryOfOrigin: String, countryOfRecruitment: String, numberOfIndividuals: Int, sourceId: String): Int = {
+    val query = for {
+      ancestry <- ancestries if ancestry.ancestryId === ancestryId
+    } yield (ancestry.cohortId, ancestry.broadAncestralCategory, ancestry.countryOfOrigin, ancestry.countryOfRecruitment, ancestry.numberOfIndividuals, ancestry.sourceId)
+    val updateAction = query.update(cohortId, Option(broadAncestralCategory), Option(countryOfOrigin), Option(countryOfRecruitment), numberOfIndividuals, sourceId)
+    val execution = database.run(updateAction)
+    Await.result(execution, Duration.Inf)
+    ancestryId
+  }
 
   def insertDonor(sourceId: String, species: String, age: Option[Int], gender: String, ethnicity: String, altDonorSourceId: String): Int = {
     val idQuery = (donors returning donors.map(_.donorId)) += (None, sourceId, Option(species), None, age, Option(gender), Option(ethnicity), None, Option(altDonorSourceId))
@@ -694,6 +788,39 @@ object DbHandler {
     checkResult(result)
   }
 
+  def checkInsertCohort(sourceId: String): Boolean = {
+    val query = cohorts.filter(_.sourceId === sourceId)
+    val action = query.result
+    val result = database.run(action)
+    checkResult(result)
+  }
+
+  def checkInsertAncestry(cohortId: Int, broadAncestralCategory: String, countryOfOrigin: String, countryOfRecruitment: String, numberOfIndividuals: Int): Boolean = {
+    val query = ancestries.filter(value => {
+      value.cohortId === cohortId && value.broadAncestralCategory === broadAncestralCategory && value.countryOfOrigin === countryOfOrigin &&
+        value.countryOfRecruitment === countryOfRecruitment && value.numberOfIndividuals === numberOfIndividuals
+    })
+    val action = query.result
+    val result = database.run(action)
+    checkResult(result)
+  }
+
+  def getCohortId(id: String): Int = {
+    val query = cohorts.filter(_.sourceId === id).map(_.cohortId)
+    val action = query.result
+    val result = database.run(action)
+    checkId(result)
+  }
+
+  def getAncestryId(broadAncestralCategory: String, countryOfOrigin: String, countryOfRecruitment: String, numberOfIndividuals: Int, sourceId: String): Int = {
+    val query = ancestries.filter(value => {
+      value.broadAncestralCategory === broadAncestralCategory && value.countryOfOrigin === countryOfOrigin && value.countryOfRecruitment === countryOfRecruitment && value.numberOfIndividuals === numberOfIndividuals && value.sourceId === sourceId
+    }).map(_.ancestryId)
+    val action = query.result
+    val result = database.run(action)
+    checkId(result)
+  }
+
   def getDonorId(id: String): Int = {
     val query = donors.filter(_.sourceId === id).map(_.donorId)
     val action = query.result
@@ -758,6 +885,28 @@ object DbHandler {
     val result = database.run(action)
     checkId(result)
   }*/
+
+  def getCohortById(id: Int): Seq[(Int, String, Int, Int, Int, Int, Int, Int, Int, Int, String)] = {
+    val query = for {
+      cohort <- cohorts if cohort.cohortId === id
+    } yield (cohort.itemId, cohort.traitName, cohort.caseNumber_initial, cohort.controlNumber_initial, cohort.individualNumber_initial, cohort.triosNumber_initial,
+      cohort.caseNumber_replicate, cohort.controlNumber_replicate, cohort.individualNumber_replicate, cohort.triosNumber_replicate, cohort.sourceId)
+    val action = query.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
+  def getAncestryById(id: Int): Seq[(Int, Option[String], Option[String], Option[String], Int)] = {
+    val query = for {
+      ancestry <- ancestries if ancestry.ancestryId === id
+    } yield (ancestry.cohortId, ancestry.broadAncestralCategory, ancestry.countryOfOrigin, ancestry.countryOfRecruitment, ancestry.numberOfIndividuals)
+    val action = query.result
+    val result = database.run(action)
+    val res = Await.result(result, Duration.Inf)
+    res
+  }
+
 
   def getDonorById(id: Int): Seq[(String, Option[String], Option[Int], Option[String], Option[String], Option[String])] = {
     val query = for {
@@ -855,6 +1004,74 @@ object DbHandler {
   //-------------------------------------DATABASE SCHEMAS---------------------------------------------------------------
 
   //---------------------------------- Definition of the SOURCES table--------------------------------------------------
+
+  class Cohort(tag: Tag) extends
+    Table[(Option[Int], Int, String, Option[Int], Int, Int, Int, Int, Int, Int, Int, Int, String)](tag, COHORT_TABLE_NAME) {
+    def cohortId = column[Int]("cohort_id", O.PrimaryKey, O.AutoInc)
+
+    def itemId = column[Int]("item_id")
+
+    def traitName = column[String]("trait_name")
+
+    def traitNameTid = column[Option[Int]]("trait_name_tid", O.Default(None))
+
+    def caseNumber_initial = column[Int]("case_number_initial")
+
+    def controlNumber_initial = column[Int]("control_number_initial")
+
+    def individualNumber_initial = column[Int]("individual_number_initial")
+
+    def triosNumber_initial = column[Int]("trios_number_initial")
+
+    def caseNumber_replicate = column[Int]("case_number_replicate")
+
+    def controlNumber_replicate = column[Int]("control_number_replicate")
+
+    def individualNumber_replicate = column[Int]("individual_number_replicate")
+
+    def triosNumber_replicate = column[Int]("trios_number_replicate")
+
+    def sourceId = column[String]("cohort_source_id", O.Unique)
+
+    def item = foreignKey("cohort_item_fk", itemId, items)(
+      _.itemId,
+      onUpdate = ForeignKeyAction.Restrict,
+      onDelete = ForeignKeyAction.Cascade
+    )
+
+    def * = (cohortId.?, itemId, traitName, traitNameTid, caseNumber_initial, controlNumber_initial, individualNumber_initial, triosNumber_initial,
+                    caseNumber_replicate, controlNumber_replicate, individualNumber_replicate, triosNumber_replicate, sourceId)
+  }
+
+  val cohorts = TableQuery[Cohort]
+
+  class Ancestry(tag: Tag) extends
+    Table[(Option[Int], Int, Option[String], Option[String], Option[String], Int, String)](tag, ANCESTRY_TABLE_NAME) {
+    def ancestryId = column[Int]("ancestry_id", O.PrimaryKey, O.AutoInc)
+
+    def cohortId = column[Int]("cohort_id")
+
+    def broadAncestralCategory = column[Option[String]]("broad_ancestral_category")
+
+    def countryOfOrigin = column[Option[String]]("country_of_origin", O.Default(None))
+
+    def countryOfRecruitment = column[Option[String]]("country_of_recruitment", O.Default(None))
+
+    def numberOfIndividuals = column[Int]("number_of_individuals")
+
+    //def sourceId = column[String]("ancestry_source_id", O.Unique)
+    def sourceId = column[String]("ancestry_source_id")
+
+    def cohort = foreignKey("ancestries_cohort_fk", cohortId, cohorts)(
+      _.cohortId,
+      onUpdate = ForeignKeyAction.Restrict,
+      onDelete = ForeignKeyAction.Cascade
+    )
+
+    def * = (ancestryId.?, cohortId, broadAncestralCategory, countryOfOrigin, countryOfRecruitment, numberOfIndividuals, sourceId)
+  }
+
+  val ancestries = TableQuery[Ancestry]
 
   class Donors(tag: Tag) extends
     Table[(Option[Int], String, Option[String], Option[Int], Option[Int], Option[String], Option[String], Option[Int], Option[String])](tag, DONOR_TABLE_NAME) {

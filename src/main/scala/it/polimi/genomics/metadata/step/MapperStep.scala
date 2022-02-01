@@ -8,6 +8,8 @@ import it.polimi.genomics.metadata.step.utils.{DirectoryNamingUtil, ParameterUti
 import it.polimi.genomics.metadata.mapper.{Predefined, REP, Table}
 import it.polimi.genomics.metadata.mapper.Encode.{EncodeTableId, EncodeTables}
 import it.polimi.genomics.metadata.mapper.Encode.Utils.{BioSampleList, ReplicateList}
+import it.polimi.genomics.metadata.mapper.GWAS.{GwasTables, GwasTableId}
+import it.polimi.genomics.metadata.mapper.GWAS.Utils.AncestryList
 import it.polimi.genomics.metadata.mapper.REP.{REPTableId, REPTables}
 import it.polimi.genomics.metadata.mapper.RemoteDatabase.DbHandler
 import it.polimi.genomics.metadata.mapper.TCGA.TCGATables
@@ -134,7 +136,7 @@ object MapperStep extends Step {
 
 
     val schemaUrl = "https://raw.githubusercontent.com/DEIB-GECO/Metadata-Manager/master/Example/xml/setting.xsd"
-    if (SchemaValidator.validate(pathXML, schemaUrl)) {
+    //if (SchemaValidator.validate(pathXML, schemaUrl)) {
       logger.info("Xml file is valid for the schema")
 
       //DbHandler.setDatabase
@@ -149,6 +151,8 @@ object MapperStep extends Step {
         case "TCGA" | "ANN" | "CISTROME" | "1000GENOMES" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
         case "TADS_RAO" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexRaoTads.findFirstIn(f.getName).isDefined).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRegular(path.toString, pathXML))
         case "TADS_COMB" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexCombTads.findFirstIn(f.getName).isDefined).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileRep(path.toString, pathXML))
+        case "GWAS" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileGwas(path.toString, pathXML))
+        case "FINNGEN" => ListFiles.recursiveListFiles(new File(pathGMQL)).filter(f => regexMeta.findFirstIn(f.getName).isDefined).map(path => analyzeFileFinnGen(path.toString, pathXML))
         case _ => logger.error(s"Incorrectly specified repository")
       }
 
@@ -177,12 +181,131 @@ object MapperStep extends Step {
         logger.info(s"Total Replicates inserted or updated ${Statistics.replicateInsertedOrUpdated}")
 
       }
-    }
+    //}
     else
       logger.info("Xml file is NOT valid for the schema, please check it for next runs")
 
   }
 
+  def analyzeFileGwas(path: String, pathXML: String): Unit = {
+    val t0: Long = System.nanoTime()
+    Statistics.fileNumber += 1
+    logger.info(s"Start reading $path")
+    try {
+
+      var lines = scala.io.Source.fromFile(path).getLines.toList
+      val str: Array[String] = path.split("/")
+      //val str: Array[String] = path.split("\\\\")
+      val metadata_file_name: String = str.last //with extension for metadata file (.meta)
+      val region_file_name: String = metadata_file_name.replace(".meta", "") //with extension for metadata file (.meta)
+      val file_identifier: String = region_file_name.split("\\.").head //without extension
+      print(str.size + "\n")
+      print(str.size - 3 + "\n")
+      print(str(str.size - 3) + "\n")
+      val file_identifier_with_directory: String = file_identifier + "__" + str(str.size - 3)
+      lines = lines ::: List("file_name\t" + region_file_name)
+      lines = lines ::: List("file_identifier\t" + file_identifier)
+      lines = lines ::: List("file_identifier_with_directory\t" + file_identifier_with_directory)
+
+      val gwasTableId = new GwasTableId
+
+      val ancestryList = new AncestryList(lines.toArray, gwasTableId)
+      gwasTableId.ancestryQuantity(ancestryList.ancestryList.length)
+      val tables = new GwasTables(gwasTableId)
+      tables.setFilePath(path)
+      tables.setPathOnTables()
+      val states: collection.mutable.Map[String, String] = createMapper(lines)
+      Statistics.released += 1
+      logger.info(s"Start populating tables for file ${path.split("/").last}")
+      //reads XML file and substitutes X with number of ancestries
+      val xml = new XMLReaderGwas(pathXML, ancestryList, states)
+      val operationsList = xml.operationsList
+      val t1: Long = System.nanoTime()
+      Statistics.incrementExtractTime(t1 - t0)
+      operationsList.map(operations => {
+        try {
+          populateTable(operations, tables.selectTableByName(operations.head), states.toMap)
+        } catch {
+          case e: NoSuchElementException => {
+            tables.nextPosition(operations.head, operations(2), operations(3));
+            logger.warn(s"Source key: ${operations(1)} not found for Table: ${operations(0)}, Global key: ${operations(2)}")
+          }
+        }
+      })
+      val t2: Long = System.nanoTime()
+      Statistics.incrementTrasformTime((t2 - t1))
+      tables.insertTables(states, createPairs(lines))
+      val t3: Long = System.nanoTime()
+      Statistics.incrementLoadTime((t3 - t2))
+
+    } catch {
+      case aioobe: ArrayIndexOutOfBoundsException => {
+        logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
+        Statistics.indexOutOfBoundsException += 1
+      }
+    }
+  }
+
+  def analyzeFileFinnGen(path: String, pathXML: String): Unit = {
+    val t0: Long = System.nanoTime()
+    Statistics.fileNumber += 1
+    logger.info(s"Start reading $path")
+    try {
+
+      var lines = scala.io.Source.fromFile(path).getLines.toList
+      val str: Array[String] = path.split("/")
+      //val str: Array[String] = path.split("\\\\")
+      val metadata_file_name: String = str.last //with extension for metadata file (.meta)
+      val region_file_name: String = metadata_file_name.replace(".meta", "") //with extension for metadata file (.meta)
+      val file_identifier: String = region_file_name.split("\\.").head //without extension
+      print(str.size + "\n")
+      print(str.size - 3 + "\n")
+      print(str(str.size - 3) + "\n")
+      val file_identifier_with_directory: String = file_identifier + "__" + str(str.size - 3)
+      lines = lines ::: List("file_name\t" + region_file_name)
+      lines = lines ::: List("file_identifier\t" + file_identifier)
+      lines = lines ::: List("file_identifier_with_directory\t" + file_identifier_with_directory)
+
+      val gwasTableId = new GwasTableId
+
+      var tmp = new Array[String](1)
+      tmp(0) = "stage_1"
+      val ancestryList = new AncestryList(tmp, gwasTableId)
+      gwasTableId.ancestryQuantity(ancestryList.ancestryList.length)
+      val tables = new GwasTables(gwasTableId)
+      tables.setFilePath(path)
+      tables.setPathOnTables()
+      val states: collection.mutable.Map[String, String] = createMapper(lines)
+      Statistics.released += 1
+      logger.info(s"Start populating tables for file ${path.split("/").last}")
+      //reads XML file and substitutes X with number of ancestries
+      val xml = new XMLReaderFinnGen(pathXML, ancestryList, states)
+      val operationsList = xml.operationsList
+      val t1: Long = System.nanoTime()
+      Statistics.incrementExtractTime(t1 - t0)
+      operationsList.map(operations => {
+        try {
+          populateTable(operations, tables.selectTableByName(operations.head), states.toMap)
+        } catch {
+          case e: NoSuchElementException => {
+            tables.nextPosition(operations.head, operations(2), operations(3));
+            logger.warn(s"Source key: ${operations(1)} not found for Table: ${operations(0)}, Global key: ${operations(2)}")
+          }
+        }
+      })
+      val t2: Long = System.nanoTime()
+      Statistics.incrementTrasformTime((t2 - t1))
+      tables.insertTables(states, createPairs(lines))
+      val t3: Long = System.nanoTime()
+      Statistics.incrementLoadTime((t3 - t2))
+
+    } catch {
+      case aioobe: ArrayIndexOutOfBoundsException => {
+        logger.error(s"ArrayIndexOutOfBoundsException file with path ${path}")
+        Statistics.indexOutOfBoundsException += 1
+      }
+    }
+  }
 
   def analyzeFileEncode(path: String, pathXML: String): Unit = {
     val t0: Long = System.nanoTime()
@@ -191,10 +314,13 @@ object MapperStep extends Step {
     try {
 
       var lines = scala.io.Source.fromFile(path).getLines.toList
-      val str: Array[String] = path.split("/")
+      val str: Array[String] = path.split("\\\\")
       val metadata_file_name: String = str.last //with extension for metadata file (.meta)
       val region_file_name: String = metadata_file_name.replace(".meta", "") //with extension for metadata file (.meta)
       val file_identifier: String = region_file_name.split("\\.").head //without extension
+      print(str.size + "\n")
+      print(str.size - 3 + "\n")
+      print(str(str.size - 3) + "\n")
       val file_identifier_with_directory: String = file_identifier + "__" + str(str.size - 3)
       lines = lines ::: List("file_name\t" + region_file_name)
       lines = lines ::: List("file_identifier\t" + file_identifier)
@@ -331,7 +457,7 @@ object MapperStep extends Step {
     try {
 
       var lines = scala.io.Source.fromFile(path).getLines.toList
-      val str: Array[String] = path.split("/")
+      val str: Array[String] = path.split("\\\\")
       val metadata_file_name: String = str.last //with extension for metadata file (.meta)
       val region_file_name: String = metadata_file_name.replace(".meta", "") //with extension for metadata file (.meta)
       val file_identifier: String = region_file_name.split("\\.").head //without extension

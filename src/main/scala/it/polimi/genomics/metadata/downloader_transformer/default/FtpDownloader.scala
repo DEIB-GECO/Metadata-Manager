@@ -134,6 +134,7 @@ class FtpDownloader extends Downloader {
     * @param parallelExecution if the execution is in parallel or sequentially
     */
   private def recursiveDownload(workingDirectory: String, source: xml.Source, parallelExecution: Boolean): Unit = {
+    //all the subfolders are downloaded
     downloadSubfolders(workingDirectory, source, parallelExecution)
     checkFolderForDownloads(workingDirectory, source, parallelExecution)
   }
@@ -427,6 +428,7 @@ class FtpDownloader extends Downloader {
               if (connected) {
                 logger.info(s"$workingDirectory, Downloading [$counter/$total]: " + url)
                 if (ftpDownload.cd(workingDirectory).getOrElse(false)) {
+                  //here the file is downloaded
                   downloaded = ftpDownload.downloadFile(file.getName, outputUrl).getOrElse(false)
                   if (downloaded) {
                     val hashToCompare = computeHash(outputUrl)
@@ -615,6 +617,7 @@ class FtpDownloader extends Downloader {
     */
   private def downloadSubfolders(workingDirectory: String, source: xml.Source, parallelExecution: Boolean): Unit = {
 
+    //the whole subfolder is downloaded
     val directories: Array[FTPFile] = getDirectories(source, workingDirectory)
     directories.foreach({
       directory =>

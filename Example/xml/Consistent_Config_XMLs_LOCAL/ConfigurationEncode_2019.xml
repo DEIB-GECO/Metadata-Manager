@@ -3,19 +3,19 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
     <settings>
-        <base_working_directory>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta</base_working_directory>
-        <gcm_config_file>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/src/main/resources/application.conf</gcm_config_file>
+        <base_working_directory>C:\Users\fedec\Università\Tesi\Metadata-Manager\Example\examples_meta</base_working_directory>
+        <gcm_config_file>C:\Users\fedec\Università\Tesi\Metadata-Manager\src\main\resources\application.conf</gcm_config_file>
         <mapper_source>ENCODE</mapper_source>
-        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_anna</database_connection_url>
-        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_anna</database_connection_url_importer>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_federico</database_connection_url>
+        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_federico</database_connection_url_importer>
         <database_connection_user>geco</database_connection_user>
         <database_connection_pw>geco78</database_connection_pw>
         <database_connection_driver>org.postgresql.Driver</database_connection_driver>
-        <flattener_rule_base>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/cleaner_rule_base.txt</flattener_rule_base>
-        <download_enabled>true</download_enabled>
+        <flattener_rule_base>C:\Users\fedec\Università\Tesi\Metadata-Manager\Example\cleaner_rule_base.txt</flattener_rule_base>
+        <download_enabled>false</download_enabled>
         <transform_enabled>false</transform_enabled>
         <cleaner_enabled>false</cleaner_enabled>
-        <mapper_enabled>false</mapper_enabled>
+        <mapper_enabled>true</mapper_enabled>
         <enricher_enabled>false</enricher_enabled>
         <flattener_enabled>false</flattener_enabled>
         <load_enabled>false</load_enabled>
@@ -127,7 +127,9 @@
                 <parameter>
                     <description>to exclude GRCh38 references</description>
                     <type>exclusion</type>
-                    <key>Assembly</key>
+                    <!--modificato in data 10/09/2020 da Federico Comolli
+                    era solo Assembly-->
+                    <key>File assembly</key>
                     <value>GRCh38</value>
                 </parameter>
                 <parameter>
@@ -155,12 +157,12 @@
                 <parameter>
                     <description>Cleaner definition rule base file</description>
                     <key>rule_base</key>
-                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta/ENCODE_rules.txt</value>
+                    <value>C:\Users\fedec\Università\Tesi\Metadata-Manager\Example\examples_meta\ENCODE_rules.txt</value>
                 </parameter>
                 <parameter>
                     <description>Mappings</description>
                     <key>mappings</key>
-                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsEncode.xml</value>
+                    <value>C:\Users\fedec\Università\Tesi\Metadata-Manager\Example\xml\settingsEncode.xml</value>
                 </parameter>
             </parameter_list>
             <dataset_list>
@@ -385,7 +387,9 @@
                 <parameter>
                     <description>to exclude GRCh38 references</description>
                     <type>exclusion</type>
-                    <key>Assembly</key>
+                    <!--modificato in data 10/09/2020 da Federico Comolli
+                    era solo Assembly-->
+                    <key>File assembly</key>
                     <value>GRCh38</value>
                 </parameter>
                 <parameter>
@@ -413,12 +417,12 @@
                 <parameter>
                     <description>Cleaner definition rule base file</description>
                     <key>rule_base</key>
-                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/examples_meta/ENCODE_rules.txt</value>
+                    <value>C:\Users\fedec\Università\Tesi\Metadata-Manager\Example\examples_meta\ENCODE_rules.txt</value>
                 </parameter>
                 <parameter>
                     <description>Mappings</description>
                     <key>mappings</key>
-                    <value>/Users/abernasconi/Documents/gitProjects/GMQL-Importer/Example/xml/settingsEncode.xml</value>
+                    <value>C:\Users\fedec\Università\Tesi\Metadata-Manager\Example\xml\settingsEncode.xml</value>
                 </parameter>
             </parameter_list>
             <dataset_list>

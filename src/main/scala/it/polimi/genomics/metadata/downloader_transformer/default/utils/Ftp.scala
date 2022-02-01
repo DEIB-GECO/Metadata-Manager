@@ -84,9 +84,10 @@ final class Ftp() {
     client.printWorkingDirectory()
   }
 
+  //to download a file
   def downloadFile(remote: String, local: String): Try[Boolean] = Try{
     val os = new FileOutputStream(new File(local))
-    client.setDataTimeout(355)
+    client.setDataTimeout(2000)
     val res =
       try {
         client.retrieveFile(remote, os)

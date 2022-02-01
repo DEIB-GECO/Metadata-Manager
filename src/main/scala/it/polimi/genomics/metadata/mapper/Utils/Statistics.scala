@@ -13,6 +13,7 @@ object Statistics {
   var donorInsertedOrUpdated: Int = _
   var biosampleInsertedOrUpdated: Int = _
   var replicateInsertedOrUpdated: Int = _
+  var ancestryInsertedOrUpdated: Int = _
   var tsvFile: Int = _
   var constraintsViolated: Int = _
   var indexOutOfBoundsException: Int = _

@@ -1,0 +1,186 @@
+<?xml version="1.0" ?>
+<root>
+    <table name="ANCESTRIES">
+        <mapping method="MANUAL">
+            <source_key>Finland</source_key>
+            <global_key>countryOfRecruitment</global_key>
+        </mapping>
+        <mapping>
+            <source_key>n_controls</source_key>
+            <global_key>numberOfIndividuals</global_key>
+        </mapping>
+        <mapping>
+            <source_key>n_cases</source_key>
+            <global_key>numberOfIndividuals</global_key>
+        </mapping>
+        <mapping>
+            <source_key>phenocode</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+    </table>
+
+    <table name="DATASETS">
+        <mapping method="PREDEFINED">
+            <source_key>dataset_name</source_key>
+            <global_key>name</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>gwas</source_key>
+            <global_key>dataType</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>gdm</source_key>
+            <global_key>format</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>GRCh38</source_key>
+            <global_key>assembly</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>false</source_key>
+            <global_key>isAnn</global_key>
+        </mapping>
+    </table>
+
+    <table name="EXPERIMENTSTYPE">
+        <mapping method = "MANUAL">
+            <source_key>FinnGen_technique</source_key>
+            <global_key>technique</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key></source_key>
+            <global_key>feature</global_key>
+        </mapping>
+        <mapping>
+            <source_key></source_key>
+            <global_key>target</global_key>
+        </mapping>
+        <mapping>
+            <source_key></source_key>
+            <global_key>antibody</global_key>
+        </mapping>-->
+    </table>
+
+    <table name="PROJECTS">
+        <mapping method="MANUAL">
+            <source_key>FinnGen</source_key>
+            <global_key>programName</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>FinnGen</source_key>
+            <global_key>projectName</global_key>
+        </mapping>
+    </table>
+
+    <table name="CASES">
+        <mapping>
+            <source_key>phenocode</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <!--<mapping>
+            <source_key></source_key>
+            <global_key>sourceSite</global_key>
+        </mapping>-->
+        <mapping method="MANUAL">
+            <source_key>https://www.finngen.fi/en</source_key>
+            <global_key>externalRef</global_key>
+        </mapping>
+    </table>
+
+    <table name="ITEMS">
+        <mapping>
+            <source_key>phenocode</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__local_file_size</source_key>
+            <global_key>size</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__download_date</source_key>
+            <global_key>date</global_key>
+        </mapping>
+        <mapping>
+            <source_key>manually_curated__local_md5</source_key>
+            <global_key>checksum</global_key>
+        </mapping>
+        <!--
+        <mapping>
+            <source_key>platform__snps_passing_qc_</source_key>
+            <global_key>platform</global_key>
+        </mapping>-->
+        <mapping>
+            <source_key>path_https</source_key>
+            <global_key>sourceUrl</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>http://www.gmql.eu/gmql-rest/datasets/public.</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="PREDEFINED-CONCAT" concat_character="">
+            <source_key>dataset_name</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="CONCAT" concat_character="/">
+            <source_key>phenocode</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping method="MANUAL-CONCAT" concat_character="">
+            <source_key>/region</source_key>
+            <global_key>localUrl</global_key>
+        </mapping>
+        <mapping>
+            <source_key>phenocode</source_key>
+            <global_key>fileName</global_key>
+        </mapping>
+        <mapping method="MANUAL-CONCAT" concat_character="">
+            <source_key>.gdm</source_key>
+            <global_key>fileName</global_key>
+        </mapping>
+        <mapping method="MANUAL">
+            <source_key>https://console.cloud.google.com/storage/browser/finngen-public-data-r4/summary_stats/</source_key>
+            <global_key>sourcePage</global_key>
+        </mapping>
+    </table>
+
+    <table name="COHORTS">
+        <mapping>
+            <source_key>name</source_key>
+            <global_key>traitName</global_key>
+        </mapping>
+        <mapping>
+            <source_key>n_cases</source_key>
+            <global_key>caseNumber_initial</global_key>
+        </mapping>
+        <mapping>
+            <source_key>n_controls</source_key>
+            <global_key>controlNumber_initial</global_key>
+        </mapping>
+        <mapping>
+            <source_key>phenocode</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+    </table>
+
+    <table name="DONORS">
+        <mapping>
+            <source_key>phenocode</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+    </table>
+
+    <table name="BIOSAMPLES">
+        <mapping>
+            <source_key>phenocode</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+    </table>
+
+    <table name="REPLICATES">
+        <mapping>
+            <source_key>phenocode</source_key>
+            <global_key>sourceId</global_key>
+        </mapping>
+    </table>
+
+</root>

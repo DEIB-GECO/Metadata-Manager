@@ -120,7 +120,7 @@ object TransformerStep extends Step {
                   files.map((_, file))
                 }
 
-                // select the candidates which has cooresponding candidate (region-> meta or meta->region
+                // select the candidates which has corresponding candidate (region-> meta or meta->region
                 val candidateNameSet = tempCandidates.map(_._1._1).toSet
                 tempCandidates.filter { case ((candidateName, _), _) =>
                   if (candidateName.endsWith(".meta"))
@@ -384,6 +384,7 @@ object TransformerStep extends Step {
         //scanning the file to check the consistency of each row to schema and manage missing value
         val reader = Source.fromFile(dataFilePath)
         reader.getLines().foreach(f = line => {
+
           var writeLine = ""
           var isRemoved = false
           val splitLine = line.split("\t", -1)
@@ -438,7 +439,7 @@ object TransformerStep extends Step {
           if (!isRemoved) { //check if number of region attributes is consistent to schema
             for (i <- 0 until regAttributes.size) {
               //managing missing value
-              if (regAttributes(i) == "" || regAttributes(i).toUpperCase == "NULL" || regAttributes(i).toUpperCase == "N/A" ||
+              if (regAttributes(i) == "NR" || regAttributes(i) == "" || regAttributes(i).toUpperCase == "NULL" || regAttributes(i).toUpperCase == "N/A" ||
                 regAttributes(i).toUpperCase == "NA" || (regAttributes(i) == "." && fields(i)._1 == "score")) {
                 missingValueCount(i) += 1
                 val oldValue = regAttributes(i)
@@ -567,6 +568,7 @@ object TransformerStep extends Step {
     }
     else
       (false, false)
+    (true, true)
   }
 
   /**

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmqlSchemaCollection name="gwas" xmlns="http://genomic.elet.polimi.it/entities">
+    <gmqlSchema type="TAB">
+        <field type="STRING">chrom</field>
+        <field type="LONG">start</field>
+        <field type="LONG">end</field>
+        <field type="CHAR">strand</field>
+        <field type="STRING">REGION</field>
+        <field type="STRING">REPORTED GENE(S)</field>
+        <field type="STRING">MAPPED GENE</field>
+        <field type="STRING">UPSTREAM_GENE_ID</field>
+        <field type="STRING">DOWNSTREAM_GENE_ID</field>
+        <field type="STRING">SNP_GENE_IDS</field>
+        <field type="LONG">UPSTREAM_GENE_DISTANCE</field>
+        <field type="LONG">DOWNSTREAM_GENE_DISTANCE</field>
+        <field type="STRING">STRONGEST SNP-RISK ALLELE</field>
+        <field type="STRING">SNPS</field>
+        <field type="INTEGER">MERGED</field>
+        <field type="LONG">SNP_ID_CURRENT</field>
+        <field type="STRING">CONTEXT</field>
+        <field type="INTEGER">INTERGENIC</field>
+        <field type="DOUBLE">RISK ALLELE FREQUENCY</field>
+        <field type="DOUBLE">P-VALUE</field>
+        <field type="DOUBLE">PVALUE_MLOG</field>
+        <field type="STRING">P-VALUE (TEXT)</field>
+        <field type="DOUBLE">OR or BETA</field>
+        <field type="STRING">95% CI (TEXT)</field>
+    </gmqlSchema>
+</gmqlSchemaCollection>

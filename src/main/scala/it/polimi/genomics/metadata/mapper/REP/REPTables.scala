@@ -33,7 +33,7 @@ class REPTables(repTableId: REPTableId) extends Tables{
     }
   }
 
-  override def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item) = {
+   def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item) = {
     val repTableId: REPTableId = new REPTableId
     return (new DonorREP(repTableId,1), new BioSampleREP(repTableId, 1), new ReplicateREP(repTableId), new CaseREP(repTableId),
     new DatasetREP(repTableId), new ExperimentTypeREP(repTableId), new ProjectREP(repTableId), new ItemREP(repTableId))

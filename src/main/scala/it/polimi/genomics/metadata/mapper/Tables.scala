@@ -21,6 +21,11 @@ trait Tables extends Enumeration {
   val ReplicatesItems = Value("REPLICATESITEMS")
   val Pairs = Value("PAIRS")
 
+  //for Gwas
+  val Cohorts = Value("COHORTS")
+  val Ancestries = Value("ANCESTRIES")
+
+
   protected val tables: mutable.Map[Value, Table] = collection.mutable.Map[this.Value, Table]()
 
   var logger: Logger = _
@@ -30,7 +35,7 @@ trait Tables extends Enumeration {
   def selectTableByValue(enum: this.Value): Table = tables(enum)
 
   def getOrderOfInsertion(): List[Value] = {
-    return List(Donors, BioSamples, Replicates, ExperimentsType, Projects, Datasets, Cases, Items, CasesItems, ReplicatesItems)
+    return List(Donors, BioSamples, Replicates, ExperimentsType, Projects, Datasets, Cases, Items, CasesItems, ReplicatesItems, Cohorts, Ancestries)
   }
 
 
@@ -111,6 +116,6 @@ trait Tables extends Enumeration {
 
   def setFilePath(filePath: String): Unit = this._filePath = filePath
 
-  def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item)
+  //def getListOfTables(): (Ancestry, Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item, Cohort)
 
 }

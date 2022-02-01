@@ -63,7 +63,7 @@ class EncodeTables(encodeTableId: EncodeTableId) extends Tables{
     })
   }*/
 
-  override def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item) = {
+   def getListOfTables(): (Donor, BioSample, Replicate, Case, Dataset, ExperimentType, Project, Item) = {
     val encodeTableId: EncodeTableId = new EncodeTableId
     return (new DonorEncode(encodeTableId,1), new BioSampleEncode(encodeTableId, 1), new ReplicateEncode(encodeTableId), new CaseEncode(encodeTableId),
     new DatasetEncode(encodeTableId), new ExperimentTypeEncode(encodeTableId), new ProjectEncode(encodeTableId), new ItemEncode(encodeTableId))

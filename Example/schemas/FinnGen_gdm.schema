@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmqlSchemaCollection name="FinnGen" xmlns="http://genomic.elet.polimi.it/entities">
+    <gmqlSchema type="TAB">
+        <field type="STRING">chrom</field>
+        <field type="LONG">start</field>
+        <field type="LONG">end</field>
+        <field type="CHAR">strand</field>
+        <field type="STRING">ref</field>
+        <field type="STRING">alt</field>
+        <field type="STRING">rsids</field>
+        <field type="STRING">nearest_genes</field>
+        <field type="DOUBLE">pval</field>
+        <field type="DOUBLE">beta</field>
+        <field type="DOUBLE">sebeta</field>
+        <field type="DOUBLE">maf</field>
+        <field type="DOUBLE">maf_cases</field>
+        <field type="DOUBLE">maf_controls</field>
+    </gmqlSchema>
+</gmqlSchemaCollection>

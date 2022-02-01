@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<root   xmlns="http://polimi.it/GDMImporter"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://polimi.it/GDMImporter /Example/xml/configurationSchema.xsd">
+    <settings>
+        <!--The local folder in which the files are saved-->
+        <!--<base_working_directory>C:\Users\fedec\Università\Tesi\Project\Example\examples_meta</base_working_directory>-->
+        <base_working_directory>/home/comolli/project/Example/examples_meta</base_working_directory>
+        <!--<gcm_config_file>C:\Users\fedec\Università\Tesi\Project\src\main\resources\application.conf\</gcm_config_file>-->
+        <gcm_config_file>/home/comolli/project/src/main/resources/application.conf\</gcm_config_file>
+        <mapper_source>GWAS</mapper_source>
+        <database_connection_url>jdbc:postgresql://localhost/gmql_metadata_federico</database_connection_url>
+        <database_connection_url_importer>jdbc:postgresql://localhost/gmql_importer_federico</database_connection_url_importer>
+        <database_connection_user>geco</database_connection_user>
+        <database_connection_pw>geco78</database_connection_pw>
+        <database_connection_driver>org.postgresql.Driver</database_connection_driver>
+        <flattener_rule_base>C:\Users\fedec\Università\Tesi\Project\Example\cleaner_rule_base.txt\</flattener_rule_base>
+        <download_enabled>true</download_enabled>
+        <transform_enabled>false</transform_enabled>
+        <cleaner_enabled>false</cleaner_enabled>
+        <mapper_enabled>false</mapper_enabled>
+        <enricher_enabled>false</enricher_enabled>
+        <flattener_enabled>false</flattener_enabled>
+        <load_enabled>false</load_enabled>
+        <parallel_execution>false</parallel_execution>
+
+    </settings>
+    <source_list>
+        <source name="GWAS">
+            <!--url is the host in the FTPDownloader-->
+            <url>ftp.ebi.ac.uk</url>
+            <!--the name of the folder in which the files are saved-->
+            <source_working_directory>gwas</source_working_directory>
+            <downloader>it.polimi.genomics.metadata.downloader_transformer.default.FtpDownloader</downloader>
+            <transformer>it.polimi.genomics.metadata.downloader_transformer.gwas.GwasTransformer</transformer>
+            <loader>it.polimi.genomics.metadata.step.GMQLLoader</loader>
+            <download_enabled>true</download_enabled>
+            <transform_enabled>true</transform_enabled>
+            <cleaner_enabled>true</cleaner_enabled>
+            <mapper_enabled>true</mapper_enabled>
+            <enricher_enabled>true</enricher_enabled>
+            <flattener_enabled>true</flattener_enabled>
+            <load_enabled>true</load_enabled>
+            <parameter_list>
+                <!--<parameter>
+                    <description>For metadata key replacement have to refer another file. Should be big file and would not be useful</description>
+                    <key>metadata_replacement</key>
+                    //Is a metadata replacement needed for gwas?
+                    <value>xml/metadataReplacementTcga.xml</value>
+                </parameter>-->
+                <parameter>
+                    <description>It is to know which user in GMQL is going to run the import</description>
+                    <key>gmql_user</key>
+                    <value>public</value>
+                </parameter>
+                <parameter>
+                    <description>For logging in the ftp of gwas we need this anonymous user</description>
+                    <key>username</key>
+                    <value>anonymous</value>
+                </parameter>
+                <parameter>
+                    <description>And also the corresponding null password</description>
+                    <key>password</key>
+                    <value/>
+                </parameter>
+                <parameter>
+                    <description>decides the separator char for metadata names.</description>
+                    <key>metadata_name_separation_char</key>
+                    <value>__</value>
+                </parameter>
+                <parameter>
+                    <description>Starting directory in the ftp server</description>
+                    <key>start_directory</key>
+                    <value>/pub/databases/gwas/releases/latest</value>
+                </parameter>
+                <parameter>
+                    <description>Mappings</description>
+                    <key>mappings</key>
+                    <value>/home/comolli/project/Example/xml/settingsGWAS.xml</value>
+                    <!--<value>C:\Users\fedec\Università\Tesi\Project\Example\xml\settingsGWAS.xml</value>-->
+                </parameter>
+            </parameter_list>
+            <dataset_list>
+                <!--THE SCHEMA URL HAS TO BE REFERRED FROM ROOT PATH EX: ROOT PATH/SCHEMA PATH/schema.xml-->
+                <dataset name="gwas">
+                    <!--name of the local folder in which the files are saved-->
+                    <dataset_working_directory>latest</dataset_working_directory>
+                    <schema_url location="local">/../schemas/gwas_gdm.schema</schema_url>
+                    <download_enabled>true</download_enabled>
+                    <transform_enabled>true</transform_enabled>
+                    <cleaner_enabled>true</cleaner_enabled>
+                    <mapper_enabled>true</mapper_enabled>
+                    <enricher_enabled>true</enricher_enabled>
+                    <flattener_enabled>true</flattener_enabled>
+                    <load_enabled>true</load_enabled>
+                    <parameter_list>
+                        <parameter>
+                            <description>The dataset name on the server</description>
+                            <key>loading_name</key>
+                            <value>gwas</value>
+                        </parameter>
+                        <parameter>
+                            <description>The dataset description on the server, when clicking Show Info</description>
+                            <key>loading_description</key>
+                            <value>
+                                The GWAS dataset contains the associations between SNPs and traits in the human genome.&lt;br>
+                                The data in the GWAS catalog are the results of many genome-wide association studies.&lt;br>
+                                https://www.ebi.ac.uk/gwas/docs/about
+                            </value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for all the folders inside the specified directory</description>
+                            <key>folder_regex</key>
+                            <value>.*</value>
+                        </parameter>
+                        <parameter>
+                            <description>We look for the files to download</description>
+                            <key>files_regex</key>
+                            <value>gwas-catalog-(an[a-z]+)?([a-z]+_ontology-annotated)?\.tsv$</value>
+                        </parameter>
+                    </parameter_list>
+                </dataset>
+            </dataset_list>
+        </source>
+    </source_list>
+</root>

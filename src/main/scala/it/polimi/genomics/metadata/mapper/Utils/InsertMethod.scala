@@ -1,15 +1,15 @@
 package it.polimi.genomics.metadata.mapper.Utils
 
+import java.lang.NumberFormatException
 import java.util
-
 import collection.JavaConverters._
 import com.typesafe.config.ConfigFactory
 import it.polimi.genomics.metadata.Program.logger
 import it.polimi.genomics.metadata.mapper.Predefined
+import org.apache.commons.io.filefilter.FalseFileFilter
 import org.apache.log4j.Logger
 import org.openqa.selenium.{By, WebElement}
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
-
 import scala.collection.mutable
 
 object InsertMethod {
@@ -21,6 +21,198 @@ object InsertMethod {
     methods.split("-").foldLeft(newParam) { case (acc, method) => {
       method.toUpperCase() match {
         case "DEFAULT" => acc
+        case "EXTRACTCASES" => {
+          var count = 0
+          if (acc.contains("cases")) {
+            val tmp = acc.split(", ")
+            for (i <- tmp) {
+              if (i.contains("cases")) {
+                val check = i.split(" ")(0)
+                //check if the field starts with "UP ..." or "UP TO ..."
+                if (check.toUpperCase().equals("UP")){ // UP 1234 cases
+                  if (!i.split(" ")(1).toUpperCase().equals("TO")){
+                    try {
+                      count += i.split(" ")(1).replaceAll(",", "").replaceAll("\\.", "").toInt
+                    }
+                    catch {
+                      case e: NumberFormatException => count += 0
+                      case _: Throwable => count += 0
+                    }
+                  } else { // UP TO 1234 cases
+                    try {
+                      count += i.split(" ")(2).replaceAll(",", "").replaceAll("\\.", "").toInt
+                    }
+                    catch {
+                      case e: NumberFormatException => count += 0
+                      case _: Throwable => count += 0
+                    }
+                  }
+                } else if (check.equals("")){ //check if the field contains an empty space
+                  try{
+                    count += i.split(" ")(1).replaceAll(",", "").replaceAll("\\.", "").toInt
+                  }
+                  catch {
+                    case e: NumberFormatException => count += 0
+                    case _: Throwable => count += 0
+                  }
+                } else if(check.charAt(0).isDigit){
+                  try{
+                    count += i.split(" ")(0).replaceAll(",", "").replaceAll("\\.", "").toInt
+                  }
+                  catch {
+                    case e: NumberFormatException => count += 0
+                    case _: Throwable => count += 0
+                  }
+                }
+              }
+            }
+          }
+          count.toString
+        }
+        case "EXTRACTCONTROLS" => {
+          var count = 0
+          if (acc.contains("controls")) {
+            val tmp = acc.split(", ")
+            for (i <- tmp) {
+              if (i.contains("controls")) {
+                val check = i.split(" ")(0)
+                //check if the field starts with "UP ..." or "UP TO ..."
+                if (check.toUpperCase().equals("UP")){ // UP 1234 cases
+                  if (!i.split(" ")(1).toUpperCase().equals("TO")){
+                    try {
+                      count += i.split(" ")(1).replaceAll(",", "").replaceAll("\\.", "").toInt
+                    }
+                    catch {
+                      case e: NumberFormatException => count += 0
+                      case _: Throwable => count += 0
+                    }
+                  } else { // UP TO 1234 cases
+                    try {
+                      count += i.split(" ")(2).replaceAll(",", "").replaceAll("\\.", "").toInt
+                    }
+                    catch {
+                      case e: NumberFormatException => count += 0
+                      case _: Throwable => count += 0
+                    }
+                  }
+                } else if (check.equals("")){ //check if the field contains an empty space
+                  try{
+                    count += i.split(" ")(1).replaceAll(",", "").replaceAll("\\.", "").toInt
+                  }
+                  catch {
+                    case e: NumberFormatException => count += 0
+                    case _: Throwable => count += 0
+                  }
+                } else if(check.charAt(0).isDigit){
+                  try{
+                    count += i.split(" ")(0).replaceAll(",", "").replaceAll("\\.", "").toInt
+                  }
+                  catch {
+                    case e: NumberFormatException => count += 0
+                    case _: Throwable => count += 0
+                  }
+                }
+              }
+            }
+          }
+          count.toString
+        }
+        case "EXTRACTINDIVIDUALS" => {
+          var count = 0
+          if (acc.contains("individuals") || acc.contains("men") || acc.contains("women")){
+            val tmp = acc.split(", ")
+            for (i <- tmp) {
+              if (i.contains("individuals") || i.contains("men") ||i.contains("women")){
+                val check = i.split(" ")(0)
+                //check if the field starts with "UP ..." or "UP TO ..."
+                if (check.toUpperCase().equals("UP")){ // UP 1234 cases
+                  if (!i.split(" ")(1).toUpperCase().equals("TO")){
+                    try {
+                      count += i.split(" ")(1).replaceAll(",", "").replaceAll("\\.", "").toInt
+                    }
+                    catch {
+                      case e: NumberFormatException => count += 0
+                      case _: Throwable => count += 0
+                    }
+                  } else { // UP TO 1234 cases
+                    try {
+                      count += i.split(" ")(2).replaceAll(",", "").replaceAll("\\.", "").toInt
+                    }
+                    catch {
+                      case e: NumberFormatException => count += 0
+                      case _: Throwable => count += 0
+                    }
+                  }
+                } else if (check.equals("")){ //check if the field contains an empty space
+                    try{
+                      count += i.split(" ")(1).replaceAll(",", "").replaceAll("\\.", "").toInt
+                    }
+                    catch {
+                      case e: NumberFormatException => count += 0
+                      case _: Throwable => count += 0
+                    }
+                } else if(check.charAt(0).isDigit){
+                  try{
+                    count += i.split(" ")(0).replaceAll(",", "").replaceAll("\\.", "").toInt
+                  }
+                  catch {
+                    case e: NumberFormatException => count += 0
+                    case _: Throwable => count += 0
+                  }
+                }
+              }
+            }
+          }
+          count.toString
+        }
+        case "EXTRACTTRIOS" => {
+          var count = 0
+          if (acc.contains("trios")) {
+            val tmp = acc.split(", ")
+            for (i <- tmp) {
+              if (i.contains("trios")) {
+                val check = i.split(" ")(0)
+                //check if the field starts with "UP ..." or "UP TO ..."
+                if (check.toUpperCase().equals("UP")){ // UP 1234 cases
+                  if (!i.split(" ")(1).toUpperCase().equals("TO")){
+                    try {
+                      count += i.split(" ")(1).replaceAll(",", "").replaceAll("\\.", "").toInt
+                    }
+                    catch {
+                      case e: NumberFormatException => count += 0
+                      case _: Throwable => count += 0
+                    }
+                  } else { // UP TO 1234 cases
+                    try {
+                      count += i.split(" ")(2).replaceAll(",", "").replaceAll("\\.", "").toInt
+                    }
+                    catch {
+                      case e: NumberFormatException => count += 0
+                      case _: Throwable => count += 0
+                    }
+                  }
+                } else if (check.equals("")){ //check if the field contains an empty space
+                  try{
+                    count += i.split(" ")(1).replaceAll(",", "").replaceAll("\\.", "").toInt
+                  }
+                  catch {
+                    case e: NumberFormatException => count += 0
+                    case _: Throwable => count += 0
+                  }
+                } else if(check.charAt(0).isDigit){
+                  try{
+                    count += i.split(" ")(0).replaceAll(",", "").replaceAll("\\.", "").toInt
+                  }
+                  catch {
+                    case e: NumberFormatException => count += 0
+                    case _: Throwable => count += 0
+                  }
+                }
+              }
+            }
+          }
+          count.toString
+        }
         case "MANUAL" => if (sourceKey == "null") null else sourceKey
         case "CONCAT" => if (actualParam == null) acc else actualParam.concat(concatCharacter + acc)
         case "CHECKPREC" => if (actualParam == null) acc else actualParam

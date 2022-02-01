@@ -1,5 +1,6 @@
 package it.polimi.genomics.metadata.step.utils
 
+import javax.xml.transform.stream
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
 import org.apache.log4j.Logger
